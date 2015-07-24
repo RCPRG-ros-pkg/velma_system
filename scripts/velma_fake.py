@@ -658,8 +658,11 @@ class VelmaFake:
 
         move_effector_right = MoveCartesianTrajectory("/right_arm/cartesian_trajectory", self, "right_arm_7_link")
         move_tool_right = MoveToolAction("/right_arm/tool_trajectory", self,  "right_arm_7_link")
-
         move_imp_right = MoveImpAction("/right_arm/cartesian_impedance", self)
+
+        move_effector_left = MoveCartesianTrajectory("/left_arm/cartesian_trajectory", self, "left_arm_7_link")
+        move_tool_left = MoveToolAction("/left_arm/tool_trajectory", self,  "left_arm_7_link")
+        move_imp_left = MoveImpAction("/left_arm/cartesian_impedance", self)
 
         move_joint = MoveJointTrajectory("/spline_trajectory_action_joint", self)
 
