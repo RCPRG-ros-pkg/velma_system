@@ -580,6 +580,10 @@ Class for velma robot.
         self.joint_traj_active = True
         self.action_right_joint_traj_client.send_goal(goal)
 
+    def waitForJoint(self):
+        self.action_right_joint_traj_client.wait_for_result()
+        return self.action_right_joint_traj_client.get_result()
+
     def prepareTrajectory(self, path, q_start):
         max_vel = 10.0/180.0*math.pi
         traj_pos = []
