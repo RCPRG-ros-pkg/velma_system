@@ -28,6 +28,7 @@
 import PyKDL
 import numpy as np
 
+import urdf_parser_py
 from urdf_parser_py.urdf import URDF
 import pykdl_utils.kdl_parser as kdl_urdf
 
@@ -121,10 +122,21 @@ class VelmaFkIkSolver:
         T_BB_Ed = T_BB_B * T_B_Ed
         status = self.ik_solvers[link_name].CartToJnt(q_init, T_BB_Ed, q_out)
         if status != 0:
+            print "simulateTrajectory status:", status
             return None
         for i in range(chain_length):
             q_end[i] = q_out[i]
         return q_end
+
+#    def calculateIk(self, link_name, T_B_Ed):
+#        for i in range(0,5):
+#            q_init = PyKDL.JntArray(7)
+#            for j in range(0,7):
+#                q_init[j] = random.uniform(self.q_min[j]+0.1, self.q_max[j]-0.1)
+#                status = self.ik_solver.CartToJnt(q_init, fr, self.q_out)
+#                if status == 0:# and not self.hasSingularity(self.q_out):
+#                    success = True
+#                    break
 
     def createSegmentToJointMap(self, joint_names_vector, inactive_joint_names):
         self.segment_id_q_id_map = {}
@@ -311,7 +323,7 @@ class VelmaFkIkSolver:
         jac.changeBase(T_total.M)
         return 0;
 
-    def __init__(self, js_inactive_names_vector, js_pos):
+    def __init__(self, js_inactive_names_vector, js_pos, limit_submap=None):
         self.robot = URDF.from_parameter_server()
 
         self.tree, self.segment_map, self.segment_parent_map, self.segment_name_id_map = kdl_tree_from_urdf_model_velma(self.robot, js_inactive_names_vector, js_pos)
@@ -351,6 +363,9 @@ class VelmaFkIkSolver:
         self.joint_limit_map = {}
         for j in self.robot.joints:
             if j.limit != None:
+                if limit_submap != None and j.name in limit_submap:
+                    j.limit.lower = limit_submap[j.name][0]
+                    j.limit.upper = limit_submap[j.name][1]
                 self.joint_limit_map[j.name] = j.limit
 
         self.ik_fk_solver = {}

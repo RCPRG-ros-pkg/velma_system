@@ -289,13 +289,44 @@ Class for velma robot.
 
         self.T_B_L = [PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame()]
 
+        self.max_vel_map = {
+        "head_pan_joint" : 15.0/180.0*math.pi,
+        "head_tilt_joint" : 15.0/180.0*math.pi,
+        "left_HandFingerOneKnuckleOneJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerOneKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerThreeKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerTwoKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_arm_0_joint" : 3.0/180.0*math.pi,
+        "left_arm_1_joint" : 3.0/180.0*math.pi,
+        "left_arm_2_joint" : 3.0/180.0*math.pi,
+        "left_arm_3_joint" : 5.0/180.0*math.pi,
+        "left_arm_4_joint" : 10.0/180.0*math.pi,
+        "left_arm_5_joint" : 10.0/180.0*math.pi,
+        "left_arm_6_joint" : 10.0/180.0*math.pi,
+        "right_HandFingerOneKnuckleOneJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerOneKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerThreeKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerTwoKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_arm_0_joint" : 4.0/180.0*math.pi,
+        "right_arm_1_joint" : 4.0/180.0*math.pi,
+        "right_arm_2_joint" : 4.0/180.0*math.pi,
+        "right_arm_3_joint" : 5.0/180.0*math.pi,
+        "right_arm_4_joint" : 10.0/180.0*math.pi,
+        "right_arm_5_joint" : 10.0/180.0*math.pi,
+        "right_arm_6_joint" : 10.0/180.0*math.pi,
+        "torso_0_joint" : 2.0/180.0*math.pi,
+        "torso_1_joint" : 2.0/180.0*math.pi,
+        }
+
         # parameters
         self.prefix="right"
         self.k_error = Wrench(Vector3(1.0, 1.0, 1.0), Vector3(0.5, 0.5, 0.5))
         self.T_B_W = None
         self.T_W_T = None #PyKDL.Frame(PyKDL.Vector(0.2,-0.05,0))    # tool transformation
-        self.T_W_E = None
-        self.T_E_W = None
+        self.T_Wl_El = None
+        self.T_Wr_Er = None
+        self.T_El_Wl = None
+        self.T_Er_Wr = None
         self.current_max_wrench = Wrench(Vector3(20, 20, 20), Vector3(20, 20, 20))
         self.wrench_emergency_stop = False
         self.exit_on_emergency_stop = True
@@ -584,20 +615,21 @@ Class for velma robot.
         self.action_right_joint_traj_client.wait_for_result()
         return self.action_right_joint_traj_client.get_result()
 
-    def prepareTrajectory(self, path, q_start):
-        max_vel = 10.0/180.0*math.pi
+    def prepareTrajectory(self, path, q_start, dof_names, speed_mult=1.0):
+#        max_vel = 20.0/180.0*math.pi
         traj_pos = []
         traj_time = []
         q_prev = q_start
         for i in range(len(path)):
             q = path[i]
-            max_dist = None
+            max_time = None
             for q_idx in range(len(q)):
                 dist = q[q_idx] - q_prev[q_idx]
-                if max_dist == None or dist > max_dist:
-                    max_dist = dist
+                time = dist / (self.max_vel_map[dof_names[q_idx]] * speed_mult)
+                if max_time == None or time > max_time:
+                    max_time = time
             traj_pos.append( q )
-            traj_time.append( max_dist / max_vel )      # t = s / v
+            traj_time.append( max_time )
             q_prev = q
         return [traj_pos, None, None, traj_time]
 
@@ -744,10 +776,15 @@ Class for velma robot.
         self.T_E_F33 = pm.fromTf(pose)
         self.T_F33_E = self.T_E_F33.Inverse()
 
-        if self.T_W_E == None:
-            pose = self.listener.lookupTransform(self.prefix+'_arm_7_link', self.prefix+'_HandPalmLink', rospy.Time(0))
-            self.T_W_E = pm.fromTf(pose)
-            self.T_E_W = self.T_W_E.Inverse()
+        if self.T_Wr_Er == None:
+            pose = self.listener.lookupTransform('right_arm_7_link', 'right_HandPalmLink', rospy.Time(0))
+            self.T_Wr_Er = pm.fromTf(pose)
+            self.T_Er_Wr = self.T_Wr_Er.Inverse()
+
+        if self.T_Wl_El == None:
+            pose = self.listener.lookupTransform('left_arm_7_link', 'left_HandPalmLink', rospy.Time(0))
+            self.T_Wl_El = pm.fromTf(pose)
+            self.T_El_Wl = self.T_Wl_El.Inverse()
 
         pose = self.listener.lookupTransform('torso_base', self.prefix+'_arm_cmd', rospy.Time(0))
         self.T_B_T_cmd = pm.fromTf(pose)
