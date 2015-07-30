@@ -337,6 +337,9 @@ Class for velma robot.
 
         self.tactile_lock = {"left":Lock(), "right":Lock()}
 
+        self.move_joint_dof_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
+        print "self.move_joint_dof_names:", self.move_joint_dof_names
+
         # for tactile sync
         self.tactile_data = {"left":[], "right":[]}
         self.tactile_data_len = 120
@@ -560,17 +563,22 @@ Class for velma robot.
             print "FATAL ERROR: moveJoint"
             exit(0)
         goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = joint_names
+        goal.trajectory.joint_names = self.move_joint_dof_names
 
         vel = []
         q_dest_all = []
-        for q_idx in range(len(q_dest)):
-            q_dest_all.append(q_dest[q_idx])
-            vel.append(0)
+        for joint_name in self.move_joint_dof_names:
+            if joint_name in joint_names:
+                q_idx = joint_names.index(joint_name)
+                q_dest_all.append(q_dest[q_idx])
+                vel.append(0)
+            else:
+                q_dest_all.append(self.js_pos[joint_name])
+                vel.append(0)
 
         goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel, [], [], rospy.Duration(time)))
-        position_tol = 1.0/180.0 * math.pi
-        velocity_tol = 1.0/180.0 * math.pi
+        position_tol = 5.0/180.0 * math.pi
+        velocity_tol = 5.0/180.0 * math.pi
         acceleration_tol = 1.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
@@ -583,7 +591,7 @@ Class for velma robot.
             print "FATAL ERROR: moveJointTraj"
             exit(0)
         goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = joint_names
+        goal.trajectory.joint_names = self.move_joint_dof_names
 
         pos = traj[0]
         vel = traj[1]
@@ -595,16 +603,24 @@ Class for velma robot.
             time += dti[node_idx]
             q_dest_all = []
             vel_dest_all = []
-            for q_idx in range(len(pos[node_idx])):
-                q_dest_all.append(pos[node_idx][q_idx])
-            if vel != None:
-                for q_idx in range(len(pos[node_idx])):
-                    vel_dest_all.append(vel[node_idx][q_idx])
+
+            for joint_name in self.move_joint_dof_names:
+                if joint_name in joint_names:
+                    q_idx = joint_names.index(joint_name)
+                    q_dest_all.append(pos[node_idx][q_idx])
+                    if vel != None:
+                        vel_dest_all.append(vel[node_idx][q_idx])
+                    else:
+                        vel_dest_all.append(0)
+                else:
+                    q_dest_all.append(self.js_pos[joint_name])
+                    vel_dest_all.append(0)
+
             goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
 
-        position_tol = 1.0/180.0 * math.pi
-        velocity_tol = 1.0/180.0 * math.pi
-        acceleration_tol = 1.0/180.0 * math.pi
+        position_tol = 5.0/180.0 * math.pi
+        velocity_tol = 5.0/180.0 * math.pi
+        acceleration_tol = 5.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
