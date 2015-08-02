@@ -154,14 +154,14 @@ Class for velma robot.
         self.joint_states_lock.release()
 
         if self.js_names_vector == None:
-            self.js_names_vector = []
+            js_names_vector = []
             self.js_inactive_names_vector = []
             for joint_name in data.name:
                 if joint_name.startswith('right_Hand') or joint_name.startswith('left_Hand') or joint_name == 'torso_1_joint' or joint_name == 'torso_2_joint':
                     self.js_inactive_names_vector.append(joint_name)
                 else:
-                    self.js_names_vector.append(joint_name)
-            vector_len = len(self.js_names_vector)
+                    js_names_vector.append(joint_name)
+            vector_len = len(js_names_vector)
             self.lim_lower = np.empty(vector_len)
             self.lim_lower_soft = np.empty(vector_len)
             self.lim_upper = np.empty(vector_len)
@@ -169,12 +169,13 @@ Class for velma robot.
 
             self.fk_ik_solver = velma_fk_ik.VelmaFkIkSolver(self.js_inactive_names_vector, self.js_pos)
             q_idx = 0
-            for joint_name in self.js_names_vector:
+            for joint_name in js_names_vector:
                 self.lim_lower[q_idx] = self.fk_ik_solver.joint_limit_map[joint_name].lower
                 self.lim_lower_soft[q_idx] = self.lim_lower[q_idx] + 10.0/180.0*math.pi
                 self.lim_upper[q_idx] = self.fk_ik_solver.joint_limit_map[joint_name].upper
                 self.lim_upper_soft[q_idx] = self.lim_upper[q_idx] - 10.0/180.0*math.pi
                 q_idx += 1
+            self.js_names_vector = js_names_vector
 
     def waitForInit(self):
         while not rospy.is_shutdown():

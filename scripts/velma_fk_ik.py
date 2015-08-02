@@ -264,12 +264,8 @@ class VelmaFkIkSolver:
                     affected_dofs.append(dof_idx)
         return affected_dofs
 
-    # JntToJac(KDL::Jacobian& jac, int link_index, const KDL::Vector &x)
-    def getJacobianForX(self, jac, link_name, x, q, iq):
+    def getJacobianForX(self, jac, link_name, x, q, iq, base_name='torso_base'):
         link_index = self.segment_name_id_map[link_name]
-        #First we check all the sizes:
-##        if (jac.columns() != collision_model_->link_count_)
-##            return -1
         # Lets search the tree-element
         # If segmentname is not inside the tree, back out:
         # Let's make the jacobian zero:
@@ -277,14 +273,13 @@ class VelmaFkIkSolver:
             jac.setColumn(q_idx, PyKDL.Twist())
 
         T_total = PyKDL.Frame(x)
-        root_index = self.segment_name_id_map['torso_base']
+        root_index = self.segment_name_id_map[base_name]
         l_index = link_index
         # Lets recursively iterate until we are in the root segment
         while l_index != root_index:
             # get the corresponding q_nr for this TreeElement:
             # get the pose of the segment:
             seg_kdl = self.segment_map[l_index]
-#            print "getJacobianForX", link_name, ":", seg_kdl.getJoint().getName()
             if seg_kdl.getJoint().getType() == PyKDL.Joint.None:
                 q_idx = None
                 q_seg = 0.0
@@ -323,10 +318,41 @@ class VelmaFkIkSolver:
         jac.changeBase(T_total.M)
         return 0;
 
+    def getJacobiansForPairX(self, jac1, jac2, link_name1, x1, link_name2, x2, q, iq):
+        # get the first common link
+        link_index1 = self.segment_name_id_map[link_name1]
+        l_index = link_index1
+        link1_chain = set()
+        while True:
+            link1_chain.add(l_index)
+            if l_index in self.segment_parent_map:
+                l_index = self.segment_parent_map[l_index]
+            else:
+                break
+
+        link_index2 = self.segment_name_id_map[link_name2]
+        l_index = link_index2
+        while True:
+            if l_index in link1_chain:
+                break
+            if l_index in self.segment_parent_map:
+                l_index = self.segment_parent_map[l_index]
+            else:
+                # this is unexpected
+                return None
+
+        common_link_name = self.segment_id_name_map[l_index]
+        self.getJacobianForX(jac1, link_name1, x1, q, iq, base_name=common_link_name)
+        self.getJacobianForX(jac2, link_name2, x2, q, iq, base_name=common_link_name)
+
     def __init__(self, js_inactive_names_vector, js_pos, limit_submap=None):
         self.robot = URDF.from_parameter_server()
 
         self.tree, self.segment_map, self.segment_parent_map, self.segment_name_id_map = kdl_tree_from_urdf_model_velma(self.robot, js_inactive_names_vector, js_pos)
+        self.segment_id_name_map = {}
+        for seg_name in self.segment_name_id_map:
+            seg_id = self.segment_name_id_map[seg_name]
+            self.segment_id_name_map[seg_id] = seg_name
 
         fk_links = [
         "torso_link2",
