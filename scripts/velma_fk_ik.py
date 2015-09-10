@@ -28,6 +28,7 @@
 import PyKDL
 import numpy as np
 
+import urdf_parser_py
 from urdf_parser_py.urdf import URDF
 import pykdl_utils.kdl_parser as kdl_urdf
 
@@ -121,10 +122,21 @@ class VelmaFkIkSolver:
         T_BB_Ed = T_BB_B * T_B_Ed
         status = self.ik_solvers[link_name].CartToJnt(q_init, T_BB_Ed, q_out)
         if status != 0:
+            print "simulateTrajectory status:", status
             return None
         for i in range(chain_length):
             q_end[i] = q_out[i]
         return q_end
+
+#    def calculateIk(self, link_name, T_B_Ed):
+#        for i in range(0,5):
+#            q_init = PyKDL.JntArray(7)
+#            for j in range(0,7):
+#                q_init[j] = random.uniform(self.q_min[j]+0.1, self.q_max[j]-0.1)
+#                status = self.ik_solver.CartToJnt(q_init, fr, self.q_out)
+#                if status == 0:# and not self.hasSingularity(self.q_out):
+#                    success = True
+#                    break
 
     def createSegmentToJointMap(self, joint_names_vector, inactive_joint_names):
         self.segment_id_q_id_map = {}
@@ -252,12 +264,8 @@ class VelmaFkIkSolver:
                     affected_dofs.append(dof_idx)
         return affected_dofs
 
-    # JntToJac(KDL::Jacobian& jac, int link_index, const KDL::Vector &x)
-    def getJacobianForX(self, jac, link_name, x, q, iq):
+    def getJacobianForX(self, jac, link_name, x, q, iq, base_name='torso_base'):
         link_index = self.segment_name_id_map[link_name]
-        #First we check all the sizes:
-##        if (jac.columns() != collision_model_->link_count_)
-##            return -1
         # Lets search the tree-element
         # If segmentname is not inside the tree, back out:
         # Let's make the jacobian zero:
@@ -265,14 +273,13 @@ class VelmaFkIkSolver:
             jac.setColumn(q_idx, PyKDL.Twist())
 
         T_total = PyKDL.Frame(x)
-        root_index = self.segment_name_id_map['torso_base']
+        root_index = self.segment_name_id_map[base_name]
         l_index = link_index
         # Lets recursively iterate until we are in the root segment
         while l_index != root_index:
             # get the corresponding q_nr for this TreeElement:
             # get the pose of the segment:
             seg_kdl = self.segment_map[l_index]
-#            print "getJacobianForX", link_name, ":", seg_kdl.getJoint().getName()
             if seg_kdl.getJoint().getType() == PyKDL.Joint.None:
                 q_idx = None
                 q_seg = 0.0
@@ -311,10 +318,41 @@ class VelmaFkIkSolver:
         jac.changeBase(T_total.M)
         return 0;
 
-    def __init__(self, js_inactive_names_vector, js_pos):
+    def getJacobiansForPairX(self, jac1, jac2, link_name1, x1, link_name2, x2, q, iq):
+        # get the first common link
+        link_index1 = self.segment_name_id_map[link_name1]
+        l_index = link_index1
+        link1_chain = set()
+        while True:
+            link1_chain.add(l_index)
+            if l_index in self.segment_parent_map:
+                l_index = self.segment_parent_map[l_index]
+            else:
+                break
+
+        link_index2 = self.segment_name_id_map[link_name2]
+        l_index = link_index2
+        while True:
+            if l_index in link1_chain:
+                break
+            if l_index in self.segment_parent_map:
+                l_index = self.segment_parent_map[l_index]
+            else:
+                # this is unexpected
+                return None
+
+        common_link_name = self.segment_id_name_map[l_index]
+        self.getJacobianForX(jac1, link_name1, x1, q, iq, base_name=common_link_name)
+        self.getJacobianForX(jac2, link_name2, x2, q, iq, base_name=common_link_name)
+
+    def __init__(self, js_inactive_names_vector, js_pos, limit_submap=None):
         self.robot = URDF.from_parameter_server()
 
         self.tree, self.segment_map, self.segment_parent_map, self.segment_name_id_map = kdl_tree_from_urdf_model_velma(self.robot, js_inactive_names_vector, js_pos)
+        self.segment_id_name_map = {}
+        for seg_name in self.segment_name_id_map:
+            seg_id = self.segment_name_id_map[seg_name]
+            self.segment_id_name_map[seg_id] = seg_name
 
         fk_links = [
         "torso_link2",
@@ -351,6 +389,9 @@ class VelmaFkIkSolver:
         self.joint_limit_map = {}
         for j in self.robot.joints:
             if j.limit != None:
+                if limit_submap != None and j.name in limit_submap:
+                    j.limit.lower = limit_submap[j.name][0]
+                    j.limit.upper = limit_submap[j.name][1]
                 self.joint_limit_map[j.name] = j.limit
 
         self.ik_fk_solver = {}

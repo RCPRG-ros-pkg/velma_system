@@ -154,14 +154,14 @@ Class for velma robot.
         self.joint_states_lock.release()
 
         if self.js_names_vector == None:
-            self.js_names_vector = []
+            js_names_vector = []
             self.js_inactive_names_vector = []
             for joint_name in data.name:
                 if joint_name.startswith('right_Hand') or joint_name.startswith('left_Hand') or joint_name == 'torso_1_joint' or joint_name == 'torso_2_joint':
                     self.js_inactive_names_vector.append(joint_name)
                 else:
-                    self.js_names_vector.append(joint_name)
-            vector_len = len(self.js_names_vector)
+                    js_names_vector.append(joint_name)
+            vector_len = len(js_names_vector)
             self.lim_lower = np.empty(vector_len)
             self.lim_lower_soft = np.empty(vector_len)
             self.lim_upper = np.empty(vector_len)
@@ -169,12 +169,13 @@ Class for velma robot.
 
             self.fk_ik_solver = velma_fk_ik.VelmaFkIkSolver(self.js_inactive_names_vector, self.js_pos)
             q_idx = 0
-            for joint_name in self.js_names_vector:
+            for joint_name in js_names_vector:
                 self.lim_lower[q_idx] = self.fk_ik_solver.joint_limit_map[joint_name].lower
                 self.lim_lower_soft[q_idx] = self.lim_lower[q_idx] + 10.0/180.0*math.pi
                 self.lim_upper[q_idx] = self.fk_ik_solver.joint_limit_map[joint_name].upper
                 self.lim_upper_soft[q_idx] = self.lim_upper[q_idx] - 10.0/180.0*math.pi
                 q_idx += 1
+            self.js_names_vector = js_names_vector
 
     def waitForInit(self):
         while not rospy.is_shutdown():
@@ -289,13 +290,44 @@ Class for velma robot.
 
         self.T_B_L = [PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame()]
 
+        self.max_vel_map = {
+        "head_pan_joint" : 15.0/180.0*math.pi,
+        "head_tilt_joint" : 15.0/180.0*math.pi,
+        "left_HandFingerOneKnuckleOneJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerOneKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerThreeKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_HandFingerTwoKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "left_arm_0_joint" : 3.0/180.0*math.pi,
+        "left_arm_1_joint" : 3.0/180.0*math.pi,
+        "left_arm_2_joint" : 3.0/180.0*math.pi,
+        "left_arm_3_joint" : 5.0/180.0*math.pi,
+        "left_arm_4_joint" : 10.0/180.0*math.pi,
+        "left_arm_5_joint" : 10.0/180.0*math.pi,
+        "left_arm_6_joint" : 10.0/180.0*math.pi,
+        "right_HandFingerOneKnuckleOneJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerOneKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerThreeKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_HandFingerTwoKnuckleTwoJoint" : 10.0/180.0*math.pi,
+        "right_arm_0_joint" : 4.0/180.0*math.pi,
+        "right_arm_1_joint" : 4.0/180.0*math.pi,
+        "right_arm_2_joint" : 4.0/180.0*math.pi,
+        "right_arm_3_joint" : 5.0/180.0*math.pi,
+        "right_arm_4_joint" : 10.0/180.0*math.pi,
+        "right_arm_5_joint" : 10.0/180.0*math.pi,
+        "right_arm_6_joint" : 10.0/180.0*math.pi,
+        "torso_0_joint" : 2.0/180.0*math.pi,
+        "torso_1_joint" : 2.0/180.0*math.pi,
+        }
+
         # parameters
         self.prefix="right"
         self.k_error = Wrench(Vector3(1.0, 1.0, 1.0), Vector3(0.5, 0.5, 0.5))
         self.T_B_W = None
         self.T_W_T = None #PyKDL.Frame(PyKDL.Vector(0.2,-0.05,0))    # tool transformation
-        self.T_W_E = None
-        self.T_E_W = None
+        self.T_Wl_El = None
+        self.T_Wr_Er = None
+        self.T_El_Wl = None
+        self.T_Er_Wr = None
         self.current_max_wrench = Wrench(Vector3(20, 20, 20), Vector3(20, 20, 20))
         self.wrench_emergency_stop = False
         self.exit_on_emergency_stop = True
@@ -305,6 +337,9 @@ Class for velma robot.
         self.joint_states_lock = Lock()
 
         self.tactile_lock = {"left":Lock(), "right":Lock()}
+
+        self.move_joint_dof_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
+        print "self.move_joint_dof_names:", self.move_joint_dof_names
 
         # for tactile sync
         self.tactile_data = {"left":[], "right":[]}
@@ -529,17 +564,22 @@ Class for velma robot.
             print "FATAL ERROR: moveJoint"
             exit(0)
         goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = joint_names
+        goal.trajectory.joint_names = self.move_joint_dof_names
 
         vel = []
         q_dest_all = []
-        for q_idx in range(len(q_dest)):
-            q_dest_all.append(q_dest[q_idx])
-            vel.append(0)
+        for joint_name in self.move_joint_dof_names:
+            if joint_name in joint_names:
+                q_idx = joint_names.index(joint_name)
+                q_dest_all.append(q_dest[q_idx])
+                vel.append(0)
+            else:
+                q_dest_all.append(self.js_pos[joint_name])
+                vel.append(0)
 
         goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel, [], [], rospy.Duration(time)))
-        position_tol = 1.0/180.0 * math.pi
-        velocity_tol = 1.0/180.0 * math.pi
+        position_tol = 5.0/180.0 * math.pi
+        velocity_tol = 5.0/180.0 * math.pi
         acceleration_tol = 1.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
@@ -552,7 +592,7 @@ Class for velma robot.
             print "FATAL ERROR: moveJointTraj"
             exit(0)
         goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = joint_names
+        goal.trajectory.joint_names = self.move_joint_dof_names
 
         pos = traj[0]
         vel = traj[1]
@@ -564,36 +604,49 @@ Class for velma robot.
             time += dti[node_idx]
             q_dest_all = []
             vel_dest_all = []
-            for q_idx in range(len(pos[node_idx])):
-                q_dest_all.append(pos[node_idx][q_idx])
-            if vel != None:
-                for q_idx in range(len(pos[node_idx])):
-                    vel_dest_all.append(vel[node_idx][q_idx])
+
+            for joint_name in self.move_joint_dof_names:
+                if joint_name in joint_names:
+                    q_idx = joint_names.index(joint_name)
+                    q_dest_all.append(pos[node_idx][q_idx])
+                    if vel != None:
+                        vel_dest_all.append(vel[node_idx][q_idx])
+                    else:
+                        vel_dest_all.append(0)
+                else:
+                    q_dest_all.append(self.js_pos[joint_name])
+                    vel_dest_all.append(0)
+
             goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
 
-        position_tol = 1.0/180.0 * math.pi
-        velocity_tol = 1.0/180.0 * math.pi
-        acceleration_tol = 1.0/180.0 * math.pi
+        position_tol = 5.0/180.0 * math.pi
+        velocity_tol = 5.0/180.0 * math.pi
+        acceleration_tol = 5.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self.joint_traj_active = True
         self.action_right_joint_traj_client.send_goal(goal)
 
-    def prepareTrajectory(self, path, q_start):
-        max_vel = 10.0/180.0*math.pi
+    def waitForJoint(self):
+        self.action_right_joint_traj_client.wait_for_result()
+        return self.action_right_joint_traj_client.get_result()
+
+    def prepareTrajectory(self, path, q_start, dof_names, speed_mult=1.0):
+#        max_vel = 20.0/180.0*math.pi
         traj_pos = []
         traj_time = []
         q_prev = q_start
         for i in range(len(path)):
             q = path[i]
-            max_dist = None
+            max_time = None
             for q_idx in range(len(q)):
                 dist = q[q_idx] - q_prev[q_idx]
-                if max_dist == None or dist > max_dist:
-                    max_dist = dist
+                time = dist / (self.max_vel_map[dof_names[q_idx]] * speed_mult)
+                if max_time == None or time > max_time:
+                    max_time = time
             traj_pos.append( q )
-            traj_time.append( max_dist / max_vel )      # t = s / v
+            traj_time.append( max_time )
             q_prev = q
         return [traj_pos, None, None, traj_time]
 
@@ -740,10 +793,15 @@ Class for velma robot.
         self.T_E_F33 = pm.fromTf(pose)
         self.T_F33_E = self.T_E_F33.Inverse()
 
-        if self.T_W_E == None:
-            pose = self.listener.lookupTransform(self.prefix+'_arm_7_link', self.prefix+'_HandPalmLink', rospy.Time(0))
-            self.T_W_E = pm.fromTf(pose)
-            self.T_E_W = self.T_W_E.Inverse()
+        if self.T_Wr_Er == None:
+            pose = self.listener.lookupTransform('right_arm_7_link', 'right_HandPalmLink', rospy.Time(0))
+            self.T_Wr_Er = pm.fromTf(pose)
+            self.T_Er_Wr = self.T_Wr_Er.Inverse()
+
+        if self.T_Wl_El == None:
+            pose = self.listener.lookupTransform('left_arm_7_link', 'left_HandPalmLink', rospy.Time(0))
+            self.T_Wl_El = pm.fromTf(pose)
+            self.T_El_Wl = self.T_Wl_El.Inverse()
 
         pose = self.listener.lookupTransform('torso_base', self.prefix+'_arm_cmd', rospy.Time(0))
         self.T_B_T_cmd = pm.fromTf(pose)
