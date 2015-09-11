@@ -105,8 +105,8 @@ class CameraFake:
             cam_info.header.seq = cam_img.header.seq
             cam_info.header.stamp = time_now
 
-            cam_pos = PyKDL.Vector(0.3, -0.8, 2.0)
-            cam_target = PyKDL.Vector(0.5, 0.0, 1.0)
+            cam_pos = PyKDL.Vector(0.6, 0.6, 2.2)
+            cam_target = PyKDL.Vector(0.6, 0.0, 1.2)
             # origin of frame should be optical center of cameara
             # +x should point to the right in the image
             # +y should point down in the image
