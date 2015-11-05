@@ -464,21 +464,21 @@ class VelmaFake:
         self.js.position[self.joint_name_idx_map[joint_name]] = joint_position
 
     def setInitialJointPosition(self):
-        self.simSetJointPosition("torso_1_joint", -80.0/180.0*math.pi)
-        self.simSetJointPosition("right_arm_0_joint", 120.0/180.0*math.pi)
+#        self.simSetJointPosition("torso_1_joint", -80.0/180.0*math.pi)
+        self.simSetJointPosition("right_arm_0_joint", -20.0/180.0*math.pi)
         self.simSetJointPosition("right_arm_1_joint", -90.0/180.0*math.pi)
-        self.simSetJointPosition("right_arm_2_joint", 110.0/180.0*math.pi)
-        self.simSetJointPosition("right_arm_3_joint", 140.0/180.0*math.pi)
+        self.simSetJointPosition("right_arm_2_joint", 90.0/180.0*math.pi)
+        self.simSetJointPosition("right_arm_3_joint", 90.0/180.0*math.pi)
         self.simSetJointPosition("right_arm_4_joint", 0.0/180.0*math.pi)
-        self.simSetJointPosition("right_arm_5_joint", -40.0/180.0*math.pi)
+        self.simSetJointPosition("right_arm_5_joint", -90.0/180.0*math.pi)
         self.simSetJointPosition("right_arm_6_joint", 0.0/180.0*math.pi)
-        self.simSetJointPosition("left_arm_0_joint", 90.0/180.0*math.pi)
+        self.simSetJointPosition("left_arm_0_joint", 20.0/180.0*math.pi)
         self.simSetJointPosition("left_arm_1_joint", 90.0/180.0*math.pi)
         self.simSetJointPosition("left_arm_2_joint", -90.0/180.0*math.pi)
         self.simSetJointPosition("left_arm_3_joint", -90.0/180.0*math.pi)
         self.simSetJointPosition("left_arm_4_joint", 0.0/180.0*math.pi)
         self.simSetJointPosition("left_arm_5_joint", 90.0/180.0*math.pi)
-        self.simSetJointPosition("left_arm_6_joint", -90.0/180.0*math.pi)
+        self.simSetJointPosition("left_arm_6_joint", 0.0/180.0*math.pi)
         self.updateJointLimits(self.js)
         self.updateMimicJoints(self.js)
 
@@ -515,7 +515,7 @@ class VelmaFake:
         self.initTactilePublisher()
         self.initJointStatePublisher()
         self.setInitialJointPosition()
-        self.fk_solver = velma_fk_ik.VelmaFkIkSolver([], None)#self.js.position[self.joint_name_idx_map["torso_1_joint"]])
+        self.fk_solver = velma_fk_ik.VelmaFkIkSolver([], None)
         self.arm_cmd = {}
         self.arm_cmd["right_arm_7_link"] = self.fk_solver.calculateFk("right_arm_7_link", self.getJsPos())
         self.arm_cmd["left_arm_7_link"] = self.fk_solver.calculateFk("left_arm_7_link", self.getJsPos())
@@ -624,9 +624,21 @@ class VelmaFake:
         return barrett_hand_controller_msgs.srv.EmptyResponse()
 
     def handle_reset_fingers_right(self, req):
+        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleOneJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
+        self.updateJointLimits(self.js)
+        self.updateMimicJoints(self.js)
         return barrett_hand_controller_msgs.srv.EmptyResponse()
 
     def handle_reset_fingers_left(self, req):
+        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleOneJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
+        self.updateJointLimits(self.js)
+        self.updateMimicJoints(self.js)
         return barrett_hand_controller_msgs.srv.EmptyResponse()
 
     def handle_set_median_filter_right(self, req):
@@ -678,7 +690,7 @@ class VelmaFake:
             self.br.sendTransform([right_arm_cmd.position.x, right_arm_cmd.position.y, right_arm_cmd.position.z], [right_arm_cmd.orientation.x, right_arm_cmd.orientation.y, right_arm_cmd.orientation.z, right_arm_cmd.orientation.w], rospy.Time.now(), "right_arm_cmd", "torso_base")
             self.br.sendTransform([left_arm_cmd.position.x, left_arm_cmd.position.y, left_arm_cmd.position.z], [left_arm_cmd.orientation.x, left_arm_cmd.orientation.y, left_arm_cmd.orientation.z, left_arm_cmd.orientation.w], rospy.Time.now(), "left_arm_cmd", "torso_base")
 
-            self.head_kin.UpdateTorsoPose(self.getJsPos()["torso_0_joint"], self.getJsPos()["torso_1_joint"])
+#            self.head_kin.UpdateTorsoPose(self.getJsPos()["torso_0_joint"], self.getJsPos()["torso_1_joint"])
             self.head_kin.UpdateTargetPosition(self.head_look_at.x(), self.head_look_at.y(), self.head_look_at.z())
             self.head_kin.TransformTargetToHeadFrame()
             joint_pan, joint_tilt = self.head_kin.CalculateHeadPose()
