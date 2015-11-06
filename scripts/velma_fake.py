@@ -201,6 +201,8 @@ class MoveToolAction(object):
 
             rospy.sleep(0.01)
 
+        self.robot_state.T_W_T[self.wrist_name] = dest_T_W_T
+
         self._result.error_code = 0
         self._as.set_succeeded(self._result)
 

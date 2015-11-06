@@ -355,7 +355,7 @@ class VelmaFkIkSolver:
             self.segment_id_name_map[seg_id] = seg_name
 
         fk_links = [
-        "torso_link2",
+        "torso_link0",
         "left_arm_7_link",
         "right_arm_7_link",
         "left_HandPalmLink",
@@ -378,7 +378,7 @@ class VelmaFkIkSolver:
 
                 self.fk_joint_state_name[link_name].append(joint_name)
 
-        self.ik_base = "torso_link2"
+        self.ik_base = "torso_link0"
         ik_links = [
         "left_HandPalmLink",
         "right_HandPalmLink",
