@@ -72,32 +72,40 @@ Class for velma robot.
 """
 
     def getPressureSensorsInfoClient(self):
-        try:
-            if not hasattr(self, 'get_pressure_sensors_info') or self.get_pressure_sensors_info == None:
-                rospy.wait_for_service('/' + self.prefix + '_hand/get_pressure_info')
-                self.get_pressure_sensors_info = rospy.ServiceProxy('/' + self.prefix + '_hand/get_pressure_info', BHGetPressureInfo)
-            resp = self.get_pressure_sensors_info()
-            return resp.info
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
+        self.left_updated = False
+        self.pressure_info_left = None
+#        right_updated = False
+        def tactileInfoCallbackRight(msg):
+            if not self.left_updated:
+                self.pressure_info_left = msg
+                self.left_updated = True
 
-    def calibrateTactileSensors(self):
-        try:
-            if not hasattr(self, 'calibrate_tactile_sensors') or self.calibrate_tactile_sensors == None:
-                rospy.wait_for_service('/' + self.prefix + '_hand/calibrate_tactile_sensors')
-                self.calibrate_tactile_sensors = rospy.ServiceProxy('/' + self.prefix + '_hand/calibrate_tactile_sensors', Empty)
-            resp = self.calibrate_tactile_sensors()
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
+#        def tactileInfoCallbackLeft(msg):
+#            if not right_updated:
+#                right_updated = True
 
-    def resetFingers(self):
-        try:
-            if not hasattr(self, 'reset_fingers') or self.reset_fingers == None:
-                rospy.wait_for_service('/' + self.prefix + '_hand/reset_fingers')
-                self.reset_fingers = rospy.ServiceProxy('/' + self.prefix + '_hand/reset_fingers', Empty)
-            resp = self.reset_fingers()
-        except rospy.ServiceException, e:
-            print "Service call failed: %s"%e
+        rospy.Subscriber('/left_hand/tactile_info_out', barrett_hand_controller_msgs.msg.BHPressureInfo, tactileInfoCallbackRight)
+#        rospy.Subscriber('/left_hand/tactile_info_out', barrett_hand_controller_msgs.msg.BHPressureInfo, tactileInfoCallbackLeft)
+
+        rospy.sleep(1.0)
+
+        return self.pressure_info_left
+
+    def calibrateTactileSensorsLeft(self):
+        msg = std_msgs.msg.Empty()
+        self.pub_calibrate_left.publish(msg)
+
+    def calibrateTactileSensorsRight(self):
+        msg = std_msgs.msg.Empty()
+        self.pub_calibrate_right.publish(msg)
+
+    def resetFingersLeft(self):
+        msg = std_msgs.msg.Empty()
+        self.pub_reset_left.publish(msg)
+
+    def resetFingersRight(self):
+        msg = std_msgs.msg.Empty()
+        self.pub_reset_right.publish(msg)
 
     def setMedianFilter(self, samples):
         try:
@@ -338,7 +346,11 @@ Class for velma robot.
 
         self.tactile_lock = {"left":Lock(), "right":Lock()}
 
-        self.move_joint_dof_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
+#        self.move_joint_dof_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
+        self.move_joint_dof_names = [ "torso_0_joint", "right_arm_0_joint", "right_arm_1_joint", "right_arm_2_joint",
+            "right_arm_3_joint", "right_arm_4_joint", "right_arm_5_joint", "right_arm_6_joint", "left_arm_0_joint",
+            "left_arm_1_joint", "left_arm_2_joint", "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint", "left_arm_6_joint"]
+
         print "self.move_joint_dof_names:", self.move_joint_dof_names
 
         # for tactile sync
@@ -381,7 +393,11 @@ Class for velma robot.
         self.action_move_hand_client["left"].wait_for_server()
 
 
-#        self.pub_wrench = rospy.Publisher("/"+self.prefix+"_arm/wrench_stamped", WrenchStamped)
+        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
+        self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
+
+        self.pub_calibrate_left = rospy.Publisher("/left_hand/calibrate_tactile_sensors", std_msgs.msg.Empty, queue_size=100)
+        self.pub_calibrate_right = rospy.Publisher("/right_hand/calibrate_tactile_sensors", std_msgs.msg.Empty, queue_size=100)
 
         self.listener = tf.TransformListener();
         self.br = tf.TransformBroadcaster()
@@ -757,10 +773,6 @@ Class for velma robot.
         return False
 
     def updateTransformations(self):
-        pose = self.listener.lookupTransform('torso_base', 'torso_link2', rospy.Time(0))
-        self.T_B_T2 = pm.fromTf(pose)
-        self.T_T2_B = self.T_B_T2.Inverse()
-
         pose = self.listener.lookupTransform('torso_base', 'right_arm_7_link', rospy.Time(0))
         self.T_B_Wr = pm.fromTf(pose)
 

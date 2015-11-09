@@ -36,7 +36,6 @@ import actionlib
 import actionlib_msgs.msg
 import cartesian_trajectory_msgs.msg
 import barrett_hand_controller_msgs.msg
-import barrett_hand_controller_msgs.srv
 import controller_manager_msgs.srv
 import std_srvs.srv
 import control_msgs.msg
@@ -509,12 +508,56 @@ class VelmaFake:
         self.pub_tact["left"].publish(self.tact["left"])
         self.pub_tact["right"].publish(self.tact["right"])
 
+    def initTactileInfoPublisher(self):
+        self.pub_tact_info = {
+        "left":rospy.Publisher('/left_hand/tactile_info_out', barrett_hand_controller_msgs.msg.BHPressureInfo, queue_size=100),
+        "right":rospy.Publisher('/right_hand/tactile_info_out', barrett_hand_controller_msgs.msg.BHPressureInfo, queue_size=100)}
+        self.tact_info = {"left":barrett_hand_controller_msgs.msg.BHPressureInfo(), "right":barrett_hand_controller_msgs.msg.BHPressureInfo()}
+
+        pc, p1, p2, fc, f1, f2 = self.getTactileGeometry()
+        sensor_center = [fc, fc, fc, pc]
+        sensor_h1 = [f1, f1, f1, p1]
+        sensor_h2 = [f2, f2, f2, p2]
+
+        for gripper_name in self.tact_info:
+            for sensor_id in range(4):
+                elem = barrett_hand_controller_msgs.msg.BHPressureInfoElement()
+#               TODO:
+#                elem.frame_id = ""
+                for i in range(24):
+                    elem.center.append( geometry_msgs.msg.Vector3( sensor_center[sensor_id][i][0]*0.001, sensor_center[sensor_id][i][1]*0.001, sensor_center[sensor_id][i][2]*0.001 ) )
+                    elem.halfside1.append( geometry_msgs.msg.Vector3( sensor_h1[sensor_id][i][0]*0.001, sensor_h1[sensor_id][i][1]*0.001, sensor_h1[sensor_id][i][2]*0.001 ) )
+                    elem.halfside2.append( geometry_msgs.msg.Vector3( sensor_h2[sensor_id][i][0]*0.001, sensor_h2[sensor_id][i][1]*0.001, sensor_h2[sensor_id][i][2]*0.001 ) )
+                    elem.force_per_unit.append( 1.0/256.0 )
+                self.tact_info[gripper_name].sensor.append(elem)
+
+    def publishTactileInfo(self):
+        self.pub_tact_info["left"].publish(self.tact_info["left"])
+        self.pub_tact_info["right"].publish(self.tact_info["right"])
+    
     def headLookAtCallback(self, msg):
         T_B_Pla = pm.fromMsg(msg)
         self.head_look_at = T_B_Pla.p
 
+    def rightHandResetCallback(self, msg):
+        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleOneJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["right_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
+        self.updateJointLimits(self.js)
+        self.updateMimicJoints(self.js)
+
+    def leftHandResetCallback(self, msg):
+        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleOneJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
+        self.js.position[ self.joint_name_idx_map["left_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
+        self.updateJointLimits(self.js)
+        self.updateMimicJoints(self.js)
+
     def __init__(self):
         self.initTactilePublisher()
+        self.initTactileInfoPublisher()
         self.initJointStatePublisher()
         self.setInitialJointPosition()
         self.fk_solver = velma_fk_ik.VelmaFkIkSolver([], None)
@@ -536,6 +579,11 @@ class VelmaFake:
         self.head_kin = headkinematics.HeadKinematics(v_rot, v_lean, v_head, h_cam, v_cam)
 
         rospy.Subscriber('/head_lookat_pose', geometry_msgs.msg.Pose, self.headLookAtCallback)
+        rospy.Subscriber('/right_hand/reset_fingers', std_msgs.msg.Empty, self.rightHandResetCallback)
+        rospy.Subscriber('/left_hand/reset_fingers', std_msgs.msg.Empty, self.leftHandResetCallback)
+
+#stream("Hand.calibrate_tactile_sensors", ros.comm.topic("calibrate_tactile_sensors"))
+#stream("Hand.set_median_filter", ros.comm.topic("set_median_filter"))
 
     # conman switch fake service callback
     def handle_switch_controller(self, req):
@@ -597,58 +645,6 @@ class VelmaFake:
         [ 0, 0, 2.35 ], [ 0, 0, 2.35 ], [ 0, 0, 2.35 ] ]
         return palm_sensor_center, palm_sensor_halfside1, palm_sensor_halfside2, finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2
 
-    def handle_get_pressure_info(self):
-        res = barrett_hand_controller_msgs.srv.BHGetPressureInfoResponse()
-        pc, p1, p2, fc, f1, f2 = self.getTactileGeometry()
-        sensor_center = [fc, fc, fc, pc]
-        sensor_h1 = [f1, f1, f1, p1]
-        sensor_h2 = [f2, f2, f2, p2]
-        for sensor_id in range(4):
-            elem = barrett_hand_controller_msgs.msg.BHPressureInfoElement()
-            for i in range(24):
-                elem.center.append( geometry_msgs.msg.Vector3( sensor_center[sensor_id][i][0]*0.001, sensor_center[sensor_id][i][1]*0.001, sensor_center[sensor_id][i][2]*0.001 ) )
-                elem.halfside1.append( geometry_msgs.msg.Vector3( sensor_h1[sensor_id][i][0]*0.001, sensor_h1[sensor_id][i][1]*0.001, sensor_h1[sensor_id][i][2]*0.001 ) )
-                elem.halfside2.append( geometry_msgs.msg.Vector3( sensor_h2[sensor_id][i][0]*0.001, sensor_h2[sensor_id][i][1]*0.001, sensor_h2[sensor_id][i][2]*0.001 ) )
-                elem.force_per_unit.append(1.0/256.0)
-            res.info.sensor.append(elem)
-        return res
-
-    def handle_get_pressure_info_right(self, req):
-        return self.handle_get_pressure_info()
-
-    def handle_get_pressure_info_left(self, req):
-        return self.handle_get_pressure_info()
-
-    def handle_calibrate_tactile_sensors_right(self, req):
-        return barrett_hand_controller_msgs.srv.EmptyResponse()
-
-    def handle_calibrate_tactile_sensors_left(self, req):
-        return barrett_hand_controller_msgs.srv.EmptyResponse()
-
-    def handle_reset_fingers_right(self, req):
-        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleOneJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["right_HandFingerOneKnuckleTwoJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["right_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["right_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
-        self.updateJointLimits(self.js)
-        self.updateMimicJoints(self.js)
-        return barrett_hand_controller_msgs.srv.EmptyResponse()
-
-    def handle_reset_fingers_left(self, req):
-        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleOneJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["left_HandFingerOneKnuckleTwoJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["left_HandFingerTwoKnuckleTwoJoint"] ] = 0.0
-        self.js.position[ self.joint_name_idx_map["left_HandFingerThreeKnuckleTwoJoint"] ] = 0.0
-        self.updateJointLimits(self.js)
-        self.updateMimicJoints(self.js)
-        return barrett_hand_controller_msgs.srv.EmptyResponse()
-
-    def handle_set_median_filter_right(self, req):
-        return barrett_hand_controller_msgs.srv.BHSetMedianFilterResponse()
-
-    def handle_set_median_filter_left(self, req):
-        return barrett_hand_controller_msgs.srv.BHSetMedianFilterResponse()
-
     def sendToolTransform(self, wrist_name):
         q = self.T_W_T[wrist_name+"_arm_7_link"].M.GetQuaternion()
         p = self.T_W_T[wrist_name+"_arm_7_link"].p
@@ -661,15 +657,6 @@ class VelmaFake:
         # conman switch fake service
         rospy.Service('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController, self.handle_switch_controller)
 
-        rospy.Service('/right_hand/get_pressure_info', barrett_hand_controller_msgs.srv.BHGetPressureInfo, self.handle_get_pressure_info_right)
-        rospy.Service('/left_hand/get_pressure_info', barrett_hand_controller_msgs.srv.BHGetPressureInfo, self.handle_get_pressure_info_left)
-        rospy.Service('/right_hand/calibrate_tactile_sensors', barrett_hand_controller_msgs.srv.Empty, self.handle_calibrate_tactile_sensors_right)
-        rospy.Service('/left_hand/calibrate_tactile_sensors', barrett_hand_controller_msgs.srv.Empty, self.handle_calibrate_tactile_sensors_left)
-        rospy.Service('/right_hand/reset_fingers', barrett_hand_controller_msgs.srv.Empty, self.handle_reset_fingers_right)
-        rospy.Service('/left_hand/reset_fingers', barrett_hand_controller_msgs.srv.Empty, self.handle_reset_fingers_left)
-        rospy.Service('/right_hand/set_median_filter', barrett_hand_controller_msgs.srv.BHSetMedianFilter, self.handle_set_median_filter_right)
-        rospy.Service('/left_hand/set_median_filter', barrett_hand_controller_msgs.srv.BHSetMedianFilter, self.handle_set_median_filter_left)
-
         move_effector_right = MoveCartesianTrajectory("/right_arm/cartesian_trajectory", self, "right_arm_7_link")
         move_tool_right = MoveToolAction("/right_arm/tool_trajectory", self,  "right_arm_7_link")
         move_imp_right = MoveImpAction("/right_arm/cartesian_impedance", self)
@@ -680,8 +667,8 @@ class VelmaFake:
 
         move_joint = MoveJointTrajectory("/spline_trajectory_action_joint", self)
 
-        move_hand = MoveHandAction("/right_hand/move_hand", self)#, "right")
-        move_hand = MoveHandAction("/left_hand/move_hand", self)#, "left")
+        move_hand = MoveHandAction("/right_hand/move_hand", self)
+        move_hand = MoveHandAction("/left_hand/move_hand", self)
 
         time_diff = 0.05
         print "fake Velma interface is running"
@@ -692,7 +679,6 @@ class VelmaFake:
             self.br.sendTransform([right_arm_cmd.position.x, right_arm_cmd.position.y, right_arm_cmd.position.z], [right_arm_cmd.orientation.x, right_arm_cmd.orientation.y, right_arm_cmd.orientation.z, right_arm_cmd.orientation.w], rospy.Time.now(), "right_arm_cmd", "torso_base")
             self.br.sendTransform([left_arm_cmd.position.x, left_arm_cmd.position.y, left_arm_cmd.position.z], [left_arm_cmd.orientation.x, left_arm_cmd.orientation.y, left_arm_cmd.orientation.z, left_arm_cmd.orientation.w], rospy.Time.now(), "left_arm_cmd", "torso_base")
 
-#            self.head_kin.UpdateTorsoPose(self.getJsPos()["torso_0_joint"], self.getJsPos()["torso_1_joint"])
             self.head_kin.UpdateTargetPosition(self.head_look_at.x(), self.head_look_at.y(), self.head_look_at.z())
             self.head_kin.TransformTargetToHeadFrame()
             joint_pan, joint_tilt = self.head_kin.CalculateHeadPose()
@@ -715,6 +701,7 @@ class VelmaFake:
             self.sendToolTransform("left")
 
             self.publishTactile()
+            self.publishTactileInfo()
 
             rospy.sleep(time_diff)
 
