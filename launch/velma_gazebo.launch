@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<launch>
+
+<!--  <rosparam param="/gazebo/joints/joint_names">['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']</rosparam>-->
+  <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
+    <arg name="world_name" value="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+  
+  <!-- load robot description-->
+  <param name="/use_sim_time" value="true"/>
+  <param name="robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
+  
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model velma" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" />
+
+  <group ns="gazebo">
+    <rosparam>
+      FRIl:
+        fri_port: 49938
+        joint_offset: [0.0,0.0,0.0,-0.0,0.0,0.0,0.0]
+      FRIr:
+        fri_port: 49948
+        joint_offset: [0.0,-0.0,-0.0,-0.0,-0.0,0.0,0.0]
+      LWRlDiag:
+        prefix: left_arm_
+      LWRrDiag:
+        prefix: right_arm_
+      HeadIK:
+        v_rot:  0.800
+        v_lean: 0.375
+        v_head: 0.392
+        h_cam:  0.0
+        v_cam:  0.225
+      TorsoPanTransmision:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+      TorsoPanTransmisionInv:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+        motor_constant: 0.00105
+      HeadPanVelocityLimiter:
+        max_vel: 50.0
+      HeadTiltVelocityLimiter:
+        max_vel: 50.0
+      HeadPanTransmision:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: -100.0
+        encoder_res: 8000.0
+      HeadPanTransmisionInv:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: -100.0
+        encoder_res: 8000.0
+        motor_constant: 0.0
+      HeadTiltTransmision:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: 100.0
+        encoder_res: 8000.0
+      HeadTiltTransmisionInv:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: 100.0
+        encoder_res: 8000.0
+        motor_constant: 0.0
+      HeadPosAggregate:
+        number_of_ports: 2
+      HeadVelAggregate:
+        number_of_ports: 2
+      HeadPosSplit:
+        number_of_ports: 2
+      TorsoTrqSplit:
+        number_of_ports: 1
+      TorsoPosAggregate:
+        number_of_ports: 1
+      TorsoVelAggregate:
+        number_of_ports: 1
+      Ts:
+        outputs: [1, 7, 7]
+      TrajectoryGeneratorJoint:
+        number_of_joints: 15
+      SplineTrajectoryActionJoint:
+        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
+        lower_limits: [-2.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        upper_limits: [2.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+      JntImp:
+        number_of_joints: 15
+        initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.0, 200.01]
+      JntLimit:
+        upper_limit: [100.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+        lower_limit: [-100.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        limit_range: [0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26]
+        max_trq: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0]
+      JntPub:
+        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
+      PT:
+        input_frames: 2
+      ToolIntRight:
+        activate_pose_init: true
+        init_setpoint:
+          orientation:
+            w: 1.0
+            x: 0.0
+            y: 0.0
+            z: 0.0
+          position:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+      ToolIntLeft:
+        activate_pose_init: true
+        init_setpoint:
+          orientation:
+            w: 1.0
+            x: 0.0
+            y: 0.0
+            z: 0.0
+          position:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+      TfPub:
+        frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
+        child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
+    </rosparam>
+  </group>
+
+</launch>
