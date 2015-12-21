@@ -35,6 +35,7 @@ class VelmaGazebo : public RTT::TaskContext
 protected:
     ros::NodeHandle *nh_;
 
+    gazebo::physics::ModelPtr model_;
     gazebo::physics::DARTModelPtr model_dart_;
     dart::dynamics::Skeleton *dart_sk_;
 
@@ -103,6 +104,8 @@ public:
     Eigen::VectorXd t_JointPosition_out_;
     Eigen::VectorXd t_JointVelocity_out_;
 
+    int counts_;
+
     VelmaGazebo(std::string const& name) : 
         TaskContext(name)
     {
@@ -132,6 +135,7 @@ public:
         this->ports()->addPort("r_GravityTorque",             port_r_GravityTorque_out_);
         this->ports()->addPort("r_JointPosition",             port_r_JointPosition_out_).doc("");
         r_JointTorqueCommand_in_.resize(7);
+        r_JointTorqueCommand_in_.setZero();
         r_JointPosition_out_.resize(7);
         r_JointVelocity_out_.resize(7);
         r_JointTorque_out_.resize(7);
@@ -153,6 +157,7 @@ public:
         this->ports()->addPort("l_GravityTorque",             port_l_GravityTorque_out_);
         this->ports()->addPort("l_JointPosition",             port_l_JointPosition_out_).doc("");
         l_JointTorqueCommand_in_.resize(7);
+        l_JointTorqueCommand_in_.setZero();
         l_JointPosition_out_.resize(7);
         l_JointVelocity_out_.resize(7);
         l_JointTorque_out_.resize(7);
@@ -167,16 +172,64 @@ public:
         this->ports()->addPort("t_JointPosition",             port_t_JointPosition_out_).doc("");
         this->ports()->addPort("t_JointVelocity",             port_t_JointVelocity_out_).doc("");
         t_JointTorqueCommand_in_.resize(1);
+        t_JointTorqueCommand_in_.setZero();
         t_JointPosition_out_.resize(1);
         t_JointVelocity_out_.resize(1);
+        port_t_JointPosition_out_.setDataSample(    t_JointPosition_out_);
+        port_t_JointVelocity_out_.setDataSample(    t_JointVelocity_out_);
     }
 
     ~VelmaGazebo() {
     }
 
     void updateHook() {
-      // Synchronize with gazeboUpdate()
-      RTT::os::MutexLock lock(gazebo_mutex_);
+        // Synchronize with gazeboUpdate()
+        RTT::os::MutexLock lock(gazebo_mutex_);
+        counts_ = 0;
+
+        port_r_MassMatrix_out_.write(r_MassMatrix_out_);
+        port_l_MassMatrix_out_.write(l_MassMatrix_out_);
+        port_r_GravityTorque_out_.write(r_GravityTorque_out_);
+        port_l_GravityTorque_out_.write(l_GravityTorque_out_);
+        port_r_JointTorque_out_.write(r_JointTorque_out_);
+        port_l_JointTorque_out_.write(l_JointTorque_out_);
+        port_r_JointPosition_out_.write(r_JointPosition_out_);
+        port_l_JointPosition_out_.write(l_JointPosition_out_);
+        port_t_JointPosition_out_.write(t_JointPosition_out_);
+        port_r_JointVelocity_out_.write(r_JointVelocity_out_);
+        port_l_JointVelocity_out_.write(l_JointVelocity_out_);
+        port_t_JointVelocity_out_.write(t_JointVelocity_out_);
+
+        // FRI comm state
+        r_FRIState_out_.quality = FRI_QUALITY_PERFECT;
+        l_FRIState_out_.quality = FRI_QUALITY_PERFECT;
+        r_FRIState_out_.state = FRI_STATE_CMD;      // FRI_STATE_MON
+        l_FRIState_out_.state = FRI_STATE_CMD;
+        port_r_FRIState_out_.write(r_FRIState_out_);
+        port_l_FRIState_out_.write(l_FRIState_out_);
+
+        // FRI robot state
+        r_RobotState_out_.power = 0x7F;
+        r_RobotState_out_.error = 0;
+        r_RobotState_out_.warning = 0;
+        r_RobotState_out_.control == FRI_CTRL_POSITION;     // FRI_CTRL_CART_IMP, FRI_CTRL_JNT_IMP
+        l_RobotState_out_.power = 0x7F;
+        l_RobotState_out_.error = 0;
+        l_RobotState_out_.warning = 0;
+        l_RobotState_out_.control == FRI_CTRL_POSITION;     // FRI_CTRL_CART_IMP, FRI_CTRL_JNT_IMP
+        port_r_RobotState_out_.write(r_RobotState_out_);
+        port_l_RobotState_out_.write(l_RobotState_out_);
+
+        if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) != RTT::NewData) {
+            r_JointTorqueCommand_in_.setZero();
+        }
+        if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
+            l_JointTorqueCommand_in_.setZero();
+        }
+        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
+            t_JointTorqueCommand_in_.setZero();
+        }
+
     }
 
     bool startHook() {
@@ -187,15 +240,31 @@ public:
 //        std::cout << "VelmaGazebo::configureHook: property: " << prop_prefix << std::endl;
 //        std::cout << "VelmaGazebo::configureHook: property2: " << prop_parameter << std::endl;
 
+        counts_ = 0;
 
+        if (!model_) {
+            std::cout << "VelmaGazebo::configureHook: model_ is NULL" << std::endl;
+            return false;
+        }
+
+        for (int i = 0; i < 7; i++) {
+            r_joints_[i]->SetPosition(0, 0.3);
+            l_joints_[i]->SetPosition(0, 0.3);
+        }
+        model_->ResetPhysicsStates();
+
+        std::cout << "VelmaGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
     bool gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+
         if(model.get() == NULL) {
             std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
             return false;
         }
+
+        model_ = model;
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
         if (model_dart_.get() == NULL) {
@@ -246,80 +315,9 @@ public:
             }
         }
 
-
-/*      
-      // get parameter name
-    //  if (_sdf->HasElement("robotPrefix"))
-    //    this->robotPrefix = _sdf->GetElement("robotPrefix")->GetValueString();
-      chain_start = std::string("calib_") + this->robotPrefix_ + "_arm_base_link";
-    //  if (_sdf->HasElement("baseLink"))
-    //    this->chain_start = _sdf->GetElement("baseLink")->GetValueString();
-
-      chain_end = this->robotPrefix_ + "_arm_7_link";
-    //  if (_sdf->HasElement("toolLink"))
-    //    this->chain_end = _sdf->GetElement("toolLink")->GetValueString();
-      
-      if (!ros::isInitialized())
-      {
-        int argc = 0;
-        char** argv = NULL;
-        ros::init(argc,argv,"gazebo",ros::init_options::NoSigintHandler|ros::init_options::AnonymousName);
-      }
-      this->rosnode_ = new ros::NodeHandle();
-        
-      GetRobotChain();
-      
-      jnt_pos_.resize(7);
-      jnt_vel_.resize(7);
-
-      jnt_pos_cmd_.resize(7);
-      jnt_trq_cmd_.resize(7);
-      
-      for(unsigned int i = 0; i< 7; i++)
-      {
-        // fill in gazebo joints pointer
-        std::string joint_name = this->robotPrefix_ + "_arm_" + (char)(i + 48) + "_joint";
-        gazebo::physics::JointPtr joint = model->GetJoint(joint_name);     
-        if (joint)
-        {
-          this->joints_.push_back(joint);
-        }
-        else
-        {
-          this->joints_.push_back(gazebo::physics::JointPtr());  // FIXME: cannot be null, must be an empty boost shared pointer
-          RTT::log(RTT::Error) << "A joint named " << joint_name.c_str() << " is not part of Mechanism Controlled joints." << RTT::endlog();
-        }
-        
-        //if(_sdf->HasElement(joint_name)) {
-        //  double init = 0.0; //_sdf->GetElement(joint_name)->GetValueDouble();
-        //  joint->SetAngle(0, init);
-        //}
-        
-        stiffness_(i) = 200.0;
-        damping_(i) = 5.0;
-        trq_cmd_(i) = 0;
-        joint_pos_cmd_(i) = joints_[i]->GetAngle(0).Radian();
-      }
-*/
-      return true;
+        return true;
     }
 
-void GetRobotChain()
-{
-/*  KDL::Tree my_tree;
-  std::string robot_desc_string;
-  rosnode_->param("robot_description", robot_desc_string, std::string());
-  if (!kdl_parser::treeFromString(robot_desc_string, my_tree)){
-    ROS_ERROR("Failed to construct kdl tree");
-  }
-
-  my_tree.getChain(chain_start, chain_end, chain_);
-  
-  dyn = new KDL::ChainDynParam(chain_, KDL::Vector(0.0, 0.0, -9.81));
-  fk = new KDL::ChainFkSolverPos_recursive(chain_);
-  jc = new KDL::ChainJntToJacSolver(chain_);
-*/
-}
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
@@ -329,8 +327,16 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
-    const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
+    RTT::os::MutexTryLock trylock(gazebo_mutex_);
+    if(!trylock.isSuccessful()) {
+        return;
+    }
 
+    counts_++;
+    std::cout << counts_ << std::endl;
+
+    // mass matrix
+    const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 7; j++) {
             r_MassMatrix_out_(i,j) = mass_matrix(r_indices_[i], r_indices_[j]);
@@ -338,65 +344,63 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
     }
 
-    port_r_MassMatrix_out_.write(r_MassMatrix_out_);
-    port_l_MassMatrix_out_.write(l_MassMatrix_out_);
-
-
-/*
-  KDL::Frame f;
-  KDL::Jacobian jac(7);
-  KDL::JntSpaceInertiaMatrix H(7);
-  KDL::JntArray pos(7);
-  KDL::JntArray grav(7);
-  Matrix77d mass;
-  
-  for(unsigned int i = 0; i< 7; i++)
-  {
-    jnt_pos_[i] = pos(i) = joint_pos_(i) = joints_[i]->GetAngle(0).Radian();
-    jnt_vel_[i] =joint_vel_(i) = joints_[i]->GetVelocity(0);
-  }
-
-  dyn->JntToGravity(pos, grav);
-  fk->JntToCart(pos, f);
-
-  jc->JntToJac(pos, jac);
-  jac.changeRefFrame(KDL::Frame(f.Inverse().M));
-  dyn->JntToMass(pos, H);
-  for(unsigned int i=0;i<7;i++) {
-    for(unsigned int j=0;j<7;j++) {
-      mass(i, j) = H.data(i, j);
+    // gravity forces
+    const Eigen::VectorXd &grav = dart_sk_->getGravityForces();
+    for (int i = 0; i < 7; i++) {
+        r_GravityTorque_out_(i) = grav[r_indices_[i]];
+        l_GravityTorque_out_(i) = grav[l_indices_[i]];
     }
-  }
-  
-  if (port_JointTorqueCommand.read(jnt_trq_cmd_) == RTT::NewData) {
-    for (unsigned int i = 0; i < 7; i++) {
-      trq_cmd_(i) = jnt_trq_cmd_(i);
+
+    // external forces
+    //const Eigen::VectorXd &ext_f = dart_sk_->getExternalForces();
+    for (int i = 0; i < 7; i++) {
+        r_JointTorque_out_(i) = r_joints_[i]->GetForce(0); //ext_f[r_indices_[i]];
+        l_JointTorque_out_(i) = l_joints_[i]->GetForce(0); //ext_f[l_indices_[i]];
     }
-  }
-  
-  if (port_JointPositionCommand.read(jnt_pos_cmd_) == RTT::NewData) {
-      for (unsigned int i = 0; i < 7; i++) {
-        joint_pos_cmd_(i) = jnt_pos_cmd_(i);
-      }
-  }
-  
-  trq_ = stiffness_.asDiagonal() * (joint_pos_cmd_ - joint_pos_) - damping_.asDiagonal() * joint_vel_ + trq_cmd_;
 
-  for(unsigned int i = 0; i< 7; i++) {
-    joints_[i]->SetForce(0, trq_(i));
-  }
-  
-  port_JointPosition.write(jnt_pos_);
-  port_JointVelocity.write(jnt_vel_);
-  port_JointTorque.write(jnt_trq_);
+    // joint position
+    for (int i = 0; i < 7; i++) {
+        r_JointPosition_out_(i) = r_joints_[i]->GetAngle(0).Radian();
+        l_JointPosition_out_(i) = l_joints_[i]->GetAngle(0).Radian();
+    }
+    for (int i = 0; i < t_joints_.size(); i++) {
+        t_JointPosition_out_(i) = t_joints_[i]->GetAngle(0).Radian();
+    }
 
-//  port_CartesianPosition.write(cart_pos);
-//  port_CartesianVelocity.write(cart_twist);
-//  port_CartesianWrench.write(cart_wrench);
+    // joint velocity
+    for (int i = 0; i < 7; i++) {
+        r_JointVelocity_out_(i) = r_joints_[i]->GetVelocity(0);
+        l_JointVelocity_out_(i) = l_joints_[i]->GetVelocity(0);
+    }
+    for (int i = 0; i < t_joints_.size(); i++) {
+        t_JointVelocity_out_(i) = t_joints_[i]->GetVelocity(0);
+    }
 
-  port_Jacobian.write(jac);
-  port_MassMatrix.write(mass);
-  */
+    // torque command
+//    if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) == RTT::NewData) {
+//        std::cout << "r_JointTorqueCommand_in_: " << r_JointTorqueCommand_in_.transpose() << std::endl;
+        for (int i = 0; i < 7; i++) {
+            r_joints_[i]->SetForce(0, r_JointTorqueCommand_in_(i));
+        }
+//    }
+//    if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
+//        std::cout << "l_JointTorqueCommand_in_: " << l_JointTorqueCommand_in_.transpose() << std::endl;
+        for (int i = 0; i < 7; i++) {
+            l_joints_[i]->SetForce(0, l_JointTorqueCommand_in_(i));
+        }
+//    }
+//    if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
+//        std::cout << "t_JointTorqueCommand_in_: " << t_JointTorqueCommand_in_.transpose() << std::endl;
+        for (int i = 0; i < t_joints_.size(); i++) {
+            t_joints_[i]->SetForce(0, t_JointTorqueCommand_in_(i));
+        }
+//    }
+
+
+// TODO:
+//    std_msgs::Int32       r_KRL_CMD_in_;
+//    geometry_msgs::Wrench r_CartesianWrench_out_;
+
 }
 
   private:

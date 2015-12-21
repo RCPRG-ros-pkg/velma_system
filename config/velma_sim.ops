@@ -28,7 +28,7 @@ ros.import("port_operations")
 //-- Hardware interface
 //------------------------------------------------------------------------------
 
-setActivityOnCPU("VelmaSim", 0.0, 6, ORO_SCHED_RT, 3);
+setActivityOnCPU("VelmaSim", 0.001, 6, ORO_SCHED_RT, 3);
 VelmaSim.loadService("rosparam");
 VelmaSim.rosparam.getAll();
 
