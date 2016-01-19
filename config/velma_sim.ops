@@ -4,6 +4,10 @@ import("rtt_rosparam");
 require("os")
 require("print")
 
+
+ros.import("rtt_actionlib");
+ros.import("rtt_barrett_hand_controller_msgs");
+
 ros.import("eigen_typekit");
 ros.import("rtt_control_msgs");
 ros.import("conman");
@@ -60,6 +64,36 @@ stream("VelmaSim.r_KRL_CMD", ros.comm.topic("/right_arm/KRL_CMD"));
 stream("VelmaSim.l_KRL_CMD", ros.comm.topic("/left_arm/KRL_CMD"));
 
 print.ln("ops: VelmaSim KRL_CMD streamed")
+
+
+
+## Load a BarrettHand component
+loadComponent("rightHandMoveAction","BarrettHandMoveAction")
+
+## Give it a periodic activity
+setActivityOnCPU("rightHandMoveAction", 0.01, 1, ORO_SCHED_RT, 0);
+rightHandMoveAction.loadService("rosparam");
+rightHandMoveAction.rosparam.getAll();
+
+connect("rightHandMoveAction.q_out", "VelmaSim.rh_q_in", ConnPolicy());
+connect("rightHandMoveAction.v_out", "VelmaSim.rh_v_in", ConnPolicy());
+connect("rightHandMoveAction.t_out", "VelmaSim.rh_t_in", ConnPolicy());
+connect("rightHandMoveAction.mp_out", "VelmaSim.rh_mp_in", ConnPolicy());
+connect("rightHandMoveAction.hold_out", "VelmaSim.rh_hold_in", ConnPolicy());
+
+connect("VelmaSim.rh_status_out", "rightHandMoveAction.status_in", ConnPolicy());
+
+rightHandMoveAction.configure();
+rightHandMoveAction.loadService("actionlib");
+rightHandMoveAction.actionlib.connect("/right_hand/move_hand");
+
+
+
+
+
+
+
+
 
 loadComponent("LWRrDiag", "FRIDiagnostics")
 setActivityOnCPU("LWRrDiag", 0.1, 1, ORO_SCHED_RT, 0)
@@ -266,12 +300,16 @@ connect("VelmaSim.t_JointVelocity", "Jvc.In0", ConnPolicy());
 connect("VelmaSim.r_JointVelocity", "Jvc.In1", ConnPolicy());
 connect("VelmaSim.l_JointVelocity", "Jvc.In2", ConnPolicy());
 
-//loadComponent("JcAll", "VectorConcate2");
-//connect("Jc.Out", "JcAll.In0", ConnPolicy());
+loadComponent("JcAll", "VectorConcate3");
+connect("Jc.Out", "JcAll.In0", ConnPolicy());
+connect("VelmaSim.rh_q_out", "JcAll.In1", ConnPolicy());
+connect("VelmaSim.lh_q_out", "JcAll.In2", ConnPolicy());
 //connect("HeadPosAggregate.OutputPort", "JcAll.In1", ConnPolicy());
 
-//loadComponent("JvcAll", "VectorConcate2");
-//connect("Jvc.Out", "JvcAll.In0", ConnPolicy());
+loadComponent("JvcAll", "VectorConcate3");
+connect("Jvc.Out", "JvcAll.In0", ConnPolicy());
+connect("VelmaSim.rh_q_out", "JvcAll.In1", ConnPolicy());
+connect("VelmaSim.lh_q_out", "JvcAll.In2", ConnPolicy());
 //connect("HeadVelAggregate.OutputPort", "JvcAll.In1", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit3");
@@ -455,8 +493,8 @@ print.ln("ops: configuring")
 // CONFIGURE
 Jc.configure();
 Jvc.configure();
-//JcAll.configure();
-//JvcAll.configure();
+JcAll.configure();
+JvcAll.configure();
 Ts.configure();
 Dwr.configure();
 Dwl.configure();
@@ -484,8 +522,8 @@ print.ln("ops: configured")
 //addPeer("scheme", "TorsoVelAggregate")
 addPeer("scheme", "Jc");
 addPeer("scheme", "Jvc");
-//addPeer("scheme", "JcAll");
-//addPeer("scheme", "JvcAll");
+addPeer("scheme", "JcAll");
+addPeer("scheme", "JvcAll");
 addPeer("scheme", "Mass");
 addPeer("scheme", "CImp");
 addPeer("scheme", "Ts");
@@ -519,8 +557,8 @@ addPeer("scheme", "TrajectoryGeneratorJoint");
 //scheme.addBlock("TorsoVelAggregate");
 scheme.addBlock("Jc");
 scheme.addBlock("Jvc");
-//scheme.addBlock("JcAll");
-//scheme.addBlock("JvcAll");
+scheme.addBlock("JcAll");
+scheme.addBlock("JvcAll");
 scheme.addBlock("Mass");
 scheme.addBlock("CImp");
 scheme.addBlock("Ts");
@@ -548,12 +586,12 @@ setActivityOnCPU("JntPub", 0.002, 2, ORO_SCHED_RT, 0);
 JntPub.loadService("rosparam");
 JntPub.rosparam.getAll();
 
-connect("Jc.Out", "JntPub.JointPosition", ConnPolicy());
-//connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
-connect("Jvc.Out", "JntPub.JointVelocity", ConnPolicy());
-//connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
-connect("Jvc.Out", "JntPub.JointEffort", ConnPolicy());
-//connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
+//connect("Jc.Out", "JntPub.JointPosition", ConnPolicy());
+connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
+//connect("Jvc.Out", "JntPub.JointVelocity", ConnPolicy());
+connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
+//connect("Jvc.Out", "JntPub.JointEffort", ConnPolicy());
+connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
 //connect("CImp.JointTorqueCommand", "JntPub.JointEffort", ConnPolicy());
 
 stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
@@ -673,8 +711,8 @@ scheme.start();
 //HeadPosAggregate.start();
 Jc.start();
 Jvc.start();
-//JcAll.start();
-//JvcAll.start();
+JcAll.start();
+JvcAll.start();
 Ts.start();
 Dwr.start();
 Dwl.start();
@@ -698,7 +736,9 @@ TorquePubRight.start()
 TorquePubLeft.start()
 SplineTrajectoryActionJoint.start()
 FK.start()
+rightHandMoveAction.start()
 //PT.start()
 //HeadIK.start()
 //waitForInterrupt()
+
 

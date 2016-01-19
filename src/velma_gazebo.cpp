@@ -1,5 +1,6 @@
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
+#include <std_msgs/Empty.h>
 #include <std_msgs/Int32.h>
 
 #include <gazebo/gazebo.hh>
@@ -45,6 +46,12 @@ protected:
     std::vector<gazebo::physics::JointPtr>  t_joints_;
     std::vector<int> r_indices_;
     std::vector<int> l_indices_;
+
+    std::vector<gazebo::physics::JointPtr>  rh_joints_;
+    std::vector<gazebo::physics::JointPtr>  lh_joints_;
+
+    std::vector<dart::dynamics::Joint*>  rh_joints_dart_;
+    std::vector<dart::dynamics::Joint*>  lh_joints_dart_;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -104,6 +111,61 @@ public:
     Eigen::VectorXd t_JointTorqueCommand_in_;
     Eigen::VectorXd t_JointPosition_out_;
     Eigen::VectorXd t_JointVelocity_out_;
+
+    // right hand ports
+    RTT::InputPort<Eigen::VectorXd>  port_rh_q_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_rh_v_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_rh_t_in_;
+    RTT::InputPort<double>           port_rh_mp_in_;
+    RTT::InputPort<int32_t>          port_rh_hold_in_;
+    RTT::InputPort<Eigen::Vector4d > port_rh_max_measured_pressure_in_;
+    RTT::InputPort<std_msgs::Empty>  port_rh_reset_in_;
+    RTT::OutputPort<uint32_t>        port_rh_status_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_rh_q_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_rh_t_out_;
+    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_rh_temp_out_;
+
+    Eigen::VectorXd rh_q_in_;
+    Eigen::VectorXd rh_v_in_;
+    Eigen::VectorXd rh_t_in_;
+    double          rh_mp_in_;
+    int32_t         rh_hold_in_;
+    Eigen::Vector4d rh_max_measured_pressure_in_;
+    std_msgs::Empty rh_reset_in_;
+    uint32_t        rh_status_out_;
+    std_msgs::Int32 rh_filter_in_;
+    Eigen::VectorXd rh_q_out_;
+    Eigen::VectorXd rh_t_out_;
+    //barrett_hand_controller_msgs::BHTemp rh_temp_out_;
+
+    // left hand ports
+    RTT::InputPort<Eigen::VectorXd>  port_lh_q_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_lh_v_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_lh_t_in_;
+    RTT::InputPort<double>           port_lh_mp_in_;
+    RTT::InputPort<int32_t>          port_lh_hold_in_;
+    RTT::InputPort<Eigen::Vector4d > port_lh_max_measured_pressure_in_;
+    RTT::InputPort<std_msgs::Empty>  port_lh_reset_in_;
+    RTT::OutputPort<uint32_t>        port_lh_status_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_lh_q_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_lh_t_out_;
+    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_lh_temp_out_;
+
+    Eigen::VectorXd lh_q_in_;
+    Eigen::VectorXd lh_v_in_;
+    Eigen::VectorXd lh_t_in_;
+    double          lh_mp_in_;
+    int32_t         lh_hold_in_;
+    Eigen::Vector4d lh_max_measured_pressure_in_;
+    std_msgs::Empty lh_reset_in_;
+    uint32_t        lh_status_out_;
+    std_msgs::Int32 lh_filter_in_;
+    Eigen::VectorXd lh_q_out_;
+    Eigen::VectorXd lh_t_out_;
+    //barrett_hand_controller_msgs::BHTemp lh_temp_out_;
+
+    bool rh_move_hand_;
+    bool lh_move_hand_;
 
     int counts_;
     int counts2_;
@@ -180,6 +242,59 @@ public:
         t_JointVelocity_out_.resize(1);
         port_t_JointPosition_out_.setDataSample(    t_JointPosition_out_);
         port_t_JointVelocity_out_.setDataSample(    t_JointVelocity_out_);
+
+        // right hand ports
+        this->ports()->addPort("rh_q_in",      port_rh_q_in_);
+        this->ports()->addPort("rh_v_in",      port_rh_v_in_);
+        this->ports()->addPort("rh_t_in",      port_rh_t_in_);
+        this->ports()->addPort("rh_mp_in",     port_rh_mp_in_);
+        this->ports()->addPort("rh_hold_in",   port_rh_hold_in_);
+        this->ports()->addPort("rh_q_out",     port_rh_q_out_);
+        this->ports()->addPort("rh_t_out",     port_rh_t_out_);
+        this->ports()->addPort("rh_status_out",    port_rh_status_out_);
+        //this->ports()->addPort("rh_BHTemp",        port_rh_temp_out_);
+        this->ports()->addPort("rh_max_measured_pressure_in", port_rh_max_measured_pressure_in_);
+        this->ports()->addPort("rh_reset_fingers", port_rh_reset_in_);
+        rh_q_in_.resize(4); rh_q_in_.setZero();
+        rh_v_in_.resize(4); rh_v_in_.setZero();
+        rh_t_in_.resize(4); rh_t_in_.setZero();
+        rh_mp_in_ = 0.0;
+        rh_hold_in_ = 0;    // false
+        rh_max_measured_pressure_in_.setZero();
+        rh_q_out_.resize(8);
+        rh_t_out_.resize(8);
+        //rh_temp_out_.temp.resize(8);
+        port_rh_q_out_.setDataSample(rh_q_out_);
+        port_rh_t_out_.setDataSample(rh_t_out_);
+        //port_rh_temp_out_.setDataSample(rh_temp_out_);
+
+        // left hand ports
+        this->ports()->addPort("lh_q_in",      port_lh_q_in_);
+        this->ports()->addPort("lh_v_in",      port_lh_v_in_);
+        this->ports()->addPort("lh_t_in",      port_lh_t_in_);
+        this->ports()->addPort("lh_mp_in",     port_lh_mp_in_);
+        this->ports()->addPort("lh_hold_in",   port_lh_hold_in_);
+        this->ports()->addPort("lh_q_out",     port_lh_q_out_);
+        this->ports()->addPort("lh_t_out",     port_lh_t_out_);
+        this->ports()->addPort("lh_status_out",    port_lh_status_out_);
+        //this->ports()->addPort("lh_BHTemp",        port_lh_temp_out_);
+        this->ports()->addPort("lh_max_measured_pressure_in", port_lh_max_measured_pressure_in_);
+        this->ports()->addPort("lh_reset_fingers", port_lh_reset_in_);
+        lh_q_in_.resize(4); lh_q_in_.setZero();
+        lh_v_in_.resize(4); lh_v_in_.setZero();
+        lh_t_in_.resize(4); lh_t_in_.setZero();
+        lh_mp_in_ = 0.0;
+        lh_hold_in_ = 0;    // false
+        lh_max_measured_pressure_in_.setZero();
+        lh_q_out_.resize(8);
+        lh_t_out_.resize(8);
+        //lh_temp_out_.temp.resize(8);
+        port_lh_q_out_.setDataSample(lh_q_out_);
+        port_lh_t_out_.setDataSample(lh_t_out_);
+        //port_lh_temp_out_.setDataSample(lh_temp_out_);
+
+        rh_move_hand_ = false;
+        lh_move_hand_ = false;
     }
 
     ~VelmaGazebo() {
@@ -219,20 +334,6 @@ public:
 //            ROS_ERROR("Could not find the 'robot' element in the xml file");
             return false;
         }
-        // Get robot name
-/*        const char *name = robot_xml->Attribute("name");
-        if (!name)
-        {
-//            ROS_ERROR("No name given for the robot.");
-            return false;
-        }
-
-        if (name_ != std::string(name))
-        {
-//            ROS_ERROR("Name from SRDF: %s differ from %s", name, name_.c_str());
-            return false;
-        }
-*/
         // Get all disable_collisions elements
         for (TiXmlElement* disable_collision_xml = robot_xml->FirstChildElement("disable_collisions"); disable_collision_xml; disable_collision_xml = disable_collision_xml->NextSiblingElement("disable_collisions"))
         {
@@ -294,15 +395,34 @@ public:
         port_l_RobotState_out_.write(l_RobotState_out_);
 
         if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) != RTT::NewData) {
-            r_JointTorqueCommand_in_.setZero();
+//            r_JointTorqueCommand_in_.setZero();
         }
-        if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
-            l_JointTorqueCommand_in_.setZero();
+        if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) != RTT::NewData) {
+//            l_JointTorqueCommand_in_.setZero();
         }
-        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
-            t_JointTorqueCommand_in_.setZero();
+        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) != RTT::NewData) {
+//            t_JointTorqueCommand_in_.setZero();
         }
 
+        //
+        // BarrettHand
+        //
+        port_rh_q_out_.write(rh_q_out_);
+        port_lh_q_out_.write(lh_q_out_);
+        port_rh_t_out_.write(rh_t_out_);
+        port_lh_t_out_.write(lh_t_out_);
+
+        if (port_rh_q_in_.read(rh_q_in_) == RTT::NewData) {
+            rh_move_hand_ = true;
+        }
+        port_rh_v_in_.read(rh_v_in_);
+        port_rh_t_in_.read(rh_t_in_);
+
+        if (port_lh_q_in_.read(lh_q_in_) == RTT::NewData) {
+            lh_move_hand_ = true;
+        }
+        port_lh_v_in_.read(lh_v_in_);
+        port_lh_t_in_.read(lh_t_in_);
     }
 
     bool startHook() {
@@ -310,9 +430,6 @@ public:
     }
 
     bool configureHook() {
-//        std::cout << "VelmaGazebo::configureHook: property: " << prop_prefix << std::endl;
-//        std::cout << "VelmaGazebo::configureHook: property2: " << prop_parameter << std::endl;
-
         counts_ = 0;
         counts2_ = 0;
 
@@ -350,9 +467,30 @@ public:
 
         dart_sk_ = model_dart_->GetDARTSkeleton();
 
+        std::string hand_joint_names[] = {"_HandFingerOneKnuckleOneJoint", "_HandFingerOneKnuckleTwoJoint", "_HandFingerOneKnuckleThreeJoint",
+            "_HandFingerTwoKnuckleOneJoint", "_HandFingerTwoKnuckleTwoJoint", "_HandFingerTwoKnuckleThreeJoint",
+            "_HandFingerThreeKnuckleTwoJoint", "_HandFingerThreeKnuckleThreeJoint" };
+
+        for (int i = 0; i < 8; i++) {
+            std::string rh_name( std::string("right") + hand_joint_names[i] );
+            std::string lh_name( std::string("left") + hand_joint_names[i] );
+            dart_sk_->getJoint(rh_name)->setActuatorType( dart::dynamics::Joint::SERVO );
+            dart_sk_->getJoint(lh_name)->setActuatorType( dart::dynamics::Joint::SERVO );
+            gazebo::physics::JointPtr rh_joint = model->GetJoint(rh_name);
+            if (rh_joint) {
+                rh_joints_.push_back(rh_joint);
+                rh_joints_dart_.push_back( dart_sk_->getJoint(rh_name) );
+            }
+
+            gazebo::physics::JointPtr lh_joint = model->GetJoint(lh_name);
+            if (lh_joint) {
+                lh_joints_.push_back(lh_joint);
+                lh_joints_dart_.push_back( dart_sk_->getJoint(lh_name) );
+            }
+        }
+
         std::string srdf;
         ros::param::get("/robot_semantic_description", srdf);
-//        std::cout << srdf << std::endl;
         dart::collision::CollisionDetector* detector = dart_world_->getConstraintSolver()->getCollisionDetector();
 
         std::vector<std::pair<std::string, std::string> > disabled_collisions;
@@ -367,7 +505,7 @@ public:
         // fill in gazebo joints pointer vectors
         for(unsigned int i = 0; i < 7; i++) {
             std::string joint_name = std::string("right_arm_") + std::to_string(i) + "_joint";
-            gazebo::physics::JointPtr joint = model->GetJoint(joint_name);     
+            gazebo::physics::JointPtr joint = model->GetJoint(joint_name);
             gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
             if (joint) {
                 this->r_joints_.push_back(joint);
@@ -507,6 +645,49 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
 //    }
 
+    //
+    // BarrettHand
+    //
+
+    // joint position
+    for (int i = 0; i < 8; i++) {
+        rh_q_out_(i) = rh_joints_[i]->GetAngle(0).Radian();
+        lh_q_out_(i) = lh_joints_[i]->GetAngle(0).Radian();
+    }
+
+    rh_t_out_[0] = rh_t_out_[3] = rh_joints_[0]->GetForce(0)*1000.0;
+    rh_t_out_[1] = rh_t_out_[2] = rh_joints_[1]->GetForce(0)*1000.0;
+    rh_t_out_[4] = rh_t_out_[5] = rh_joints_[4]->GetForce(0)*1000.0;
+    rh_t_out_[6] = rh_t_out_[7] = rh_joints_[6]->GetForce(0)*1000.0;
+
+    lh_t_out_[0] = lh_t_out_[3] = lh_joints_[0]->GetForce(0)*1000.0;
+    lh_t_out_[1] = lh_t_out_[2] = lh_joints_[1]->GetForce(0)*1000.0;
+    lh_t_out_[4] = lh_t_out_[5] = lh_joints_[4]->GetForce(0)*1000.0;
+    lh_t_out_[6] = lh_t_out_[7] = lh_joints_[6]->GetForce(0)*1000.0;
+
+    const double vel_trap_angle = 5.0/180.0*3.1415;
+
+    double diff;
+    diff = rh_q_in_[0] - rh_joints_[0]->GetAngle(0).Radian();
+    if (diff > vel_trap_angle) {
+        diff = vel_trap_angle;
+    }
+    rh_joints_dart_[0]->setForceUpperLimit(0, rh_t_in_[0]/1000.0);
+    rh_joints_dart_[0]->setForceLowerLimit(0, -rh_t_in_[0]/1000.0);
+    rh_joints_dart_[0]->setVelocity(0, rh_v_in_[0] * diff / vel_trap_angle);
+
+    diff = rh_q_in_[3] - rh_joints_[3]->GetAngle(0).Radian();
+    if (diff > vel_trap_angle) {
+        diff = vel_trap_angle;
+    }
+    rh_joints_dart_[3]->setForceUpperLimit(0, rh_t_in_[3]/1000.0);
+    rh_joints_dart_[3]->setForceLowerLimit(0, -rh_t_in_[3]/1000.0);
+    rh_joints_dart_[3]->setVelocity(0, rh_v_in_[3] * diff / vel_trap_angle);
+
+
+//    r_JointTorqueCommand_in_.setZero();
+//    l_JointTorqueCommand_in_.setZero();
+//    t_JointTorqueCommand_in_.setZero();
 
 // TODO:
 //    std_msgs::Int32       r_KRL_CMD_in_;

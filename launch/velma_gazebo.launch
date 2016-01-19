@@ -28,6 +28,8 @@
       FRIr:
         fri_port: 49948
         joint_offset: [0.0,-0.0,-0.0,-0.0,-0.0,0.0,0.0]
+      rightHandMoveAction:
+        prefix: right
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:
@@ -104,7 +106,7 @@
         limit_range: [0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26]
         max_trq: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0]
       JntPub:
-        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
+        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint, right_HandFingerOneKnuckleOneJoint, right_HandFingerOneKnuckleTwoJoint, right_HandFingerOneKnuckleThreeJoint, right_HandFingerTwoKnuckleOneJoint, right_HandFingerTwoKnuckleTwoJoint, right_HandFingerTwoKnuckleThreeJoint, right_HandFingerThreeKnuckleTwoJoint, right_HandFingerThreeKnuckleThreeJoint, left_HandFingerOneKnuckleOneJoint, left_HandFingerOneKnuckleTwoJoint, left_HandFingerOneKnuckleThreeJoint, left_HandFingerTwoKnuckleOneJoint, left_HandFingerTwoKnuckleTwoJoint, left_HandFingerTwoKnuckleThreeJoint, left_HandFingerThreeKnuckleTwoJoint, left_HandFingerThreeKnuckleThreeJoint ]
       PT:
         input_frames: 2
       ToolIntRight:
