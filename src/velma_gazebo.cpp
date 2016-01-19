@@ -53,6 +53,9 @@ protected:
     std::vector<dart::dynamics::Joint*>  rh_joints_dart_;
     std::vector<dart::dynamics::Joint*>  lh_joints_dart_;
 
+    bool r_command_mode_;
+    bool l_command_mode_;
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
@@ -295,6 +298,8 @@ public:
 
         rh_move_hand_ = false;
         lh_move_hand_ = false;
+        r_command_mode_ = false;
+        l_command_mode_ = false;
     }
 
     ~VelmaGazebo() {
@@ -394,13 +399,46 @@ public:
         port_r_RobotState_out_.write(r_RobotState_out_);
         port_l_RobotState_out_.write(l_RobotState_out_);
 
-        if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) != RTT::NewData) {
+        if (port_r_KRL_CMD_in_.read(r_KRL_CMD_in_) == RTT::NewData) {
+            if (r_KRL_CMD_in_.data == 1) {
+                r_command_mode_ = true;
+            }
+            else if (r_KRL_CMD_in_.data == 2) {
+                r_command_mode_ = false;
+            }
+        }
+
+        if (port_l_KRL_CMD_in_.read(l_KRL_CMD_in_) == RTT::NewData) {
+            if (l_KRL_CMD_in_.data == 1) {
+                l_command_mode_ = true;
+            }
+            else if (l_KRL_CMD_in_.data == 2) {
+                l_command_mode_ = false;
+            }
+        }
+
+        if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) == RTT::NewData) {
+//            std::cout << "r: " << r_JointTorqueCommand_in_.transpose() << std::endl;
 //            r_JointTorqueCommand_in_.setZero();
         }
-        if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) != RTT::NewData) {
+        else {
+//            std::cout << "r: " << std::endl;
+//            r_JointTorqueCommand_in_.setZero();
+        }
+
+        if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
+//            std::cout << "l: " << l_JointTorqueCommand_in_.transpose() << std::endl;
 //            l_JointTorqueCommand_in_.setZero();
         }
-        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) != RTT::NewData) {
+        else {
+//            l_JointTorqueCommand_in_.setZero();
+        }
+
+        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
+//            std::cout << "t: " << t_JointTorqueCommand_in_.transpose() << std::endl;
+//            t_JointTorqueCommand_in_.setZero();
+        }
+        else {
 //            t_JointTorqueCommand_in_.setZero();
         }
 
@@ -413,12 +451,18 @@ public:
         port_lh_t_out_.write(lh_t_out_);
 
         if (port_rh_q_in_.read(rh_q_in_) == RTT::NewData) {
+            std::cout << "rh_q_in_: new data " << rh_q_in_.transpose() << std::endl;
             rh_move_hand_ = true;
         }
-        port_rh_v_in_.read(rh_v_in_);
-        port_rh_t_in_.read(rh_t_in_);
+        if (port_rh_v_in_.read(rh_v_in_) == RTT::NewData) {
+            std::cout << "rh_v_in_: new data " << rh_v_in_.transpose() << std::endl;
+        }
+        if (port_rh_t_in_.read(rh_t_in_) == RTT::NewData) {
+            std::cout << "rh_t_in_: new data " << rh_t_in_.transpose() << std::endl;
+        }
 
         if (port_lh_q_in_.read(lh_q_in_) == RTT::NewData) {
+            std::cout << "lh_q_in_: new data " << lh_q_in_.transpose() << std::endl;
             lh_move_hand_ = true;
         }
         port_lh_v_in_.read(lh_v_in_);
@@ -626,24 +670,23 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     // torque command
-//    if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) == RTT::NewData) {
-//        std::cout << "r_JointTorqueCommand_in_: " << r_JointTorqueCommand_in_.transpose() << std::endl;
+    if (r_command_mode_) {
         for (int i = 0; i < 7; i++) {
             r_joints_[i]->SetForce(0, r_JointTorqueCommand_in_(i));
         }
-//    }
-//    if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
-//        std::cout << "l_JointTorqueCommand_in_: " << l_JointTorqueCommand_in_.transpose() << std::endl;
+//        r_JointTorqueCommand_in_.setZero();
+    }
+
+    if (l_command_mode_) {
         for (int i = 0; i < 7; i++) {
             l_joints_[i]->SetForce(0, l_JointTorqueCommand_in_(i));
         }
-//    }
-//    if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
-//        std::cout << "t_JointTorqueCommand_in_: " << t_JointTorqueCommand_in_.transpose() << std::endl;
-        for (int i = 0; i < t_joints_.size(); i++) {
-            t_joints_[i]->SetForce(0, t_JointTorqueCommand_in_(i));
-        }
-//    }
+//        l_JointTorqueCommand_in_.setZero();
+    }
+
+    for (int i = 0; i < t_joints_.size(); i++) {
+        t_joints_[i]->SetForce(0, t_JointTorqueCommand_in_(i));
+    }
 
     //
     // BarrettHand
@@ -655,15 +698,15 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
         lh_q_out_(i) = lh_joints_[i]->GetAngle(0).Radian();
     }
 
-    rh_t_out_[0] = rh_t_out_[3] = rh_joints_[0]->GetForce(0)*1000.0;
-    rh_t_out_[1] = rh_t_out_[2] = rh_joints_[1]->GetForce(0)*1000.0;
-    rh_t_out_[4] = rh_t_out_[5] = rh_joints_[4]->GetForce(0)*1000.0;
-    rh_t_out_[6] = rh_t_out_[7] = rh_joints_[6]->GetForce(0)*1000.0;
+    rh_t_out_[0] = rh_t_out_[3] = rh_joints_[0]->GetForce(0)*100.0;
+    rh_t_out_[1] = rh_t_out_[2] = rh_joints_[1]->GetForce(0)*100.0;
+    rh_t_out_[4] = rh_t_out_[5] = rh_joints_[4]->GetForce(0)*100.0;
+    rh_t_out_[6] = rh_t_out_[7] = rh_joints_[6]->GetForce(0)*100.0;
 
-    lh_t_out_[0] = lh_t_out_[3] = lh_joints_[0]->GetForce(0)*1000.0;
-    lh_t_out_[1] = lh_t_out_[2] = lh_joints_[1]->GetForce(0)*1000.0;
-    lh_t_out_[4] = lh_t_out_[5] = lh_joints_[4]->GetForce(0)*1000.0;
-    lh_t_out_[6] = lh_t_out_[7] = lh_joints_[6]->GetForce(0)*1000.0;
+    lh_t_out_[0] = lh_t_out_[3] = lh_joints_[0]->GetForce(0)*100.0;
+    lh_t_out_[1] = lh_t_out_[2] = lh_joints_[1]->GetForce(0)*100.0;
+    lh_t_out_[4] = lh_t_out_[5] = lh_joints_[4]->GetForce(0)*100.0;
+    lh_t_out_[6] = lh_t_out_[7] = lh_joints_[6]->GetForce(0)*100.0;
 
     const double vel_trap_angle = 5.0/180.0*3.1415;
 
@@ -672,17 +715,24 @@ void gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if (diff > vel_trap_angle) {
         diff = vel_trap_angle;
     }
-    rh_joints_dart_[0]->setForceUpperLimit(0, rh_t_in_[0]/1000.0);
-    rh_joints_dart_[0]->setForceLowerLimit(0, -rh_t_in_[0]/1000.0);
-    rh_joints_dart_[0]->setVelocity(0, rh_v_in_[0] * diff / vel_trap_angle);
+    if (diff < -vel_trap_angle) {
+        diff = -vel_trap_angle;
+    }
+//    rh_joints_dart_[0]->setForceUpperLimit(0, rh_t_in_[0]/100.0);
+//    rh_joints_dart_[0]->setForceLowerLimit(0, -rh_t_in_[0]/100.0);
+    std::cout << "cmd: " << rh_v_in_[0] * diff / vel_trap_angle << std::endl;
+    rh_joints_dart_[0]->setCommand(0, rh_v_in_[0] * diff / vel_trap_angle);
 
     diff = rh_q_in_[3] - rh_joints_[3]->GetAngle(0).Radian();
     if (diff > vel_trap_angle) {
         diff = vel_trap_angle;
     }
-    rh_joints_dart_[3]->setForceUpperLimit(0, rh_t_in_[3]/1000.0);
-    rh_joints_dart_[3]->setForceLowerLimit(0, -rh_t_in_[3]/1000.0);
-    rh_joints_dart_[3]->setVelocity(0, rh_v_in_[3] * diff / vel_trap_angle);
+    if (diff < -vel_trap_angle) {
+        diff = -vel_trap_angle;
+    }
+//    rh_joints_dart_[3]->setForceUpperLimit(0, rh_t_in_[3]/100.0);
+//    rh_joints_dart_[3]->setForceLowerLimit(0, -rh_t_in_[3]/100.0);
+    rh_joints_dart_[3]->setCommand(0, rh_v_in_[3] * diff / vel_trap_angle);
 
 
 //    r_JointTorqueCommand_in_.setZero();
