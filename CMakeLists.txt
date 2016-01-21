@@ -40,7 +40,7 @@ orocos_use_package( rtt-typekit )
 #set(CMAKE_BUILD_TYPE Debug)
 
 ## Default component
-orocos_component(velma_gazebo src/velma_gazebo.cpp)
+orocos_component(velma_gazebo src/velma_gazebo_init.cpp src/velma_gazebo.cpp src/velma_gazebo_orocos.cpp src/velma_gazebo_srdf.cpp)
 
 orocos_component(barrett_hand_move_action src/barrett_hand_move_action.cpp)
 
