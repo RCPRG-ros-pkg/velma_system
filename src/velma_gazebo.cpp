@@ -11,6 +11,9 @@
 
         model_ = model;
 
+//        gazebo::physics::get_world()->Stop();
+        gazebo::physics::get_world()->EnablePhysicsEngine(false);
+
         dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
@@ -129,14 +132,104 @@
             }
         }
 
+        // print DART collisions
         for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
-            dart::dynamics::BodyNode *b = dart_sk_->getBodyNode(bidx);
-            std::cout << "BodyNode " << bidx << "  " << b->getName() << std::endl;
+            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
+            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
+            int num_sh = bn->getNumCollisionShapes();
+            for (int i = 0; i < num_sh; i++) {
+                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
+                if (sh == NULL) {
+                    std::cout << "   shape " << i << "  is NULL" << std::endl;
+                    continue;
+                }
+                if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
+                    dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
+                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
+                    std::cout << "   shape " << i << "  is mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
+                }
+                else {
+                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
+                    std::cout << "   shape " << i << "  is not mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
+                }
+            }
         }
 
+        // print Gazebo collisions
         for (gazebo::physics::Link_V::const_iterator it = model->GetLinks().begin(); it != model->GetLinks().end(); it++) {
             std::cout << "link: " << (*it)->GetName() << std::endl;
+            int col_count = (*it)->GetCollisions().size();
+            for (int i = 0; i < col_count; i++) {
+                gazebo::math::Vector3 pos = (*it)->GetCollisions()[i]->GetRelativePose().pos;
+                gazebo::math::Quaternion q = (*it)->GetCollisions()[i]->GetRelativePose().rot;
+                std::cout << "   collision " << (*it)->GetCollisions()[i]->GetName() << "  " << pos.x << " " << pos.y << " " << pos.z << "  " << q.x << " " << q.y << " " << q.z << " " << q.w << " " << std::endl; 
+            }
         }
+
+        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
+            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
+            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
+            gazebo::physics::LinkPtr link = model->GetLink(bn->getName());
+            int num_sh = bn->getNumCollisionShapes();
+            if (num_sh != link->GetCollisions().size()) {
+                std::cout << "ERROR: bn->getNumCollisionShapes() != link->->GetCollisions().size()" << std::endl;
+                continue;
+            }
+            for (int i = 0; i < num_sh; i++) {
+                gazebo::math::Vector3 pos = link->GetCollisions()[i]->GetRelativePose().pos;
+                gazebo::math::Quaternion q = link->GetCollisions()[i]->GetRelativePose().rot;
+
+
+                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
+                if (sh == NULL) {
+                    std::cout << "   shape " << i << "  is NULL" << std::endl;
+                    continue;
+                }
+                Eigen::Isometry3d tf;
+                tf.fromPositionOrientationScale(Eigen::Vector3d(pos.x, pos.y, pos.z), Eigen::Quaterniond(q.w, q.x, q.y, q.z), Eigen::Vector3d(1,1,1));
+                sh->setLocalTransform(tf);
+//                tf = sh->getLocalTransform();
+//                Eigen::Quaterniond qe(tf.rotation());
+//                gazebo::math::Pose pose(gazebo::math::Vector3(sh->getOffset().x(), sh->getOffset().y(), sh->getOffset().z()), gazebo::math::Quaternion(1,0,0,0));//qe.w(), qe.x(), qe.y(), qe.z()));
+//                link->GetCollisions()[i]->SetRelativePose(gazebo::math::Pose());
+
+            }
+        }
+
+        // print DART collisions
+        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
+            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
+            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
+            int num_sh = bn->getNumCollisionShapes();
+            for (int i = 0; i < num_sh; i++) {
+                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
+                if (sh == NULL) {
+                    std::cout << "   shape " << i << "  is NULL" << std::endl;
+                    continue;
+                }
+                if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
+                    dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
+                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
+                    std::cout << "   shape " << i << "  is mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
+                }
+                else {
+                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
+                    std::cout << "   shape " << i << "  is not mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
+                }
+            }
+        }
+
+        // print Gazebo collisions
+        for (gazebo::physics::Link_V::const_iterator it = model->GetLinks().begin(); it != model->GetLinks().end(); it++) {
+            std::cout << "link: " << (*it)->GetName() << std::endl;
+            int col_count = (*it)->GetCollisions().size();
+            for (int i = 0; i < col_count; i++) {
+                gazebo::math::Vector3 pos = (*it)->GetCollisions()[i]->GetRelativePose().pos;
+                gazebo::math::Quaternion q = (*it)->GetCollisions()[i]->GetRelativePose().rot;
+                std::cout << "   collision " << (*it)->GetCollisions()[i]->GetName() << "  " << pos.x << " " << pos.y << " " << pos.z << "  " << q.x << " " << q.y << " " << q.z << " " << q.w << " " << std::endl; 
+            }
+        }
+
 
         for (int i = 0; i < 3; i++) {
             rh_clutch_break_[i] = false;
@@ -161,6 +254,8 @@
 
         move_to_init_pose_ = true;
 
+        gazebo::physics::get_world()->Reset();
+        gazebo::physics::get_world()->EnablePhysicsEngine(true);
 //        std::cout << "pos limits: " << rh_joints_dart_[0]->getPositionLowerLimit(0) << "  " << rh_joints_dart_[0]->getPositionUpperLimit(0) << std::endl;
 //        std::cout << "pos: " << rh_joints_dart_[0]->getPosition(0) << std::endl;
 
