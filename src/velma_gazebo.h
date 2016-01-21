@@ -157,8 +157,14 @@ public:
 
   protected:
 
+    enum {STATUS_OVERCURRENT1 = 0x0001, STATUS_OVERCURRENT2 = 0x0002, STATUS_OVERCURRENT3 = 0x0004, STATUS_OVERCURRENT4 = 0x0008,
+        STATUS_OVERPRESSURE1 = 0x0010, STATUS_OVERPRESSURE2 = 0x0020, STATUS_OVERPRESSURE3 = 0x0040,
+        STATUS_TORQUESWITCH1 = 0x0100, STATUS_TORQUESWITCH2 = 0x0200, STATUS_TORQUESWITCH3 = 0x0400,
+        STATUS_IDLE1 = 0x1000, STATUS_IDLE2 = 0x2000, STATUS_IDLE3 = 0x4000, STATUS_IDLE4 = 0x8000 };
+
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
+    double clip(double n, double lower, double upper);
 
     ros::NodeHandle *nh_;
 
@@ -167,31 +173,38 @@ public:
     dart::dynamics::Skeleton *dart_sk_;
     dart::simulation::World *dart_world_;
 
+    // torso and KUKA LWRs
     std::vector<gazebo::physics::JointPtr>  r_joints_;
     std::vector<gazebo::physics::JointPtr>  l_joints_;
     std::vector<gazebo::physics::JointPtr>  t_joints_;
     std::vector<int> r_indices_;
     std::vector<int> l_indices_;
 
+    bool r_command_mode_;
+    bool l_command_mode_;
+
+    // BarrettHands
     std::vector<gazebo::physics::JointPtr>  rh_joints_;
     std::vector<gazebo::physics::JointPtr>  lh_joints_;
 
     std::vector<dart::dynamics::Joint*>  rh_joints_dart_;
     std::vector<dart::dynamics::Joint*>  lh_joints_dart_;
 
-    bool r_command_mode_;
-    bool l_command_mode_;
+    bool rh_move_hand_;
+    bool lh_move_hand_;
+
+    bool rh_clutch_break_[3];
+    bool lh_clutch_break_[3];
 
     gazebo::physics::JointController *jc_;
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
-    bool rh_move_hand_;
-    bool lh_move_hand_;
-
     int counts_;
     int counts2_;
+
+    bool move_to_init_pose_;
 };
 
 #endif  // VELMA_GAZEBO_H__
