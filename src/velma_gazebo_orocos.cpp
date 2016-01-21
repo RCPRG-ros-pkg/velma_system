@@ -93,8 +93,12 @@
         port_rh_t_out_.write(rh_t_out_);
         port_lh_t_out_.write(lh_t_out_);
 
+        port_rh_status_out_.write(rh_status_out_);
+        port_lh_status_out_.write(lh_status_out_);
+
         if (port_rh_q_in_.read(rh_q_in_) == RTT::NewData) {
             std::cout << "rh_q_in_: new data " << rh_q_in_.transpose() << std::endl;
+            rh_status_out_ = 0;
             rh_move_hand_ = true;
         }
         if (port_rh_v_in_.read(rh_v_in_) == RTT::NewData) {
@@ -106,6 +110,7 @@
 
         if (port_lh_q_in_.read(lh_q_in_) == RTT::NewData) {
             std::cout << "lh_q_in_: new data " << lh_q_in_.transpose() << std::endl;
+            lh_status_out_ = 0;
             lh_move_hand_ = true;
         }
         port_lh_v_in_.read(lh_v_in_);

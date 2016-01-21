@@ -129,6 +129,15 @@
             }
         }
 
+        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
+            dart::dynamics::BodyNode *b = dart_sk_->getBodyNode(bidx);
+            std::cout << "BodyNode " << bidx << "  " << b->getName() << std::endl;
+        }
+
+        for (gazebo::physics::Link_V::const_iterator it = model->GetLinks().begin(); it != model->GetLinks().end(); it++) {
+            std::cout << "link: " << (*it)->GetName() << std::endl;
+        }
+
         for (int i = 0; i < 3; i++) {
             rh_clutch_break_[i] = false;
             lh_clutch_break_[i] = false;
@@ -177,7 +186,7 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     if (move_to_init_pose_) {
-        if (gazebo::physics::get_world()->GetSimTime().Double() > 10) {
+        if (gazebo::physics::get_world()->GetSimTime().Double() > 15) {
             jc_->Reset();
             for (int i = 0; i < 8; i++) {
                 jc_->AddJoint(rh_joints_[i]);
@@ -206,6 +215,7 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             return;
         }
     }
+
 
 
 /*
@@ -279,7 +289,30 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //    std::cout << "c1: " << counts_ << std::endl;
 
     counts2_ = 0;
-
+/*
+    dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode("right_HandPalmLink");
+    if (bn == NULL) {
+        std::cout << "BodyNode is NULL" << std::endl;
+    }
+    else {
+        int num_sh = bn->getNumCollisionShapes();
+        for (int i = 0; i < num_sh; i++) {
+            dart::dynamics::Shape *sh = dart_sk_->getBodyNode("right_HandPalmLink")->getCollisionShape(i);
+            if (sh == NULL) {
+                std::cout << "shape " << i << "  is NULL" << std::endl;
+                continue;
+            }
+            if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
+                dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
+                const aiScene *sc = msh->getMesh();
+                std::cout << "shape " << i << "  vertices: " << sc->mMeshes[0]->mNumVertices << std::endl;
+                for (int vidx = 0; vidx < sc->mMeshes[0]->mNumVertices; vidx++) {
+    //                sc->mMeshes[0]->mVertices[vidx].x
+                }
+            }
+        }
+    }
+//*/
     // mass matrix
     const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
     for (int i = 0; i < 7; i++) {
