@@ -200,11 +200,6 @@ public:
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
-
-    int counts_;
-    int counts2_;
-
-    bool move_to_init_pose_;
 };
 
 #endif  // VELMA_GAZEBO_H__

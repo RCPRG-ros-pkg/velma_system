@@ -11,9 +11,6 @@
 
         model_ = model;
 
-//        gazebo::physics::get_world()->Stop();
-        gazebo::physics::get_world()->EnablePhysicsEngine(false);
-
         dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
@@ -54,24 +51,6 @@
         }
 
         jc_ = new gazebo::physics::JointController(model);
-/*
-        jc_->Reset();
-        for (int i = 0; i < 8; i++) {
-            gazebo::common::PID pid(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0);
-            jc_->AddJoint(rh_joints_[i]);
-            jc_->SetVelocityPID(rh_joints_[i]->GetScopedName(), pid);
-            jc_->AddJoint(lh_joints_[i]);
-            jc_->SetVelocityPID(lh_joints_[i]->GetScopedName(), pid);
-        }
-*/
-
-//        std::cout << rh_joints_[0]->GetScopedName() << std::endl;
-
-//        std::map< std::string,gazebo::common::PID > map = jc_->GetVelocityPIDs();
-//        for (std::map< std::string,gazebo::common::PID >::const_iterator it = map.begin(); it != map.end(); it++) {
-//            std::cout << "PID map: " << it->first << std::endl;
-//        }
-
 
         std::string srdf;
         ros::param::get("/robot_semantic_description", srdf);
@@ -90,9 +69,6 @@
         for(unsigned int i = 0; i < 7; i++) {
             std::string joint_name = std::string("right_arm_") + std::to_string(i) + "_joint";
             gazebo::physics::JointPtr joint = model->GetJoint(joint_name);
-            jc_->AddJoint(joint);
-            jc_->SetPositionPID(joint->GetScopedName(), gazebo::common::PID(0.8, 0.0, 0.5, 0.2, -0.2, 1.0,-1.0));
-
             gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
             if (joint) {
                 this->r_joints_.push_back(joint);
@@ -107,8 +83,6 @@
         for(unsigned int i = 0; i < 7; i++) {
             std::string joint_name = std::string("left_arm_") + std::to_string(i) + "_joint";
             gazebo::physics::JointPtr joint = model->GetJoint(joint_name);
-            jc_->AddJoint(joint);
-            jc_->SetPositionPID(joint->GetScopedName(), gazebo::common::PID(0.8, 0.0, 0.5, 0.2, -0.2, 1.0,-1.0));
             gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
             if (joint) {
                 this->l_joints_.push_back(joint);
@@ -166,98 +140,45 @@
             }
         }
 
-        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
-            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
-            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
-            gazebo::physics::LinkPtr link = model->GetLink(bn->getName());
-            int num_sh = bn->getNumCollisionShapes();
-            if (num_sh != link->GetCollisions().size()) {
-                std::cout << "ERROR: bn->getNumCollisionShapes() != link->->GetCollisions().size()" << std::endl;
-                continue;
-            }
-            for (int i = 0; i < num_sh; i++) {
-                gazebo::math::Vector3 pos = link->GetCollisions()[i]->GetRelativePose().pos;
-                gazebo::math::Quaternion q = link->GetCollisions()[i]->GetRelativePose().rot;
-
-
-                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
-                if (sh == NULL) {
-                    std::cout << "   shape " << i << "  is NULL" << std::endl;
-                    continue;
-                }
-                Eigen::Isometry3d tf;
-                tf.fromPositionOrientationScale(Eigen::Vector3d(pos.x, pos.y, pos.z), Eigen::Quaterniond(q.w, q.x, q.y, q.z), Eigen::Vector3d(1,1,1));
-                sh->setLocalTransform(tf);
-//                tf = sh->getLocalTransform();
-//                Eigen::Quaterniond qe(tf.rotation());
-//                gazebo::math::Pose pose(gazebo::math::Vector3(sh->getOffset().x(), sh->getOffset().y(), sh->getOffset().z()), gazebo::math::Quaternion(1,0,0,0));//qe.w(), qe.x(), qe.y(), qe.z()));
-//                link->GetCollisions()[i]->SetRelativePose(gazebo::math::Pose());
-
-            }
-        }
-
-        // print DART collisions
-        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
-            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
-            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
-            int num_sh = bn->getNumCollisionShapes();
-            for (int i = 0; i < num_sh; i++) {
-                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
-                if (sh == NULL) {
-                    std::cout << "   shape " << i << "  is NULL" << std::endl;
-                    continue;
-                }
-                if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
-                    dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
-                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
-                    std::cout << "   shape " << i << "  is mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                }
-                else {
-                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
-                    std::cout << "   shape " << i << "  is not mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                }
-            }
-        }
-
-        // print Gazebo collisions
-        for (gazebo::physics::Link_V::const_iterator it = model->GetLinks().begin(); it != model->GetLinks().end(); it++) {
-            std::cout << "link: " << (*it)->GetName() << std::endl;
-            int col_count = (*it)->GetCollisions().size();
-            for (int i = 0; i < col_count; i++) {
-                gazebo::math::Vector3 pos = (*it)->GetCollisions()[i]->GetRelativePose().pos;
-                gazebo::math::Quaternion q = (*it)->GetCollisions()[i]->GetRelativePose().rot;
-                std::cout << "   collision " << (*it)->GetCollisions()[i]->GetName() << "  " << pos.x << " " << pos.y << " " << pos.z << "  " << q.x << " " << q.y << " " << q.z << " " << q.w << " " << std::endl; 
-            }
-        }
-
-
         for (int i = 0; i < 3; i++) {
             rh_clutch_break_[i] = false;
             lh_clutch_break_[i] = false;
         }
 
         double angle = 90.0/180.0*3.1415;
-        jc_->SetPositionTarget(r_joints_[0]->GetScopedName(), -angle/3.0);
-        jc_->SetPositionTarget(l_joints_[0]->GetScopedName(), angle/3.0);
 
-        jc_->SetPositionTarget(r_joints_[1]->GetScopedName(), -angle);
-        jc_->SetPositionTarget(l_joints_[1]->GetScopedName(), angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( r_joints_[1] )->GetDARTJoint()->setPosition(0, -angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( l_joints_[1] )->GetDARTJoint()->setPosition(0, angle);
 
-        jc_->SetPositionTarget(r_joints_[2]->GetScopedName(), angle);
-        jc_->SetPositionTarget(l_joints_[2]->GetScopedName(), -angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( r_joints_[2] )->GetDARTJoint()->setPosition(0, angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( l_joints_[2] )->GetDARTJoint()->setPosition(0, -angle);
 
-        jc_->SetPositionTarget(r_joints_[3]->GetScopedName(), angle);
-        jc_->SetPositionTarget(l_joints_[3]->GetScopedName(), -angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( r_joints_[3] )->GetDARTJoint()->setPosition(0, angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( l_joints_[3] )->GetDARTJoint()->setPosition(0, -angle);
 
-        jc_->SetPositionTarget(r_joints_[5]->GetScopedName(), -angle);
-        jc_->SetPositionTarget(l_joints_[5]->GetScopedName(), angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( r_joints_[5] )->GetDARTJoint()->setPosition(0, -angle);
+        boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( l_joints_[5] )->GetDARTJoint()->setPosition(0, angle);
 
-        move_to_init_pose_ = true;
-
-        gazebo::physics::get_world()->Reset();
-        gazebo::physics::get_world()->EnablePhysicsEngine(true);
-//        std::cout << "pos limits: " << rh_joints_dart_[0]->getPositionLowerLimit(0) << "  " << rh_joints_dart_[0]->getPositionUpperLimit(0) << std::endl;
-//        std::cout << "pos: " << rh_joints_dart_[0]->getPosition(0) << std::endl;
+        for (int i = 0; i < 8; i++) {
+            jc_->AddJoint(rh_joints_[i]);
+            jc_->AddJoint(lh_joints_[i]);
+        }
+        jc_->SetVelocityPID(rh_joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
+        jc_->SetVelocityPID(rh_joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
+        jc_->SetVelocityPID(rh_joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(rh_joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(rh_joints_[6]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(rh_joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+        jc_->SetVelocityPID(rh_joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+        jc_->SetVelocityPID(rh_joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+        jc_->SetVelocityPID(lh_joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
+        jc_->SetVelocityPID(lh_joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
+        jc_->SetVelocityPID(lh_joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(lh_joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(lh_joints_[6]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
+        jc_->SetVelocityPID(lh_joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+        jc_->SetVelocityPID(lh_joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+        jc_->SetVelocityPID(lh_joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
 
         return true;
     }
@@ -270,7 +191,6 @@ double VelmaGazebo::clip(double n, double lower, double upper) {
 // Update the controller
 void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-//    std::cout << "gazeboUpdateHook" << std::endl;
     if (!model_dart_) {
         return;
     }
@@ -279,87 +199,6 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if(!trylock.isSuccessful()) {
         return;
     }
-
-    if (move_to_init_pose_) {
-        if (gazebo::physics::get_world()->GetSimTime().Double() > 15) {
-            jc_->Reset();
-            for (int i = 0; i < 8; i++) {
-                jc_->AddJoint(rh_joints_[i]);
-                jc_->AddJoint(lh_joints_[i]);
-            }
-            jc_->SetVelocityPID(rh_joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
-            jc_->SetVelocityPID(rh_joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
-            jc_->SetVelocityPID(rh_joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(rh_joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(rh_joints_[6]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(rh_joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            jc_->SetVelocityPID(rh_joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            jc_->SetVelocityPID(rh_joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            jc_->SetVelocityPID(lh_joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
-            jc_->SetVelocityPID(lh_joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
-            jc_->SetVelocityPID(lh_joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(lh_joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(lh_joints_[6]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
-            jc_->SetVelocityPID(lh_joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            jc_->SetVelocityPID(lh_joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            jc_->SetVelocityPID(lh_joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
-            move_to_init_pose_ = false;
-        }
-        else {
-            jc_->Update();
-            return;
-        }
-    }
-
-
-
-/*
-    if (init_pos_counter_ == 0) {
-        double angle = 100.0/180.0*3.1415;
-        bool satisfied = true;
-        if (r_joints_[1]->GetAngle(0).Radian() > -angle) {
-            r_joints_[1]->SetForce(0, -0.5);
-            satisfied = false;
-        }
-        if (l_joints_[1]->GetAngle(0).Radian() < angle) {
-            l_joints_[1]->SetForce(0, 0.5);
-            satisfied = false;
-        }
-        if (satisfied) {
-            init_pos_counter_++;
-        }
-    }
-    else if (init_pos_counter_ == 1) {
-        double angle = 100.0/180.0*3.1415;
-        bool satisfied = true;
-        if (r_joints_[2]->GetAngle(0).Radian() < angle) {
-            r_joints_[2]->SetForce(0, 0.5);
-            satisfied = false;
-        }
-        if (l_joints_[2]->GetAngle(0).Radian() > -angle) {
-            l_joints_[2]->SetForce(0, -0.5);
-            satisfied = false;
-        }
-        if (satisfied) {
-            init_pos_counter_++;
-        }
-    }
-    else if (init_pos_counter_ == 2) {
-        double angle = 100.0/180.0*3.1415;
-        bool satisfied = true;
-        if (r_joints_[3]->GetAngle(0).Radian() < angle) {
-            r_joints_[3]->SetForce(0, 0.5);
-            satisfied = false;
-        }
-        if (l_joints_[3]->GetAngle(0).Radian() > -angle) {
-            l_joints_[3]->SetForce(0, -0.5);
-            satisfied = false;
-        }
-        if (satisfied) {
-            init_pos_counter_++;
-        }
-    }
-*/
 
 /*
     dart::collision::CollisionDetector* detector = dart_world_->getConstraintSolver()->getCollisionDetector();
@@ -380,34 +219,6 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
     }
 */
-    counts_++;
-//    std::cout << "c1: " << counts_ << std::endl;
-
-    counts2_ = 0;
-/*
-    dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode("right_HandPalmLink");
-    if (bn == NULL) {
-        std::cout << "BodyNode is NULL" << std::endl;
-    }
-    else {
-        int num_sh = bn->getNumCollisionShapes();
-        for (int i = 0; i < num_sh; i++) {
-            dart::dynamics::Shape *sh = dart_sk_->getBodyNode("right_HandPalmLink")->getCollisionShape(i);
-            if (sh == NULL) {
-                std::cout << "shape " << i << "  is NULL" << std::endl;
-                continue;
-            }
-            if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
-                dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
-                const aiScene *sc = msh->getMesh();
-                std::cout << "shape " << i << "  vertices: " << sc->mMeshes[0]->mNumVertices << std::endl;
-                for (int vidx = 0; vidx < sc->mMeshes[0]->mNumVertices; vidx++) {
-    //                sc->mMeshes[0]->mVertices[vidx].x
-                }
-            }
-        }
-    }
-//*/
     // mass matrix
     const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
     for (int i = 0; i < 7; i++) {
@@ -571,188 +382,8 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
 
-//    rh_joints_dart_[0]->setForce(0, 5.0);
-//    rh_joints_dart_[1]->setCommand(0, 10.0);
-//    rh_joints_dart_[0]->setCommand(0, 0.2);
-//    std::cout << force << std::endl;
-/*    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        if (!jc_->SetVelocityTarget(rh_joints_[jnt_idx]->GetScopedName(), 0)) {
-            std::cout << "joint " << rh_joints_[jnt_idx]->GetScopedName() << " not found" << std::endl;
-        }
-        jc_->SetPositionTarget(rh_joints_[jnt_idx]->GetScopedName(), rh_joints_[jnt_idx]->GetAngle(0).Radian());
-//        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        if (!jc_->SetVelocityTarget(rh_joints_[jnt_idx]->GetScopedName(), rh_v_in_[dof_idx] * diff / vel_trap_angle)) {
-            std::cout << "joint " << rh_joints_[jnt_idx]->GetScopedName() << " not found" << std::endl;
-        }
-        jc_->SetPositionTarget(rh_joints_[jnt_idx]->GetScopedName(), rh_q_in_[dof_idx]);
-//        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-*/
-
-//    jc_->SetVelocityTarget(rh_joints_[0]->GetScopedName(), 1.0);
-//    if (!jc_->SetPositionTarget(rh_joints_[3]->GetScopedName(), -3.5)) {
-//        std::cout << "joint " << rh_joints_[3]->GetScopedName() << " not found" << std::endl;
-//    }
-//    jc_->SetVelocityTarget(rh_joints_[1]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[1]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[2]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[2]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[3]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[3]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[4]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[4]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[5]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[5]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[6]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[6]->GetScopedName(), 0);
-//    jc_->SetVelocityTarget(rh_joints_[7]->GetScopedName(), 0);
-//    jc_->SetPositionTarget(rh_joints_[7]->GetScopedName(), 0);
     jc_->Update();
 
-/*
-    double diff, force;
-    int dof_idx, jnt_idx;
-    dof_idx = 3;
-    jnt_idx = 0;
-    diff = rh_q_in_[dof_idx] - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    dof_idx = 3;
-    jnt_idx = 3;
-    diff = rh_q_in_[dof_idx] - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    // f1 joints
-    dof_idx = 0;
-    jnt_idx = 1;
-    diff = rh_q_in_[dof_idx] - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    dof_idx = 0;
-    jnt_idx = 2;
-    diff = rh_q_in_[dof_idx]*0.3333333 - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    // f2 joints
-    dof_idx = 1;
-    jnt_idx = 4;
-    diff = rh_q_in_[dof_idx] - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    dof_idx = 1;
-    jnt_idx = 5;
-    diff = rh_q_in_[dof_idx]*0.3333333 - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    // f3 joints
-    dof_idx = 2;
-    jnt_idx = 6;
-    diff = rh_q_in_[dof_idx] - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-
-    dof_idx = 2;
-    jnt_idx = 7;
-    diff = rh_q_in_[dof_idx]*0.3333333 - rh_joints_[jnt_idx]->GetAngle(0).Radian();
-    if (diff > vel_trap_angle) {
-        diff = vel_trap_angle;
-    }
-    if (diff < -vel_trap_angle) {
-        diff = -vel_trap_angle;
-    }
-    force = rh_joints_dart_[jnt_idx]->getForce(0);
-    if (force > rh_t_in_[dof_idx]/force_factor || force < -rh_t_in_[dof_idx]/force_factor) {
-        rh_joints_dart_[jnt_idx]->setCommand(0, 0);
-    }
-    else {
-        rh_joints_dart_[jnt_idx]->setCommand(0, rh_v_in_[dof_idx] * diff / vel_trap_angle);
-    }
-*/
 // TODO:
 //    geometry_msgs::Wrench r_CartesianWrench_out_;
 

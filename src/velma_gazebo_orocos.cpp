@@ -3,11 +3,6 @@
     void VelmaGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
-        counts_ = 0;
-
-        counts2_++;
-//        std::cout << "c2: " << counts2_ << std::endl;
-
 
         port_r_MassMatrix_out_.write(r_MassMatrix_out_);
         port_l_MassMatrix_out_.write(l_MassMatrix_out_);
@@ -61,28 +56,12 @@
         }
 
         if (port_r_JointTorqueCommand_in_.read(r_JointTorqueCommand_in_) == RTT::NewData) {
-//            std::cout << "r: " << r_JointTorqueCommand_in_.transpose() << std::endl;
-//            r_JointTorqueCommand_in_.setZero();
-        }
-        else {
-//            std::cout << "r: " << std::endl;
-//            r_JointTorqueCommand_in_.setZero();
         }
 
         if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
-//            std::cout << "l: " << l_JointTorqueCommand_in_.transpose() << std::endl;
-//            l_JointTorqueCommand_in_.setZero();
-        }
-        else {
-//            l_JointTorqueCommand_in_.setZero();
         }
 
         if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
-//            std::cout << "t: " << t_JointTorqueCommand_in_.transpose() << std::endl;
-//            t_JointTorqueCommand_in_.setZero();
-        }
-        else {
-//            t_JointTorqueCommand_in_.setZero();
         }
 
         //
@@ -122,25 +101,6 @@
     }
 
     bool VelmaGazebo::configureHook() {
-        counts_ = 0;
-        counts2_ = 0;
-/*
-        if (!model_) {
-            std::cout << "VelmaGazebo::configureHook: model_ is NULL" << std::endl;
-            return false;
-        }
-
-        for (int i = 0; i < 7; i++) {
-            r_joints_[i]->SetPosition(0, 0.3);
-            l_joints_[i]->SetPosition(0, 0.3);
-        }
-
-        for (int i = 0; i < 8; i++) {
-            rh_joints_[i]->SetPosition(0, 0.3);
-            lh_joints_[i]->SetPosition(0, 0.3);
-        }
-        model_->ResetPhysicsStates();
-*/
         std::cout << "VelmaGazebo::configureHook: ok" << std::endl;
         return true;
     }

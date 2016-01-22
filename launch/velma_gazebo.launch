@@ -7,16 +7,17 @@
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
+    <arg name="verbose" value="true"/>
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
   </include>
   
   <!-- load robot description-->
   <param name="/use_sim_time" value="true"/>
-  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
+  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma_sim.ops'" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-param robot_description -urdf -model velma" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma" />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" />
 
