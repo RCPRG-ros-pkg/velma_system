@@ -4,7 +4,6 @@ import("rtt_rosparam");
 require("os")
 require("print")
 
-
 ros.import("rtt_actionlib");
 ros.import("rtt_barrett_hand_controller_msgs");
 
@@ -60,8 +59,8 @@ print.ln("ops: VelmaSim configured")
 //FRIr.configure();
 //FRIl.configure();
 
-stream("VelmaSim.r_KRL_CMD", ros.comm.topic("/right_arm/KRL_CMD"));
-stream("VelmaSim.l_KRL_CMD", ros.comm.topic("/left_arm/KRL_CMD"));
+stream("VelmaSim.r_KRL_CMD_in", ros.comm.topic("/right_arm/KRL_CMD"));
+stream("VelmaSim.l_KRL_CMD_in", ros.comm.topic("/left_arm/KRL_CMD"));
 
 print.ln("ops: VelmaSim KRL_CMD streamed")
 
@@ -87,21 +86,13 @@ rightHandMoveAction.configure();
 rightHandMoveAction.loadService("actionlib");
 rightHandMoveAction.actionlib.connect("/right_hand/move_hand");
 
-
-
-
-
-
-
-
-
 loadComponent("LWRrDiag", "FRIDiagnostics")
 setActivityOnCPU("LWRrDiag", 0.1, 1, ORO_SCHED_RT, 0)
 LWRrDiag.loadService("rosparam");
 LWRrDiag.rosparam.getAll();
 
-connect("VelmaSim.r_RobotState", "LWRrDiag.RobotState", ConnPolicy());
-connect("VelmaSim.r_FRIState", "LWRrDiag.FRIState", ConnPolicy());
+connect("VelmaSim.r_RobotState_out", "LWRrDiag.RobotState", ConnPolicy());
+connect("VelmaSim.r_FRIState_out", "LWRrDiag.FRIState", ConnPolicy());
 stream("LWRrDiag.Diagnostics", ros.comm.topic("/diagnostic"));
 LWRrDiag.configure()
 
@@ -110,8 +101,8 @@ setActivityOnCPU("LWRlDiag", 0.1, 1, ORO_SCHED_RT, 0)
 LWRlDiag.loadService("rosparam");
 LWRlDiag.rosparam.getAll();
 
-connect("VelmaSim.l_RobotState", "LWRlDiag.RobotState", ConnPolicy());
-connect("VelmaSim.l_FRIState", "LWRlDiag.FRIState", ConnPolicy());
+connect("VelmaSim.l_RobotState_out", "LWRlDiag.RobotState", ConnPolicy());
+connect("VelmaSim.l_FRIState_out", "LWRlDiag.FRIState", ConnPolicy());
 stream("LWRlDiag.Diagnostics", ros.comm.topic("/diagnostic"));
 LWRlDiag.configure()
 
@@ -194,8 +185,8 @@ HeadPanVelocityLimiter.rosparam.getAll();
 
 //connect("HeadPanVelocityLimiter.PositionMsr", "EC.head_pan.motor_position", ConnPolicy());
 //connect("HeadPanVelocityLimiter.PositionOut", "EC.head_pan.motor_position_command", ConnPolicy());
-connect("HeadPanVelocityLimiter.PositionMsr", "VelmaSim.head_pan_motor_position", ConnPolicy());
-connect("HeadPanVelocityLimiter.PositionOut", "VelmaSim.head_pan_motor_position_command", ConnPolicy());
+connect("HeadPanVelocityLimiter.PositionMsr", "VelmaSim.head_pan_motor_position_out", ConnPolicy());
+connect("HeadPanVelocityLimiter.PositionOut", "VelmaSim.head_pan_motor_position_command_in", ConnPolicy());
 
 loadComponent("HeadTiltVelocityLimiter", "VelocityLimiter");
 HeadTiltVelocityLimiter.loadService("rosparam");
@@ -203,8 +194,8 @@ HeadTiltVelocityLimiter.rosparam.getAll();
 
 //connect("HeadTiltVelocityLimiter.PositionMsr", "EC.head_tilt.motor_position", ConnPolicy());
 //connect("HeadTiltVelocityLimiter.PositionOut", "EC.head_tilt.motor_position_command", ConnPolicy());
-connect("HeadTiltVelocityLimiter.PositionMsr", "VelmaSim.head_tilt_motor_position", ConnPolicy());
-connect("HeadTiltVelocityLimiter.PositionOut", "VelmaSim.head_tilt_motor_position_command", ConnPolicy());
+connect("HeadTiltVelocityLimiter.PositionMsr", "VelmaSim.head_tilt_motor_position_out", ConnPolicy());
+connect("HeadTiltVelocityLimiter.PositionOut", "VelmaSim.head_tilt_motor_position_command_in", ConnPolicy());
 // head transmisions
 //pan
 loadComponent("HeadPanTransmision", "SimpleTransmision");
@@ -213,8 +204,8 @@ HeadPanTransmision.rosparam.getAll();
 
 //connect("HeadPanTransmision.MotorPosition", "EC.head_pan.motor_position", ConnPolicy());
 //connect("HeadPanTransmision.MotorVelocity", "EC.head_pan.motor_velocity", ConnPolicy());
-connect("HeadPanTransmision.MotorPosition", "VelmaSim.head_pan_motor_position", ConnPolicy());
-connect("HeadPanTransmision.MotorVelocity", "VelmaSim.head_pan_motor_velocity", ConnPolicy());
+connect("HeadPanTransmision.MotorPosition", "VelmaSim.head_pan_motor_position_out", ConnPolicy());
+connect("HeadPanTransmision.MotorVelocity", "VelmaSim.head_pan_motor_velocity_out", ConnPolicy());
 
 loadComponent("HeadPanTransmisionInv", "SimpleTransmisionInv");
 HeadPanTransmisionInv.loadService("rosparam");
@@ -223,9 +214,9 @@ HeadPanTransmisionInv.rosparam.getAll();
 //connect("HeadPanTransmisionInv.MotorCurrent", "EC.head_pan.motor_current_command", ConnPolicy())
 //connect("HeadPanTransmisionInv.MotorPosition", "HeadPanVelocityLimiter.PositionIn", ConnPolicy())
 //connect("HeadPanTransmisionInv.MotorVelocity", "EC.head_pan.motor_velocity_command", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorCurrent", "VelmaSim.head_pan_motor_current_command", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorCurrent", "VelmaSim.head_pan_motor_current_command_in", ConnPolicy())
 connect("HeadPanTransmisionInv.MotorPosition", "HeadPanVelocityLimiter.PositionIn", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity", "VelmaSim.head_pan_motor_velocity_command", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity", "VelmaSim.head_pan_motor_velocity_command_in", ConnPolicy())
 
 //tilt
 loadComponent("HeadTiltTransmision", "SimpleTransmision");
@@ -234,8 +225,8 @@ HeadTiltTransmision.rosparam.getAll();
 
 //connect("HeadTiltTransmision.MotorPosition", "EC.head_tilt.motor_position", ConnPolicy());
 //connect("HeadTiltTransmision.MotorVelocity", "EC.head_tilt.motor_velocity", ConnPolicy());
-connect("HeadTiltTransmision.MotorPosition", "VelmaSim.head_tilt_motor_position", ConnPolicy());
-connect("HeadTiltTransmision.MotorVelocity", "VelmaSim.head_tilt_motor_velocity", ConnPolicy());
+connect("HeadTiltTransmision.MotorPosition", "VelmaSim.head_tilt_motor_position_out", ConnPolicy());
+connect("HeadTiltTransmision.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_out", ConnPolicy());
 
 loadComponent("HeadTiltTransmisionInv", "SimpleTransmisionInv");
 HeadTiltTransmisionInv.loadService("rosparam");
@@ -244,9 +235,9 @@ HeadTiltTransmisionInv.rosparam.getAll();
 //connect("HeadTiltTransmisionInv.MotorCurrent", "EC.head_tilt.motor_current_command", ConnPolicy())
 //connect("HeadTiltTransmisionInv.MotorPosition", "HeadTiltVelocityLimiter.PositionIn", ConnPolicy())
 //connect("HeadTiltTransmisionInv.MotorVelocity", "EC.head_tilt.motor_velocity_command", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorCurrent", "VelmaSim.head_tilt_motor_current_command", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorCurrent", "VelmaSim.head_tilt_motor_current_command_in", ConnPolicy())
 connect("HeadTiltTransmisionInv.MotorPosition", "HeadTiltVelocityLimiter.PositionIn", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_command", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_command_in", ConnPolicy())
 
 // Head position aggregate
 loadComponent("HeadPosAggregate","PortDoubleAggregate")
@@ -304,14 +295,14 @@ connect("HeadPosSplit.OutputPort_1", "HeadTiltTransmisionInv.JointPosition", Con
 
 // torqure controlled joint concate
 loadComponent("Jc", "VectorConcate3");
-connect("VelmaSim.t_JointPosition", "Jc.In0", ConnPolicy());
-connect("VelmaSim.r_JointPosition", "Jc.In1", ConnPolicy());
-connect("VelmaSim.l_JointPosition", "Jc.In2", ConnPolicy());
+connect("VelmaSim.t_JointPosition_out", "Jc.In0", ConnPolicy());
+connect("VelmaSim.r_JointPosition_out", "Jc.In1", ConnPolicy());
+connect("VelmaSim.l_JointPosition_out", "Jc.In2", ConnPolicy());
 
 loadComponent("Jvc", "VectorConcate3");
-connect("VelmaSim.t_JointVelocity", "Jvc.In0", ConnPolicy());
-connect("VelmaSim.r_JointVelocity", "Jvc.In1", ConnPolicy());
-connect("VelmaSim.l_JointVelocity", "Jvc.In2", ConnPolicy());
+connect("VelmaSim.t_JointVelocity_out", "Jvc.In0", ConnPolicy());
+connect("VelmaSim.r_JointVelocity_out", "Jvc.In1", ConnPolicy());
+connect("VelmaSim.l_JointVelocity_out", "Jvc.In2", ConnPolicy());
 
 loadComponent("JcAll", "VectorConcate4");
 connect("Jc.Out", "JcAll.In0", ConnPolicy());
@@ -329,18 +320,18 @@ loadComponent("Ts", "VectorSplit3");
 Ts.loadService("rosparam");
 Ts.rosparam.getAll();
 
-connect("Ts.Out0", "VelmaSim.t_JointTorqueCommand", ConnPolicy());
-connect("Ts.Out1", "VelmaSim.r_JointTorqueCommand", ConnPolicy());
-connect("Ts.Out2", "VelmaSim.l_JointTorqueCommand", ConnPolicy());
+connect("Ts.Out0", "VelmaSim.t_JointTorqueCommand_in", ConnPolicy());
+connect("Ts.Out1", "VelmaSim.r_JointTorqueCommand_in", ConnPolicy());
+connect("Ts.Out2", "VelmaSim.l_JointTorqueCommand_in", ConnPolicy());
 
 loadComponent("Dwr", "DecimatorWrench");
 setActivityOnCPU("Dwr", 0.01, 1, ORO_SCHED_RT, 0)
-connect("Dwr.In", "VelmaSim.r_CartesianWrench", ConnPolicy());
+connect("Dwr.In", "VelmaSim.r_CartesianWrench_out", ConnPolicy());
 stream("Dwr.Out", ros.comm.topic("/right_arm/wrench"));
 
 loadComponent("Dwl", "DecimatorWrench");
 setActivityOnCPU("Dwl", 0.01, 1, ORO_SCHED_RT, 0)
-connect("Dwl.In", "VelmaSim.l_CartesianWrench", ConnPolicy());
+connect("Dwl.In", "VelmaSim.l_CartesianWrench_out", ConnPolicy());
 stream("Dwl.Out", ros.comm.topic("/left_arm/wrench"));
 
 //loadComponent("Mass", "RobotMassMatrix");
@@ -349,8 +340,8 @@ Mass.loadService("robot");
 Mass.configure();
 
 connect("Jc.Out", "Mass.JointPosition", ConnPolicy());
-connect("VelmaSim.l_MassMatrix", "Mass.MassMatrixLeft", ConnPolicy());
-connect("VelmaSim.r_MassMatrix", "Mass.MassMatrixRight", ConnPolicy());
+connect("VelmaSim.l_MassMatrix_out", "Mass.MassMatrixLeft", ConnPolicy());
+connect("VelmaSim.r_MassMatrix_out", "Mass.MassMatrixRight", ConnPolicy());
 
 loadComponent("CImp", "CartesianImpedance");
 CImp.loadService("robot");
@@ -397,17 +388,17 @@ stream("TfPub.OutTf", ros.comm.topic("/tf"))
 
 loadComponent("TorquePubRight", "TorquePublisher")
 setActivityOnCPU("TorquePubRight", 0.01, 1, ORO_SCHED_RT, 0)
-connect("VelmaSim.r_JointTorque", "TorquePubRight.InJointTorque", ConnPolicy())
+connect("VelmaSim.r_JointTorque_out", "TorquePubRight.InJointTorque", ConnPolicy())
 connect("Ts.Out1", "TorquePubRight.InJointTorqueCommand", ConnPolicy())
-connect("VelmaSim.r_GravityTorque", "TorquePubRight.InGravityTorque", ConnPolicy())
+connect("VelmaSim.r_GravityTorque_out", "TorquePubRight.InGravityTorque", ConnPolicy())
 TorquePubRight.configure();
 stream("TorquePubRight.OutTorques", ros.comm.topic("/right_arm/torques"))
 
 loadComponent("TorquePubLeft", "TorquePublisher")
 setActivityOnCPU("TorquePubLeft", 0.01, 1, ORO_SCHED_RT, 0)
-connect("VelmaSim.l_JointTorque", "TorquePubLeft.InJointTorque", ConnPolicy())
+connect("VelmaSim.l_JointTorque_out", "TorquePubLeft.InJointTorque", ConnPolicy())
 connect("Ts.Out1", "TorquePubLeft.InJointTorqueCommand", ConnPolicy())
-connect("VelmaSim.l_GravityTorque", "TorquePubLeft.InGravityTorque", ConnPolicy())
+connect("VelmaSim.l_GravityTorque_out", "TorquePubLeft.InGravityTorque", ConnPolicy())
 TorquePubLeft.configure();
 stream("TorquePubLeft.OutTorques", ros.comm.topic("/left_arm/torques"))
 
@@ -464,8 +455,8 @@ connect("JntLimit.JointTorqueCommand", "CImp.NullSpaceTorqueCommand", ConnPolicy
 loadComponent("VG", "VelmaGrav");
 VG.configure();
 
-connect("VelmaSim.l_GravityTorque", "VG.GravTrqLeft", ConnPolicy());
-connect("VelmaSim.r_GravityTorque", "VG.GravTrqRight", ConnPolicy());
+connect("VelmaSim.l_GravityTorque_out", "VG.GravTrqLeft", ConnPolicy());
+connect("VelmaSim.r_GravityTorque_out", "VG.GravTrqRight", ConnPolicy());
 
 //connect("TJ.NullSpaceTorqueCommand", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
 connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
@@ -634,7 +625,7 @@ setActivityOnCPU("CartTrjRight", 0.01, 1, ORO_SCHED_RT, 0);
 
 connect("CartTrjRight.CartesianTrajectoryCommand", "PoseIntRight.CartesianTrajectoryCommand", ConnPolicy());
 connect("CartTrjRight.CartesianPositionCommand", "PoseIntRight.CartesianPositionCommand", ConnPolicy());
-connect("CartTrjRight.CartesianWrench", "VelmaSim.r_CartesianWrench", ConnPolicy());
+connect("CartTrjRight.CartesianWrench", "VelmaSim.r_CartesianWrench_out", ConnPolicy());
 connect("FK.RightPositionCommand", "CartTrjRight.CartesianPosition", ConnPolicy())
 
 stream("CartTrjRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
@@ -648,7 +639,7 @@ setActivityOnCPU("CartTrjLeft", 0.01, 1, ORO_SCHED_RT, 0);
 
 connect("CartTrjLeft.CartesianTrajectoryCommand", "PoseIntLeft.CartesianTrajectoryCommand", ConnPolicy());
 connect("CartTrjLeft.CartesianPositionCommand", "PoseIntLeft.CartesianPositionCommand", ConnPolicy());
-connect("CartTrjLeft.CartesianWrench", "VelmaSim.l_CartesianWrench", ConnPolicy());
+connect("CartTrjLeft.CartesianWrench", "VelmaSim.l_CartesianWrench_out", ConnPolicy());
 connect("FK.LeftPositionCommand", "CartTrjLeft.CartesianPosition", ConnPolicy())
 
 stream("CartTrjLeft.trajectory", ros.comm.topic("/left_arm/trajectory"));

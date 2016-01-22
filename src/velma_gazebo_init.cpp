@@ -19,16 +19,16 @@
 //        this->provides("gazebo")->addOperation("exit",&VelmaGazebo::gazeboExit,this,RTT::ClientThread);
 
         // right KUKA FRI ports
-        this->ports()->addPort("r_JointTorqueCommand",        port_r_JointTorqueCommand_in_).doc("");
-        this->ports()->addPort("r_KRL_CMD",                   port_r_KRL_CMD_in_).doc("");
-        this->ports()->addPort("r_CartesianWrench",           port_r_CartesianWrench_out_).doc("");
-        this->ports()->addPort("r_RobotState",                port_r_RobotState_out_).doc("");
-        this->ports()->addPort("r_FRIState",                  port_r_FRIState_out_).doc("");
-        this->ports()->addPort("r_JointVelocity",             port_r_JointVelocity_out_).doc("");
-        this->ports()->addPort("r_MassMatrix",                port_r_MassMatrix_out_).doc("");
-        this->ports()->addPort("r_JointTorque",               port_r_JointTorque_out_).doc("");
-        this->ports()->addPort("r_GravityTorque",             port_r_GravityTorque_out_);
-        this->ports()->addPort("r_JointPosition",             port_r_JointPosition_out_).doc("");
+        this->ports()->addPort("r_JointTorqueCommand_in",        port_r_JointTorqueCommand_in_).doc("");
+        this->ports()->addPort("r_KRL_CMD_in",                   port_r_KRL_CMD_in_).doc("");
+        this->ports()->addPort("r_CartesianWrench_out",           port_r_CartesianWrench_out_).doc("");
+        this->ports()->addPort("r_RobotState_out",                port_r_RobotState_out_).doc("");
+        this->ports()->addPort("r_FRIState_out",                  port_r_FRIState_out_).doc("");
+        this->ports()->addPort("r_JointVelocity_out",             port_r_JointVelocity_out_).doc("");
+        this->ports()->addPort("r_MassMatrix_out",                port_r_MassMatrix_out_).doc("");
+        this->ports()->addPort("r_JointTorque_out",               port_r_JointTorque_out_).doc("");
+        this->ports()->addPort("r_GravityTorque_out",             port_r_GravityTorque_out_);
+        this->ports()->addPort("r_JointPosition_out",             port_r_JointPosition_out_).doc("");
         r_JointTorqueCommand_in_.resize(7);
         r_JointTorqueCommand_in_.setZero();
         r_JointPosition_out_.resize(7);
@@ -41,16 +41,16 @@
         port_r_GravityTorque_out_.setDataSample(    r_GravityTorque_out_);
 
         // left KUKA FRI ports
-        this->ports()->addPort("l_JointTorqueCommand",        port_l_JointTorqueCommand_in_).doc("");
-        this->ports()->addPort("l_KRL_CMD",                   port_l_KRL_CMD_in_).doc("");
-        this->ports()->addPort("l_CartesianWrench",           port_l_CartesianWrench_out_).doc("");
-        this->ports()->addPort("l_RobotState",                port_l_RobotState_out_).doc("");
-        this->ports()->addPort("l_FRIState",                  port_l_FRIState_out_).doc("");
-        this->ports()->addPort("l_JointVelocity",             port_l_JointVelocity_out_).doc("");
-        this->ports()->addPort("l_MassMatrix",                port_l_MassMatrix_out_).doc("");
-        this->ports()->addPort("l_JointTorque",               port_l_JointTorque_out_).doc("");
-        this->ports()->addPort("l_GravityTorque",             port_l_GravityTorque_out_);
-        this->ports()->addPort("l_JointPosition",             port_l_JointPosition_out_).doc("");
+        this->ports()->addPort("l_JointTorqueCommand_in",         port_l_JointTorqueCommand_in_).doc("");
+        this->ports()->addPort("l_KRL_CMD_in",                    port_l_KRL_CMD_in_).doc("");
+        this->ports()->addPort("l_CartesianWrench_out",           port_l_CartesianWrench_out_).doc("");
+        this->ports()->addPort("l_RobotState_out",                port_l_RobotState_out_).doc("");
+        this->ports()->addPort("l_FRIState_out",                  port_l_FRIState_out_).doc("");
+        this->ports()->addPort("l_JointVelocity_out",             port_l_JointVelocity_out_).doc("");
+        this->ports()->addPort("l_MassMatrix_out",                port_l_MassMatrix_out_).doc("");
+        this->ports()->addPort("l_JointTorque_out",               port_l_JointTorque_out_).doc("");
+        this->ports()->addPort("l_GravityTorque_out",             port_l_GravityTorque_out_);
+        this->ports()->addPort("l_JointPosition_out",             port_l_JointPosition_out_).doc("");
         l_JointTorqueCommand_in_.resize(7);
         l_JointTorqueCommand_in_.setZero();
         l_JointPosition_out_.resize(7);
@@ -63,9 +63,9 @@
         port_l_GravityTorque_out_.setDataSample(    l_GravityTorque_out_);
 
         // torso ports
-        this->ports()->addPort("t_JointTorqueCommand",        port_t_JointTorqueCommand_in_).doc("");
-        this->ports()->addPort("t_JointPosition",             port_t_JointPosition_out_).doc("");
-        this->ports()->addPort("t_JointVelocity",             port_t_JointVelocity_out_).doc("");
+        this->ports()->addPort("t_JointTorqueCommand_in",         port_t_JointTorqueCommand_in_).doc("");
+        this->ports()->addPort("t_JointPosition_out",             port_t_JointPosition_out_).doc("");
+        this->ports()->addPort("t_JointVelocity_out",             port_t_JointVelocity_out_).doc("");
         t_JointTorqueCommand_in_.resize(1);
         t_JointTorqueCommand_in_.setZero();
         t_JointPosition_out_.resize(1);
@@ -84,7 +84,7 @@
         this->ports()->addPort("rh_status_out",    port_rh_status_out_);
         //this->ports()->addPort("rh_BHTemp",        port_rh_temp_out_);
         this->ports()->addPort("rh_max_measured_pressure_in", port_rh_max_measured_pressure_in_);
-        this->ports()->addPort("rh_reset_fingers", port_rh_reset_in_);
+        this->ports()->addPort("rh_reset_fingers_in", port_rh_reset_in_);
         rh_q_in_.resize(4); rh_q_in_.setZero();
         rh_v_in_.resize(4); rh_v_in_.setZero();
         rh_t_in_.resize(4); rh_t_in_.setZero();
@@ -109,7 +109,7 @@
         this->ports()->addPort("lh_status_out",    port_lh_status_out_);
         //this->ports()->addPort("lh_BHTemp",        port_lh_temp_out_);
         this->ports()->addPort("lh_max_measured_pressure_in", port_lh_max_measured_pressure_in_);
-        this->ports()->addPort("lh_reset_fingers", port_lh_reset_in_);
+        this->ports()->addPort("lh_reset_fingers_in", port_lh_reset_in_);
         lh_q_in_.resize(4); lh_q_in_.setZero();
         lh_v_in_.resize(4); lh_v_in_.setZero();
         lh_t_in_.resize(4); lh_t_in_.setZero();
@@ -124,17 +124,17 @@
         //port_lh_temp_out_.setDataSample(lh_temp_out_);
 
         // head ports
-        this->ports()->addPort("head_pan_motor_position_command",        port_hp_q_in_).doc("");
-        this->ports()->addPort("head_pan_motor_velocity_command",        port_hp_v_in_).doc("");
-        this->ports()->addPort("head_pan_motor_current_command",         port_hp_c_in_).doc("");
-        this->ports()->addPort("head_pan_motor_position",                port_hp_q_out_).doc("");
-        this->ports()->addPort("head_pan_motor_velocity",                port_hp_v_out_).doc("");
+        this->ports()->addPort("head_pan_motor_position_command_in",        port_hp_q_in_).doc("");
+        this->ports()->addPort("head_pan_motor_velocity_command_in",        port_hp_v_in_).doc("");
+        this->ports()->addPort("head_pan_motor_current_command_in",         port_hp_c_in_).doc("");
+        this->ports()->addPort("head_pan_motor_position_out",               port_hp_q_out_).doc("");
+        this->ports()->addPort("head_pan_motor_velocity_out",               port_hp_v_out_).doc("");
         hp_q_in_ = hp_v_in_ = hp_c_in_ = hp_q_out_ = hp_v_out_ = 0.0;
-        this->ports()->addPort("head_tilt_motor_position_command",       port_ht_q_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_velocity_command",       port_ht_v_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_current_command",        port_ht_c_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_position",               port_ht_q_out_).doc("");
-        this->ports()->addPort("head_tilt_motor_velocity",               port_ht_v_out_).doc("");
+        this->ports()->addPort("head_tilt_motor_position_command_in",       port_ht_q_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_velocity_command_in",       port_ht_v_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_current_command_in",        port_ht_c_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_position_out",              port_ht_q_out_).doc("");
+        this->ports()->addPort("head_tilt_motor_velocity_out",              port_ht_v_out_).doc("");
         ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
 
         rh_move_hand_ = false;
