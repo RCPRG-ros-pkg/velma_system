@@ -395,12 +395,13 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     //
     // head
     //
-    hp_q_out_ = head_pan_joint_->GetAngle(0).Radian() * 8000.0;
-    ht_q_out_ = head_tilt_joint_->GetAngle(0).Radian() * 8000.0;
+    const double head_trans = 8000.0 * 100.0 / (M_PI * 2.0);
+    hp_q_out_ = -head_pan_joint_->GetAngle(0).Radian() * head_trans;
+    ht_q_out_ = head_tilt_joint_->GetAngle(0).Radian() * head_trans;
     hp_v_out_ = head_pan_joint_->GetVelocity(0);
     ht_v_out_ = head_tilt_joint_->GetVelocity(0);
-    jc_->SetPositionTarget(head_pan_joint_->GetScopedName(), hp_q_in_ / 8000.0);
-    jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), ht_q_in_ / 8000.0);
+    jc_->SetPositionTarget(head_pan_joint_->GetScopedName(), -hp_q_in_ / head_trans);
+    jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), ht_q_in_ / head_trans);
 
     jc_->Update();
 
