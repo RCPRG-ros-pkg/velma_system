@@ -180,6 +180,17 @@
         jc_->SetVelocityPID(lh_joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
         jc_->SetVelocityPID(lh_joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
 
+        head_pan_joint_ = model->GetJoint("head_pan_joint");
+        head_tilt_joint_ = model->GetJoint("head_tilt_joint");
+
+        jc_->AddJoint(head_pan_joint_);
+        jc_->SetPositionPID(head_pan_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
+
+        jc_->AddJoint(head_tilt_joint_);
+        jc_->SetPositionPID(head_tilt_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
+//head_pan_joint
+//head_tilt_joint
+
         return true;
     }
 
@@ -381,6 +392,15 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
     }
 
+    //
+    // head
+    //
+    hp_q_out_ = head_pan_joint_->GetAngle(0).Radian() * 8000.0;
+    ht_q_out_ = head_tilt_joint_->GetAngle(0).Radian() * 8000.0;
+    hp_v_out_ = head_pan_joint_->GetVelocity(0);
+    ht_v_out_ = head_tilt_joint_->GetVelocity(0);
+    jc_->SetPositionTarget(head_pan_joint_->GetScopedName(), hp_q_in_ / 8000.0);
+    jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), ht_q_in_ / 8000.0);
 
     jc_->Update();
 

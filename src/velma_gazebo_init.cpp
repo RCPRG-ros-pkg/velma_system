@@ -123,6 +123,20 @@
         port_lh_t_out_.setDataSample(lh_t_out_);
         //port_lh_temp_out_.setDataSample(lh_temp_out_);
 
+        // head ports
+        this->ports()->addPort("head_pan_motor_position_command",        port_hp_q_in_).doc("");
+        this->ports()->addPort("head_pan_motor_velocity_command",        port_hp_v_in_).doc("");
+        this->ports()->addPort("head_pan_motor_current_command",         port_hp_c_in_).doc("");
+        this->ports()->addPort("head_pan_motor_position",                port_hp_q_out_).doc("");
+        this->ports()->addPort("head_pan_motor_velocity",                port_hp_v_out_).doc("");
+        hp_q_in_ = hp_v_in_ = hp_c_in_ = hp_q_out_ = hp_v_out_ = 0.0;
+        this->ports()->addPort("head_tilt_motor_position_command",       port_ht_q_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_velocity_command",       port_ht_v_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_current_command",        port_ht_c_in_).doc("");
+        this->ports()->addPort("head_tilt_motor_position",               port_ht_q_out_).doc("");
+        this->ports()->addPort("head_tilt_motor_velocity",               port_ht_v_out_).doc("");
+        ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
+
         rh_move_hand_ = false;
         lh_move_hand_ = false;
         r_command_mode_ = false;

@@ -188,80 +188,93 @@ stream("TGR.TriggerStamp", ros.comm.topic("/camera_trigger_stamp"));
 
 // head command limiters
 
-//loadComponent("HeadPanVelocityLimiter", "VelocityLimiter");
-//HeadPanVelocityLimiter.loadService("rosparam");
-//HeadPanVelocityLimiter.rosparam.getAll();
+loadComponent("HeadPanVelocityLimiter", "VelocityLimiter");
+HeadPanVelocityLimiter.loadService("rosparam");
+HeadPanVelocityLimiter.rosparam.getAll();
 
 //connect("HeadPanVelocityLimiter.PositionMsr", "EC.head_pan.motor_position", ConnPolicy());
 //connect("HeadPanVelocityLimiter.PositionOut", "EC.head_pan.motor_position_command", ConnPolicy());
+connect("HeadPanVelocityLimiter.PositionMsr", "VelmaSim.head_pan_motor_position", ConnPolicy());
+connect("HeadPanVelocityLimiter.PositionOut", "VelmaSim.head_pan_motor_position_command", ConnPolicy());
 
-//loadComponent("HeadTiltVelocityLimiter", "VelocityLimiter");
-//HeadTiltVelocityLimiter.loadService("rosparam");
-//HeadTiltVelocityLimiter.rosparam.getAll();
+loadComponent("HeadTiltVelocityLimiter", "VelocityLimiter");
+HeadTiltVelocityLimiter.loadService("rosparam");
+HeadTiltVelocityLimiter.rosparam.getAll();
 
 //connect("HeadTiltVelocityLimiter.PositionMsr", "EC.head_tilt.motor_position", ConnPolicy());
 //connect("HeadTiltVelocityLimiter.PositionOut", "EC.head_tilt.motor_position_command", ConnPolicy());
+connect("HeadTiltVelocityLimiter.PositionMsr", "VelmaSim.head_tilt_motor_position", ConnPolicy());
+connect("HeadTiltVelocityLimiter.PositionOut", "VelmaSim.head_tilt_motor_position_command", ConnPolicy());
 // head transmisions
 //pan
-//loadComponent("HeadPanTransmision", "SimpleTransmision");
-//HeadPanTransmision.loadService("rosparam");
-//HeadPanTransmision.rosparam.getAll();
+loadComponent("HeadPanTransmision", "SimpleTransmision");
+HeadPanTransmision.loadService("rosparam");
+HeadPanTransmision.rosparam.getAll();
 
 //connect("HeadPanTransmision.MotorPosition", "EC.head_pan.motor_position", ConnPolicy());
 //connect("HeadPanTransmision.MotorVelocity", "EC.head_pan.motor_velocity", ConnPolicy());
+connect("HeadPanTransmision.MotorPosition", "VelmaSim.head_pan_motor_position", ConnPolicy());
+connect("HeadPanTransmision.MotorVelocity", "VelmaSim.head_pan_motor_velocity", ConnPolicy());
 
-//loadComponent("HeadPanTransmisionInv", "SimpleTransmisionInv");
-//HeadPanTransmisionInv.loadService("rosparam");
-//HeadPanTransmisionInv.rosparam.getAll();
+loadComponent("HeadPanTransmisionInv", "SimpleTransmisionInv");
+HeadPanTransmisionInv.loadService("rosparam");
+HeadPanTransmisionInv.rosparam.getAll();
 
 //connect("HeadPanTransmisionInv.MotorCurrent", "EC.head_pan.motor_current_command", ConnPolicy())
 //connect("HeadPanTransmisionInv.MotorPosition", "HeadPanVelocityLimiter.PositionIn", ConnPolicy())
 //connect("HeadPanTransmisionInv.MotorVelocity", "EC.head_pan.motor_velocity_command", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorCurrent", "VelmaSim.head_pan_motor_current_command", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorPosition", "HeadPanVelocityLimiter.PositionIn", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity", "VelmaSim.head_pan_motor_velocity_command", ConnPolicy())
 
 //tilt
-//loadComponent("HeadTiltTransmision", "SimpleTransmision");
-//HeadTiltTransmision.loadService("rosparam");
-//HeadTiltTransmision.rosparam.getAll();
+loadComponent("HeadTiltTransmision", "SimpleTransmision");
+HeadTiltTransmision.loadService("rosparam");
+HeadTiltTransmision.rosparam.getAll();
 
 //connect("HeadTiltTransmision.MotorPosition", "EC.head_tilt.motor_position", ConnPolicy());
 //connect("HeadTiltTransmision.MotorVelocity", "EC.head_tilt.motor_velocity", ConnPolicy());
+connect("HeadTiltTransmision.MotorPosition", "VelmaSim.head_tilt_motor_position", ConnPolicy());
+connect("HeadTiltTransmision.MotorVelocity", "VelmaSim.head_tilt_motor_velocity", ConnPolicy());
 
-//loadComponent("HeadTiltTransmisionInv", "SimpleTransmisionInv");
-//HeadTiltTransmisionInv.loadService("rosparam");
-//HeadTiltTransmisionInv.rosparam.getAll();
+loadComponent("HeadTiltTransmisionInv", "SimpleTransmisionInv");
+HeadTiltTransmisionInv.loadService("rosparam");
+HeadTiltTransmisionInv.rosparam.getAll();
 
 //connect("HeadTiltTransmisionInv.MotorCurrent", "EC.head_tilt.motor_current_command", ConnPolicy())
 //connect("HeadTiltTransmisionInv.MotorPosition", "HeadTiltVelocityLimiter.PositionIn", ConnPolicy())
 //connect("HeadTiltTransmisionInv.MotorVelocity", "EC.head_tilt.motor_velocity_command", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorCurrent", "VelmaSim.head_tilt_motor_current_command", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorPosition", "HeadTiltVelocityLimiter.PositionIn", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_command", ConnPolicy())
 
 // Head position aggregate
+loadComponent("HeadPosAggregate","PortDoubleAggregate")
+HeadPosAggregate.loadService("rosparam")
+HeadPosAggregate.rosparam.getAll()
+HeadPosAggregate.configure()
 
-//loadComponent("HeadPosAggregate","PortDoubleAggregate")
-//HeadPosAggregate.loadService("rosparam")
-//HeadPosAggregate.rosparam.getAll()
-//HeadPosAggregate.configure()
-
-//connect("HeadPosAggregate.InputPort_0", "HeadPanTransmision.JointPosition", ConnPolicy())
-//connect("HeadPosAggregate.InputPort_1", "HeadTiltTransmision.JointPosition", ConnPolicy())
+connect("HeadPosAggregate.InputPort_0", "HeadPanTransmision.JointPosition", ConnPolicy())
+connect("HeadPosAggregate.InputPort_1", "HeadTiltTransmision.JointPosition", ConnPolicy())
 
 // Head Velocity port aggregate
-//loadComponent("HeadVelAggregate","PortDoubleAggregate")
-//HeadVelAggregate.loadService("rosparam")
-//HeadVelAggregate.rosparam.getAll()
-//HeadVelAggregate.configure()
+loadComponent("HeadVelAggregate","PortDoubleAggregate")
+HeadVelAggregate.loadService("rosparam")
+HeadVelAggregate.rosparam.getAll()
+HeadVelAggregate.configure()
 
-//connect("HeadVelAggregate.InputPort_0", "HeadPanTransmision.JointVelocity", ConnPolicy())
-//connect("HeadVelAggregate.InputPort_1", "HeadTiltTransmision.JointVelocity", ConnPolicy())
+connect("HeadVelAggregate.InputPort_0", "HeadPanTransmision.JointVelocity", ConnPolicy())
+connect("HeadVelAggregate.InputPort_1", "HeadTiltTransmision.JointVelocity", ConnPolicy())
 
 // Head PositionCommand split
 
-//loadComponent("HeadPosSplit","PortDoubleSplit")
-//HeadPosSplit.loadService("rosparam")
-//HeadPosSplit.rosparam.getAll()
-//HeadPosSplit.configure()
+loadComponent("HeadPosSplit","PortDoubleSplit")
+HeadPosSplit.loadService("rosparam")
+HeadPosSplit.rosparam.getAll()
+HeadPosSplit.configure()
 
-//connect("HeadPosSplit.OutputPort_0", "HeadPanTransmisionInv.JointPosition", ConnPolicy())
-//connect("HeadPosSplit.OutputPort_1", "HeadTiltTransmisionInv.JointPosition", ConnPolicy())
+connect("HeadPosSplit.OutputPort_0", "HeadPanTransmisionInv.JointPosition", ConnPolicy())
+connect("HeadPosSplit.OutputPort_1", "HeadTiltTransmisionInv.JointPosition", ConnPolicy())
 
 // Torso torque port spliter
 //loadComponent("TorsoTrqSplit","PortDoubleSplit")
@@ -300,17 +313,17 @@ connect("VelmaSim.t_JointVelocity", "Jvc.In0", ConnPolicy());
 connect("VelmaSim.r_JointVelocity", "Jvc.In1", ConnPolicy());
 connect("VelmaSim.l_JointVelocity", "Jvc.In2", ConnPolicy());
 
-loadComponent("JcAll", "VectorConcate3");
+loadComponent("JcAll", "VectorConcate4");
 connect("Jc.Out", "JcAll.In0", ConnPolicy());
-connect("VelmaSim.rh_q_out", "JcAll.In1", ConnPolicy());
-connect("VelmaSim.lh_q_out", "JcAll.In2", ConnPolicy());
-//connect("HeadPosAggregate.OutputPort", "JcAll.In1", ConnPolicy());
+connect("HeadPosAggregate.OutputPort", "JcAll.In1", ConnPolicy());
+connect("VelmaSim.rh_q_out", "JcAll.In2", ConnPolicy());
+connect("VelmaSim.lh_q_out", "JcAll.In3", ConnPolicy());
 
-loadComponent("JvcAll", "VectorConcate3");
+loadComponent("JvcAll", "VectorConcate4");
 connect("Jvc.Out", "JvcAll.In0", ConnPolicy());
-connect("VelmaSim.rh_q_out", "JvcAll.In1", ConnPolicy());
-connect("VelmaSim.lh_q_out", "JvcAll.In2", ConnPolicy());
-//connect("HeadVelAggregate.OutputPort", "JvcAll.In1", ConnPolicy());
+connect("HeadVelAggregate.OutputPort", "JvcAll.In1", ConnPolicy());
+connect("VelmaSim.rh_q_out", "JvcAll.In2", ConnPolicy());
+connect("VelmaSim.lh_q_out", "JvcAll.In3", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit3");
 Ts.loadService("rosparam");
@@ -479,13 +492,25 @@ connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
 //  stream("PT.PrimaryTargetPassThrough", ros.comm.topic("/head_lookat_pose"));
 //}
 //else {
-//  stream("HeadIK.TargetPoint", ros.comm.topic("/head_lookat_pose"));
+//    stream("HeadIK.TargetPoint", ros.comm.topic("/head_lookat_pose"));
 //}
 
 //stream("PT.PrimaryTargetPoint", ros.comm.topic("/head_lookat_pose"));
 
 //connect("HeadPosSplit.InputPort", "HeadIK.HeadJointPositionCommand", ConnPolicy());
 ////connect("TorsoPosAggregate.OutputPort", "HeadIK.JointPosition", ConnPolicy());
+
+
+
+
+loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerator")
+HeadTrajectoryGeneratorJoint.loadService("rosparam");
+HeadTrajectoryGeneratorJoint.rosparam.getAll();
+connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition", ConnPolicy())
+connect("HeadTrajectoryGeneratorJoint.JointPositionCommand","HeadPosSplit.InputPort", ConnPolicy())
+HeadTrajectoryGeneratorJoint.configure()
+
+
 
 print.ln("ops: configuring")
 
@@ -509,14 +534,14 @@ print.ln("ops: configured")
 //addPeer("scheme", "TorsoPanTransmision")
 //addPeer("scheme", "TorsoPanTransmisionInv")
 //addPeer("scheme", "TorsoTiltTransmision")
-//addPeer("scheme", "HeadPanVelocityLimiter")
-//addPeer("scheme", "HeadTiltVelocityLimiter")
-//addPeer("scheme", "HeadPanTransmision")
-//addPeer("scheme", "HeadPanTransmisionInv")
-//addPeer("scheme", "HeadTiltTransmision")
-//addPeer("scheme", "HeadTiltTransmisionInv")
-//addPeer("scheme", "HeadPosAggregate")
-//addPeer("scheme", "HeadPosSplit")
+addPeer("scheme", "HeadPanVelocityLimiter")
+addPeer("scheme", "HeadTiltVelocityLimiter")
+addPeer("scheme", "HeadPanTransmision")
+addPeer("scheme", "HeadPanTransmisionInv")
+addPeer("scheme", "HeadTiltTransmision")
+addPeer("scheme", "HeadTiltTransmisionInv")
+addPeer("scheme", "HeadPosAggregate")
+addPeer("scheme", "HeadPosSplit")
 //addPeer("scheme", "TorsoTrqSplit")
 //addPeer("scheme", "TorsoPosAggregate")
 //addPeer("scheme", "TorsoVelAggregate")
@@ -538,20 +563,21 @@ addPeer("scheme", "ToolIntLeft");
 addPeer("scheme", "JntImp");
 addPeer("scheme", "FK");
 addPeer("scheme", "TrajectoryGeneratorJoint");
+addPeer("scheme", "HeadTrajectoryGeneratorJoint");
 //addPeer("scheme", "HeadIK");
 //addPeer("scheme", "PT");
 
 //scheme.addBlock("TorsoPanTransmision");
 //scheme.addBlock("TorsoPanTransmisionInv");
 //scheme.addBlock("TorsoTiltTransmision");
-//scheme.addBlock("HeadPanVelocityLimiter");
-//scheme.addBlock("HeadTiltVelocityLimiter");
-//scheme.addBlock("HeadPanTransmision");
-//scheme.addBlock("HeadPanTransmisionInv");
-//scheme.addBlock("HeadTiltTransmision");
-//scheme.addBlock("HeadTiltTransmisionInv");
-//scheme.addBlock("HeadPosAggregate");
-//scheme.addBlock("HeadPosSplit");
+scheme.addBlock("HeadPanVelocityLimiter");
+scheme.addBlock("HeadTiltVelocityLimiter");
+scheme.addBlock("HeadPanTransmision");
+scheme.addBlock("HeadPanTransmisionInv");
+scheme.addBlock("HeadTiltTransmision");
+scheme.addBlock("HeadTiltTransmisionInv");
+scheme.addBlock("HeadPosAggregate");
+scheme.addBlock("HeadPosSplit");
 //scheme.addBlock("TorsoTrqSplit");
 //scheme.addBlock("TorsoPosAggregate");
 //scheme.addBlock("TorsoVelAggregate");
@@ -575,6 +601,7 @@ scheme.addBlock("ToolIntLeft");
 scheme.addBlock("JntImp");
 scheme.addBlock("FK");
 scheme.addBlock("TrajectoryGeneratorJoint");
+scheme.addBlock("HeadTrajectoryGeneratorJoint");
 //scheme.addBlock("HeadIK");
 //scheme.addBlock("PT")
 //------------------------------------------------------------------------------
@@ -643,6 +670,21 @@ connect("Jc.Out","SplineTrajectoryActionJoint.JointPosition", ConnPolicy())
 connect("TrajectoryGeneratorJoint.JointPositionCommand", "SplineTrajectoryActionJoint.JointPositionCommand", ConnPolicy())
 SplineTrajectoryActionJoint.configure()
 
+
+
+loadComponent("HeadSplineTrajectoryActionJoint", "InternalSpaceSplineTrajectoryAction")
+setActivityOnCPU("HeadSplineTrajectoryActionJoint", 0.01 ,2 ,ORO_SCHED_RT, 0)
+HeadSplineTrajectoryActionJoint.loadService("rosparam");
+HeadSplineTrajectoryActionJoint.rosparam.getAll();
+HeadSplineTrajectoryActionJoint.loadService("actionlib")
+HeadSplineTrajectoryActionJoint.actionlib.connect("/head_spline_trajectory_action_joint")
+connect("HeadSplineTrajectoryActionJoint.trajectoryPtr", "HeadTrajectoryGeneratorJoint.trajectoryPtr", ConnPolicy())
+connect("HeadPosAggregate.OutputPort","HeadSplineTrajectoryActionJoint.JointPosition", ConnPolicy())
+connect("HeadTrajectoryGeneratorJoint.JointPositionCommand", "HeadSplineTrajectoryActionJoint.JointPositionCommand", ConnPolicy())
+HeadSplineTrajectoryActionJoint.configure()
+
+
+
 // tool
 
 loadComponent("CartToolRight", "CartesianTrajectoryAction");
@@ -700,15 +742,15 @@ scheme.start();
 //TorsoPanTransmision.start();
 //TorsoPanTransmisionInv.start();
 //TorsoTiltTransmision.start();
-//HeadPanTransmision.start();
-//HeadPanTransmisionInv.start();
-//HeadTiltTransmision.start();
-//HeadTiltTransmisionInv.start();
-//HeadPosSplit.start();
+HeadPanTransmision.start();
+HeadPanTransmisionInv.start();
+HeadTiltTransmision.start();
+HeadTiltTransmisionInv.start();
+HeadPosSplit.start();
 //TorsoTrqSplit.start();
 //TorsoPosAggregate.start();
 //TorsoVelAggregate.start();
-//HeadPosAggregate.start();
+HeadPosAggregate.start();
 Jc.start();
 Jvc.start();
 JcAll.start();
@@ -735,8 +777,10 @@ TfPub.start()
 TorquePubRight.start()
 TorquePubLeft.start()
 SplineTrajectoryActionJoint.start()
+HeadSplineTrajectoryActionJoint.start()
 FK.start()
 rightHandMoveAction.start()
+HeadTrajectoryGeneratorJoint.start()
 //PT.start()
 //HeadIK.start()
 //waitForInterrupt()

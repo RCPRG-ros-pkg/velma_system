@@ -147,6 +147,30 @@ public:
     Eigen::VectorXd lh_t_out_;
     //barrett_hand_controller_msgs::BHTemp lh_temp_out_;
 
+    // head ports
+    RTT::InputPort<double>      port_hp_q_in_;
+    RTT::InputPort<double>      port_hp_v_in_;
+    RTT::InputPort<double>      port_hp_c_in_;
+    RTT::OutputPort<double>     port_hp_q_out_;
+    RTT::OutputPort<double>     port_hp_v_out_;
+    RTT::InputPort<double>      port_ht_q_in_;
+    RTT::InputPort<double>      port_ht_v_in_;
+    RTT::InputPort<double>      port_ht_c_in_;
+    RTT::OutputPort<double>     port_ht_q_out_;
+    RTT::OutputPort<double>     port_ht_v_out_;
+
+    double hp_q_in_;
+    double hp_v_in_;
+    double hp_c_in_;
+    double hp_q_out_;
+    double hp_v_out_;
+    double ht_q_in_;
+    double ht_v_in_;
+    double ht_c_in_;
+    double ht_q_out_;
+    double ht_v_out_;
+
+    // public methods
     VelmaGazebo(std::string const& name);
     ~VelmaGazebo();
     void updateHook();
@@ -195,6 +219,10 @@ public:
 
     bool rh_clutch_break_[3];
     bool lh_clutch_break_[3];
+
+    // head
+    gazebo::physics::JointPtr head_pan_joint_;
+    gazebo::physics::JointPtr head_tilt_joint_;
 
     gazebo::physics::JointController *jc_;
 

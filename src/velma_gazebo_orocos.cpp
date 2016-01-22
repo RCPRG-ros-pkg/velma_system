@@ -94,6 +94,24 @@
         }
         port_lh_v_in_.read(lh_v_in_);
         port_lh_t_in_.read(lh_t_in_);
+
+        //
+        // head
+        //
+        if (port_hp_q_in_.read(hp_q_in_) == RTT::NewData) {
+            std::cout << "head pan: " << hp_q_in_ << std::endl;
+        }
+        port_hp_v_in_.read(hp_v_in_);
+        port_hp_c_in_.read(hp_c_in_);
+        port_hp_q_out_.write(hp_q_out_);
+        port_hp_v_out_.write(hp_v_out_);
+        if (port_ht_q_in_.read(ht_q_in_) == RTT::NewData) {
+            std::cout << "head pan: " << hp_q_in_ << std::endl;
+        }
+        port_ht_v_in_.read(ht_v_in_);
+        port_ht_c_in_.read(ht_c_in_);
+        port_ht_q_out_.write(ht_q_out_);
+        port_ht_v_out_.write(ht_v_out_);
     }
 
     bool VelmaGazebo::startHook() {
