@@ -347,19 +347,19 @@ loadComponent("CImp", "CartesianImpedance");
 CImp.loadService("robot");
 CImp.configure();
 
-connect("Jc.Out", "CImp.JointPosition", ConnPolicy());
-connect("Jvc.Out", "CImp.JointVelocity", ConnPolicy());
-connect("Mass.MassMatrix", "CImp.MassMatrixInv", ConnPolicy());
+connect("Jc.Out", "CImp.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "CImp.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix", "CImp.MassMatrixInv_INPORT", ConnPolicy());
 
-connect("CImp.JointTorqueCommand", "Ts.In", ConnPolicy());
+connect("CImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
 
 loadComponent("PoseIntRight", "CartesianInterpolator");
 
-connect("PoseIntRight.CartesianPositionCommand", "CImp.CartesianPositionCommand0", ConnPolicy());
+connect("PoseIntRight.CartesianPositionCommand", "CImp.CartesianPositionCommand0_INPORT", ConnPolicy());
 
 loadComponent("PoseIntLeft", "CartesianInterpolator");
 
-connect("PoseIntLeft.CartesianPositionCommand", "CImp.CartesianPositionCommand1", ConnPolicy());
+connect("PoseIntLeft.CartesianPositionCommand", "CImp.CartesianPositionCommand1_INPORT", ConnPolicy());
 
 // tool
 
@@ -367,13 +367,13 @@ loadComponent("ToolIntRight", "CartesianInterpolator")
 ToolIntRight.configure();
 ToolIntRight.loadService("rosparam");
 ToolIntRight.rosparam.getAll();
-connect("ToolIntRight.CartesianPositionCommand", "CImp.ToolPositionCommand0", ConnPolicy())
+connect("ToolIntRight.CartesianPositionCommand", "CImp.ToolPositionCommand0_INPORT", ConnPolicy())
 
 loadComponent("ToolIntLeft", "CartesianInterpolator")
 ToolIntLeft.configure();
 ToolIntLeft.loadService("rosparam");
 ToolIntLeft.rosparam.getAll();
-connect("ToolIntLeft.CartesianPositionCommand", "CImp.ToolPositionCommand1", ConnPolicy())
+connect("ToolIntLeft.CartesianPositionCommand", "CImp.ToolPositionCommand1_INPORT", ConnPolicy())
 
 loadComponent("TfPub", "TfPublisher")
 setActivityOnCPU("TfPub", 0.01, 1, ORO_SCHED_RT, 0)
@@ -405,10 +405,10 @@ stream("TorquePubLeft.OutTorques", ros.comm.topic("/left_arm/torques"))
 // impedance
 
 loadComponent("ImpedanceIntRight", "CartesianImpedanceInterpolator");
-connect("ImpedanceIntRight.CartesianImpedanceCommand", "CImp.CartesianImpedanceCommand0", ConnPolicy());
+connect("ImpedanceIntRight.CartesianImpedanceCommand", "CImp.CartesianImpedanceCommand0_INPORT", ConnPolicy());
 
 loadComponent("ImpedanceIntLeft", "CartesianImpedanceInterpolator");
-connect("ImpedanceIntLeft.CartesianImpedanceCommand", "CImp.CartesianImpedanceCommand1", ConnPolicy());
+connect("ImpedanceIntLeft.CartesianImpedanceCommand", "CImp.CartesianImpedanceCommand1_INPORT", ConnPolicy());
 
 loadComponent("JntImp", "JointImpedance")
 JntImp.loadService("rosparam");
@@ -450,7 +450,7 @@ JntLimit.rosparam.getAll();
 connect("Jc.Out", "JntLimit.JointPosition", ConnPolicy());
 connect("Jvc.Out", "JntLimit.JointVelocity", ConnPolicy());
 connect("Mass.MassMatrix", "JntLimit.MassMatrix", ConnPolicy());
-connect("JntLimit.JointTorqueCommand", "CImp.NullSpaceTorqueCommand", ConnPolicy());
+connect("JntLimit.JointTorqueCommand", "CImp.NullSpaceTorqueCommand_INPORT", ConnPolicy());
 
 loadComponent("VG", "VelmaGrav");
 VG.configure();
@@ -610,7 +610,7 @@ connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
 connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
 //connect("Jvc.Out", "JntPub.JointEffort", ConnPolicy());
 connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
-//connect("CImp.JointTorqueCommand", "JntPub.JointEffort", ConnPolicy());
+//connect("CImp.JointTorqueCommand_OUTPORT", "JntPub.JointEffort", ConnPolicy());
 
 stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
 stream("JntPub.joint_state", ros.comm.topic("/joint_states2"));
