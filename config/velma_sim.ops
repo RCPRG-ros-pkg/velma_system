@@ -473,7 +473,7 @@ connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
 //PT.rosparam.getAll();
 //PT.configure();
 
-//connect("PT.SecondaryTargetPoint", "HeadIK.TargetPoint", ConnPolicy());
+//connect("PT.SecondaryTargetPoint", "HeadIK.TargetPoint_INPORT", ConnPolicy());
 
 //if ((os.isenv("HEAD_JOY") == false) || (os.getenv("HEAD_JOY") == "true")) then {
 //  connect("TJ.PrimaryFrameSelector", "PT.PrimaryFrameSelector", ConnPolicy());
@@ -483,13 +483,13 @@ connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
 //  stream("PT.PrimaryTargetPassThrough", ros.comm.topic("/head_lookat_pose"));
 //}
 //else {
-//    stream("HeadIK.TargetPoint", ros.comm.topic("/head_lookat_pose"));
+//    stream("HeadIK.TargetPoint_INPORT", ros.comm.topic("/head_lookat_pose"));
 //}
 
 //stream("PT.PrimaryTargetPoint", ros.comm.topic("/head_lookat_pose"));
 
-//connect("HeadPosSplit.InputPort", "HeadIK.HeadJointPositionCommand", ConnPolicy());
-////connect("TorsoPosAggregate.OutputPort", "HeadIK.JointPosition", ConnPolicy());
+//connect("HeadPosSplit.InputPort", "HeadIK.HeadJointPositionCommand_OUTPORT", ConnPolicy());
+////connect("TorsoPosAggregate.OutputPort", "HeadIK.JointPosition_INPORT", ConnPolicy());
 
 
 
