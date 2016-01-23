@@ -91,9 +91,9 @@ setActivityOnCPU("LWRrDiag", 0.1, 1, ORO_SCHED_RT, 0)
 LWRrDiag.loadService("rosparam");
 LWRrDiag.rosparam.getAll();
 
-connect("VelmaSim.r_RobotState_out", "LWRrDiag.RobotState", ConnPolicy());
-connect("VelmaSim.r_FRIState_out", "LWRrDiag.FRIState", ConnPolicy());
-stream("LWRrDiag.Diagnostics", ros.comm.topic("/diagnostic"));
+connect("VelmaSim.r_RobotState_out", "LWRrDiag.RobotState_INPORT", ConnPolicy());
+connect("VelmaSim.r_FRIState_out", "LWRrDiag.FRIState_INPORT", ConnPolicy());
+stream("LWRrDiag.Diagnostics_OUTPORT", ros.comm.topic("/diagnostic"));
 LWRrDiag.configure()
 
 loadComponent("LWRlDiag", "FRIDiagnostics")
@@ -101,9 +101,9 @@ setActivityOnCPU("LWRlDiag", 0.1, 1, ORO_SCHED_RT, 0)
 LWRlDiag.loadService("rosparam");
 LWRlDiag.rosparam.getAll();
 
-connect("VelmaSim.l_RobotState_out", "LWRlDiag.RobotState", ConnPolicy());
-connect("VelmaSim.l_FRIState_out", "LWRlDiag.FRIState", ConnPolicy());
-stream("LWRlDiag.Diagnostics", ros.comm.topic("/diagnostic"));
+connect("VelmaSim.l_RobotState_out", "LWRlDiag.RobotState_INPORT", ConnPolicy());
+connect("VelmaSim.l_FRIState_out", "LWRlDiag.FRIState_INPORT", ConnPolicy());
+stream("LWRlDiag.Diagnostics_OUTPORT", ros.comm.topic("/diagnostic"));
 LWRlDiag.configure()
 
 print.ln("ops: diagnostics components configured")
