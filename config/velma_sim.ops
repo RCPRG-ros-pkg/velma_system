@@ -414,10 +414,10 @@ loadComponent("JntImp", "JointImpedance")
 JntImp.loadService("rosparam");
 JntImp.rosparam.getAll();
 
-connect("Jc.Out", "JntImp.JointPosition", ConnPolicy());
-connect("Jvc.Out", "JntImp.JointVelocity", ConnPolicy());
-connect("Mass.MassMatrix", "JntImp.MassMatrix", ConnPolicy());
-connect("JntImp.JointTorqueCommand", "Ts.In", ConnPolicy());
+connect("Jc.Out", "JntImp.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "JntImp.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix", "JntImp.MassMatrix_INPORT", ConnPolicy());
+connect("JntImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
 
 JntImp.configure();
 
@@ -440,17 +440,17 @@ loadComponent("TrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerato
 TrajectoryGeneratorJoint.loadService("rosparam");
 TrajectoryGeneratorJoint.rosparam.getAll();
 connect("Jc.Out","TrajectoryGeneratorJoint.JointPosition", ConnPolicy())
-connect("TrajectoryGeneratorJoint.JointPositionCommand","JntImp.JointPositionCommand", ConnPolicy())
+connect("TrajectoryGeneratorJoint.JointPositionCommand","JntImp.JointPositionCommand_INPORT", ConnPolicy())
 TrajectoryGeneratorJoint.configure()
 
 loadComponent("JntLimit", "JointLimitAvoidance");
 JntLimit.loadService("rosparam");
 JntLimit.rosparam.getAll();
 
-connect("Jc.Out", "JntLimit.JointPosition", ConnPolicy());
-connect("Jvc.Out", "JntLimit.JointVelocity", ConnPolicy());
-connect("Mass.MassMatrix", "JntLimit.MassMatrix", ConnPolicy());
-connect("JntLimit.JointTorqueCommand", "CImp.NullSpaceTorqueCommand_INPORT", ConnPolicy());
+connect("Jc.Out", "JntLimit.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "JntLimit.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix", "JntLimit.MassMatrix_INPORT", ConnPolicy());
+connect("JntLimit.JointTorqueCommand_OUTPORT", "CImp.NullSpaceTorqueCommand_INPORT", ConnPolicy());
 
 loadComponent("VG", "VelmaGrav");
 VG.configure();
@@ -458,8 +458,8 @@ VG.configure();
 connect("VelmaSim.l_GravityTorque_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
 connect("VelmaSim.r_GravityTorque_OUTPORT", "VG.GravTrqRight", ConnPolicy());
 
-//connect("TJ.NullSpaceTorqueCommand_OUTPORT", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
-connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand", ConnPolicy());
+//connect("TJ.NullSpaceTorqueCommand_OUTPORT", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
+connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
 
 // head look-at
 
@@ -697,9 +697,9 @@ connect("CartToolLeft.CartesianTrajectoryCommand","ToolIntLeft.CartesianTrajecto
 loadComponent("CartImpRight", "CartesianImpedanceAction");
 setActivityOnCPU("CartImpRight", 0.01, 1, ORO_SCHED_RT, 0);
 
-connect("CartImpRight.CartesianImpedanceTrajectoryCommand", "ImpedanceIntRight.CartesianImpedanceTrajectoryCommand", ConnPolicy());
+connect("CartImpRight.CartesianImpedanceTrajectoryCommand_OUTPORT", "ImpedanceIntRight.CartesianImpedanceTrajectoryCommand", ConnPolicy());
 
-stream("CartImpRight.impedance", ros.comm.topic("/right_arm/impedance"));
+stream("CartImpRight.impedance_INPORT", ros.comm.topic("/right_arm/impedance"));
 
 CartImpRight.configure();
 CartImpRight.loadService("actionlib")
@@ -708,9 +708,9 @@ CartImpRight.actionlib.connect("/right_arm/cartesian_impedance")
 loadComponent("CartImpLeft", "CartesianImpedanceAction");
 setActivityOnCPU("CartImpLeft", 0.01, 1, ORO_SCHED_RT, 0);
 
-connect("CartImpLeft.CartesianImpedanceTrajectoryCommand", "ImpedanceIntLeft.CartesianImpedanceTrajectoryCommand", ConnPolicy());
+connect("CartImpLeft.CartesianImpedanceTrajectoryCommand_OUTPORT", "ImpedanceIntLeft.CartesianImpedanceTrajectoryCommand", ConnPolicy());
 
-stream("CartImpLeft.impedance", ros.comm.topic("/left_arm/impedance"));
+stream("CartImpLeft.impedance_INPORT", ros.comm.topic("/left_arm/impedance"));
 
 CartImpLeft.configure();
 CartImpLeft.loadService("actionlib")
