@@ -63,15 +63,10 @@
         port_l_GravityTorque_out_.setDataSample(    l_GravityTorque_out_);
 
         // torso ports
-        this->ports()->addPort("t_JointTorqueCommand_INPORT",         port_t_JointTorqueCommand_in_).doc("");
-        this->ports()->addPort("t_JointPosition_OUTPORT",             port_t_JointPosition_out_).doc("");
-        this->ports()->addPort("t_JointVelocity_OUTPORT",             port_t_JointVelocity_out_).doc("");
-        t_JointTorqueCommand_in_.resize(1);
-        t_JointTorqueCommand_in_.setZero();
-        t_JointPosition_out_.resize(1);
-        t_JointVelocity_out_.resize(1);
-        port_t_JointPosition_out_.setDataSample(    t_JointPosition_out_);
-        port_t_JointVelocity_out_.setDataSample(    t_JointVelocity_out_);
+        this->ports()->addPort("t_MotorCurrentCommand_INPORT",        port_t_MotorCurrentCommand_in_).doc("");
+        this->ports()->addPort("t_MotorPosition_OUTPORT",             port_t_MotorPosition_out_).doc("");
+        this->ports()->addPort("t_MotorVelocity_OUTPORT",             port_t_MotorVelocity_out_).doc("");
+        t_MotorCurrentCommand_in_ = 0.0;
 
         // right hand ports
         this->ports()->addPort("rh_q_INPORT",      port_rh_q_in_);

@@ -12,10 +12,10 @@
         port_l_JointTorque_out_.write(l_JointTorque_out_);
         port_r_JointPosition_out_.write(r_JointPosition_out_);
         port_l_JointPosition_out_.write(l_JointPosition_out_);
-        port_t_JointPosition_out_.write(t_JointPosition_out_);
+        port_t_MotorPosition_out_.write(t_MotorPosition_out_);
         port_r_JointVelocity_out_.write(r_JointVelocity_out_);
         port_l_JointVelocity_out_.write(l_JointVelocity_out_);
-        port_t_JointVelocity_out_.write(t_JointVelocity_out_);
+        port_t_MotorVelocity_out_.write(t_MotorVelocity_out_);
 
         // FRI comm state
         r_FRIState_out_.quality = FRI_QUALITY_PERFECT;
@@ -61,7 +61,7 @@
         if (port_l_JointTorqueCommand_in_.read(l_JointTorqueCommand_in_) == RTT::NewData) {
         }
 
-        if (port_t_JointTorqueCommand_in_.read(t_JointTorqueCommand_in_) == RTT::NewData) {
+        if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_) == RTT::NewData) {
         }
 
         //

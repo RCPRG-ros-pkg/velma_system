@@ -87,13 +87,13 @@ public:
     Eigen::VectorXd       l_GravityTorque_out_;
 
     // torso ports
-    RTT::InputPort<Eigen::VectorXd >    port_t_JointTorqueCommand_in_;  // TorsoTrqSplit.InputPort
-    RTT::OutputPort<Eigen::VectorXd >   port_t_JointPosition_out_;      // TorsoPosAggregate.OutputPort
-    RTT::OutputPort<Eigen::VectorXd >   port_t_JointVelocity_out_;      // TorsoVelAggregate.OutputPort
+    RTT::InputPort<double >    port_t_MotorCurrentCommand_in_;
+    RTT::OutputPort<double >   port_t_MotorPosition_out_;
+    RTT::OutputPort<double >   port_t_MotorVelocity_out_;
 
-    Eigen::VectorXd t_JointTorqueCommand_in_;
-    Eigen::VectorXd t_JointPosition_out_;
-    Eigen::VectorXd t_JointVelocity_out_;
+    double t_MotorCurrentCommand_in_;
+    double t_MotorPosition_out_;
+    double t_MotorVelocity_out_;
 
     // right hand ports
     RTT::InputPort<Eigen::VectorXd>  port_rh_q_in_;

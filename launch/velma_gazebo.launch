@@ -14,7 +14,7 @@
   
   <!-- load robot description-->
   <param name="/use_sim_time" value="true"/>
-  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma_sim.ops'" />
+  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma.ops'" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma" />
@@ -31,6 +31,8 @@
         joint_offset: [0.0,-0.0,-0.0,-0.0,-0.0,0.0,0.0]
       rightHandMoveAction:
         prefix: right
+      leftHandMoveAction:
+        prefix: left
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:

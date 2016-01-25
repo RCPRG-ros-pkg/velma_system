@@ -2,8 +2,6 @@
 
     bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
-//        RTT::os::MutexLock lock(gazebo_mutex_);
-
         if(model.get() == NULL) {
             std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
             return false;
@@ -188,8 +186,6 @@
 
         jc_->AddJoint(head_tilt_joint_);
         jc_->SetPositionPID(head_tilt_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
-//head_pan_joint
-//head_tilt_joint
 
         return true;
     }
@@ -247,7 +243,6 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     // external forces
-    //const Eigen::VectorXd &ext_f = dart_sk_->getExternalForces();
     for (int i = 0; i < 7; i++) {
 /*
         gazebo::physics::JointWrench r_wr, l_wr;
@@ -262,27 +257,29 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             l_JointTorque_out_(i) = l_wr.body2Torque.y;
         }
 */
-        r_JointTorque_out_(i) = r_joints_[i]->GetForce(0); //ext_f[r_indices_[i]];
-        l_JointTorque_out_(i) = l_joints_[i]->GetForce(0); //ext_f[l_indices_[i]];
+        r_JointTorque_out_(i) = r_joints_[i]->GetForce(0);
+        l_JointTorque_out_(i) = l_joints_[i]->GetForce(0);
     }
+
+    const double torso_gear = 158.0;
+    const double torso_trans_mult = 20000.0 * torso_gear / (M_PI * 2.0);
+    const double torso_motor_offset = -88524.0;
+    const double torso_joint_offset = 0;
+    const double torso_motor_constant = 0.00105;
 
     // joint position
     for (int i = 0; i < 7; i++) {
         r_JointPosition_out_(i) = r_joints_[i]->GetAngle(0).Radian();
         l_JointPosition_out_(i) = l_joints_[i]->GetAngle(0).Radian();
     }
-    for (int i = 0; i < t_joints_.size(); i++) {
-        t_JointPosition_out_(i) = t_joints_[i]->GetAngle(0).Radian();
-    }
+    t_MotorPosition_out_ = (t_joints_[0]->GetAngle(0).Radian() - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
 
     // joint velocity
     for (int i = 0; i < 7; i++) {
         r_JointVelocity_out_(i) = r_joints_[i]->GetVelocity(0);
         l_JointVelocity_out_(i) = l_joints_[i]->GetVelocity(0);
     }
-    for (int i = 0; i < t_joints_.size(); i++) {
-        t_JointVelocity_out_(i) = t_joints_[i]->GetVelocity(0);
-    }
+    t_MotorVelocity_out_ = t_joints_[0]->GetVelocity(0) * torso_trans_mult;
 
     // torque command
     if (r_command_mode_) {
@@ -299,10 +296,8 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         l_JointTorqueCommand_in_.setZero();
     }
 
-    for (int i = 0; i < t_joints_.size(); i++) {
-        t_joints_[i]->SetForce(0, t_JointTorqueCommand_in_(i));
-    }
-    t_JointTorqueCommand_in_.setZero();
+    t_joints_[0]->SetForce(0, t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant);
+    t_MotorCurrentCommand_in_ = 0.0;
 
     //
     // BarrettHand

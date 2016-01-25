@@ -1,0 +1,9 @@
+import("rtt_ros");
+ros.import("rtt_rospack")
+
+runScript( ros.find("velma_controller") + "/config/velma_common_load.ops")
+
+runScript( ros.find("velma_sim_gazebo") + "/config/velma_simulator.ops")
+
+runScript( ros.find("velma_controller") + "/config/velma_common_start.ops")
+
