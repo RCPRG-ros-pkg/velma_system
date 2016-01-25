@@ -43,19 +43,19 @@ stream("VelmaSim.l_KRL_CMD_INPORT", ros.comm.topic("/left_arm/KRL_CMD"));
 
 ## move hand action
 
-connect("rightHandMoveAction.q_out", "VelmaSim.rh_q_INPORT", ConnPolicy());
-connect("rightHandMoveAction.v_out", "VelmaSim.rh_v_INPORT", ConnPolicy());
-connect("rightHandMoveAction.t_out", "VelmaSim.rh_t_INPORT", ConnPolicy());
-connect("rightHandMoveAction.mp_out", "VelmaSim.rh_mp_INPORT", ConnPolicy());
-connect("rightHandMoveAction.hold_out", "VelmaSim.rh_hold_INPORT", ConnPolicy());
-connect("VelmaSim.rh_status_OUTPORT", "rightHandMoveAction.status_in", ConnPolicy());
+connect("rightHandMoveAction.q_OUTPORT", "VelmaSim.rh_q_INPORT", ConnPolicy());
+connect("rightHandMoveAction.v_OUTPORT", "VelmaSim.rh_v_INPORT", ConnPolicy());
+connect("rightHandMoveAction.t_OUTPORT", "VelmaSim.rh_t_INPORT", ConnPolicy());
+connect("rightHandMoveAction.mp_OUTPORT", "VelmaSim.rh_mp_INPORT", ConnPolicy());
+connect("rightHandMoveAction.hold_OUTPORT", "VelmaSim.rh_hold_INPORT", ConnPolicy());
+connect("VelmaSim.rh_status_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
 
-connect("leftHandMoveAction.q_out", "VelmaSim.lh_q_INPORT", ConnPolicy());
-connect("leftHandMoveAction.v_out", "VelmaSim.lh_v_INPORT", ConnPolicy());
-connect("leftHandMoveAction.t_out", "VelmaSim.lh_t_INPORT", ConnPolicy());
-connect("leftHandMoveAction.mp_out", "VelmaSim.lh_mp_INPORT", ConnPolicy());
-connect("leftHandMoveAction.hold_out", "VelmaSim.lh_hold_INPORT", ConnPolicy());
-connect("VelmaSim.lh_status_OUTPORT", "leftHandMoveAction.status_in", ConnPolicy());
+connect("leftHandMoveAction.q_OUTPORT", "VelmaSim.lh_q_INPORT", ConnPolicy());
+connect("leftHandMoveAction.v_OUTPORT", "VelmaSim.lh_v_INPORT", ConnPolicy());
+connect("leftHandMoveAction.t_OUTPORT", "VelmaSim.lh_t_INPORT", ConnPolicy());
+connect("leftHandMoveAction.mp_OUTPORT", "VelmaSim.lh_mp_INPORT", ConnPolicy());
+connect("leftHandMoveAction.hold_OUTPORT", "VelmaSim.lh_hold_INPORT", ConnPolicy());
+connect("VelmaSim.lh_status_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
 
 ## LWR diagnostics
 
