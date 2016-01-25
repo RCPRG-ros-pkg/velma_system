@@ -36,40 +36,37 @@ VelmaSim.rosparam.getAll();
 
 VelmaSim.configure();
 
-## LWR commands
+string rightKRLcmd_INPORT_name()                { return string("VelmaSim.r_KRL_CMD_INPORT"); }
+string leftKRLcmd_INPORT_name()                 { return string("VelmaSim.l_KRL_CMD_INPORT"); }
 
-stream("VelmaSim.r_KRL_CMD_INPORT", ros.comm.topic("/right_arm/KRL_CMD"));
-stream("VelmaSim.l_KRL_CMD_INPORT", ros.comm.topic("/left_arm/KRL_CMD"));
+string rightHandPosition_INPORT_name()          { return string("VelmaSim.rh_q_INPORT"); }
+string rightHandVelocity_INPORT_name()          { return string("VelmaSim.rh_v_INPORT"); }
+string rightHandCurrent_INPORT_name()           { return string("VelmaSim.rh_t_INPORT"); }
+string rightHandMaxPressure_INPORT_name()       { return string("VelmaSim.rh_mp_INPORT"); }
+string rightHandHold_INPORT_name()              { return string("VelmaSim.rh_hold_INPORT"); }
+string rightHandStatus_OUTPORT_name()           { return string("VelmaSim.rh_status_OUTPORT"); }
 
-## move hand action
+string leftHandPosition_INPORT_name()           { return string("VelmaSim.lh_q_INPORT"); }
+string leftHandVelocity_INPORT_name()           { return string("VelmaSim.lh_v_INPORT"); }
+string leftHandCurrent_INPORT_name()            { return string("VelmaSim.lh_t_INPORT"); }
+string leftHandMaxPressure_INPORT_name()        { return string("VelmaSim.lh_mp_INPORT"); }
+string leftHandHold_INPORT_name()               { return string("VelmaSim.lh_hold_INPORT"); }
+string leftHandStatus_OUTPORT_name()            { return string("VelmaSim.lh_status_OUTPORT"); }
 
-connect("rightHandMoveAction.q_OUTPORT", "VelmaSim.rh_q_INPORT", ConnPolicy());
-connect("rightHandMoveAction.v_OUTPORT", "VelmaSim.rh_v_INPORT", ConnPolicy());
-connect("rightHandMoveAction.t_OUTPORT", "VelmaSim.rh_t_INPORT", ConnPolicy());
-connect("rightHandMoveAction.mp_OUTPORT", "VelmaSim.rh_mp_INPORT", ConnPolicy());
-connect("rightHandMoveAction.hold_OUTPORT", "VelmaSim.rh_hold_INPORT", ConnPolicy());
-connect("VelmaSim.rh_status_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
+string rightArmRobotState_OUTPORT_name()        { return string("VelmaSim.r_RobotState_OUTPORT"); }
+string rightArmFRIState_OUTPORT_name()          { return string("VelmaSim.r_FRIState_OUTPORT"); }
+string leftArmRobotState_OUTPORT_name()         { return string("VelmaSim.l_RobotState_OUTPORT"); }
+string leftArmFRIState_OUTPORT_name()           { return string("VelmaSim.l_FRIState_OUTPORT"); }
 
-connect("leftHandMoveAction.q_OUTPORT", "VelmaSim.lh_q_INPORT", ConnPolicy());
-connect("leftHandMoveAction.v_OUTPORT", "VelmaSim.lh_v_INPORT", ConnPolicy());
-connect("leftHandMoveAction.t_OUTPORT", "VelmaSim.lh_t_INPORT", ConnPolicy());
-connect("leftHandMoveAction.mp_OUTPORT", "VelmaSim.lh_mp_INPORT", ConnPolicy());
-connect("leftHandMoveAction.hold_OUTPORT", "VelmaSim.lh_hold_INPORT", ConnPolicy());
-connect("VelmaSim.lh_status_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
+string torsoMotorPosition_OUTPORT_name()        { return string("VelmaSim.t_MotorPosition_OUTPORT"); }
+string torsoMotorVelocity_OUTPORT_name()        { return string("VelmaSim.t_MotorVelocity_OUTPORT"); }
+string torsoMotorCurrentCommand_INPORT_name()   { return string("VelmaSim.t_MotorCurrentCommand_INPORT"); }
 
-## LWR diagnostics
+string rightArmJointPosition_OUTPORT_name()     { return string("VelmaSim.r_JointPosition_OUTPORT"); }
 
-connect("VelmaSim.r_RobotState_OUTPORT", "LWRrDiag.RobotState_INPORT", ConnPolicy());
-connect("VelmaSim.r_FRIState_OUTPORT", "LWRrDiag.FRIState_INPORT", ConnPolicy());
-
-connect("VelmaSim.l_RobotState_OUTPORT", "LWRlDiag.RobotState_INPORT", ConnPolicy());
-connect("VelmaSim.l_FRIState_OUTPORT", "LWRlDiag.FRIState_INPORT", ConnPolicy());
-
-## torso transmision
-
-connect("TorsoPanTransmision.MotorPosition", "VelmaSim.t_MotorPosition_OUTPORT", ConnPolicy());
-connect("TorsoPanTransmision.MotorVelocity", "VelmaSim.t_MotorVelocity_OUTPORT", ConnPolicy());
-connect("TorsoPanTransmisionInv.MotorCurrent", "VelmaSim.t_MotorCurrentCommand_INPORT", ConnPolicy())
+void start_interface_components() {
+    VelmaSim.start();
+}
 
 ## camera trigger
 
@@ -100,7 +97,6 @@ connect("HeadTiltTransmisionInv.MotorVelocity", "VelmaSim.head_tilt_motor_veloci
 
 ## vector concatenations and splits
 
-connect("VelmaSim.r_JointPosition_OUTPORT", "Jc.In1", ConnPolicy());
 connect("VelmaSim.l_JointPosition_OUTPORT", "Jc.In2", ConnPolicy());
 
 connect("VelmaSim.r_JointVelocity_OUTPORT", "Jvc.In1", ConnPolicy());
@@ -145,5 +141,4 @@ connect("CartTrjLeft.CartesianWrench", "VelmaSim.l_CartesianWrench_OUTPORT", Con
 
 ## start simulation component
 
-VelmaSim.start();
 
