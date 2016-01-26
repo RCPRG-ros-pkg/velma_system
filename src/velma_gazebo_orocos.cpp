@@ -80,12 +80,8 @@
             rh_status_out_ = 0;
             rh_move_hand_ = true;
         }
-        if (port_rh_v_in_.read(rh_v_in_) == RTT::NewData) {
-            std::cout << "rh_v_in_: new data " << rh_v_in_.transpose() << std::endl;
-        }
-        if (port_rh_t_in_.read(rh_t_in_) == RTT::NewData) {
-            std::cout << "rh_t_in_: new data " << rh_t_in_.transpose() << std::endl;
-        }
+        port_rh_v_in_.read(rh_v_in_);
+        port_rh_t_in_.read(rh_t_in_);
 
         if (port_lh_q_in_.read(lh_q_in_) == RTT::NewData) {
             std::cout << "lh_q_in_: new data " << lh_q_in_.transpose() << std::endl;

@@ -30,8 +30,21 @@ VelmaSim.loadService("rosparam")
 VelmaSim.rosparam.getAll()
 VelmaSim.configure()
 
+setActivityOnCPU("VelmaGazeboRightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
+VelmaGazeboRightHandTactile.loadService("rosparam")
+VelmaGazeboRightHandTactile.rosparam.getAll()
+VelmaGazeboRightHandTactile.configure()
+
+
+stream("VelmaGazeboRightHandTactile.BHPressureState_OUTPORT", ros.comm.topic("/right_hand/BHPressureState"))
+stream("VelmaGazeboRightHandTactile.calibrate_tactile_sensors_INPORT", ros.comm.topic("/right_hand/calibrate_tactile_sensors"))
+stream("VelmaGazeboRightHandTactile.set_median_filter_INPORT", ros.comm.topic("/right_hand/set_median_filter"))
+stream("VelmaGazeboRightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
+//connect("VelmaGazeboRightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
+
 void start_interface_components() {
     VelmaSim.start();
+    VelmaGazeboRightHandTactile.start();
 }
 
 string rightHandPosition_INPORT_name()          { return string("VelmaSim.rh_q_INPORT"); }

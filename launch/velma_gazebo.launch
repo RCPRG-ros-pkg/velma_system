@@ -33,6 +33,8 @@
         prefix: right
       leftHandMoveAction:
         prefix: left
+      VelmaGazeboRightHandTactile:
+        prefix: right
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:
@@ -147,5 +149,4 @@
         child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
     </rosparam>
   </group>
-
 </launch>
