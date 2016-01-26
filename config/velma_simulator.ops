@@ -19,25 +19,20 @@ ros.import("rtt_tf");
 ros.import("internal_space_spline_trajectory_action");
 ros.import("internal_space_spline_trajectory_generator");
 ros.import("port_operations");
-
-
-
-
+ros.import("velma_sim_gazebo");
 
 //------------------------------------------------------------------------------
 //-- Simulation interface
 //------------------------------------------------------------------------------
 
-## load simulation component
+setActivityOnCPU("VelmaSim", 0.001, 6, ORO_SCHED_RT, 3)
+VelmaSim.loadService("rosparam")
+VelmaSim.rosparam.getAll()
+VelmaSim.configure()
 
-setActivityOnCPU("VelmaSim", 0.001, 6, ORO_SCHED_RT, 3);
-VelmaSim.loadService("rosparam");
-VelmaSim.rosparam.getAll();
-
-VelmaSim.configure();
-
-string rightKRLcmd_INPORT_name()                { return string("VelmaSim.r_KRL_CMD_INPORT"); }
-string leftKRLcmd_INPORT_name()                 { return string("VelmaSim.l_KRL_CMD_INPORT"); }
+void start_interface_components() {
+    VelmaSim.start();
+}
 
 string rightHandPosition_INPORT_name()          { return string("VelmaSim.rh_q_INPORT"); }
 string rightHandVelocity_INPORT_name()          { return string("VelmaSim.rh_v_INPORT"); }
@@ -45,6 +40,7 @@ string rightHandCurrent_INPORT_name()           { return string("VelmaSim.rh_t_I
 string rightHandMaxPressure_INPORT_name()       { return string("VelmaSim.rh_mp_INPORT"); }
 string rightHandHold_INPORT_name()              { return string("VelmaSim.rh_hold_INPORT"); }
 string rightHandStatus_OUTPORT_name()           { return string("VelmaSim.rh_status_OUTPORT"); }
+string rightHandJointPosition_OUTPORT_name()    { return string("VelmaSim.rh_q_OUTPORT"); }
 
 string leftHandPosition_INPORT_name()           { return string("VelmaSim.lh_q_INPORT"); }
 string leftHandVelocity_INPORT_name()           { return string("VelmaSim.lh_v_INPORT"); }
@@ -52,93 +48,48 @@ string leftHandCurrent_INPORT_name()            { return string("VelmaSim.lh_t_I
 string leftHandMaxPressure_INPORT_name()        { return string("VelmaSim.lh_mp_INPORT"); }
 string leftHandHold_INPORT_name()               { return string("VelmaSim.lh_hold_INPORT"); }
 string leftHandStatus_OUTPORT_name()            { return string("VelmaSim.lh_status_OUTPORT"); }
-
-string rightArmRobotState_OUTPORT_name()        { return string("VelmaSim.r_RobotState_OUTPORT"); }
-string rightArmFRIState_OUTPORT_name()          { return string("VelmaSim.r_FRIState_OUTPORT"); }
-string leftArmRobotState_OUTPORT_name()         { return string("VelmaSim.l_RobotState_OUTPORT"); }
-string leftArmFRIState_OUTPORT_name()           { return string("VelmaSim.l_FRIState_OUTPORT"); }
+string leftHandJointPosition_OUTPORT_name()     { return string("VelmaSim.lh_q_OUTPORT"); }
 
 string torsoMotorPosition_OUTPORT_name()        { return string("VelmaSim.t_MotorPosition_OUTPORT"); }
 string torsoMotorVelocity_OUTPORT_name()        { return string("VelmaSim.t_MotorVelocity_OUTPORT"); }
 string torsoMotorCurrentCommand_INPORT_name()   { return string("VelmaSim.t_MotorCurrentCommand_INPORT"); }
 
-string rightArmJointPosition_OUTPORT_name()     { return string("VelmaSim.r_JointPosition_OUTPORT"); }
-
-void start_interface_components() {
-    VelmaSim.start();
-}
-
 ## camera trigger
 
-//connect("TGR.Trigger", "EC.torso.subnode0.DigitalOutput1", ConnPolicy());
-//connect("TGR.Trigger", "EC.torso.subnode0.DigitalOutput2", ConnPolicy());
+//string torsoMotorPosition_OUTPORT_name()        { return string("TGR.Trigger", "EC.torso.subnode0.DigitalOutput1"); }
+//string torsoMotorPosition_OUTPORT_name()        { return string("TGR.Trigger", "EC.torso.subnode0.DigitalOutput2"); }
 
-## head command limiters
+string headPanMotorPosition_OUTPORT_name()        { return string("VelmaSim.head_pan_motor_position_OUTPORT"); }
+string headPanMotorVelocity_OUTPORT_name()        { return string("VelmaSim.head_pan_motor_velocity_OUTPORT"); }
+string headPanMotorPositionCommand_INPORT_name()  { return string("VelmaSim.head_pan_motor_position_command_INPORT"); }
+string headPanMotorVelocityCommand_INPORT_name()  { return string("VelmaSim.head_pan_motor_velocity_command_INPORT"); }
+string headPanMotorCurrentCommand_INPORT_name()   { return string("VelmaSim.head_pan_motor_current_command_INPORT"); }
 
-connect("HeadPanVelocityLimiter.PositionMsr", "VelmaSim.head_pan_motor_position_OUTPORT", ConnPolicy());
-connect("HeadPanVelocityLimiter.PositionOut", "VelmaSim.head_pan_motor_position_command_INPORT", ConnPolicy());
+string headTiltMotorPosition_OUTPORT_name()       { return string("VelmaSim.head_tilt_motor_position_OUTPORT"); }
+string headTiltMotorVelocity_OUTPORT_name()       { return string("VelmaSim.head_tilt_motor_velocity_OUTPORT"); }
+string headTiltMotorPositionCommand_INPORT_name() { return string("VelmaSim.head_tilt_motor_position_command_INPORT"); }
+string headTiltMotorVelocityCommand_INPORT_name() { return string("VelmaSim.head_tilt_motor_velocity_command_INPORT"); }
+string headTiltMotorCurrentCommand_INPORT_name()  { return string("VelmaSim.head_tilt_motor_current_command_INPORT"); }
 
-connect("HeadTiltVelocityLimiter.PositionMsr", "VelmaSim.head_tilt_motor_position_OUTPORT", ConnPolicy());
-connect("HeadTiltVelocityLimiter.PositionOut", "VelmaSim.head_tilt_motor_position_command_INPORT", ConnPolicy());
+string leftArmJointPosition_OUTPORT_name()        { return string("VelmaSim.l_JointPosition_OUTPORT"); }
+string leftArmJointVelocity_OUTPORT_name()        { return string("VelmaSim.l_JointVelocity_OUTPORT"); }
+string leftArmJointTorque_OUTPORT_name()          { return string("VelmaSim.l_JointTorque_OUTPORT"); }
+string leftArmWrench_OUTPORT_name()               { return string("VelmaSim.l_CartesianWrench_OUTPORT"); }
+string leftArmMassMatrix_OUTPORT_name()           { return string("VelmaSim.l_MassMatrix_OUTPORT"); }
+string leftArmGravityTorque_OUTPORT_name()        { return string("VelmaSim.l_GravityTorque_OUTPORT"); }
+string leftArmJointTorqueCommand_INPORT_name()    { return string("VelmaSim.l_JointTorqueCommand_INPORT"); }
+string leftKRLcmd_INPORT_name()                   { return string("VelmaSim.l_KRL_CMD_INPORT"); }
+string leftArmRobotState_OUTPORT_name()           { return string("VelmaSim.l_RobotState_OUTPORT"); }
+string leftArmFRIState_OUTPORT_name()             { return string("VelmaSim.l_FRIState_OUTPORT"); }
 
-## head transmisions
-
-connect("HeadPanTransmision.MotorPosition", "VelmaSim.head_pan_motor_position_OUTPORT", ConnPolicy());
-connect("HeadPanTransmision.MotorVelocity", "VelmaSim.head_pan_motor_velocity_OUTPORT", ConnPolicy());
-
-connect("HeadPanTransmisionInv.MotorCurrent", "VelmaSim.head_pan_motor_current_command_INPORT", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity", "VelmaSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
-
-connect("HeadTiltTransmision.MotorPosition", "VelmaSim.head_tilt_motor_position_OUTPORT", ConnPolicy());
-connect("HeadTiltTransmision.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_OUTPORT", ConnPolicy());
-
-connect("HeadTiltTransmisionInv.MotorCurrent", "VelmaSim.head_tilt_motor_current_command_INPORT", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity", "VelmaSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
-
-## vector concatenations and splits
-
-connect("VelmaSim.l_JointPosition_OUTPORT", "Jc.In2", ConnPolicy());
-
-connect("VelmaSim.r_JointVelocity_OUTPORT", "Jvc.In1", ConnPolicy());
-connect("VelmaSim.l_JointVelocity_OUTPORT", "Jvc.In2", ConnPolicy());
-
-connect("VelmaSim.rh_q_OUTPORT", "JcAll.In2", ConnPolicy());
-connect("VelmaSim.lh_q_OUTPORT", "JcAll.In3", ConnPolicy());
-
-connect("VelmaSim.rh_q_OUTPORT", "JvcAll.In2", ConnPolicy());
-connect("VelmaSim.lh_q_OUTPORT", "JvcAll.In3", ConnPolicy());
-
-connect("Ts.Out1", "VelmaSim.r_JointTorqueCommand_INPORT", ConnPolicy());
-connect("Ts.Out2", "VelmaSim.l_JointTorqueCommand_INPORT", ConnPolicy());
-
-## wrench decimators
-
-connect("Dwr.In", "VelmaSim.r_CartesianWrench_OUTPORT", ConnPolicy());
-connect("Dwl.In", "VelmaSim.l_CartesianWrench_OUTPORT", ConnPolicy());
-
-## mass matrix component
-
-connect("VelmaSim.l_MassMatrix_OUTPORT", "Mass.MassMatrixLeft", ConnPolicy());
-connect("VelmaSim.r_MassMatrix_OUTPORT", "Mass.MassMatrixRight", ConnPolicy());
-
-## torque publishers
-
-connect("VelmaSim.r_JointTorque_OUTPORT", "TorquePubRight.InJointTorque", ConnPolicy())
-connect("VelmaSim.r_GravityTorque_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
-
-connect("VelmaSim.l_JointTorque_OUTPORT", "TorquePubLeft.InJointTorque", ConnPolicy())
-connect("VelmaSim.l_GravityTorque_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
-
-## gravity component
-
-connect("VelmaSim.l_GravityTorque_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
-connect("VelmaSim.r_GravityTorque_OUTPORT", "VG.GravTrqRight", ConnPolicy());
-
-## cartesian trajectory action
-
-connect("CartTrjRight.CartesianWrench", "VelmaSim.r_CartesianWrench_OUTPORT", ConnPolicy());
-connect("CartTrjLeft.CartesianWrench", "VelmaSim.l_CartesianWrench_OUTPORT", ConnPolicy());
-
-## start simulation component
-
+string rightArmJointPosition_OUTPORT_name()       { return string("VelmaSim.r_JointPosition_OUTPORT"); }
+string rightArmJointVelocity_OUTPORT_name()       { return string("VelmaSim.r_JointVelocity_OUTPORT"); }
+string rightArmJointTorque_OUTPORT_name()         { return string("VelmaSim.r_JointTorque_OUTPORT"); }
+string rightArmWrench_OUTPORT_name()              { return string("VelmaSim.r_CartesianWrench_OUTPORT"); }
+string rightArmMassMatrix_OUTPORT_name()          { return string("VelmaSim.r_MassMatrix_OUTPORT"); }
+string rightArmGravityTorque_OUTPORT_name()       { return string("VelmaSim.r_GravityTorque_OUTPORT"); }
+string rightArmJointTorqueCommand_INPORT_name()   { return string("VelmaSim.r_JointTorqueCommand_INPORT"); }
+string rightKRLcmd_INPORT_name()                  { return string("VelmaSim.r_KRL_CMD_INPORT"); }
+string rightArmRobotState_OUTPORT_name()          { return string("VelmaSim.r_RobotState_OUTPORT"); }
+string rightArmFRIState_OUTPORT_name()            { return string("VelmaSim.r_FRIState_OUTPORT"); }
 
