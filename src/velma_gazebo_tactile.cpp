@@ -5,7 +5,8 @@
     VelmaGazeboTactile::VelmaGazeboTactile(std::string const& name) : 
         TaskContext(name),
         median_filter_samples_(1),
-        median_filter_max_samples_(8)
+        median_filter_max_samples_(8),
+        model_(NULL)
     {
         nh_ = new ros::NodeHandle();
         std::cout << "VelmaGazeboTactile ROS node namespace: " << nh_->getNamespace() << std::endl;
@@ -72,6 +73,11 @@
     }
 
     bool VelmaGazeboTactile::configureHook() {
+        if(model_.get() == NULL) {
+            std::cout << "ERROR: gazebo model is NULL" << std::endl;
+            return false;
+        }
+
         if (prefix_.empty()) {
             std::cout << "ERROR: VelmaGazeboTactile::configureHook: prefix is empty" << std::endl;
             return false;
@@ -80,6 +86,9 @@
         std::string link_names[4] = {"_HandFingerOneKnuckleThreeLink", "_HandFingerTwoKnuckleThreeLink", "_HandFingerThreeKnuckleThreeLink", "_HandPalmLink"};
         for (int i = 0; i < 4; i++) {
             link_names_.push_back(prefix_ + link_names[i]);
+        }
+        for () {
+            
         }
 
         std::cout << "VelmaGazeboTactile::configureHook: ok" << std::endl;
@@ -166,7 +175,7 @@ void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
     }
 
-    detector_->detectCollision(true, true);
+//    detector_->detectCollision(true, true);
     size_t collisionCount = detector_->getNumContacts();
     if (collisionCount > 0) {
         for(size_t i = 0; i < collisionCount; ++i)
@@ -174,6 +183,7 @@ void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             const dart::collision::Contact& contact = detector_->getContact(i);
             const std::string &b1_name = contact.bodyNode1->getName();
             const std::string &b2_name = contact.bodyNode2->getName();
+            std::cout << b1_name << " " << b2_name << std::endl;
             double closest_dist = -1;
             double max_force = -1;
             for (int lidx = 0; lidx < 4; lidx++) {
@@ -194,8 +204,11 @@ void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                     for (int tidx = 0; tidx < 24; tidx++) {
                         const Eigen::Isometry3d &T_S_B = ts_[lidx]->getFrameInv(tidx);
                         const Eigen::Vector3d &P_S = T_S_B * P_B;
-                        if (std::fabs(P_S.x()) < ts_[lidx]->getHalfsideLength1(tidx) && std::fabs(P_S.y()) < ts_[lidx]->getHalfsideLength2(tidx)) {
+                        if (std::fabs(P_S.x()) < ts_[lidx]->getHalfsideLength1(tidx) && std::fabs(P_S.y()) < ts_[lidx]->getHalfsideLength2(tidx) && std::fabs(P_S.z()) < 0.005) {
                             tact[lidx][tidx] += 256;
+                        }
+                        if (b1_name == link_names_[3] || b2_name == link_names_[3]) {
+                            std::cout << tidx << "  " << P_S.x() << "  " << P_S.y() << "  " << P_S.z() << std::endl;
                         }
                     }
                 }
