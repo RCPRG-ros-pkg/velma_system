@@ -1,5 +1,5 @@
-#ifndef VELMA_GAZEBO_TACTILE_H__
-#define VELMA_GAZEBO_TACTILE_H__
+#ifndef BARRETT_TACTILE_GAZEBO_H__
+#define BARRETT_TACTILE_GAZEBO_H__
 
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -91,5 +91,5 @@ public:
     RTT::os::MutexRecursive gazebo_mutex_;
 };
 
-#endif  // VELMA_GAZEBO_TACTILE_H__
+#endif  // BARRETT_TACTILE_GAZEBO_H__
 

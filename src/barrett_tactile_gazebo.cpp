@@ -1,4 +1,4 @@
-#include "velma_gazebo_tactile.h"
+#include "barrett_tactile_gazebo.h"
 #include "barrett_hand_common/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
 

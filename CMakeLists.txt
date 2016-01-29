@@ -41,7 +41,7 @@ orocos_use_package( rtt-typekit )
 
 ## Default component
 orocos_component(velma_gazebo src/velma_gazebo_init.cpp src/velma_gazebo.cpp src/velma_gazebo_orocos.cpp src/velma_gazebo_srdf.cpp)
-orocos_component(velma_gazebo_tactile src/velma_gazebo_tactile.cpp)
+orocos_component(velma_gazebo_tactile src/barrett_tactile_gazebo.cpp)
 orocos_component(barrett_hand_gazebo src/barrett_hand_gazebo.cpp src/barrett_hand_gazebo_init.cpp src/barrett_hand_gazebo_orocos.cpp)
 
 set_target_properties(velma_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
