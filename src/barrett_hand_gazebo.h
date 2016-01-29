@@ -39,31 +39,31 @@ class BarrettHandGazebo : public RTT::TaskContext
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    // right hand ports
-    RTT::InputPort<Eigen::VectorXd>  port_rh_q_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_rh_v_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_rh_t_in_;
-    RTT::InputPort<double>           port_rh_mp_in_;
-    RTT::InputPort<int32_t>          port_rh_hold_in_;
-    RTT::InputPort<Eigen::Vector4d > port_rh_max_measured_pressure_in_;
-    RTT::InputPort<std_msgs::Empty>  port_rh_reset_in_;
-    RTT::OutputPort<uint32_t>        port_rh_status_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_rh_q_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_rh_t_out_;
-    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_rh_temp_out_;
+    // orocos ports
+    RTT::InputPort<Eigen::VectorXd>  port_q_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_v_in_;
+    RTT::InputPort<Eigen::VectorXd>  port_t_in_;
+    RTT::InputPort<double>           port_mp_in_;
+    RTT::InputPort<int32_t>          port_hold_in_;
+    RTT::InputPort<Eigen::Vector4d > port_max_measured_pressure_in_;
+    RTT::InputPort<std_msgs::Empty>  port_reset_in_;
+    RTT::OutputPort<uint32_t>        port_status_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_q_out_;
+    RTT::OutputPort<Eigen::VectorXd> port_t_out_;
+    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_temp_out_;
 
-    Eigen::VectorXd rh_q_in_;
-    Eigen::VectorXd rh_v_in_;
-    Eigen::VectorXd rh_t_in_;
-    double          rh_mp_in_;
-    int32_t         rh_hold_in_;
-    Eigen::Vector4d rh_max_measured_pressure_in_;
-    std_msgs::Empty rh_reset_in_;
-    uint32_t        rh_status_out_;
-    std_msgs::Int32 rh_filter_in_;
-    Eigen::VectorXd rh_q_out_;
-    Eigen::VectorXd rh_t_out_;
-    //barrett_hand_controller_msgs::BHTemp rh_temp_out_;
+    Eigen::VectorXd q_in_;
+    Eigen::VectorXd v_in_;
+    Eigen::VectorXd t_in_;
+    double          mp_in_;
+    int32_t         hold_in_;
+    Eigen::Vector4d max_measured_pressure_in_;
+    std_msgs::Empty reset_in_;
+    uint32_t        status_out_;
+    std_msgs::Int32 filter_in_;
+    Eigen::VectorXd q_out_;
+    Eigen::VectorXd t_out_;
+    //barrett_hand_controller_msgs::BHTemp temp_out_;
 
     // public methods
     BarrettHandGazebo(std::string const& name);
@@ -93,13 +93,13 @@ public:
     dart::simulation::World *dart_world_;
 
     // BarrettHand
-    std::vector<gazebo::physics::JointPtr>  rh_joints_;
+    std::vector<gazebo::physics::JointPtr>  joints_;
 
-    std::vector<dart::dynamics::Joint*>  rh_joints_dart_;
+    std::vector<dart::dynamics::Joint*>  joints_dart_;
 
-    bool rh_move_hand_;
+    bool move_hand_;
 
-    bool rh_clutch_break_[3];
+    bool clutch_break_[3];
 
     gazebo::physics::JointController *jc_;
 
