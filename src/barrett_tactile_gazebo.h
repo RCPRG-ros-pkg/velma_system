@@ -39,14 +39,14 @@
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
 
-class VelmaGazeboTactile : public RTT::TaskContext
+class BarrettTactileGazebo : public RTT::TaskContext
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // public methods
-    VelmaGazeboTactile(std::string const& name);
-    ~VelmaGazeboTactile();
+    BarrettTactileGazebo(std::string const& name);
+    ~BarrettTactileGazebo();
     void updateHook();
     bool startHook();
     bool configureHook();

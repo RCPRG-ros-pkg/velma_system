@@ -30,17 +30,25 @@ VelmaSim.loadService("rosparam")
 VelmaSim.rosparam.getAll()
 VelmaSim.configure()
 
-setActivityOnCPU("VelmaGazeboRightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
-VelmaGazeboRightHandTactile.loadService("rosparam")
-VelmaGazeboRightHandTactile.rosparam.getAll()
-VelmaGazeboRightHandTactile.configure()
+setActivityOnCPU("RightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
+RightHandTactile.loadService("rosparam")
+RightHandTactile.rosparam.getAll()
+RightHandTactile.configure()
 
+stream("RightHandTactile.BHPressureState_OUTPORT", ros.comm.topic("/right_hand/BHPressureState"))
+stream("RightHandTactile.calibrate_tactile_sensors_INPORT", ros.comm.topic("/right_hand/calibrate_tactile_sensors"))
+stream("RightHandTactile.set_median_filter_INPORT", ros.comm.topic("/right_hand/set_median_filter"))
+stream("RightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
+//connect("RightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
 
-stream("VelmaGazeboRightHandTactile.BHPressureState_OUTPORT", ros.comm.topic("/right_hand/BHPressureState"))
-stream("VelmaGazeboRightHandTactile.calibrate_tactile_sensors_INPORT", ros.comm.topic("/right_hand/calibrate_tactile_sensors"))
-stream("VelmaGazeboRightHandTactile.set_median_filter_INPORT", ros.comm.topic("/right_hand/set_median_filter"))
-stream("VelmaGazeboRightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
-//connect("VelmaGazeboRightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
+setActivityOnCPU("LeftHandOptoforce", 0.025, 6, ORO_SCHED_RT, 3)
+LeftHandOptoforce.loadService("rosparam")
+LeftHandOptoforce.rosparam.getAll()
+LeftHandOptoforce.configure()
+
+stream("LeftHandOptoforce.force_0_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_0"))
+stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
+stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
 
 setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
 RightHand.loadService("rosparam")
@@ -57,9 +65,10 @@ LeftHand.configure()
 
 void start_interface_components() {
     VelmaSim.start();
-    VelmaGazeboRightHandTactile.start();
+    RightHandTactile.start();
     RightHand.start();
     LeftHand.start();
+    LeftHandOptoforce.start();
 }
 
 string rightHandPosition_INPORT_name()          { return string("RightHand.q_INPORT"); }

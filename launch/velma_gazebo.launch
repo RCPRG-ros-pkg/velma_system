@@ -37,8 +37,12 @@
         prefix: right
       leftHandMoveAction:
         prefix: left
-      VelmaGazeboRightHandTactile:
+      RightHandTactile:
         prefix: right
+      LeftHandOptoforce:
+        device_name: gazebo_leftHand
+        n_sensors: 3
+        frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:

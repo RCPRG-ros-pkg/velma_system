@@ -2,21 +2,21 @@
 #include "barrett_hand_common/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
 
-    VelmaGazeboTactile::VelmaGazeboTactile(std::string const& name) : 
+    BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name) : 
         TaskContext(name),
         median_filter_samples_(1),
         median_filter_max_samples_(8),
         model_(NULL)
     {
         nh_ = new ros::NodeHandle();
-        std::cout << "VelmaGazeboTactile ROS node namespace: " << nh_->getNamespace() << std::endl;
+        std::cout << "BarrettTactileGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
 
-        std::cout << "VelmaGazeboTactile ROS node name: " << ros::this_node::getName() << std::endl;
-        std::cout << "VelmaGazeboTactile ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
+        std::cout << "BarrettTactileGazebo ROS node name: " << ros::this_node::getName() << std::endl;
+        std::cout << "BarrettTactileGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
         // Add required gazebo interfaces
-        this->provides("gazebo")->addOperation("configure",&VelmaGazeboTactile::gazeboConfigureHook,this,RTT::ClientThread);
-        this->provides("gazebo")->addOperation("update",&VelmaGazeboTactile::gazeboUpdateHook,this,RTT::ClientThread);
+        this->provides("gazebo")->addOperation("configure",&BarrettTactileGazebo::gazeboConfigureHook,this,RTT::ClientThread);
+        this->provides("gazebo")->addOperation("update",&BarrettTactileGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
         ts_[0] = new Tactile(median_filter_max_samples_);
         ts_[1] = new Tactile(median_filter_max_samples_);
@@ -69,17 +69,17 @@
         port_max_pressure_out_.setDataSample(max_pressure_out_);
     }
 
-    VelmaGazeboTactile::~VelmaGazeboTactile() {
+    BarrettTactileGazebo::~BarrettTactileGazebo() {
     }
 
-    bool VelmaGazeboTactile::configureHook() {
+    bool BarrettTactileGazebo::configureHook() {
         if(model_.get() == NULL) {
             std::cout << "ERROR: gazebo model is NULL" << std::endl;
             return false;
         }
 
         if (prefix_.empty()) {
-            std::cout << "ERROR: VelmaGazeboTactile::configureHook: prefix is empty" << std::endl;
+            std::cout << "ERROR: BarrettTactileGazebo::configureHook: prefix is empty" << std::endl;
             return false;
         }
 
@@ -110,11 +110,11 @@
             }
         }
 
-        std::cout << "VelmaGazeboTactile::configureHook: ok" << std::endl;
+        std::cout << "BarrettTactileGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
-    void VelmaGazeboTactile::updateHook() {
+    void BarrettTactileGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
@@ -140,14 +140,14 @@
             port_tactile_info_out_.write(pressure_info_);
     }
 
-    bool VelmaGazeboTactile::startHook() {
+    bool BarrettTactileGazebo::startHook() {
       return true;
     }
 
-    bool VelmaGazeboTactile::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+    bool BarrettTactileGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
         if(model.get() == NULL) {
-            std::cout << "VelmaGazeboTactile::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            std::cout << "BarrettTactileGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
             return false;
         }
 
@@ -170,15 +170,15 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 // Update the controller
-void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
+void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
     if (link_names_.size() != 4) {
-        std::cout << "ERROR: VelmaGazeboTactile: link_names_.size() != 4" << std::endl;
+        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
     }
 
     if (!model_dart_) {
-        std::cout << "ERROR: VelmaGazeboTactile: !model_dart_" << std::endl;
+        std::cout << "ERROR: BarrettTactileGazebo: !model_dart_" << std::endl;
         return;
     }
 
@@ -245,6 +245,6 @@ void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
 }
 
-ORO_LIST_COMPONENT_TYPE(VelmaGazeboTactile)
+ORO_LIST_COMPONENT_TYPE(BarrettTactileGazebo)
 ORO_CREATE_COMPONENT_LIBRARY();
 
