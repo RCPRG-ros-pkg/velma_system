@@ -81,6 +81,57 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     t_out_[4] = t_out_[5] = joints_[4]->GetForce(0)*force_factor;
     t_out_[6] = t_out_[7] = joints_[6]->GetForce(0)*force_factor;
 
+    int f1k1_dof_idx = 3;
+    int f1k1_jnt_idx = 0;
+    int f2k1_dof_idx = 3;
+    int f2k1_jnt_idx = 3;
+    double mean_spread = (joints_[f1k1_jnt_idx]->GetAngle(0).Radian() + joints_[f2k1_jnt_idx]->GetAngle(0).Radian()) / 2.0;
+    if (move_hand_) {
+        move_hand_ = false;
+        spread_int_ = mean_spread;
+        status_out_ = 0;
+        std::cout << "move hand" << std::endl;
+    }
+
+    if ((status_out_&STATUS_OVERCURRENT4 == 0) && (status_out_&STATUS_IDLE4 == 0)) {
+        // spread joints
+        if (spread_int_ > q_in_[f1k1_dof_idx]) {
+            spread_int_ -= v_in_[f1k1_dof_idx] * 0.001;
+            if (spread_int_ <= q_in_[f1k1_dof_idx]) {
+                status_out_ |= STATUS_IDLE4;
+                std::cout << "spread idle" << std::endl;
+            }
+        }
+        else if (spread_int_ < q_in_[f1k1_dof_idx]) {
+            spread_int_ += v_in_[f1k1_dof_idx] * 0.001;
+            if (spread_int_ >= q_in_[f1k1_dof_idx]) {
+                status_out_ |= STATUS_IDLE4;
+                std::cout << "spread idle" << std::endl;
+            }
+        }
+
+        double f1k1_force = joints_[f1k1_jnt_idx]->GetForce(0);
+        double f2k1_force = joints_[f2k1_jnt_idx]->GetForce(0);
+        double spread_force = f1k1_force + f2k1_force;
+
+        if (std::fabs(spread_force) > 0.5) {
+            status_out_ |= STATUS_OVERCURRENT4;
+            std::cout << "spread overcurrent" << std::endl;
+            jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), mean_spread);
+            jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), mean_spread);
+        }
+        else {
+            if (!jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), spread_int_)) {
+                std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetPositionTarget(" << joints_[f1k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+            }
+            if (!jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), spread_int_)) {
+                std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetPositionTarget(" << joints_[f2k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+            }
+        }
+    }
+
+
+/*
     // spread joints
     const double vel_trap_angle = 5.0/180.0*3.1415;
     const double spread_dead_angle = 3.0/180.0*3.1415;
@@ -151,7 +202,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             status_out_ |= status_idle_tab[i];
         }
     }
-
+*/
     jc_->Update();
 }
 

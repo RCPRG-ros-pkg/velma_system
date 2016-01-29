@@ -40,8 +40,8 @@
         port_status_out_.write(status_out_);
 
         if (port_q_in_.read(q_in_) == RTT::NewData) {
-//            std::cout << "q_in_: new data " << q_in_.transpose() << std::endl;
-            status_out_ = 0;
+            std::cout << "q_in_: new data " << q_in_.transpose() << std::endl;
+//            status_out_ = 0;
             move_hand_ = true;
         }
         port_v_in_.read(v_in_);
@@ -82,7 +82,7 @@
         for (int i = 0; i < 8; i++) {
             jc_->AddJoint(joints_[i]);
         }
-        jc_->SetVelocityPID(joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
+/*        jc_->SetVelocityPID(joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
         jc_->SetVelocityPID(joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.0, 0.0, 0.0, 0.0, 1.0,-1.0));
         jc_->SetVelocityPID(joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
         jc_->SetVelocityPID(joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.0, 0.0, 0.0, 0.0, 0.5,-0.5));
@@ -90,6 +90,17 @@
         jc_->SetVelocityPID(joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
         jc_->SetVelocityPID(joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
         jc_->SetVelocityPID(joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.0, 0.0, 0.0, 0.0, 0.2,-0.2));
+*/
+
+        jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.2, -0.2, 1.0,-1.0));
+        jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.2, -0.2, 1.0,-1.0));
+        jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(0.5, 0.2, 0.0, 0.1, -0.1, 0.5,-0.5));
+        jc_->SetPositionPID(joints_[4]->GetScopedName(), gazebo::common::PID(0.5, 0.2, 0.0, 0.1, -0.1, 0.5,-0.5));
+        jc_->SetPositionPID(joints_[6]->GetScopedName(), gazebo::common::PID(0.5, 0.2, 0.0, 0.1, -0.1, 0.5,-0.5));
+        jc_->SetPositionPID(joints_[2]->GetScopedName(), gazebo::common::PID(0.2, 0.1, 0.0, 0.04, -0.04, 0.2,-0.2));
+        jc_->SetPositionPID(joints_[5]->GetScopedName(), gazebo::common::PID(0.2, 0.1, 0.0, 0.04, -0.04, 0.2,-0.2));
+        jc_->SetPositionPID(joints_[7]->GetScopedName(), gazebo::common::PID(0.2, 0.1, 0.0, 0.04, -0.04, 0.2,-0.2));
+
 
         std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;

@@ -62,6 +62,7 @@
         port_q_out_.setDataSample(q_out_);
         port_t_out_.setDataSample(t_out_);
         //port_temp_out_.setDataSample(temp_out_);
+        status_out_ = 0;
 
         move_hand_ = false;
     }

@@ -128,6 +128,9 @@ public:
 
     bool clutch_break_[3];
 
+    double spread_int_;
+    double finger_int_;
+
     gazebo::physics::JointController *jc_;
 
     //! Synchronization
