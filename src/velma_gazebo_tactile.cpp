@@ -83,12 +83,31 @@
             return false;
         }
 
-        std::string link_names[4] = {"_HandFingerOneKnuckleThreeLink", "_HandFingerTwoKnuckleThreeLink", "_HandFingerThreeKnuckleThreeLink", "_HandPalmLink"};
+        std::string collision_names[4] = {prefix_ + std::string("_HandFingerOneKnuckleThreeLink_collision"),
+            prefix_ + std::string("_HandFingerTwoKnuckleThreeLink_collision"),
+            prefix_ + std::string("_HandFingerThreeKnuckleThreeLink_collision"),
+            prefix_ + std::string("_arm_7_link_lump::") + prefix_ + std::string("_HandPalmLink_collision_1") };
+
         for (int i = 0; i < 4; i++) {
-            link_names_.push_back(prefix_ + link_names[i]);
-        }
-        for () {
-            
+            for (gazebo::physics::Link_V::const_iterator it = model_->GetLinks().begin(); it != model_->GetLinks().end(); it++) {
+                const std::string &link_name = (*it)->GetName();
+                int col_count = (*it)->GetCollisions().size();
+                bool found = false;
+                for (int cidx = 0; cidx < col_count; cidx++) {
+                    const std::string &col_name = (*it)->GetCollisions()[cidx]->GetName();
+                    if (col_name == collision_names[i]) {
+                        //Eigen::Quaterniond q(dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().rotation());
+                        //std::cout << "tactile skin: " << link_name << "   " << dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
+                        link_names_.push_back( link_name );
+                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) {
+                    break;
+                }
+            }
         }
 
         std::cout << "VelmaGazeboTactile::configureHook: ok" << std::endl;
@@ -183,34 +202,37 @@ void VelmaGazeboTactile::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             const dart::collision::Contact& contact = detector_->getContact(i);
             const std::string &b1_name = contact.bodyNode1->getName();
             const std::string &b2_name = contact.bodyNode2->getName();
-            std::cout << b1_name << " " << b2_name << std::endl;
             double closest_dist = -1;
             double max_force = -1;
             for (int lidx = 0; lidx < 4; lidx++) {
                 bool check = false;
-                Eigen::Isometry3d T_W_B;
+                Eigen::Isometry3d T_W_L;
+                Eigen::Vector6d ext_f;
                 if (b1_name == link_names_[lidx]) {
                     check = true;
-                    T_W_B = contact.bodyNode1->getTransform();
+                    T_W_L = contact.bodyNode1->getTransform();
+                    ext_f = contact.bodyNode1->getExternalForceLocal();
                 }
                 if (b2_name == link_names_[lidx]) {
                     check = true;
-                    T_W_B = contact.bodyNode2->getTransform();
+                    T_W_L = contact.bodyNode2->getTransform();
+                    ext_f = contact.bodyNode2->getExternalForceLocal();
                 }
                 const Eigen::Vector3d &P_W = contact.point;
-                const Eigen::Vector3d &P_B = T_W_B.inverse() * P_W;
-
+                const Eigen::Vector3d &P_C = vec_T_C_L_[lidx] * T_W_L.inverse() * P_W;
+                
                 if (check) {
                     for (int tidx = 0; tidx < 24; tidx++) {
-                        const Eigen::Isometry3d &T_S_B = ts_[lidx]->getFrameInv(tidx);
-                        const Eigen::Vector3d &P_S = T_S_B * P_B;
+                        const Eigen::Isometry3d &T_S_C = ts_[lidx]->getFrameInv(tidx);
+                        const Eigen::Vector3d &P_S = T_S_C * P_C;
                         if (std::fabs(P_S.x()) < ts_[lidx]->getHalfsideLength1(tidx) && std::fabs(P_S.y()) < ts_[lidx]->getHalfsideLength2(tidx) && std::fabs(P_S.z()) < 0.005) {
                             tact[lidx][tidx] += 256;
                         }
-                        if (b1_name == link_names_[3] || b2_name == link_names_[3]) {
-                            std::cout << tidx << "  " << P_S.x() << "  " << P_S.y() << "  " << P_S.z() << std::endl;
-                        }
+//                        if (b1_name == link_names_[3] || b2_name == link_names_[3]) {
+//                            std::cout << tidx << "  " << P_S.x() << "  " << P_S.y() << "  " << P_S.z() << std::endl;
+//                        }
                     }
+                    std::cout << b1_name << " " << b2_name << "   " << ext_f.transpose() << std::endl;
                 }
             }
         }

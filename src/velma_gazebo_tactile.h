@@ -67,6 +67,7 @@ public:
     dart::collision::CollisionDetector* detector_;
 
     std::vector<std::string > link_names_;
+    std::vector<Eigen::Isometry3d > vec_T_C_L_;
 
     Tactile *ts_[4];
 
