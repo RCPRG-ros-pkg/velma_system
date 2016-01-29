@@ -42,26 +42,41 @@ stream("VelmaGazeboRightHandTactile.set_median_filter_INPORT", ros.comm.topic("/
 stream("VelmaGazeboRightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
 //connect("VelmaGazeboRightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
 
+setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
+RightHand.loadService("rosparam")
+RightHand.rosparam.getAll()
+RightHand.configure()
+
+setActivityOnCPU("LeftHand", 0.001, 6, ORO_SCHED_RT, 3)
+LeftHand.loadService("rosparam")
+LeftHand.rosparam.getAll()
+LeftHand.configure()
+
+
+
+
 void start_interface_components() {
     VelmaSim.start();
     VelmaGazeboRightHandTactile.start();
+    RightHand.start();
+    LeftHand.start();
 }
 
-string rightHandPosition_INPORT_name()          { return string("VelmaSim.rh_q_INPORT"); }
-string rightHandVelocity_INPORT_name()          { return string("VelmaSim.rh_v_INPORT"); }
-string rightHandCurrent_INPORT_name()           { return string("VelmaSim.rh_t_INPORT"); }
-string rightHandMaxPressure_INPORT_name()       { return string("VelmaSim.rh_mp_INPORT"); }
-string rightHandHold_INPORT_name()              { return string("VelmaSim.rh_hold_INPORT"); }
-string rightHandStatus_OUTPORT_name()           { return string("VelmaSim.rh_status_OUTPORT"); }
-string rightHandJointPosition_OUTPORT_name()    { return string("VelmaSim.rh_q_OUTPORT"); }
+string rightHandPosition_INPORT_name()          { return string("RightHand.rh_q_INPORT"); }
+string rightHandVelocity_INPORT_name()          { return string("RightHand.rh_v_INPORT"); }
+string rightHandCurrent_INPORT_name()           { return string("RightHand.rh_t_INPORT"); }
+string rightHandMaxPressure_INPORT_name()       { return string("RightHand.rh_mp_INPORT"); }
+string rightHandHold_INPORT_name()              { return string("RightHand.rh_hold_INPORT"); }
+string rightHandStatus_OUTPORT_name()           { return string("RightHand.rh_status_OUTPORT"); }
+string rightHandJointPosition_OUTPORT_name()    { return string("RightHand.rh_q_OUTPORT"); }
 
-string leftHandPosition_INPORT_name()           { return string("VelmaSim.lh_q_INPORT"); }
-string leftHandVelocity_INPORT_name()           { return string("VelmaSim.lh_v_INPORT"); }
-string leftHandCurrent_INPORT_name()            { return string("VelmaSim.lh_t_INPORT"); }
-string leftHandMaxPressure_INPORT_name()        { return string("VelmaSim.lh_mp_INPORT"); }
-string leftHandHold_INPORT_name()               { return string("VelmaSim.lh_hold_INPORT"); }
-string leftHandStatus_OUTPORT_name()            { return string("VelmaSim.lh_status_OUTPORT"); }
-string leftHandJointPosition_OUTPORT_name()     { return string("VelmaSim.lh_q_OUTPORT"); }
+string leftHandPosition_INPORT_name()           { return string("LeftHand.rh_q_INPORT"); }
+string leftHandVelocity_INPORT_name()           { return string("LeftHand.rh_v_INPORT"); }
+string leftHandCurrent_INPORT_name()            { return string("LeftHand.rh_t_INPORT"); }
+string leftHandMaxPressure_INPORT_name()        { return string("LeftHand.rh_mp_INPORT"); }
+string leftHandHold_INPORT_name()               { return string("LeftHand.rh_hold_INPORT"); }
+string leftHandStatus_OUTPORT_name()            { return string("LeftHand.rh_status_OUTPORT"); }
+string leftHandJointPosition_OUTPORT_name()     { return string("LeftHand.rh_q_OUTPORT"); }
 
 string torsoMotorPosition_OUTPORT_name()        { return string("VelmaSim.t_MotorPosition_OUTPORT"); }
 string torsoMotorVelocity_OUTPORT_name()        { return string("VelmaSim.t_MotorVelocity_OUTPORT"); }

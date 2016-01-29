@@ -10,13 +10,9 @@
         std::cout << "VelmaGazebo ROS node name: " << ros::this_node::getName() << std::endl;
         std::cout << "VelmaGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
-//        addProperty("LWRlDiag/prefix", prop_prefix);
-//        addProperty("parameter", prop_parameter);
-
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&VelmaGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&VelmaGazebo::gazeboUpdateHook,this,RTT::ClientThread);
-//        this->provides("gazebo")->addOperation("exit",&VelmaGazebo::gazeboExit,this,RTT::ClientThread);
 
         // right KUKA FRI ports
         this->ports()->addPort("r_JointTorqueCommand_INPORT",        port_r_JointTorqueCommand_in_).doc("");
@@ -68,55 +64,8 @@
         this->ports()->addPort("t_MotorVelocity_OUTPORT",             port_t_MotorVelocity_out_).doc("");
         t_MotorCurrentCommand_in_ = 0.0;
 
-        // right hand ports
-        this->ports()->addPort("rh_q_INPORT",      port_rh_q_in_);
-        this->ports()->addPort("rh_v_INPORT",      port_rh_v_in_);
-        this->ports()->addPort("rh_t_INPORT",      port_rh_t_in_);
-        this->ports()->addPort("rh_mp_INPORT",     port_rh_mp_in_);
-        this->ports()->addPort("rh_hold_INPORT",   port_rh_hold_in_);
-        this->ports()->addPort("rh_q_OUTPORT",     port_rh_q_out_);
-        this->ports()->addPort("rh_t_OUTPORT",     port_rh_t_out_);
-        this->ports()->addPort("rh_status_OUTPORT",    port_rh_status_out_);
-        //this->ports()->addPort("rh_BHTemp",        port_rh_temp_out_);
-        this->ports()->addPort("rh_max_measured_pressure_INPORT", port_rh_max_measured_pressure_in_);
-        this->ports()->addPort("rh_reset_fingers_INPORT", port_rh_reset_in_);
-        rh_q_in_.resize(4); rh_q_in_.setZero();
-        rh_v_in_.resize(4); rh_v_in_.setZero();
-        rh_t_in_.resize(4); rh_t_in_.setZero();
-        rh_mp_in_ = 0.0;
-        rh_hold_in_ = 0;    // false
-        rh_max_measured_pressure_in_.setZero();
-        rh_q_out_.resize(8);
-        rh_t_out_.resize(8);
-        //rh_temp_out_.temp.resize(8);
-        port_rh_q_out_.setDataSample(rh_q_out_);
-        port_rh_t_out_.setDataSample(rh_t_out_);
-        //port_rh_temp_out_.setDataSample(rh_temp_out_);
-
-        // left hand ports
-        this->ports()->addPort("lh_q_INPORT",      port_lh_q_in_);
-        this->ports()->addPort("lh_v_INPORT",      port_lh_v_in_);
-        this->ports()->addPort("lh_t_INPORT",      port_lh_t_in_);
-        this->ports()->addPort("lh_mp_INPORT",     port_lh_mp_in_);
-        this->ports()->addPort("lh_hold_INPORT",   port_lh_hold_in_);
-        this->ports()->addPort("lh_q_OUTPORT",     port_lh_q_out_);
-        this->ports()->addPort("lh_t_OUTPORT",     port_lh_t_out_);
-        this->ports()->addPort("lh_status_OUTPORT",    port_lh_status_out_);
-        //this->ports()->addPort("lh_BHTemp",        port_lh_temp_out_);
-        this->ports()->addPort("lh_max_measured_pressure_INPORT", port_lh_max_measured_pressure_in_);
-        this->ports()->addPort("lh_reset_fingers_INPORT", port_lh_reset_in_);
-        lh_q_in_.resize(4); lh_q_in_.setZero();
-        lh_v_in_.resize(4); lh_v_in_.setZero();
-        lh_t_in_.resize(4); lh_t_in_.setZero();
-        lh_mp_in_ = 0.0;
-        lh_hold_in_ = 0;    // false
-        lh_max_measured_pressure_in_.setZero();
-        lh_q_out_.resize(8);
-        lh_t_out_.resize(8);
-        //lh_temp_out_.temp.resize(8);
-        port_lh_q_out_.setDataSample(lh_q_out_);
-        port_lh_t_out_.setDataSample(lh_t_out_);
-        //port_lh_temp_out_.setDataSample(lh_temp_out_);
+        r_command_mode_ = false;
+        l_command_mode_ = false;
 
         // head ports
         this->ports()->addPort("head_pan_motor_position_command_INPORT",        port_hp_q_in_).doc("");
@@ -131,11 +80,6 @@
         this->ports()->addPort("head_tilt_motor_position_OUTPORT",              port_ht_q_out_).doc("");
         this->ports()->addPort("head_tilt_motor_velocity_OUTPORT",              port_ht_v_out_).doc("");
         ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
-
-        rh_move_hand_ = false;
-        lh_move_hand_ = false;
-        r_command_mode_ = false;
-        l_command_mode_ = false;
     }
 
     VelmaGazebo::~VelmaGazebo() {

@@ -29,6 +29,10 @@
       FRIr:
         fri_port: 49948
         joint_offset: [0.0,-0.0,-0.0,-0.0,-0.0,0.0,0.0]
+      RightHand:
+        prefix: right
+      LeftHand:
+        prefix: left
       rightHandMoveAction:
         prefix: right
       leftHandMoveAction:

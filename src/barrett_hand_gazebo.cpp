@@ -1,0 +1,130 @@
+#include "barrett_hand_gazebo.h"
+
+    bool BarrettHandGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+
+        if(model.get() == NULL) {
+            std::cout << "BarrettHandGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            return false;
+        }
+
+        model_ = model;
+
+        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
+
+        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
+        if (model_dart_.get() == NULL) {
+            std::cout << "BarrettHandGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
+            return false;
+        }
+
+        dart_sk_ = model_dart_->GetDARTSkeleton();
+
+        return true;
+    }
+
+double BarrettHandGazebo::clip(double n, double lower, double upper) {
+  return std::max(lower, std::min(n, upper));
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Update the controller
+void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
+{
+    if (!model_dart_) {
+        return;
+    }
+
+    RTT::os::MutexTryLock trylock(gazebo_mutex_);
+    if(!trylock.isSuccessful()) {
+        return;
+    }
+
+    //
+    // BarrettHand
+    //
+
+    const double force_factor = 1000.0;
+    // joint position
+    for (int i = 0; i < 8; i++) {
+        rh_q_out_(i) = rh_joints_[i]->GetAngle(0).Radian();
+    }
+
+    rh_t_out_[0] = rh_t_out_[3] = rh_joints_[0]->GetForce(0)*force_factor;
+    rh_t_out_[1] = rh_t_out_[2] = rh_joints_[1]->GetForce(0)*force_factor;
+    rh_t_out_[4] = rh_t_out_[5] = rh_joints_[4]->GetForce(0)*force_factor;
+    rh_t_out_[6] = rh_t_out_[7] = rh_joints_[6]->GetForce(0)*force_factor;
+
+    // spread joints
+    const double vel_trap_angle = 5.0/180.0*3.1415;
+    const double spread_dead_angle = 3.0/180.0*3.1415;
+
+    double diff, force;
+    int dof_idx, jnt_idx;
+    int f1k1_dof_idx = 3;
+    int f1k1_jnt_idx = 0;
+    int f2k1_dof_idx = 3;
+    int f2k1_jnt_idx = 3;
+
+    double f1k1_force = rh_joints_[f1k1_jnt_idx]->GetForce(0);
+    double f2k1_force = rh_joints_[f2k1_jnt_idx]->GetForce(0);
+    double spread_force = f1k1_force + f2k1_force;
+
+    if (std::fabs(spread_force) > 0.5) {
+        rh_status_out_ |= STATUS_OVERCURRENT4;
+    }
+
+    double f1k1_angle = rh_joints_[f1k1_jnt_idx]->GetAngle(0).Radian();
+    double f2k1_angle = rh_joints_[f2k1_jnt_idx]->GetAngle(0).Radian();
+
+    double f1k1_diff = clip( rh_q_in_[f1k1_dof_idx] - rh_joints_[f1k1_jnt_idx]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
+    double f2k1_diff = clip( rh_q_in_[f2k1_dof_idx] - rh_joints_[f2k1_jnt_idx]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
+
+    double spread_diff = f1k1_angle - f2k1_angle;
+
+    double f1k1_vel = f1k1_diff - spread_diff / 2.0;
+    double f2k1_vel = f2k1_diff + spread_diff / 2.0;
+
+    if (std::fabs(f1k1_diff) < vel_trap_angle * 0.2 && std::fabs(f2k1_diff) < vel_trap_angle * 0.2) {
+        rh_status_out_ |= STATUS_IDLE4;
+    }
+
+    if (!jc_->SetVelocityTarget(rh_joints_[f1k1_jnt_idx]->GetScopedName(), rh_v_in_[f1k1_dof_idx] * f1k1_vel / vel_trap_angle)) {
+        std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetVelocityTarget(" << rh_joints_[f1k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+    }
+    if (!jc_->SetVelocityTarget(rh_joints_[f2k1_jnt_idx]->GetScopedName(), rh_v_in_[f2k1_dof_idx] * f2k1_vel / vel_trap_angle)) {
+        std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetVelocityTarget(" << rh_joints_[f2k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+    }
+
+    // finger joints
+    int k2_dof_tab[3] = {0, 1, 2};
+    int k2_jnt_tab[3] = {1, 4, 6};
+    int k3_jnt_tab[3] = {2, 5, 7};
+    int status_overcurrent_tab[3] = {STATUS_OVERCURRENT1, STATUS_OVERCURRENT2, STATUS_OVERCURRENT3};
+    int status_idle_tab[3] = {STATUS_IDLE1, STATUS_IDLE2, STATUS_IDLE3};
+
+    for (int i = 0; i < 3; i++) {
+        double k2_diff;
+        double k3_diff;
+
+        if (!rh_clutch_break_[i]) {
+            k2_diff = clip( rh_q_in_[k2_dof_tab[i]] - rh_joints_[k2_jnt_tab[i]]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
+            k3_diff = rh_joints_[k2_jnt_tab[i]]->GetAngle(0).Radian() / 3.0 - rh_joints_[k3_jnt_tab[i]]->GetAngle(0).Radian();
+            jc_->SetVelocityTarget(rh_joints_[k2_jnt_tab[i]]->GetScopedName(), rh_v_in_[k2_dof_tab[i]] * k2_diff / vel_trap_angle);
+            jc_->SetVelocityTarget(rh_joints_[k3_jnt_tab[i]]->GetScopedName(), rh_v_in_[k2_dof_tab[i]] * k3_diff / vel_trap_angle);
+        }
+        else {
+        }
+
+        double k2_force = rh_joints_[k2_jnt_tab[i]]->GetForce(0);
+        double k3_force = rh_joints_[k3_jnt_tab[i]]->GetForce(0);
+        if (std::fabs(k2_force) > 0.5 || std::fabs(k3_force) > 0.5) {
+            rh_status_out_ |= status_overcurrent_tab[i];
+        }
+        if (std::fabs(k2_diff) < vel_trap_angle * 0.2) {
+            rh_status_out_ |= status_idle_tab[i];
+        }
+    }
+
+    jc_->Update();
+}
+

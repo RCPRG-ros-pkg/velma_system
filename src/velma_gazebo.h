@@ -95,58 +95,6 @@ public:
     double t_MotorPosition_out_;
     double t_MotorVelocity_out_;
 
-    // right hand ports
-    RTT::InputPort<Eigen::VectorXd>  port_rh_q_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_rh_v_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_rh_t_in_;
-    RTT::InputPort<double>           port_rh_mp_in_;
-    RTT::InputPort<int32_t>          port_rh_hold_in_;
-    RTT::InputPort<Eigen::Vector4d > port_rh_max_measured_pressure_in_;
-    RTT::InputPort<std_msgs::Empty>  port_rh_reset_in_;
-    RTT::OutputPort<uint32_t>        port_rh_status_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_rh_q_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_rh_t_out_;
-    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_rh_temp_out_;
-
-    Eigen::VectorXd rh_q_in_;
-    Eigen::VectorXd rh_v_in_;
-    Eigen::VectorXd rh_t_in_;
-    double          rh_mp_in_;
-    int32_t         rh_hold_in_;
-    Eigen::Vector4d rh_max_measured_pressure_in_;
-    std_msgs::Empty rh_reset_in_;
-    uint32_t        rh_status_out_;
-    std_msgs::Int32 rh_filter_in_;
-    Eigen::VectorXd rh_q_out_;
-    Eigen::VectorXd rh_t_out_;
-    //barrett_hand_controller_msgs::BHTemp rh_temp_out_;
-
-    // left hand ports
-    RTT::InputPort<Eigen::VectorXd>  port_lh_q_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_lh_v_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_lh_t_in_;
-    RTT::InputPort<double>           port_lh_mp_in_;
-    RTT::InputPort<int32_t>          port_lh_hold_in_;
-    RTT::InputPort<Eigen::Vector4d > port_lh_max_measured_pressure_in_;
-    RTT::InputPort<std_msgs::Empty>  port_lh_reset_in_;
-    RTT::OutputPort<uint32_t>        port_lh_status_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_lh_q_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_lh_t_out_;
-    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_lh_temp_out_;
-
-    Eigen::VectorXd lh_q_in_;
-    Eigen::VectorXd lh_v_in_;
-    Eigen::VectorXd lh_t_in_;
-    double          lh_mp_in_;
-    int32_t         lh_hold_in_;
-    Eigen::Vector4d lh_max_measured_pressure_in_;
-    std_msgs::Empty lh_reset_in_;
-    uint32_t        lh_status_out_;
-    std_msgs::Int32 lh_filter_in_;
-    Eigen::VectorXd lh_q_out_;
-    Eigen::VectorXd lh_t_out_;
-    //barrett_hand_controller_msgs::BHTemp lh_temp_out_;
-
     // head ports
     RTT::InputPort<double>      port_hp_q_in_;
     RTT::InputPort<double>      port_hp_v_in_;
@@ -206,19 +154,6 @@ public:
 
     bool r_command_mode_;
     bool l_command_mode_;
-
-    // BarrettHands
-    std::vector<gazebo::physics::JointPtr>  rh_joints_;
-    std::vector<gazebo::physics::JointPtr>  lh_joints_;
-
-    std::vector<dart::dynamics::Joint*>  rh_joints_dart_;
-    std::vector<dart::dynamics::Joint*>  lh_joints_dart_;
-
-    bool rh_move_hand_;
-    bool lh_move_hand_;
-
-    bool rh_clutch_break_[3];
-    bool lh_clutch_break_[3];
 
     // head
     gazebo::physics::JointPtr head_pan_joint_;
