@@ -175,124 +175,60 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                     std::cout << "finger " << fidx << " idle" << std::endl;
                 }
             }
-        }
 
-        double k2_force = joints_[k2_jnt]->GetForce(0);
-        double k3_force = joints_[k3_jnt]->GetForce(0);
-//        std::cout << "forces: " << k2_force << "  " << k3_force << std::endl;
+            double k2_force = joints_[k2_jnt]->GetForce(0);
+            double k3_force = joints_[k3_jnt]->GetForce(0);
+            double k2_angle = joints_[k2_jnt]->GetAngle(0).Radian();
+            double k3_angle = joints_[k3_jnt]->GetAngle(0).Radian();
 
-        if (!is_opening && std::fabs(k2_force) > 0.25) {
-            clutch_break_angle_[fidx] = joints_[k2_jnt]->GetAngle(0).Radian();
-            clutch_break_[fidx] = true;
-            std::cout << "finger " << fidx << " clutch is broken" << std::endl;
-        }
+            if (!is_opening && std::fabs(k2_force) > 0.25) {
+                clutch_break_angle_[fidx] = k2_angle;
+                clutch_break_[fidx] = true;
+                std::cout << "finger " << fidx << " clutch is broken" << std::endl;
+            }
 
-        if (std::fabs(k2_force) + std::fabs(k3_force) > 0.5) {
-            status_out_ |= STATUS_OVERCURRENTi;
-            std::cout << "finger " << fidx << " overcurrent" << std::endl;
-        }
-
-        if (std::fabs(k3_force) > 3.0) {
-            joints_[k2_jnt]->Detach();
-            joints_[k2_jnt]->SetProvideFeedback(false);
-            std::cout << "finger " << fidx << " is broken" << std::endl;
-        }
-
-        double k3_angle_dest;
-        double k2_angle_dest;
-        if (clutch_break_[fidx]) {
-            k3_angle_dest = finger_int_[fidx] - clutch_break_angle_[fidx] * 2.0 / 3.0;
-            k2_angle_dest = clutch_break_angle_[fidx];
-            if (is_opening && k3_angle_dest < clutch_break_angle_[fidx] / 3.0) {
-                k2_angle_dest = finger_int_[fidx];
-                k3_angle_dest = finger_int_[fidx]/3;
-                if (joints_[k2_jnt]->GetAngle(0).Radian() < 0.03) {
-                    clutch_break_[fidx] = false;
-                    std::cout << "finger " << fidx << " clutch is restored" << std::endl;
+            double k3_angle_dest;
+            double k2_angle_dest;
+            if (std::fabs(k2_force) + std::fabs(k3_force) > 0.5) {
+                status_out_ |= STATUS_OVERCURRENTi;
+                std::cout << "finger " << fidx << " overcurrent" << std::endl;
+                k2_angle_dest = k2_angle;
+                k3_angle_dest = k3_angle;
+            }
+            else if (clutch_break_[fidx]) {
+                k3_angle_dest = finger_int_[fidx] - clutch_break_angle_[fidx] * 2.0 / 3.0;
+                k2_angle_dest = clutch_break_angle_[fidx];
+                if (is_opening && k3_angle_dest < clutch_break_angle_[fidx] / 3.0) {
+                    k2_angle_dest = finger_int_[fidx];
+                    k3_angle_dest = finger_int_[fidx]/3;
+                    if (k2_angle < 0.03) {
+                        clutch_break_[fidx] = false;
+                        std::cout << "finger " << fidx << " clutch is restored" << std::endl;
+                    }
                 }
             }
-        }
-        else {
-            k2_angle_dest = finger_int_[fidx];
-            k3_angle_dest = finger_int_[fidx]/3;
-        }
+            else {
+                k2_angle_dest = finger_int_[fidx];
+                k3_angle_dest = finger_int_[fidx]/3;
+            }
 
-        jc_->SetPositionTarget(joints_[k2_jnt]->GetScopedName(), k2_angle_dest);
-        jc_->SetPositionTarget(joints_[k3_jnt]->GetScopedName(), k3_angle_dest);
-    }
-
-/*
-    // spread joints
-    const double vel_trap_angle = 5.0/180.0*3.1415;
-    const double spread_dead_angle = 3.0/180.0*3.1415;
-
-    double diff, force;
-    int dof_idx, jnt_idx;
-    int f1k1_dof_idx = 3;
-    int f1k1_jnt_idx = 0;
-    int f2k1_dof_idx = 3;
-    int f2k1_jnt_idx = 3;
-
-    double f1k1_force = joints_[f1k1_jnt_idx]->GetForce(0);
-    double f2k1_force = joints_[f2k1_jnt_idx]->GetForce(0);
-    double spread_force = f1k1_force + f2k1_force;
-
-    if (std::fabs(spread_force) > 0.5) {
-        status_out_ |= STATUS_OVERCURRENT4;
-    }
-
-    double f1k1_angle = joints_[f1k1_jnt_idx]->GetAngle(0).Radian();
-    double f2k1_angle = joints_[f2k1_jnt_idx]->GetAngle(0).Radian();
-
-    double f1k1_diff = clip( q_in_[f1k1_dof_idx] - joints_[f1k1_jnt_idx]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
-    double f2k1_diff = clip( q_in_[f2k1_dof_idx] - joints_[f2k1_jnt_idx]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
-
-    double spread_diff = f1k1_angle - f2k1_angle;
-
-    double f1k1_vel = f1k1_diff - spread_diff / 2.0;
-    double f2k1_vel = f2k1_diff + spread_diff / 2.0;
-
-    if (std::fabs(f1k1_diff) < vel_trap_angle * 0.2 && std::fabs(f2k1_diff) < vel_trap_angle * 0.2) {
-        status_out_ |= STATUS_IDLE4;
-    }
-
-    if (!jc_->SetVelocityTarget(joints_[f1k1_jnt_idx]->GetScopedName(), v_in_[f1k1_dof_idx] * f1k1_vel / vel_trap_angle)) {
-        std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetVelocityTarget(" << joints_[f1k1_jnt_idx]->GetScopedName() << ")" << std::endl;
-    }
-    if (!jc_->SetVelocityTarget(joints_[f2k1_jnt_idx]->GetScopedName(), v_in_[f2k1_dof_idx] * f2k1_vel / vel_trap_angle)) {
-        std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetVelocityTarget(" << joints_[f2k1_jnt_idx]->GetScopedName() << ")" << std::endl;
-    }
-
-    // finger joints
-    int k2_dof_tab[3] = {0, 1, 2};
-    int k2_jnt_tab[3] = {1, 4, 6};
-    int k3_jnt_tab[3] = {2, 5, 7};
-    int status_overcurrent_tab[3] = {STATUS_OVERCURRENT1, STATUS_OVERCURRENT2, STATUS_OVERCURRENT3};
-    int status_idle_tab[3] = {STATUS_IDLE1, STATUS_IDLE2, STATUS_IDLE3};
-
-    for (int i = 0; i < 3; i++) {
-        double k2_diff;
-        double k3_diff;
-
-        if (!clutch_break_[i]) {
-            k2_diff = clip( q_in_[k2_dof_tab[i]] - joints_[k2_jnt_tab[i]]->GetAngle(0).Radian(), -vel_trap_angle, vel_trap_angle);
-            k3_diff = joints_[k2_jnt_tab[i]]->GetAngle(0).Radian() / 3.0 - joints_[k3_jnt_tab[i]]->GetAngle(0).Radian();
-            jc_->SetVelocityTarget(joints_[k2_jnt_tab[i]]->GetScopedName(), v_in_[k2_dof_tab[i]] * k2_diff / vel_trap_angle);
-            jc_->SetVelocityTarget(joints_[k3_jnt_tab[i]]->GetScopedName(), v_in_[k2_dof_tab[i]] * k3_diff / vel_trap_angle);
-        }
-        else {
+            jc_->SetPositionTarget(joints_[k2_jnt]->GetScopedName(), k2_angle_dest);
+            jc_->SetPositionTarget(joints_[k3_jnt]->GetScopedName(), k3_angle_dest);
         }
 
-        double k2_force = joints_[k2_jnt_tab[i]]->GetForce(0);
-        double k3_force = joints_[k3_jnt_tab[i]]->GetForce(0);
-        if (std::fabs(k2_force) > 0.5 || std::fabs(k3_force) > 0.5) {
-            status_out_ |= status_overcurrent_tab[i];
-        }
-        if (std::fabs(k2_diff) < vel_trap_angle * 0.2) {
-            status_out_ |= status_idle_tab[i];
+        // fingers may break if the force is too big
+        gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
+        gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
+        if (k2_wrench.body1Force.GetLength() > 30.0 || k2_wrench.body1Torque.GetLength() > 5.0 ||
+            k3_wrench.body1Force.GetLength() > 30.0 || k3_wrench.body1Torque.GetLength() > 3.0) {
+            joints_dart_[k2_jnt]->setPositionLimited(false);
+            joints_dart_[k3_jnt]->setPositionLimited(false);
+            jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
+            jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
+            std::cout << "finger " << fidx << " is broken" << std::endl;
         }
     }
-*/
+
     jc_->Update();
 }
 
