@@ -259,7 +259,7 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //                            std::cout << tidx << "  " << P_S.x() << "  " << P_S.y() << "  " << P_S.z() << std::endl;
 //                        }
                     }
-                    std::cout << b1_name << " " << b2_name << "   " << ext_f.transpose() << std::endl;
+//                    std::cout << b1_name << " " << b2_name << "   " << ext_f.transpose() << std::endl;
                 }
             }
         }

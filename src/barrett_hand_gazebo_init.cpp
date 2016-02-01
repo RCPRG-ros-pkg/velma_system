@@ -62,8 +62,8 @@
         port_q_out_.setDataSample(q_out_);
         port_t_out_.setDataSample(t_out_);
         //port_temp_out_.setDataSample(temp_out_);
-        status_out_ = 0;
-
+        status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
+        clutch_break_[0] = clutch_break_[1] = clutch_break_[2] = false;
         move_hand_ = false;
     }
 

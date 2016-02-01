@@ -108,7 +108,8 @@ public:
         STATUS_TORQUESWITCH1 = 0x0100, STATUS_TORQUESWITCH2 = 0x0200, STATUS_TORQUESWITCH3 = 0x0400,
         STATUS_IDLE1 = 0x1000, STATUS_IDLE2 = 0x2000, STATUS_IDLE3 = 0x4000, STATUS_IDLE4 = 0x8000 };
 
-    double clip(double n, double lower, double upper);
+    double clip(double n, double lower, double upper) const;
+    double getFingerAngle(int fidx) const;
 
     std::string prefix_;
 
@@ -127,9 +128,10 @@ public:
     bool move_hand_;
 
     bool clutch_break_[3];
+    double clutch_break_angle_[3];
 
     double spread_int_;
-    double finger_int_;
+    double finger_int_[3];
 
     gazebo::physics::JointController *jc_;
 
