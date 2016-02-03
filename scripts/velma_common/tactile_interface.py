@@ -32,7 +32,6 @@ from std_msgs.msg import *
 from geometry_msgs.msg import *
 from sensor_msgs.msg import *
 from barrett_hand_controller_msgs.msg import *
-from barrett_hand_controller_msgs.srv import *
 from cartesian_trajectory_msgs.msg import *
 from visualization_msgs.msg import *
 import actionlib
@@ -66,9 +65,9 @@ import velma_fk_ik
 # F - finger distal link
 # T - tool
 
-class Velma:
+class VelmaInterface:
     """
-Class for velma robot.
+Class used as Velma robot Interface.
 """
 
     def getPressureSensorsInfoClient(self):
