@@ -300,8 +300,8 @@ Class used as Velma robot Interface.
         Twist()))
         action_trajectory_goal.wrench_constraint = self.wrenchKDLtoROS(max_wrench)
         if path_tol != None:
-            action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol[0].x(), path_tol[0].y(), path_tol[0].z() )
-            action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol[1].x(), path_tol[1].y(), path_tol[1].z() )
+            action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+            action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
         self.current_max_wrench = self.wrenchKDLtoROS(max_wrench)
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self.action_right_cart_traj_feedback_cb)
 
