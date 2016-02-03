@@ -82,15 +82,19 @@
             jc_->AddJoint(joints_[i]);
         }
 
-        jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(2.0, 0.5, 0.0, 0.2, -0.2, 2.0,-2.0));
-        jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(2.0, 0.5, 0.0, 0.2, -0.2, 2.0,-2.0));
-        jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(1.1, 0.2, 0.0, 0.1, -0.1, 1.0,-1.0));
-        jc_->SetPositionPID(joints_[4]->GetScopedName(), gazebo::common::PID(1.1, 0.2, 0.0, 0.1, -0.1, 1.0,-1.0));
-        jc_->SetPositionPID(joints_[6]->GetScopedName(), gazebo::common::PID(1.1, 0.2, 0.0, 0.1, -0.1, 1.0,-1.0));
-        jc_->SetPositionPID(joints_[2]->GetScopedName(), gazebo::common::PID(0.5, 0.1, 0.0, 0.04, -0.04, 0.7,-0.7));
-        jc_->SetPositionPID(joints_[5]->GetScopedName(), gazebo::common::PID(0.5, 0.1, 0.0, 0.04, -0.04, 0.7,-0.7));
-        jc_->SetPositionPID(joints_[7]->GetScopedName(), gazebo::common::PID(0.5, 0.1, 0.0, 0.04, -0.04, 0.7,-0.7));
+        double torque = 5.0;
+        jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[4]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[6]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[2]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[5]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[7]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
 
+        for (int i = 0; i < 8; i++) {
+            jc_->SetPositionTarget(joints_[i]->GetScopedName(), 0.0);
+        }
 
         std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;
