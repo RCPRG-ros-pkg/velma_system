@@ -89,7 +89,7 @@
                 }
                 joints_.push_back( jnt );
                 jc_->AddJoint(jnt);
-                jc_->SetPositionPID(jnt->GetScopedName(), gazebo::common::PID(2.0, 0, 0.0, 0, 0, 2.0,-2.0));
+                jc_->SetPositionPID(jnt->GetScopedName(), gazebo::common::PID(20.0, 0, 0.0, 0, 0, 20.0,-20.0));
                 jc_->SetPositionTarget(jnt->GetScopedName(), 0.0);
             }
         }

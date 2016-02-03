@@ -219,13 +219,13 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         // fingers may break if the force is too big
         gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
         gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
-        if (k2_wrench.body1Force.GetLength() > 30.0 || k2_wrench.body1Torque.GetLength() > 5.0 ||
-            k3_wrench.body1Force.GetLength() > 30.0 || k3_wrench.body1Torque.GetLength() > 3.0) {
+        if (k2_wrench.body1Force.GetLength() > 40.0 || k2_wrench.body1Torque.GetLength() > 8.0 ||
+            k3_wrench.body1Force.GetLength() > 40.0 || k3_wrench.body1Torque.GetLength() > 6.0) {
             joints_dart_[k2_jnt]->setPositionLimited(false);
             joints_dart_[k3_jnt]->setPositionLimited(false);
             jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
             jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
-            std::cout << "finger " << fidx << " is broken" << std::endl;
+            std::cout << "finger " << fidx << " is broken: " << k2_wrench.body1Force.GetLength() << " " << k2_wrench.body1Torque.GetLength() << " " << k3_wrench.body1Force.GetLength() << " " << k3_wrench.body1Torque.GetLength() << std::endl;
         }
     }
 
