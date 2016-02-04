@@ -91,6 +91,9 @@
         if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_) == RTT::NewData) {
         }
 
+        port_r_CartesianWrench_out_.write(r_CartesianWrench_out_);
+        port_l_CartesianWrench_out_.write(l_CartesianWrench_out_);
+
         //
         // head
         //
