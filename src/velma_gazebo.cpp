@@ -274,19 +274,19 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     gazebo::physics::JointWrench wr_r, wr_l;
     wr_r = r_joints_[6]->GetForceTorque(0);
     wr_l = l_joints_[6]->GetForceTorque(0);
-    r_CartesianWrench_out_.force.x = -wr_r.body2Force.x;
-    r_CartesianWrench_out_.force.y = -wr_r.body2Force.y;
-    r_CartesianWrench_out_.force.z = -wr_r.body2Force.z;
-    r_CartesianWrench_out_.torque.x = -wr_r.body2Torque.x;
-    r_CartesianWrench_out_.torque.y = -wr_r.body2Torque.y;
-    r_CartesianWrench_out_.torque.z = -wr_r.body2Torque.z;
+    r_CartesianWrench_out_.force.x = wr_r.body2Force.x;
+    r_CartesianWrench_out_.force.y = wr_r.body2Force.y;
+    r_CartesianWrench_out_.force.z = wr_r.body2Force.z;
+    r_CartesianWrench_out_.torque.x = wr_r.body2Torque.x;
+    r_CartesianWrench_out_.torque.y = wr_r.body2Torque.y;
+    r_CartesianWrench_out_.torque.z = wr_r.body2Torque.z;
 
-    l_CartesianWrench_out_.force.x = -wr_l.body2Force.x;
-    l_CartesianWrench_out_.force.y = -wr_l.body2Force.y;
-    l_CartesianWrench_out_.force.z = -wr_l.body2Force.z;
-    l_CartesianWrench_out_.torque.x = -wr_l.body2Torque.x;
-    l_CartesianWrench_out_.torque.y = -wr_l.body2Torque.y;
-    l_CartesianWrench_out_.torque.z = -wr_l.body2Torque.z;
+    l_CartesianWrench_out_.force.x = wr_l.body2Force.x;
+    l_CartesianWrench_out_.force.y = wr_l.body2Force.y;
+    l_CartesianWrench_out_.force.z = wr_l.body2Force.z;
+    l_CartesianWrench_out_.torque.x = wr_l.body2Torque.x;
+    l_CartesianWrench_out_.torque.y = wr_l.body2Torque.y;
+    l_CartesianWrench_out_.torque.z = wr_l.body2Torque.z;
 
     //
     // head
