@@ -44,6 +44,7 @@ orocos_component(velma_gazebo src/velma_gazebo_init.cpp src/velma_gazebo.cpp src
 orocos_component(barrett_hand_gazebo src/barrett_hand_gazebo.cpp src/barrett_hand_gazebo_init.cpp src/barrett_hand_gazebo_orocos.cpp)
 orocos_component(barrett_tactile_gazebo src/barrett_tactile_gazebo.cpp)
 orocos_component(optoforce_gazebo src/optoforce_gazebo.cpp)
+orocos_component(ft_sensor_gazebo src/ft_sensor_gazebo.cpp src/ft_sensor_gazebo_init.cpp src/ft_sensor_gazebo_orocos.cpp)
 
 set_target_properties(velma_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
 target_link_libraries(velma_gazebo
@@ -83,6 +84,18 @@ target_link_libraries(barrett_tactile_gazebo
 
 set_target_properties(optoforce_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
 target_link_libraries(optoforce_gazebo
+  ${DARTCore_LIBRARIES}
+  ${GAZEBO_LIBRARIES} gazebo_physics_dart
+  ${catkin_LIBRARIES}
+  ${OROCOS-RTT_LIBRARIES} 
+  ${OROCOS-RTT_RTT-SCRIPTING_LIBRARY} 
+  ${OROCOS-RTT_RTT-TRANSPORT-CORBA_LIBRARY}
+  ${USE_OROCOS_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
+set_target_properties(ft_sensor_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
+target_link_libraries(ft_sensor_gazebo
   ${DARTCore_LIBRARIES}
   ${GAZEBO_LIBRARIES} gazebo_physics_dart
   ${catkin_LIBRARIES}

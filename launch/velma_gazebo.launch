@@ -43,6 +43,14 @@
         device_name: gazebo_leftHand
         n_sensors: 3
         frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
+      RightFtSensor:
+        joint_name: right_arm_6_joint
+        transform_xyz: [0.115, 0.0, -0.078]
+        transform_rpy: [0, 1.57079632679, 0]
+      LeftFtSensor:
+        joint_name: left_arm_6_joint
+        transform_xyz: [-0.115, 0.0, -0.078]
+        transform_rpy: [0, -1.57079632679, 0]
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:

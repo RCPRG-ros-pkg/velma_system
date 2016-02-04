@@ -60,6 +60,19 @@ LeftHand.loadService("rosparam")
 LeftHand.rosparam.getAll()
 LeftHand.configure()
 
+// F/T sensors
+
+setActivityOnCPU("LeftFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+LeftFtSensor.loadService("rosparam")
+LeftFtSensor.rosparam.getAll()
+LeftFtSensor.configure()
+stream("LeftFtSensor.cartesianWrench_OUTPORT", ros.comm.topic("/left_arm/ft_sensor/wrench"))
+
+setActivityOnCPU("RightFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+RightFtSensor.loadService("rosparam")
+RightFtSensor.rosparam.getAll()
+RightFtSensor.configure()
+stream("RightFtSensor.cartesianWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench"))
 
 
 
@@ -69,6 +82,8 @@ void start_interface_components() {
     RightHand.start();
     LeftHand.start();
     LeftHandOptoforce.start();
+    LeftFtSensor.start();
+    RightFtSensor.start();
 }
 
 string rightHandPosition_INPORT_name()          { return string("RightHand.q_INPORT"); }
@@ -129,4 +144,7 @@ string rightArmJointTorqueCommand_INPORT_name()   { return string("VelmaSim.r_Jo
 string rightKRLcmd_INPORT_name()                  { return string("VelmaSim.r_KRL_CMD_INPORT"); }
 string rightArmRobotState_OUTPORT_name()          { return string("VelmaSim.r_RobotState_OUTPORT"); }
 string rightArmFRIState_OUTPORT_name()            { return string("VelmaSim.r_FRIState_OUTPORT"); }
+
+string rightFtSensorCartesianWrench_OUTPORT_name(){ return string("RightFtSensor.cartesianWrench_OUTPORT"); }
+string leftFtSensorCartesianWrench_OUTPORT_name() { return string("LeftFtSensor.cartesianWrench_OUTPORT"); }
 
