@@ -46,7 +46,7 @@ from tf import *
 from tf.transformations import * 
 import tf_conversions.posemath as pm
 from tf2_msgs.msg import *
-from controller_manager_msgs.srv import *
+import controller_manager_msgs.srv
 
 
 import PyKDL
@@ -182,6 +182,84 @@ Class used as Velma robot Interface.
 #            if (wfx>self.current_max_wrench.force.x*2.0) or (wfy>self.current_max_wrench.force.y*2.0) or (wfz>self.current_max_wrench.force.z*2.0) or (wtx>self.current_max_wrench.torque.x*2.0) or (wty>self.current_max_wrench.torque.y*2.0) or (wtz>self.current_max_wrench.torque.z*2.0):
 #                self.wrench_emergency_stop = True
 
+    BEHAVOIUR_ERROR = 0
+    BEHAVOIUR_OTHER = 1
+    BEHAVOIUR_NONE = 2
+    BEHAVOIUR_CART_IMP = 3
+    BEHAVOIUR_JNT_IMP = 4
+    BEHAVOIUR_CART_FCL = 5
+
+    def getControllerBehaviour(self):
+        running = set()
+        stopped = set()
+        for item in self.conmanList().controller:
+            if item.state == "stopped":
+                stopped.add(item.name)
+            elif item.state == "running":
+                running.add(item.name)
+            else:
+                return self.BEHAVOIUR_ERROR
+
+        for key in self.behavoiur_stopped_dict:
+            if self.behavoiur_stopped_dict[key] == stopped:
+                return key
+
+        return self.BEHAVOIUR_OTHER
+        
+    def initConmanInterface(self):
+        rospy.wait_for_service('/controller_manager/switch_controller')
+        self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
+
+        rospy.wait_for_service('/controller_manager/list_controllers')
+        self.conmanList = rospy.ServiceProxy('/controller_manager/list_controllers', controller_manager_msgs.srv.ListControllers)
+
+        self.behavoiur_stopped_dict = {self.BEHAVOIUR_ERROR:None,
+            self.BEHAVOIUR_OTHER:None,
+            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTiltVelocityLimiter', 'HeadPanVelocityLimiter', 'PoseIntRight', 'JntImp']),
+            self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp']),
+            self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
+            self.BEHAVOIUR_CART_FCL:set(['TrajectoryGeneratorJoint', 'VG', 'JntImp', 'PoseIntLeft', 'PoseIntRight'])}
+
+    def switchToBehavoiur(self, behaviour):
+        current = self.getControllerBehaviour()
+        if current == self.BEHAVOIUR_ERROR:
+            return False
+        elif current == self.BEHAVOIUR_OTHER:
+            current_stopped = set()
+            for item in self.conmanList().controller:
+                if item.state == "stopped":
+                    current_stopped.add(item.name)
+        else:
+            current_stopped = self.behavoiur_stopped_dict[current]
+        des_stopped = self.behavoiur_stopped_dict[behaviour]
+
+        cmd_start = current_stopped - des_stopped
+        cmd_stop = des_stopped - current_stopped
+
+        cmd_start_list = []
+        for item in cmd_start:
+            cmd_start_list.append(item)
+        cmd_stop_list = []
+        for item in cmd_stop:
+            cmd_stop_list.append(item)
+
+        if len(cmd_start_list) == 0 and len(cmd_stop_list) == 0:
+            return True
+
+        if self.conmanSwitch(cmd_start_list, cmd_stop_list, 2):
+            return True
+
+        return False
+
+    def switchToJntImp(self):
+        return self.switchToBehavoiur(self.BEHAVOIUR_JNT_IMP)
+
+    def switchToCartImp(self):
+        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP)
+
+    def switchToCartFcl(self):
+        return self.switchToBehavoiur(self.BEHAVOIUR_CART_FCL)
+
     def __init__(self):
 
         # read the joint information from the ROS parameter server
@@ -273,6 +351,8 @@ Class used as Velma robot Interface.
 
 #        rospy.Subscriber('/'+self.prefix+'_arm/wrench', Wrench, self.wrenchCallback)
         joint_states_listener = rospy.Subscriber('/joint_states', JointState, self.jointStatesCallback)
+
+        self.initConmanInterface()
 
     def action_right_cart_traj_feedback_cb(self, feedback):
         self.action_right_cart_traj_feedback = copy.deepcopy(feedback)
@@ -740,69 +820,69 @@ Class used as Velma robot Interface.
             duration = 0.5
         return duration
 
-    def switchToJoint(self):
-        self.cartesian_impedance_active = False
-        result = False
-        try:
-            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
-                rospy.wait_for_service('/controller_manager/switch_controller')
-                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', SwitchController)
-            # '2' is for STRICT
-            if self.conmanSwitch(['JntImp', 'TrajectoryGeneratorJoint'], ['CImp', 'PoseIntLeft', 'PoseIntRight'], 2):
-                # joint trajectory for right arm
-                if self.action_right_joint_traj_client == None:
-                    self.action_right_joint_traj_client = actionlib.SimpleActionClient('/spline_trajectory_action_joint', FollowJointTrajectoryAction)
-                    self.action_right_joint_traj_client.wait_for_server()
-                result = True
-        except rospy.ROSInterruptException:
-            print "rospy.ROSInterruptException"
-        except IOError:
-            print "IOError"
-        except KeyError:
-            print "KeyError"
-        if not result:
-            print "FATAL ERROR: switchToJoint"
-            exit(0)
-        self.joint_impedance_active = True
-        return result
+#    def switchToJoint(self):
+#        self.cartesian_impedance_active = False
+#        result = False
+#        try:
+#            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
+#                rospy.wait_for_service('/controller_manager/switch_controller')
+#                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
+#            # '2' is for STRICT
+#            if self.conmanSwitch(['JntImp', 'TrajectoryGeneratorJoint'], ['CImp', 'PoseIntLeft', 'PoseIntRight'], 2):
+#                # joint trajectory for right arm
+#                if self.action_right_joint_traj_client == None:
+#                    self.action_right_joint_traj_client = actionlib.SimpleActionClient('/spline_trajectory_action_joint', FollowJointTrajectoryAction)
+#                    self.action_right_joint_traj_client.wait_for_server()
+#                result = True
+#        except rospy.ROSInterruptException:
+#            print "rospy.ROSInterruptException"
+#        except IOError:
+#            print "IOError"
+#        except KeyError:
+#            print "KeyError"
+#        if not result:
+#            print "FATAL ERROR: switchToJoint"
+#            exit(0)
+#        self.joint_impedance_active = True
+#        return result
 
-    def switchToCart(self):
-        self.joint_impedance_active = False
-        result = False
-        try:
-            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
-                rospy.wait_for_service('/controller_manager/switch_controller')
-                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', SwitchController)
-            # '2' is for STRICT
-            if self.conmanSwitch(['CImp', 'PoseIntLeft', 'PoseIntRight'], ['JntImp', 'TrajectoryGeneratorJoint'], 2):
-                # cartesian wrist trajectory for right arm
-                if len(self.action_cart_traj_client) == 0:
-                    self.action_cart_traj_client["left"] = actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
-                    self.action_cart_traj_client["right"] = actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction)
-                    self.action_cart_traj_client["left"].wait_for_server()
-                    self.action_cart_traj_client["right"].wait_for_server()
-                result = True
+#    def switchToCart(self):
+#        self.joint_impedance_active = False
+#        result = False
+#        try:
+#            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
+#                rospy.wait_for_service('/controller_manager/switch_controller')
+#                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
+#            # '2' is for STRICT
+#            if self.conmanSwitch(['CImp', 'PoseIntLeft', 'PoseIntRight'], ['JntImp', 'TrajectoryGeneratorJoint'], 2):
+#                # cartesian wrist trajectory for right arm
+#                if len(self.action_cart_traj_client) == 0:
+#                    self.action_cart_traj_client["left"] = actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
+#                    self.action_cart_traj_client["right"] = actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction)
+#                    self.action_cart_traj_client["left"].wait_for_server()
+#                    self.action_cart_traj_client["right"].wait_for_server()
+#                result = True
 
-        except rospy.ROSInterruptException:
-            print "rospy.ROSInterruptException"
-        except IOError:
-            print "IOError"
-        except KeyError:
-            print "KeyError"
-        if not result:
-            print "FATAL ERROR: switchToCart"
-            exit(0)
-        self.cartesian_impedance_active = True
-        return result
+#        except rospy.ROSInterruptException:
+#            print "rospy.ROSInterruptException"
+#        except IOError:
+#            print "IOError"
+#        except KeyError:
+#            print "KeyError"
+#        if not result:
+#            print "FATAL ERROR: switchToCart"
+#            exit(0)
+#        self.cartesian_impedance_active = True
+#        return result
 
-    def isJointImpedanceActive(self):
-        if self.joint_impedance_active and not self.cartesian_impedance_active:
-            return True
-        return False
+#    def isJointImpedanceActive(self):
+#        if self.joint_impedance_active and not self.cartesian_impedance_active:
+#            return True
+#        return False
 
-    def isCartesianImpedanceActive(self):
-        if not self.joint_impedance_active and self.cartesian_impedance_active:
-            return True
-        return False
+#    def isCartesianImpedanceActive(self):
+#        if not self.joint_impedance_active and self.cartesian_impedance_active:
+#            return True
+#        return False
 
 
