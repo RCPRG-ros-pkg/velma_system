@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <launch>
 
+  <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+
 <!--  <rosparam param="/gazebo/joints/joint_names">['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']</rosparam>-->
   <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
-    <arg name="world_name" value="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
@@ -14,7 +16,7 @@
   
   <!-- load robot description-->
   <param name="/use_sim_time" value="true"/>
-  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma.ops'" />
+  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma.ops' use_gazebo_kinect:=true" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace velma_controller" />
