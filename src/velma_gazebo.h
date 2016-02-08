@@ -156,6 +156,43 @@ public:
 
   protected:
 
+    Eigen::VectorXd       tmp_r_JointTorqueCommand_in_;
+    std_msgs::Int32       tmp_r_KRL_CMD_in_;
+    tFriRobotState        tmp_r_RobotState_out_;
+    tFriIntfState         tmp_r_FRIState_out_;
+    Eigen::VectorXd       tmp_r_JointPosition_out_;
+    Eigen::VectorXd       tmp_r_JointVelocity_out_;
+    geometry_msgs::Wrench tmp_r_CartesianWrench_out_;
+    Matrix77d             tmp_r_MassMatrix_out_;
+    Eigen::VectorXd       tmp_r_JointTorque_out_;
+    Eigen::VectorXd       tmp_r_GravityTorque_out_;
+
+    Eigen::VectorXd       tmp_l_JointTorqueCommand_in_;
+    std_msgs::Int32       tmp_l_KRL_CMD_in_;
+    tFriRobotState        tmp_l_RobotState_out_;
+    tFriIntfState         tmp_l_FRIState_out_;
+    Eigen::VectorXd       tmp_l_JointPosition_out_;
+    Eigen::VectorXd       tmp_l_JointVelocity_out_;
+    geometry_msgs::Wrench tmp_l_CartesianWrench_out_;
+    Matrix77d             tmp_l_MassMatrix_out_;
+    Eigen::VectorXd       tmp_l_JointTorque_out_;
+    Eigen::VectorXd       tmp_l_GravityTorque_out_;
+
+    double tmp_t_MotorCurrentCommand_in_;
+    double tmp_t_MotorPosition_out_;
+    double tmp_t_MotorVelocity_out_;
+
+    double tmp_hp_q_in_;
+    double tmp_hp_v_in_;
+    double tmp_hp_c_in_;
+    double tmp_hp_q_out_;
+    double tmp_hp_v_out_;
+    double tmp_ht_q_in_;
+    double tmp_ht_v_in_;
+    double tmp_ht_c_in_;
+    double tmp_ht_q_out_;
+    double tmp_ht_v_out_;
+
     enum {STATUS_OVERCURRENT1 = 0x0001, STATUS_OVERCURRENT2 = 0x0002, STATUS_OVERCURRENT3 = 0x0004, STATUS_OVERCURRENT4 = 0x0008,
         STATUS_OVERPRESSURE1 = 0x0010, STATUS_OVERPRESSURE2 = 0x0020, STATUS_OVERPRESSURE3 = 0x0040,
         STATUS_TORQUESWITCH1 = 0x0100, STATUS_TORQUESWITCH2 = 0x0200, STATUS_TORQUESWITCH3 = 0x0400,
@@ -163,7 +200,10 @@ public:
 
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
-    double clip(double n, double lower, double upper);
+    double clip(double n, double lower, double upper) const;
+    void setInitialPosition();
+    void setJointsDisabledPID();
+    void setJointsEnabledPID();
 
     ros::NodeHandle *nh_;
 
@@ -173,11 +213,19 @@ public:
     dart::simulation::World *dart_world_;
 
     // torso and KUKA LWRs
-    std::vector<gazebo::physics::JointPtr>  r_joints_;
-    std::vector<gazebo::physics::JointPtr>  l_joints_;
-    std::vector<gazebo::physics::JointPtr>  t_joints_;
-    std::vector<int> r_indices_;
-    std::vector<int> l_indices_;
+    std::vector<gazebo::physics::JointPtr >  r_joints_;
+    std::vector<gazebo::physics::JointPtr >  l_joints_;
+    std::vector<gazebo::physics::JointPtr >  t_joints_;
+    std::vector<int > r_indices_;
+    std::vector<int > l_indices_;
+    std::vector<int > t_indices_;
+
+    std::vector<dart::dynamics::Joint* > r_dart_joints_;
+    std::vector<dart::dynamics::Joint* > l_dart_joints_;
+    std::vector<dart::dynamics::Joint* > t_dart_joints_;
+
+    Eigen::VectorXd r_force_prev_;
+    Eigen::VectorXd l_force_prev_;
 
     bool r_command_mode_;
     bool l_command_mode_;

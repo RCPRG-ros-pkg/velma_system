@@ -67,9 +67,11 @@
         if (port_r_KRL_CMD_in_.read(r_KRL_CMD_in_) == RTT::NewData) {
             if (r_KRL_CMD_in_.data == 1) {
                 r_command_mode_ = true;
+                setJointsEnabledPID();
             }
             else if (r_KRL_CMD_in_.data == 2) {
                 r_command_mode_ = false;
+                setJointsDisabledPID();
             }
         }
 

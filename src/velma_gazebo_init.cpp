@@ -107,6 +107,19 @@
         this->ports()->addPort("head_tilt_motor_position_OUTPORT",              port_ht_q_out_).doc("");
         this->ports()->addPort("head_tilt_motor_velocity_OUTPORT",              port_ht_v_out_).doc("");
         ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
+
+        tmp_r_JointTorqueCommand_in_.resize(7);
+        tmp_r_JointPosition_out_.resize(7);
+        tmp_r_JointVelocity_out_.resize(7);
+        tmp_r_JointTorque_out_.resize(7);
+        tmp_r_GravityTorque_out_.resize(7);
+
+        tmp_l_JointTorqueCommand_in_.resize(7);
+        tmp_l_JointPosition_out_.resize(7);
+        tmp_l_JointVelocity_out_.resize(7);
+        tmp_l_JointTorque_out_.resize(7);
+        tmp_l_GravityTorque_out_.resize(7);
+
     }
 
     VelmaGazebo::~VelmaGazebo() {
