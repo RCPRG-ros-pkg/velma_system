@@ -27,6 +27,16 @@
 
 #include "ft_sensor_gazebo.h"
 
+void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
+                                    geometry_msgs::Wrench &out) const {
+  out.force.x = in[0];
+  out.force.y = in[1];
+  out.force.z = in[2];
+  out.torque.x = in[3];
+  out.torque.y = in[4];
+  out.torque.z = in[5];
+}
+
 bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
     if(model.get() == NULL) {
@@ -35,6 +45,14 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     model_ = model;
+
+    gazebo::physics::DARTModelPtr model_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
+    if (model_dart.get() == NULL) {
+        std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
+        return false;
+    }
+
+    dart_sk_ = model_dart->GetDARTSkeleton();
 
     return true;
 }
@@ -47,21 +65,47 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
-    RTT::os::MutexTryLock trylock(gazebo_mutex_);
-    if(!trylock.isSuccessful()) {
-        return;
+    Eigen::Vector6d wr = dart_bn_->getBodyForce();
+    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
+    KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
+
+    slow_filtered_wrench_ = KDL::Wrench();
+    for (int i = 0; i < slow_buffer_size_; i++) {
+        slow_filtered_wrench_ += slow_buffer_[i];
+    }
+    slow_filtered_wrench_ = slow_filtered_wrench_ / slow_buffer_size_;
+
+//        slow_filtered_wrench_ = slow_filtered_wrench_
+//            + wr_S / slow_buffer_size_
+//            - slow_buffer_[slow_buffer_index_] / slow_buffer_size_;
+
+    slow_buffer_[slow_buffer_index_] = wr_S;
+    if ((++slow_buffer_index_) == slow_buffer_size_) {
+        slow_buffer_index_ = 0;
     }
 
-    gazebo::physics::JointWrench wr;
-    wr = joint_->GetForceTorque(0);
-    KDL::Wrench wr_W = KDL::Wrench( KDL::Vector(wr.body2Force.x, wr.body2Force.y, wr.body2Force.z), KDL::Vector(wr.body2Torque.x, wr.body2Torque.y, wr.body2Torque.z) );
-    KDL::Wrench wr_S = T_W_S_.Inverse() * wr_W;
 
-    cartesianWrench_out_.force.x = -wr_S.force.x();
-    cartesianWrench_out_.force.y = -wr_S.force.y();
-    cartesianWrench_out_.force.z = -wr_S.force.z();
-    cartesianWrench_out_.torque.x = -wr_S.torque.x();
-    cartesianWrench_out_.torque.y = -wr_S.torque.y();
-    cartesianWrench_out_.torque.z = -wr_S.torque.z();
+    fast_filtered_wrench_ = KDL::Wrench();
+    for (int i = 0; i < fast_buffer_size_; i++) {
+        fast_filtered_wrench_ += fast_buffer_[i];
+    }
+    fast_filtered_wrench_ = fast_filtered_wrench_ / fast_buffer_size_;
+
+//        fast_filtered_wrench_ = fast_filtered_wrench_
+//            + wr_S / fast_buffer_size_
+//            - fast_buffer_[fast_buffer_index_] / fast_buffer_size_;
+
+    fast_buffer_[fast_buffer_index_] = wr_S;
+    if ((++fast_buffer_index_) == fast_buffer_size_) {
+        fast_buffer_index_ = 0;
+    }
+
+    {
+        RTT::os::MutexLock lock(gazebo_mutex_);
+        WrenchKDLToMsg(wr_S, raw_wrench_out_);
+        WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
+        WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
+    }
+
 }
 

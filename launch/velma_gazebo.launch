@@ -53,6 +53,40 @@
         joint_name: left_arm_6_joint
         transform_xyz: [-0.115, 0.0, -0.078]
         transform_rpy: [0, -1.57079632679, 0]
+      RightForceTransformation:
+        is_right_turn_frame: true
+        tool_weight: 12.391
+        gravity_arm_in_wrist:
+          x: 0.1749
+          y: 0.0134
+          z: -0.0781
+        sensor_frame:
+          orientation:
+            w: 0.707106781188
+            x: 0.0
+            y: 0.707106781185
+            z: 0.0
+          position:
+            x: 0.115
+            y: 0.0
+            z: -0.078
+      LeftForceTransformation:
+        is_right_turn_frame: true
+        tool_weight: 12.391
+        gravity_arm_in_wrist:
+          x: -0.1749
+          y: 0.0134
+          z: -0.0781
+        sensor_frame:
+          orientation:
+            w: 0.707106781188
+            x: 0.0
+            y: -0.707106781185
+            z: 0.0
+          position:
+            x: -0.115
+            y: 0.0
+            z: -0.078
       LWRlDiag:
         prefix: left_arm_
       LWRrDiag:

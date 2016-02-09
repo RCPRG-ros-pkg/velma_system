@@ -154,6 +154,24 @@ bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
         std::cout << bn->getName() << "  " << bn->getMass() << std::endl;
     }
 
+    double mass = 0.0;
+    Eigen::Isometry3d ET_WO_W = dart_sk_->getBodyNode("right_arm_7_link")->getTransform();
+    Eigen::Vector3d com(0,0,0);
+    for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
+        dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
+        if (bn->getName().find("right_Hand") == 0 || bn->getName().find("right_arm_7_link") == 0) {
+            mass += bn->getMass();
+            Eigen::Isometry3d ET_WO_L = bn->getTransform();
+            Eigen::Isometry3d ET_W_L = ET_WO_W.inverse() * ET_WO_L;
+            com += ET_W_L * bn->getLocalCOM() * bn->getMass();            
+        }
+    }
+    com /= mass;
+    std::cout << "mass: " << mass << "  COM: " << com.transpose() << std::endl;
+
+//BodyNode::setMass(double _mass)
+//setLocalCOM
+
     r_force_prev_.resize(7);
     l_force_prev_.resize(7);
 

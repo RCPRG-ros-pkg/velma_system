@@ -31,7 +31,9 @@ void FtSensorGazebo::updateHook() {
     // Synchronize with gazeboUpdate()
     RTT::os::MutexLock lock(gazebo_mutex_);
 
-    port_cartesianWrench_out_.write(cartesianWrench_out_);
+    port_raw_wrench_out_.write(raw_wrench_out_);
+    port_slow_filtered_wrench_out_.write(slow_filtered_wrench_out_);
+    port_fast_filtered_wrench_out_.write(fast_filtered_wrench_out_);
 }
 
 bool FtSensorGazebo::startHook() {
@@ -44,7 +46,9 @@ bool FtSensorGazebo::configureHook() {
         std::cout << "ERROR: FtSensorGazebo::configureHook: could not find joint \"" << joint_name_ << "\"" << std::endl;
         return false;
     }
-        
+
+    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
+
     if (transform_xyz_.size() != 3) {
         std::cout << "ERROR: FtSensorGazebo::configureHook: wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << std::endl;
         return false;
