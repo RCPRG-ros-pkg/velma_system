@@ -215,9 +215,9 @@ Class used as Velma robot Interface.
 
         self.behavoiur_stopped_dict = {self.BEHAVOIUR_ERROR:None,
             self.BEHAVOIUR_OTHER:None,
-            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTiltVelocityLimiter', 'HeadPanVelocityLimiter', 'PoseIntRight', 'JntImp']),
-            self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp']),
-            self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
+            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTiltVelocityLimiter', 'HeadPanVelocityLimiter', 'PoseIntRight', 'JntImp']),
+            self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp', 'RightForceTransformation', 'LeftForceTransformation']),
+            self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
             self.BEHAVOIUR_CART_FCL:set(['TrajectoryGeneratorJoint', 'VG', 'JntImp', 'PoseIntLeft', 'PoseIntRight'])}
 
     def switchToBehavoiur(self, behaviour):
