@@ -66,13 +66,15 @@ setActivityOnCPU("LeftFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
 LeftFtSensor.loadService("rosparam")
 LeftFtSensor.rosparam.getAll()
 LeftFtSensor.configure()
-stream("LeftFtSensor.cartesianWrench_OUTPORT", ros.comm.topic("/left_arm/ft_sensor/wrench"))
+stream("LeftFtSensor.rawWrench_OUTPORT", ros.comm.topic("/left_arm/ft_sensor/wrench"))
 
 setActivityOnCPU("RightFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
 RightFtSensor.loadService("rosparam")
 RightFtSensor.rosparam.getAll()
 RightFtSensor.configure()
-stream("RightFtSensor.cartesianWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench"))
+stream("RightFtSensor.rawWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench"))
+#stream("RightFtSensor.fastFilteredWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench_fast"))
+#stream("RightFtSensor.slowFilteredWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench_slow"))
 
 
 
@@ -145,6 +147,14 @@ string rightKRLcmd_INPORT_name()                  { return string("VelmaSim.r_KR
 string rightArmRobotState_OUTPORT_name()          { return string("VelmaSim.r_RobotState_OUTPORT"); }
 string rightArmFRIState_OUTPORT_name()            { return string("VelmaSim.r_FRIState_OUTPORT"); }
 
-string rightFtSensorCartesianWrench_OUTPORT_name(){ return string("RightFtSensor.cartesianWrench_OUTPORT"); }
-string leftFtSensorCartesianWrench_OUTPORT_name() { return string("LeftFtSensor.cartesianWrench_OUTPORT"); }
+string rightFtSensorRawWrench_OUTPORT_name()      { return string("RightFtSensor.rawWrench_OUTPORT"); }
+string leftFtSensorRawWrench_OUTPORT_name()       { return string("LeftFtSensor.rawWrench_OUTPORT"); }
+
+string rightFtSensorFastFilteredWrench_OUTPORT_name()   { return string("RightFtSensor.fastFilteredWrench_OUTPORT"); }
+string leftFtSensorFastFilteredWrench_OUTPORT_name()    { return string("LeftFtSensor.fastFilteredWrench_OUTPORT"); }
+
+string rightFtSensorSlowFilteredWrench_OUTPORT_name()   { return string("RightFtSensor.slowFilteredWrench_OUTPORT"); }
+string leftFtSensorSlowFilteredWrench_OUTPORT_name()    { return string("LeftFtSensor.slowFilteredWrench_OUTPORT"); }
+
+
 

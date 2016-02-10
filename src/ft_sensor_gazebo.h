@@ -66,9 +66,13 @@ class FtSensorGazebo : public RTT::TaskContext
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    RTT::OutputPort<geometry_msgs::Wrench > port_cartesianWrench_out_;
+    RTT::OutputPort<geometry_msgs::Wrench> port_raw_wrench_out_;
+    RTT::OutputPort<geometry_msgs::Wrench> port_fast_filtered_wrench_out_;
+    RTT::OutputPort<geometry_msgs::Wrench> port_slow_filtered_wrench_out_;
 
-    geometry_msgs::Wrench cartesianWrench_out_;
+    geometry_msgs::Wrench raw_wrench_out_;
+    geometry_msgs::Wrench fast_filtered_wrench_out_;
+    geometry_msgs::Wrench slow_filtered_wrench_out_;
 
     // public methods
     FtSensorGazebo(std::string const& name);
@@ -81,6 +85,8 @@ public:
 
   protected:
 
+    void WrenchKDLToMsg(const KDL::Wrench &in, geometry_msgs::Wrench &out) const;
+
     ros::NodeHandle *nh_;
 
     // ROS parameters
@@ -89,7 +95,25 @@ public:
     std::vector<double> transform_rpy_;
 
     gazebo::physics::ModelPtr model_;
+    dart::dynamics::Skeleton *dart_sk_;
     gazebo::physics::JointPtr joint_;
+    dart::dynamics::BodyNode *dart_bn_;
+
+    std::vector<KDL::Wrench> slow_buffer_;
+    std::vector<KDL::Wrench> fast_buffer_;
+
+    int slow_buffer_index_;
+    int fast_buffer_index_;
+
+    int slow_buffer_size_;
+    int fast_buffer_size_;
+
+    KDL::Wrench slow_filtered_wrench_;
+    KDL::Wrench fast_filtered_wrench_;
+
+    // properties
+    std::vector<double> force_limits_;
+    RTT::Property<KDL::Wrench> offset_prop_;
 
     KDL::Frame T_W_S_;
 

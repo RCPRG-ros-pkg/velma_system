@@ -28,9 +28,12 @@
 #include "ft_sensor_gazebo.h"
 
 FtSensorGazebo::FtSensorGazebo(std::string const& name) :
-    TaskContext(name)
+    TaskContext(name),
+    slow_buffer_size_(10),
+    fast_buffer_size_(100),
+    slow_buffer_index_(0),
+    fast_buffer_index_(0)
 {
-
     nh_ = new ros::NodeHandle();
 
     addProperty("joint_name", joint_name_);
@@ -42,7 +45,12 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name) :
     this->provides("gazebo")->addOperation("update",&FtSensorGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
     // right KUKA FRI ports
-    this->ports()->addPort("cartesianWrench_OUTPORT", port_cartesianWrench_out_).doc("");
+    this->ports()->addPort("rawWrench_OUTPORT", port_raw_wrench_out_).doc("");
+    this->ports()->addPort("fastFilteredWrench_OUTPORT", port_fast_filtered_wrench_out_).doc("");
+    this->ports()->addPort("slowFilteredWrench_OUTPORT", port_slow_filtered_wrench_out_).doc("");
+
+    slow_buffer_.resize(slow_buffer_size_);
+    fast_buffer_.resize(fast_buffer_size_);
 }
 
 FtSensorGazebo::~FtSensorGazebo() {
