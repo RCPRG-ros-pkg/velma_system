@@ -200,7 +200,7 @@
 void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
     if (link_names_.size() != 4) {
-        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
+//        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
     }
 

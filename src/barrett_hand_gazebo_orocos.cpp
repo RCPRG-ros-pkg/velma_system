@@ -72,8 +72,6 @@
             joint->SetEffortLimit(0, 1);
         }
 
-        jc_ = new gazebo::physics::JointController(model_);
-
         for (int i = 0; i < 3; i++) {
             clutch_break_[i] = false;
         }

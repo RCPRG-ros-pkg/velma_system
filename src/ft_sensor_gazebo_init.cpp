@@ -29,7 +29,7 @@
 
 FtSensorGazebo::FtSensorGazebo(std::string const& name) :
     TaskContext(name),
-    slow_buffer_size_(10),
+    slow_buffer_size_(2),
     fast_buffer_size_(100),
     slow_buffer_index_(0),
     fast_buffer_index_(0)

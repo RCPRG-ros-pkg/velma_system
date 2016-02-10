@@ -46,6 +46,8 @@
 
         dart_sk_ = model_dart_->GetDARTSkeleton();
 
+        jc_ = new gazebo::physics::JointController(model_);
+
         return true;
     }
 
@@ -67,7 +69,7 @@ double BarrettHandGazebo::getFingerAngle(int fidx) const {
 // Update the controller
 void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-    if (!model_dart_) {
+    if (!model_dart_ || joints_.size() == 0) {
         return;
     }
 

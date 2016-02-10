@@ -75,7 +75,6 @@
                 return false;
             }
 
-            jc_.reset(new gazebo::physics::JointController(model_));
             const int n_joints = 3;
             std::string joint_names[n_joints] = { prefix + std::string("_HandFingerOneKnuckleThreeOptoforceJoint"),
                 prefix + std::string("_HandFingerTwoKnuckleThreeOptoforceJoint"),
@@ -147,6 +146,8 @@
 
         detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
 
+        jc_.reset(new gazebo::physics::JointController(model_));
+
         return true;
     }
 
@@ -159,8 +160,8 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
-    if (joints_.size() != n_sensors_) {
-        std::cout << "ERROR: OptoforceGazebo: joints_.size() != " << n_sensors_ << std::endl;
+    if (n_sensors_ == 0 || joints_.size() != n_sensors_) {
+//        std::cout << "ERROR: OptoforceGazebo: joints_.size() != " << n_sensors_ << std::endl;
         return;
     }
 
