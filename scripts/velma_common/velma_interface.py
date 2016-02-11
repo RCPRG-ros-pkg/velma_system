@@ -70,17 +70,12 @@ import velma_fk_ik
 # T - tool
 # Tr - right tool
 # Tl - left tool
+# Frij - right hand finger i knuckle j
 
 class VelmaInterface:
     """
 Class used as Velma robot Interface.
 """
-
-#    def getJointStatesByNames(self, dof_names):
-#        js = []
-#        for joint_name in dof_names:
-#            js.append( self.js_pos[joint_name] )
-#        return js
 
     def getLastJointState(self):
         result = None
@@ -150,44 +145,18 @@ Class used as Velma robot Interface.
     def getHeadJointUpperLimits(self):
         return self.head_joint_upper_limits
 
-#    def getMaxWrench(self):
-#        wrench = Wrench()
-#        for i in range(0,self.wrench_tab_len):
-#            if abs(self.wrench_tab[i].force.x) > wrench.force.x:
-#                wrench.force.x = abs(self.wrench_tab[i].force.x)
-#            if abs(self.wrench_tab[i].force.y) > wrench.force.y:
-#                wrench.force.y = abs(self.wrench_tab[i].force.y)
-#            if abs(self.wrench_tab[i].force.z) > wrench.force.z:
-#                wrench.force.z = abs(self.wrench_tab[i].force.z)
-#            if abs(self.wrench_tab[i].torque.x) > wrench.torque.x:
-#                wrench.torque.x = abs(self.wrench_tab[i].torque.x)
-#            if abs(self.wrench_tab[i].torque.y) > wrench.torque.y:
-#                wrench.torque.y = abs(self.wrench_tab[i].torque.y)
-#            if abs(self.wrench_tab[i].torque.z) > wrench.torque.z:
-#                wrench.torque.z = abs(self.wrench_tab[i].torque.z)
-#        return wrench
-
-#    def wrenchCallback(self, wrench):
-#        self.wrench_tab[self.wrench_tab_index] = wrench
-#        self.wrench_tab_index += 1
-#        if self.wrench_tab_index >= self.wrench_tab_len:
-#            self.wrench_tab_index = 0
-#        wfx = abs(wrench.force.x)
-#        wfy = abs(wrench.force.y)
-#        wfz = abs(wrench.force.z)
-#        wtx = abs(wrench.torque.x)
-#        wty = abs(wrench.torque.y)
-#        wtz = abs(wrench.torque.z)
-#        if not self.joint_traj_active:
-#            if (wfx>self.current_max_wrench.force.x*2.0) or (wfy>self.current_max_wrench.force.y*2.0) or (wfz>self.current_max_wrench.force.z*2.0) or (wtx>self.current_max_wrench.torque.x*2.0) or (wty>self.current_max_wrench.torque.y*2.0) or (wtz>self.current_max_wrench.torque.z*2.0):
-#                self.wrench_emergency_stop = True
-
     BEHAVOIUR_ERROR = 0
     BEHAVOIUR_OTHER = 1
     BEHAVOIUR_NONE = 2
     BEHAVOIUR_CART_IMP = 3
-    BEHAVOIUR_JNT_IMP = 4
-    BEHAVOIUR_CART_FCL = 5
+    BEHAVOIUR_CART_IMP_FT = 4
+    BEHAVOIUR_JNT_IMP = 5
+    BEHAVOIUR_CART_FCL = 6
+
+    def getBehaviourName(self, behaviour_id):
+        if not behaviour_id in self.behaviour_names:
+            return "unknown behaviour"
+        return self.behaviour_names[behaviour_id]
 
     def getControllerBehaviour(self):
         running = set()
@@ -199,11 +168,9 @@ Class used as Velma robot Interface.
                 running.add(item.name)
             else:
                 return self.BEHAVOIUR_ERROR
-
         for key in self.behavoiur_stopped_dict:
             if self.behavoiur_stopped_dict[key] == stopped:
                 return key
-
         return self.BEHAVOIUR_OTHER
         
     def initConmanInterface(self):
@@ -217,11 +184,40 @@ Class used as Velma robot Interface.
             self.BEHAVOIUR_OTHER:None,
             self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTiltVelocityLimiter', 'HeadPanVelocityLimiter', 'PoseIntRight', 'JntImp']),
             self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp', 'RightForceTransformation', 'LeftForceTransformation']),
+            self.BEHAVOIUR_CART_IMP_FT:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp']),
             self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
             self.BEHAVOIUR_CART_FCL:set(['TrajectoryGeneratorJoint', 'VG', 'JntImp', 'PoseIntLeft', 'PoseIntRight'])}
 
+        self.possible_behavoiur_switches = set( [
+            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_CART_IMP),
+            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_JNT_IMP),
+            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_CART_FCL),
+            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_CART_IMP_FT),
+            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_JNT_IMP),
+            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_CART_FCL),
+            (self.BEHAVOIUR_CART_IMP_FT,self.BEHAVOIUR_CART_IMP),
+            (self.BEHAVOIUR_CART_IMP_FT,self.BEHAVOIUR_JNT_IMP),
+            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_IMP),
+            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_IMP_FT),
+            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_FCL),
+            (self.BEHAVOIUR_CART_FCL,self.BEHAVOIUR_CART_IMP),
+            (self.BEHAVOIUR_CART_FCL,self.BEHAVOIUR_JNT_IMP), ] )
+
+        self.behaviour_names = {
+            self.BEHAVOIUR_ERROR:"BEHAVOIUR_ERROR",
+            self.BEHAVOIUR_OTHER:"BEHAVOIUR_OTHER",
+            self.BEHAVOIUR_NONE:"BEHAVOIUR_NONE",
+            self.BEHAVOIUR_CART_IMP:"BEHAVOIUR_CART_IMP",
+            self.BEHAVOIUR_CART_IMP_FT:"BEHAVOIUR_CART_IMP_FT",
+            self.BEHAVOIUR_JNT_IMP:"BEHAVOIUR_JNT_IMP",
+            self.BEHAVOIUR_CART_FCL:"BEHAVOIUR_CART_FCL", }
+
     def switchToBehavoiur(self, behaviour):
         current = self.getControllerBehaviour()
+        if (not (current, behaviour) in self.possible_behavoiur_switches):
+            print "VelmaInterface.switchToBehavoiur: could not switch behavoiur from " + self.getBehaviourName(current) + " to " + self.getBehaviourName(behaviour)
+            return False
+
         if current == self.BEHAVOIUR_ERROR:
             return False
         elif current == self.BEHAVOIUR_OTHER:
@@ -257,8 +253,20 @@ Class used as Velma robot Interface.
     def switchToCartImp(self):
         return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP)
 
+    def switchToCartImpFT(self):
+        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP_FT)
+
     def switchToCartFcl(self):
         return self.switchToBehavoiur(self.BEHAVOIUR_CART_FCL)
+
+    def isInCartImp(self):
+        return self.getControllerBehaviour() == self.BEHAVOIUR_CART_IMP
+
+    def isInCartImpFT(self):
+        return self.getControllerBehaviour() == self.BEHAVOIUR_CART_IMP_FT
+
+    def isInJntImp(self):
+        return self.getControllerBehaviour() == self.BEHAVOIUR_JNT_IMP
 
     def __init__(self):
 
@@ -279,17 +287,12 @@ Class used as Velma robot Interface.
             self.js_pos_history.append( None )
         self.js_pos_history_idx = -1
 
-        self.joint_impedance_active = False
-        self.cartesian_impedance_active = False
-        self.joint_traj_active = False
-
         self.T_B_L = [PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame()]
 
         # parameters
-#        self.prefix="right"
         self.k_error = Wrench(Vector3(1.0, 1.0, 1.0), Vector3(0.5, 0.5, 0.5))
         self.T_B_W = None
-        self.T_W_T = None #PyKDL.Frame(PyKDL.Vector(0.2,-0.05,0))    # tool transformation
+        self.T_W_T = None
         self.T_Wl_El = None
         self.T_Wr_Er = None
         self.T_El_Wl = None
@@ -308,30 +311,31 @@ Class used as Velma robot Interface.
         self.emergency_stop_active = False
 
         # cartesian wrist trajectory for right arm
-        self.action_cart_traj_client = {}
+        self.action_cart_traj_client = {
+            'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction),
+            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction) }
 
         # joint trajectory for right arm
         self.action_right_joint_traj_client = None
 
         # cartesian tool trajectory for arms in the wrist frames
-        self.action_tool_client = {}
-        self.action_tool_client["right"] = actionlib.SimpleActionClient("/right_arm/tool_trajectory", CartesianTrajectoryAction)
+        self.action_tool_client = {
+            'right':actionlib.SimpleActionClient("/right_arm/tool_trajectory", CartesianTrajectoryAction),
+            'left':actionlib.SimpleActionClient("/left_arm/tool_trajectory", CartesianTrajectoryAction) }
         self.action_tool_client["right"].wait_for_server()
-        self.action_tool_client["left"] = actionlib.SimpleActionClient("/left_arm/tool_trajectory", CartesianTrajectoryAction)
         self.action_tool_client["left"].wait_for_server()
 
         # cartesian impedance trajectory for right arm
-        self.action_impedance_client = {}
-        self.action_impedance_client["right"] = actionlib.SimpleActionClient("/right_arm/cartesian_impedance", CartesianImpedanceAction)
+        self.action_impedance_client = {
+            'right':actionlib.SimpleActionClient("/right_arm/cartesian_impedance", CartesianImpedanceAction),
+            'left':actionlib.SimpleActionClient("/left_arm/cartesian_impedance", CartesianImpedanceAction) }
         self.action_impedance_client["right"].wait_for_server()
-        self.action_impedance_client["left"] = actionlib.SimpleActionClient("/left_arm/cartesian_impedance", CartesianImpedanceAction)
         self.action_impedance_client["left"].wait_for_server()
 
-        self.action_move_hand_client = {}
-        self.action_move_hand_client["right"] = actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction)
+        self.action_move_hand_client = {
+            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
+            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
         self.action_move_hand_client["right"].wait_for_server()
-
-        self.action_move_hand_client["left"] = actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction)
         self.action_move_hand_client["left"].wait_for_server()
 
 
@@ -361,13 +365,14 @@ Class used as Velma robot Interface.
         return geometry_msgs.msg.Wrench(Vector3( wrKDL.force.x(), wrKDL.force.y(), wrKDL.force.z() ), Vector3( wrKDL.torque.x(), wrKDL.torque.y(), wrKDL.torque.z() ))
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        if not (self.cartesian_impedance_active and not self.joint_impedance_active):
-            print "FATAL ERROR: moveEffector"
-            exit(0)
+        behaviour = self.getControllerBehaviour()
+        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
+            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
+            return False
 
         self.joint_traj_active = False
         wrist_pose = pm.toMsg(T_B_Td)
-        self.br.sendTransform([wrist_pose.position.x, wrist_pose.position.y, wrist_pose.position.z], [wrist_pose.orientation.x, wrist_pose.orientation.y, wrist_pose.orientation.z, wrist_pose.orientation.w], rospy.Time.now(), "dest", "torso_base")
+#        self.br.sendTransform([wrist_pose.position.x, wrist_pose.position.y, wrist_pose.position.z], [wrist_pose.orientation.x, wrist_pose.orientation.y, wrist_pose.orientation.z, wrist_pose.orientation.w], rospy.Time.now(), "dest", "torso_base")
 
         action_trajectory_goal = CartesianTrajectoryGoal()
         if stamp != None:
@@ -384,6 +389,7 @@ Class used as Velma robot Interface.
             action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
         self.current_max_wrench = self.wrenchKDLtoROS(max_wrench)
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self.action_right_cart_traj_feedback_cb)
+        return True
 
     def moveEffectorLeft(self, T_B_Tld, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
         self.moveEffector("left", T_B_Tld, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
@@ -392,11 +398,10 @@ Class used as Velma robot Interface.
         self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
     def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
-        if not (self.cartesian_impedance_active and not self.joint_impedance_active):
-            print "FATAL ERROR: moveEffectorTraj"
-            exit(0)
-
-        self.joint_traj_active = False
+        behaviour = self.getControllerBehaviour()
+        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
+            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
+            return False
 
         action_trajectory_goal = CartesianTrajectoryGoal()
         if stamp != None:
@@ -423,11 +428,18 @@ Class used as Velma robot Interface.
     def moveEffectorTrajRight(self, prefix, list_T_B_Trd, times, max_wrench, start_time=0.01, stamp=None):
         self.moveEffectorTraj("right", list_T_B_Trd, times, max_wrench, start_time=start_time, stamp=stamp)
 
+    cartesian_trajectory_result_names = {
+        CartesianTrajectoryResult.SUCCESSFUL:'SUCCESSFUL',
+        CartesianTrajectoryResult.INVALID_GOAL:'INVALID_GOAL',
+        CartesianTrajectoryResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
+        CartesianTrajectoryResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
+        CartesianTrajectoryResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED', }
+
     def waitForEffector(self, prefix):
         self.action_cart_traj_client[prefix].wait_for_result()
         result = self.action_cart_traj_client[prefix].get_result()
         if result.error_code != 0:
-            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code)
+            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.cartesian_trajectory_result_names[result.error_code] + ")"
         return result.error_code
 
     def waitForEffectorLeft(self):
@@ -696,59 +708,48 @@ Class used as Velma robot Interface.
         pose = self.listener.lookupTransform(base_frame, frame, rospy.Time(0))
         return pm.fromTf(pose)
 
-    def updateTransformations(self):
-        self.T_B_Wr = self.getKDLtf('torso_base', 'right_arm_7_link')
-        self.T_B_Wl = self.getKDLtf('torso_base', 'left_arm_7_link')
+    fingers_links = {
+        (0,0):'_HandFingerOneKnuckleOneLink',
+        (0,1):'_HandFingerOneKnuckleTwoLink',
+        (0,2):'_HandFingerOneKnuckleThreeLink',
+        (1,0):'_HandFingerTwoKnuckleOneLink',
+        (1,1):'_HandFingerTwoKnuckleTwoLink',
+        (1,2):'_HandFingerTwoKnuckleThreeLink',
+        (2,1):'_HandFingerThreeKnuckleTwoLink',
+        (2,2):'_HandFingerThreeKnuckleThreeLink',
+    }
 
-        self.T_Wr_Tr = self.getKDLtf('right_arm_7_link', 'right_arm_tool')
-        self.T_Wl_Tl = self.getKDLtf('left_arm_7_link', 'left_arm_tool')
+    frames = {
+        'Wo':'world',
+        'B':'torso_base',
+        'Wr':'right_arm_7_link',
+        'Wl':'left_arm_7_link',
+        'Gr':'right_HandGripLink',
+        'Gl':'left_HandGripLink',
+        'Tr':'right_arm_tool',
+        'Tl':'left_arm_tool',
+        'Fr00':'right_HandFingerOneKnuckleOneLink',
+        'Fr01':'right_HandFingerOneKnuckleTwoLink',
+        'Fr02':'right_HandFingerOneKnuckleThreeLink',
+        'Fr10':'right_HandFingerTwoKnuckleOneLink',
+        'Fr11':'right_HandFingerTwoKnuckleTwoLink',
+        'Fr12':'right_HandFingerTwoKnuckleThreeLink',
+        'Fr21':'right_HandFingerThreeKnuckleTwoLink',
+        'Fr22':'right_HandFingerThreeKnuckleThreeLink',
+        'Fl00':'left_HandFingerOneKnuckleOneLink',
+        'Fl01':'left_HandFingerOneKnuckleTwoLink',
+        'Fl02':'left_HandFingerOneKnuckleThreeLink',
+        'Fl10':'left_HandFingerTwoKnuckleOneLink',
+        'Fl11':'left_HandFingerTwoKnuckleTwoLink',
+        'Fl12':'left_HandFingerTwoKnuckleThreeLink',
+        'Fl21':'left_HandFingerThreeKnuckleTwoLink',
+        'Fl22':'left_HandFingerThreeKnuckleThreeLink',
+    }
 
-        self.T_Wr_Gr = self.getKDLtf('right_arm_7_link', 'right_HandGripLink')
-        self.T_Wl_Gl = self.getKDLtf('left_arm_7_link', 'left_HandGripLink')
-
-#        for i in range(0,7):
-#            pose = self.listener.lookupTransform('torso_base', self.prefix+'_arm_' + str(i+1) + '_link', rospy.Time(0))
-#            self.T_B_L[i] = pm.fromTf(pose)
-
-#        pose = self.listener.lookupTransform('/'+self.prefix+'_HandPalmLink', '/'+self.prefix+'_HandFingerThreeKnuckleThreeLink', rospy.Time(0))
-#        self.T_E_F = pm.fromTf(pose)
-#        self.T_F_E = self.T_E_F.Inverse()
-
-#        pose = self.listener.lookupTransform('/'+self.prefix+'_HandPalmLink', '/'+self.prefix+'_HandFingerOneKnuckleThreeLink', rospy.Time(0))
-#        self.T_E_F13 = pm.fromTf(pose)
-#        self.T_F13_E = self.T_E_F13.Inverse()
-
-#        pose = self.listener.lookupTransform('/'+self.prefix+'_HandPalmLink', '/'+self.prefix+'_HandFingerTwoKnuckleThreeLink', rospy.Time(0))
-#        self.T_E_F23 = pm.fromTf(pose)
-#        self.T_F23_E = self.T_E_F23.Inverse()
-
-#        pose = self.listener.lookupTransform('/'+self.prefix+'_HandPalmLink', '/'+self.prefix+'_HandFingerThreeKnuckleThreeLink', rospy.Time(0))
-#        self.T_E_F33 = pm.fromTf(pose)
-#        self.T_F33_E = self.T_E_F33.Inverse()
-
-#        if self.T_Wr_Er == None:
-#            pose = self.listener.lookupTransform('right_arm_7_link', 'right_HandPalmLink', rospy.Time(0))
-#            self.T_Wr_Er = pm.fromTf(pose)
-#            self.T_Er_Wr = self.T_Wr_Er.Inverse()
-
-#        if self.T_Wl_El == None:
-#            pose = self.listener.lookupTransform('left_arm_7_link', 'left_HandPalmLink', rospy.Time(0))
-#            self.T_Wl_El = pm.fromTf(pose)
-#            self.T_El_Wl = self.T_Wl_El.Inverse()
-
-#        pose = self.listener.lookupTransform('torso_base', self.prefix+'_arm_cmd', rospy.Time(0))
-#        self.T_B_T_cmd = pm.fromTf(pose)
-
-#        pose = self.listener.lookupTransform('right_HandPalmLink', 'right_HandFingerOneKnuckleOneLink', rospy.Time(0))
-#        self.T_E_F11 = pm.fromTf(pose)
-
-#        pose = self.listener.lookupTransform('right_HandPalmLink', 'right_HandFingerTwoKnuckleOneLink', rospy.Time(0))
-#        self.T_E_F21 = pm.fromTf(pose)
-
-#        self.T_E_F31 = PyKDL.Frame()
-
-#        pose = self.listener.lookupTransform('torso_base', 'camera', rospy.Time(0))
-#        self.T_B_C = pm.fromTf(pose)
+    def getTf(self, frame_from, frame_to):
+        if frame_from in self.frames and frame_to in self.frames:
+            return self.getKDLtf( self.frames[frame_from], self.frames[frame_to] )
+        return None
 
     def handleEmergencyStop(self):
         if self.emergency_stop_active:
@@ -769,25 +770,6 @@ Class used as Velma robot Interface.
             self.checkStopCondition(2.0)
             return True
         return False
-
-#    def updateAndMoveTool(self, tool, duration):
-#        self.T_W_T = copy.deepcopy(tool)    # tool transformation
-#        self.updateTransformations()
-#        print "setting the tool to %s relative to wrist frame"%(self.T_W_T)
-#        # move both tool position and wrist position - the gripper holds its position
-#        print "moving wrist"
-#        # we assume that during the initialization there are no contact forces, so we limit the wrench
-#        stamp = rospy.Time.now() + rospy.Duration(1.0)
-#        self.moveWrist( self.T_B_W, duration, Wrench(Vector3(10, 10, 10), Vector3(2, 2, 2)), stamp=stamp)
-#        self.moveTool( self.T_W_T, duration, stamp=stamp )
-
-#    def updateAndMoveToolOnly(self, tool, duration):
-#        self.T_W_T = copy.deepcopy(tool)    # tool transformation
-#        self.updateTransformations()
-#        print "setting the tool to %s relative to wrist frame"%(self.T_W_T)
-#        # move both tool position and wrist position - the gripper holds its position
-#        print "moving tool"
-#        self.moveTool( self.T_W_T, duration )
 
     def getMovementTime(self, T_B_Wd, max_v_l = 0.1, max_v_r = 0.2):
         self.updateTransformations()
@@ -819,70 +801,4 @@ Class used as Velma robot Interface.
         if duration < 0.5:
             duration = 0.5
         return duration
-
-#    def switchToJoint(self):
-#        self.cartesian_impedance_active = False
-#        result = False
-#        try:
-#            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
-#                rospy.wait_for_service('/controller_manager/switch_controller')
-#                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
-#            # '2' is for STRICT
-#            if self.conmanSwitch(['JntImp', 'TrajectoryGeneratorJoint'], ['CImp', 'PoseIntLeft', 'PoseIntRight'], 2):
-#                # joint trajectory for right arm
-#                if self.action_right_joint_traj_client == None:
-#                    self.action_right_joint_traj_client = actionlib.SimpleActionClient('/spline_trajectory_action_joint', FollowJointTrajectoryAction)
-#                    self.action_right_joint_traj_client.wait_for_server()
-#                result = True
-#        except rospy.ROSInterruptException:
-#            print "rospy.ROSInterruptException"
-#        except IOError:
-#            print "IOError"
-#        except KeyError:
-#            print "KeyError"
-#        if not result:
-#            print "FATAL ERROR: switchToJoint"
-#            exit(0)
-#        self.joint_impedance_active = True
-#        return result
-
-#    def switchToCart(self):
-#        self.joint_impedance_active = False
-#        result = False
-#        try:
-#            if not hasattr(self, 'conmanSwitch') or self.conmanSwitch == None:
-#                rospy.wait_for_service('/controller_manager/switch_controller')
-#                self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
-#            # '2' is for STRICT
-#            if self.conmanSwitch(['CImp', 'PoseIntLeft', 'PoseIntRight'], ['JntImp', 'TrajectoryGeneratorJoint'], 2):
-#                # cartesian wrist trajectory for right arm
-#                if len(self.action_cart_traj_client) == 0:
-#                    self.action_cart_traj_client["left"] = actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
-#                    self.action_cart_traj_client["right"] = actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction)
-#                    self.action_cart_traj_client["left"].wait_for_server()
-#                    self.action_cart_traj_client["right"].wait_for_server()
-#                result = True
-
-#        except rospy.ROSInterruptException:
-#            print "rospy.ROSInterruptException"
-#        except IOError:
-#            print "IOError"
-#        except KeyError:
-#            print "KeyError"
-#        if not result:
-#            print "FATAL ERROR: switchToCart"
-#            exit(0)
-#        self.cartesian_impedance_active = True
-#        return result
-
-#    def isJointImpedanceActive(self):
-#        if self.joint_impedance_active and not self.cartesian_impedance_active:
-#            return True
-#        return False
-
-#    def isCartesianImpedanceActive(self):
-#        if not self.joint_impedance_active and self.cartesian_impedance_active:
-#            return True
-#        return False
-
 
