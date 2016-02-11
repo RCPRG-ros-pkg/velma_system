@@ -26,6 +26,7 @@
 */
 
 #include "velma_gazebo.h"
+#include "rtt_rosclock/rtt_rosclock.h"
 
 bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
@@ -154,20 +155,43 @@ bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
         std::cout << bn->getName() << "  " << bn->getMass() << std::endl;
     }
 
-    double mass = 0.0;
-    Eigen::Isometry3d ET_WO_W = dart_sk_->getBodyNode("right_arm_7_link")->getTransform();
-    Eigen::Vector3d com(0,0,0);
+    // data needed for wrist wrench estimation
+    right_tool_mass_ = 0.0;
+    right_tool_bn_dart_ = dart_sk_->getBodyNode("right_arm_7_link");
+    Eigen::Isometry3d ET_WO_Wr = right_tool_bn_dart_->getTransform();
+    Eigen::Vector3d comr(0,0,0);
     for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
         dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
         if (bn->getName().find("right_Hand") == 0 || bn->getName().find("right_arm_7_link") == 0) {
-            mass += bn->getMass();
+            right_tool_mass_ += bn->getMass();
             Eigen::Isometry3d ET_WO_L = bn->getTransform();
-            Eigen::Isometry3d ET_W_L = ET_WO_W.inverse() * ET_WO_L;
-            com += ET_W_L * bn->getLocalCOM() * bn->getMass();            
+            Eigen::Isometry3d ET_W_L = ET_WO_Wr.inverse() * ET_WO_L;
+            comr += ET_W_L * bn->getLocalCOM() * bn->getMass();            
         }
     }
-    com /= mass;
-    std::cout << "mass: " << mass << "  COM: " << com.transpose() << std::endl;
+    comr /= right_tool_mass_;
+    right_tool_com_W_ = KDL::Vector(comr(0), comr(1), comr(2));
+
+//boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( model_->GetJoint(joint_name_) )->GetDARTJoint()->getChildBodyNode();
+
+    left_tool_mass_ = 0.0;
+    left_tool_bn_dart_ = dart_sk_->getBodyNode("left_arm_7_link");
+    Eigen::Isometry3d ET_WO_Wl = left_tool_bn_dart_->getTransform();
+    Eigen::Vector3d coml(0,0,0);
+    for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
+        dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
+        if (bn->getName().find("left_Hand") == 0 || bn->getName().find("left_arm_7_link") == 0) {
+            left_tool_mass_ += bn->getMass();
+            Eigen::Isometry3d ET_WO_L = bn->getTransform();
+            Eigen::Isometry3d ET_W_L = ET_WO_Wl.inverse() * ET_WO_L;
+            coml += ET_W_L * bn->getLocalCOM() * bn->getMass();            
+        }
+    }
+    coml /= left_tool_mass_;
+    left_tool_com_W_ = KDL::Vector(coml(0), coml(1), coml(2));
+
+//    std::cout << "mass: " << mass << "  COM: " << com.transpose() << std::endl;
+
 
 //BodyNode::setMass(double _mass)
 //setLocalCOM
@@ -179,6 +203,8 @@ bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
 //    setJointsDisabledPID();
     setJointsEnabledPID();
+
+    rtt_rosclock::set_sim_clock_activity(this);
 
     return true;
 }
@@ -220,9 +246,6 @@ void VelmaGazebo::setJointsDisabledPID() {
     jc_->AddJoint(head_tilt_joint_);
     jc_->SetPositionPID(head_tilt_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
     jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), head_tilt_joint_->GetAngle(0).Radian());
-
-//    jc_->AddJoint(head_tilt_joint_);
-//    jc_->SetPositionPID(head_tilt_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
 }
 
 void VelmaGazebo::setJointsEnabledPID() {
@@ -247,18 +270,6 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
-//    RTT::os::MutexTryLock trylock(gazebo_mutex_);
-//    if(!trylock.isSuccessful()) {
-//        return;
-//    }
-
-
-//BodyNode::setMomentOfInertia(double _Ixx, double _Iyy, double _Izz, double _Ixy, double _Ixz, double _Iyz)
-//BodyNode::setMass(double _mass)
-//setLocalCOM
-
-//    dart_sk_->computeInverseDynamics();
-
     // mass matrix
     const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
     for (int i = 0; i < 7; i++) {
@@ -279,8 +290,6 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         std::cout << "ERROR: VelmaGazebo::gazeboUpdateHook: grav.size() != dart_sk_->getNumDofs()   " << grav.size() << "!=" << dart_sk_->getNumDofs() << std::endl;
         return;
     }
-
-//    std::cout << grav.transpose() << std::endl;
 
     const Eigen::VectorXd &ext_f = dart_sk_->getExternalForces() + dart_sk_->getConstraintForces() + dart_sk_->getCoriolisForces();
     // external forces
@@ -309,22 +318,31 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
     tmp_t_MotorVelocity_out_ = t_joints_[0]->GetVelocity(0) * torso_trans_mult;
 
-    gazebo::physics::JointWrench wr_r, wr_l;
-    wr_r = r_joints_[6]->GetForceTorque(0);
-    wr_l = l_joints_[6]->GetForceTorque(0);
-    r_CartesianWrench_out_.force.x = wr_r.body2Force.x;
-    r_CartesianWrench_out_.force.y = wr_r.body2Force.y;
-    r_CartesianWrench_out_.force.z = wr_r.body2Force.z;
-    r_CartesianWrench_out_.torque.x = wr_r.body2Torque.x;
-    r_CartesianWrench_out_.torque.y = wr_r.body2Torque.y;
-    r_CartesianWrench_out_.torque.z = wr_r.body2Torque.z;
 
-    l_CartesianWrench_out_.force.x = wr_l.body2Force.x;
-    l_CartesianWrench_out_.force.y = wr_l.body2Force.y;
-    l_CartesianWrench_out_.force.z = wr_l.body2Force.z;
-    l_CartesianWrench_out_.torque.x = wr_l.body2Torque.x;
-    l_CartesianWrench_out_.torque.y = wr_l.body2Torque.y;
-    l_CartesianWrench_out_.torque.z = wr_l.body2Torque.z;
+    // calculate the wrench on the wrist
+    Eigen::Isometry3d ET_WO_Wr = right_tool_bn_dart_->getTransform();
+    Eigen::Vector3d grav_Wr = ET_WO_Wr.inverse().rotation() * Eigen::Vector3d(0,0,-9.81);
+    KDL::Wrench grav_reaction_Wr = KDL::Frame(right_tool_com_W_) * KDL::Wrench(KDL::Vector(grav_Wr(0), grav_Wr(1), grav_Wr(2)), KDL::Vector());
+    Eigen::Vector6d wr_Wr = right_tool_bn_dart_->getBodyForce();
+    KDL::Wrench wrr_Wr = KDL::Wrench( -KDL::Vector(wr_Wr(3), wr_Wr(4), wr_Wr(5)), -KDL::Vector(wr_Wr(0), wr_Wr(1), wr_Wr(2)) ) - grav_reaction_Wr;
+    tmp_r_CartesianWrench_out_.force.x = wrr_Wr.force.x();
+    tmp_r_CartesianWrench_out_.force.y = wrr_Wr.force.y();
+    tmp_r_CartesianWrench_out_.force.z = wrr_Wr.force.z();
+    tmp_r_CartesianWrench_out_.torque.x = wrr_Wr.torque.x();
+    tmp_r_CartesianWrench_out_.torque.y = wrr_Wr.torque.y();
+    tmp_r_CartesianWrench_out_.torque.z = wrr_Wr.torque.z();
+
+    Eigen::Isometry3d ET_WO_Wl = left_tool_bn_dart_->getTransform();
+    Eigen::Vector3d grav_Wl = ET_WO_Wl.inverse().rotation() * Eigen::Vector3d(0,0,-9.81);
+    KDL::Wrench grav_reaction_Wl = KDL::Frame(left_tool_com_W_) * KDL::Wrench(KDL::Vector(grav_Wl(0), grav_Wl(1), grav_Wl(2)), KDL::Vector());
+    Eigen::Vector6d wr_Wl = left_tool_bn_dart_->getBodyForce();
+    KDL::Wrench wrr_Wl = KDL::Wrench( -KDL::Vector(wr_Wl(3), wr_Wl(4), wr_Wl(5)), -KDL::Vector(wr_Wl(0), wr_Wl(1), wr_Wl(2)) ) - grav_reaction_Wl;
+    tmp_l_CartesianWrench_out_.force.x = wrr_Wl.force.x();
+    tmp_l_CartesianWrench_out_.force.y = wrr_Wl.force.y();
+    tmp_l_CartesianWrench_out_.force.z = wrr_Wl.force.z();
+    tmp_l_CartesianWrench_out_.torque.x = wrr_Wl.torque.x();
+    tmp_l_CartesianWrench_out_.torque.y = wrr_Wl.torque.y();
+    tmp_l_CartesianWrench_out_.torque.z = wrr_Wl.torque.z();
 
     //
     // head
@@ -335,8 +353,8 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     hp_v_out_ = head_pan_joint_->GetVelocity(0);
     ht_v_out_ = head_tilt_joint_->GetVelocity(0);
 
-    bool tmp_r_command_mode_;
-    bool tmp_l_command_mode_;
+    bool tmp_r_command_mode;
+    bool tmp_l_command_mode;
 
     // exchange the data between Orocos and Gazebo
     {
@@ -367,8 +385,8 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         tmp_hp_q_in_ = hp_q_in_;
         tmp_ht_q_in_ = ht_q_in_;
 
-        tmp_r_command_mode_ = r_command_mode_;
-        tmp_l_command_mode_ = l_command_mode_;
+        tmp_r_command_mode = r_command_mode_;
+        tmp_l_command_mode = l_command_mode_;
 
         r_JointTorqueCommand_in_.setZero();
         l_JointTorqueCommand_in_.setZero();
@@ -376,27 +394,21 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     // torque command
-    if (tmp_r_command_mode_) {
+    if (tmp_r_command_mode) {
         for (int i = 0; i < 7; i++) {
             grav(r_indices_[i]) += tmp_r_JointTorqueCommand_in_(i);
-//            r_dart_joints_[i]->setForce(0, r_JointTorqueCommand_in_(i) + grav(r_indices_[i]));
-//            r_force_prev_(i) = r_JointTorqueCommand_in_(i);
         }
     }
 
-    if (tmp_l_command_mode_) {
+    if (tmp_l_command_mode) {
         for (int i = 0; i < 7; i++) {
             grav(l_indices_[i]) += tmp_l_JointTorqueCommand_in_(i);
-//            l_dart_joints_[i]->setForce(0, l_JointTorqueCommand_in_(i) + grav(l_indices_[i]));
-//            l_force_prev_(i) = l_JointTorqueCommand_in_(i);
         }
     }
 
     grav(t_indices_[0]) += tmp_t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant;
 
     dart_sk_->setForces(grav);
-
-//    t_joints_[0]->SetForce(0, tmp_t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant);
 
     jc_->SetPositionTarget(head_pan_joint_->GetScopedName(), -tmp_hp_q_in_ / head_trans);
     jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), tmp_ht_q_in_ / head_trans);

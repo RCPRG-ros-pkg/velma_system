@@ -230,6 +230,13 @@ public:
     bool r_command_mode_;
     bool l_command_mode_;
 
+    double right_tool_mass_;
+    KDL::Vector right_tool_com_W_;
+    dart::dynamics::BodyNode *right_tool_bn_dart_;
+    double left_tool_mass_;
+    KDL::Vector left_tool_com_W_;
+    dart::dynamics::BodyNode *left_tool_bn_dart_;
+
     // head
     gazebo::physics::JointPtr head_pan_joint_;
     gazebo::physics::JointPtr head_tilt_joint_;

@@ -3,6 +3,8 @@ import("rtt_roscomm");
 import("rtt_rosparam");
 require("os")
 
+ros.import("rtt_rosclock");
+
 ros.import("rtt_actionlib");
 ros.import("rtt_barrett_hand_controller_msgs");
 ros.import("eigen_typekit");
@@ -25,12 +27,16 @@ ros.import("velma_sim_gazebo");
 //-- Simulation interface
 //------------------------------------------------------------------------------
 
+bool useSimulationTime()   { return true; }
+
 setActivityOnCPU("VelmaSim", 0.001, 6, ORO_SCHED_RT, 3)
+VelmaSim.loadService("sim_clock_activity")
 VelmaSim.loadService("rosparam")
 VelmaSim.rosparam.getAll()
 VelmaSim.configure()
 
 setActivityOnCPU("RightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
+RightHandTactile.loadService("sim_clock_activity")
 RightHandTactile.loadService("rosparam")
 RightHandTactile.rosparam.getAll()
 RightHandTactile.configure()
@@ -42,6 +48,7 @@ stream("RightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tact
 //connect("RightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
 
 setActivityOnCPU("LeftHandOptoforce", 0.025, 6, ORO_SCHED_RT, 3)
+LeftHandOptoforce.loadService("sim_clock_activity")
 LeftHandOptoforce.loadService("rosparam")
 LeftHandOptoforce.rosparam.getAll()
 LeftHandOptoforce.configure()
@@ -51,11 +58,13 @@ stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce
 stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
 
 setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
+RightHand.loadService("sim_clock_activity")
 RightHand.loadService("rosparam")
 RightHand.rosparam.getAll()
 RightHand.configure()
 
 setActivityOnCPU("LeftHand", 0.001, 6, ORO_SCHED_RT, 3)
+LeftHand.loadService("sim_clock_activity")
 LeftHand.loadService("rosparam")
 LeftHand.rosparam.getAll()
 LeftHand.configure()
@@ -63,12 +72,14 @@ LeftHand.configure()
 // F/T sensors
 
 setActivityOnCPU("LeftFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+LeftFtSensor.loadService("sim_clock_activity")
 LeftFtSensor.loadService("rosparam")
 LeftFtSensor.rosparam.getAll()
 LeftFtSensor.configure()
 stream("LeftFtSensor.rawWrench_OUTPORT", ros.comm.topic("/left_arm/ft_sensor/wrench"))
 
 setActivityOnCPU("RightFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+RightFtSensor.loadService("sim_clock_activity")
 RightFtSensor.loadService("rosparam")
 RightFtSensor.rosparam.getAll()
 RightFtSensor.configure()
