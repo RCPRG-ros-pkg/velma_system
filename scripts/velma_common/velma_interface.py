@@ -40,6 +40,7 @@ from actionlib_msgs.msg import *
 from trajectory_msgs.msg import *
 from control_msgs.msg import *
 from threading import Lock
+from functools import partial
 
 import tf
 from tf import *
@@ -182,7 +183,7 @@ Class used as Velma robot Interface.
 
         self.behavoiur_stopped_dict = {self.BEHAVOIUR_ERROR:None,
             self.BEHAVOIUR_OTHER:None,
-            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTiltVelocityLimiter', 'HeadPanVelocityLimiter', 'PoseIntRight', 'JntImp']),
+            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTrajectoryGeneratorJoint', 'PoseIntRight', 'JntImp']),
             self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp', 'RightForceTransformation', 'LeftForceTransformation']),
             self.BEHAVOIUR_CART_IMP_FT:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp']),
             self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
@@ -353,10 +354,53 @@ Class used as Velma robot Interface.
         for i in range(0,self.wrench_tab_len):
             self.wrench_tab.append( Wrench(Vector3(), Vector3()) )
 
-#        rospy.Subscriber('/'+self.prefix+'_arm/wrench', Wrench, self.wrenchCallback)
-        joint_states_listener = rospy.Subscriber('/joint_states', JointState, self.jointStatesCallback)
+        self.listener_joint_states = rospy.Subscriber('/joint_states', JointState, self.jointStatesCallback)
+
+        subscribed_topics_list = [
+            ('/right_arm/transformed_wrench', geometry_msgs.msg.Wrench),
+            ('/left_arm/transformed_wrench', geometry_msgs.msg.Wrench),
+            ('/right_arm/wrench', geometry_msgs.msg.Wrench),
+            ('/left_arm/wrench', geometry_msgs.msg.Wrench),
+            ('/right_arm/ft_sensor/wrench', geometry_msgs.msg.Wrench),
+            ('/left_arm/ft_sensor/wrench', geometry_msgs.msg.Wrench), ]
+
+        self.subscribed_topics = {}
+
+        for topic in subscribed_topics_list:
+            self.subscribed_topics[topic[0]] = [Lock(), None]
+            sub = rospy.Subscriber(topic[0], topic[1], partial( self.topicCallback, topic = topic[0] ))
+            self.subscribed_topics[topic[0]].append(sub)
 
         self.initConmanInterface()
+
+    def topicCallback(self, data, topic):
+        self.subscribed_topics[topic][0].acquire()
+        self.subscribed_topics[topic][1] = copy.copy(data)
+        self.subscribed_topics[topic][0].release()
+
+    def getTopicData(self, topic):
+        self.subscribed_topics[topic][0].acquire()
+        data = copy.copy(self.subscribed_topics[topic][1])
+        self.subscribed_topics[topic][0].release()
+        return data
+
+    def getRawFTr(self):
+        return self.wrenchROStoKDL( self.getTopicData('/right_arm/ft_sensor/wrench') )
+
+    def getRawFTl(self):
+        return self.wrenchROStoKDL( self.getTopicData('/left_arm/ft_sensor/wrench') )
+
+    def getTransformedFTr(self):
+        return self.wrenchROStoKDL( self.getTopicData('/right_arm/transformed_wrench') )
+
+    def getTransformedFTl(self):
+        return self.wrenchROStoKDL( self.getTopicData('/left_arm/transformed_wrench') )
+
+    def getWristWrenchr(self):
+        return self.wrenchROStoKDL( self.getTopicData('/right_arm/wrench') )
+
+    def getWristWrenchl(self):
+        return self.wrenchROStoKDL( self.getTopicData('/left_arm/wrench') )
 
     def action_right_cart_traj_feedback_cb(self, feedback):
         self.action_right_cart_traj_feedback = copy.deepcopy(feedback)
@@ -364,10 +408,13 @@ Class used as Velma robot Interface.
     def wrenchKDLtoROS(self, wrKDL):
         return geometry_msgs.msg.Wrench(Vector3( wrKDL.force.x(), wrKDL.force.y(), wrKDL.force.z() ), Vector3( wrKDL.torque.x(), wrKDL.torque.y(), wrKDL.torque.z() ))
 
+    def wrenchROStoKDL(self, wrROS):
+        return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
+
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
         behaviour = self.getControllerBehaviour()
         if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
-            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
+            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
             return False
 
         self.joint_traj_active = False
@@ -435,18 +482,34 @@ Class used as Velma robot Interface.
         CartesianTrajectoryResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
         CartesianTrajectoryResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED', }
 
-    def waitForEffector(self, prefix):
-        self.action_cart_traj_client[prefix].wait_for_result()
+    def waitForEffector(self, prefix, timeout_s=None):
+        if timeout_s == None:
+            timeout_s = 0
+        if not self.action_cart_traj_client[prefix].wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
         result = self.action_cart_traj_client[prefix].get_result()
         if result.error_code != 0:
             print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.cartesian_trajectory_result_names[result.error_code] + ")"
         return result.error_code
 
-    def waitForEffectorLeft(self):
-        return self.waitForEffector("left")
+    def waitForEffectorLeft(self, timeout_s=None):
+        return self.waitForEffector("left", timeout_s=timeout_s)
 
-    def waitForEffectorRight(self):
-        return self.waitForEffector("right")
+    def waitForEffectorRight(self, timeout_s=None):
+        return self.waitForEffector("right", timeout_s=timeout_s)
+
+#    def isActiveEffector(self, prefix):
+#        self.action_cart_traj_client[prefix].get_state()
+#        result = self.action_cart_traj_client[prefix].get_result()
+#        if result.error_code != 0:
+#            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.cartesian_trajectory_result_names[result.error_code] + ")"
+#        return result.error_code
+
+#    def isActiveEffectorRight(self):
+#        return self.isActiveEffector("right")
+
+#    def isActiveEffectorLeft(self):
+#        return self.isActiveEffector("left")
 
     def moveTool(self, prefix, T_W_T, t, stamp=None):
         ros_T_W_T = pm.toMsg(T_W_T)
