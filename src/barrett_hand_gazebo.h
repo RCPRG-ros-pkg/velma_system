@@ -125,6 +125,7 @@ public:
 
     std::vector<dart::dynamics::Joint*>  joints_dart_;
 
+    std::vector<int > too_big_force_counter_;
     bool move_hand_;
 
     bool clutch_break_[3];

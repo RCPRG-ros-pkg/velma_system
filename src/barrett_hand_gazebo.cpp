@@ -52,7 +52,7 @@
     }
 
 double BarrettHandGazebo::clip(double n, double lower, double upper) const {
-  return std::max(lower, std::min(n, upper));
+    return std::max(lower, std::min(n, upper));
 }
 
 double BarrettHandGazebo::getFingerAngle(int fidx) const {
@@ -219,15 +219,24 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
 
         // fingers may break if the force is too big
-        gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
-        gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
-        if (k2_wrench.body1Force.GetLength() > 40.0 || k2_wrench.body1Torque.GetLength() > 8.0 ||
-            k3_wrench.body1Force.GetLength() > 40.0 || k3_wrench.body1Torque.GetLength() > 6.0) {
+        if (too_big_force_counter_[fidx] < 100) {
+            gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
+            gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
+            if (k2_wrench.body1Force.GetLength() > 40.0 || k2_wrench.body1Torque.GetLength() > 8.0 ||
+                k3_wrench.body1Force.GetLength() > 40.0 || k3_wrench.body1Torque.GetLength() > 6.0) {
+                too_big_force_counter_[fidx]++;
+            }
+            else {
+                too_big_force_counter_[fidx] = 0;
+            }
+        }
+        if (too_big_force_counter_[fidx] == 100) {
             joints_dart_[k2_jnt]->setPositionLimited(false);
             joints_dart_[k3_jnt]->setPositionLimited(false);
             jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
             jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
-            std::cout << "finger " << fidx << " is broken: " << k2_wrench.body1Force.GetLength() << " " << k2_wrench.body1Torque.GetLength() << " " << k3_wrench.body1Force.GetLength() << " " << k3_wrench.body1Torque.GetLength() << std::endl;
+            std::cout << "finger " << fidx << " is broken: " << std::endl;//k2_wrench.body1Force.GetLength() << " " << k2_wrench.body1Torque.GetLength() << " " << k3_wrench.body1Force.GetLength() << " " << k3_wrench.body1Torque.GetLength() << std::endl;
+            too_big_force_counter_[fidx]++;
         }
     }
 

@@ -28,7 +28,8 @@
 #include "barrett_hand_gazebo.h"
 
     BarrettHandGazebo::BarrettHandGazebo(std::string const& name) : 
-        TaskContext(name)
+        TaskContext(name),
+        too_big_force_counter_(3, 0)
     {
 
         nh_ = new ros::NodeHandle();
