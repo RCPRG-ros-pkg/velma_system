@@ -21,7 +21,9 @@
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace velma_controller" />
 
-  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" />
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <param name="use_tf_static" value="false"/>
+  </node>
 
   <group ns="velma_controller">
     <rosparam>
