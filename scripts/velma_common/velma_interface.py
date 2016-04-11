@@ -173,6 +173,9 @@ Class used as Velma robot Interface.
             if self.behavoiur_stopped_dict[key] == stopped:
                 return key
         return self.BEHAVOIUR_OTHER
+
+    def getControllerBehaviourName(self):
+        return self.getBehaviourName( self.getControllerBehaviour() )
         
     def initConmanInterface(self):
         rospy.wait_for_service('/controller_manager/switch_controller')
@@ -215,6 +218,9 @@ Class used as Velma robot Interface.
 
     def switchToBehavoiur(self, behaviour):
         current = self.getControllerBehaviour()
+        if current == behaviour:
+            return True
+
         if (not (current, behaviour) in self.possible_behavoiur_switches):
             print "VelmaInterface.switchToBehavoiur: could not switch behavoiur from " + self.getBehaviourName(current) + " to " + self.getBehaviourName(behaviour)
             return False
@@ -271,6 +277,8 @@ Class used as Velma robot Interface.
 
     def __init__(self):
 
+        self.listener = tf.TransformListener();
+
         # read the joint information from the ROS parameter server
         self.body_joint_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
         self.body_joint_lower_limits = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/lower_limits")
@@ -317,7 +325,7 @@ Class used as Velma robot Interface.
             'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction) }
 
         # joint trajectory for right arm
-        self.action_right_joint_traj_client = None
+        self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         # cartesian tool trajectory for arms in the wrist frames
         self.action_tool_client = {
@@ -343,7 +351,6 @@ Class used as Velma robot Interface.
         self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
         self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
 
-        self.listener = tf.TransformListener();
         self.br = tf.TransformBroadcaster()
 
         rospy.sleep(1.0)
@@ -439,10 +446,10 @@ Class used as Velma robot Interface.
         return True
 
     def moveEffectorLeft(self, T_B_Tld, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        self.moveEffector("left", T_B_Tld, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
+        return self.moveEffector("left", T_B_Tld, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
     def moveEffectorRight(self, T_B_Trd, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
+        return self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
     def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
         behaviour = self.getControllerBehaviour()
@@ -594,9 +601,11 @@ Class used as Velma robot Interface.
         return self.waitForImpedance("right")
 
     def moveJoint(self, q_dest, joint_names, time, start_time=0.2):
-        if not (not self.cartesian_impedance_active and self.joint_impedance_active):
-            print "FATAL ERROR: moveJoint"
-            exit(0)
+        behaviour = self.getControllerBehaviour()
+        if behaviour != self.BEHAVOIUR_JNT_IMP:
+            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
+            return False
+
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
 
@@ -619,12 +628,14 @@ Class used as Velma robot Interface.
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self.joint_traj_active = True
-        self.action_right_joint_traj_client.send_goal(goal)
+        self.action_joint_traj_client.send_goal(goal)
 
     def moveJointTraj(self, traj, joint_names, start_time=0.2):
-        if not (not self.cartesian_impedance_active and self.joint_impedance_active):
-            print "FATAL ERROR: moveJointTraj"
-            exit(0)
+        behaviour = self.getControllerBehaviour()
+        if behaviour != self.BEHAVOIUR_JNT_IMP:
+            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
+            return False
+
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
 
@@ -660,11 +671,15 @@ Class used as Velma robot Interface.
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self.joint_traj_active = True
-        self.action_right_joint_traj_client.send_goal(goal)
+        self.action_joint_traj_client.send_goal(goal)
+        return True
 
     def waitForJoint(self):
-        self.action_right_joint_traj_client.wait_for_result()
-        return self.action_right_joint_traj_client.get_result()
+        self.action_joint_traj_client.wait_for_result()
+        result = self.action_joint_traj_client.get_result()
+        if result.error_code != 0:
+            print "waitForJoint(): action failed with error_code=" + str(result.error_code)
+        return result.error_code
 
     def stopArm(self, prefix):
         try:
@@ -768,7 +783,11 @@ Class used as Velma robot Interface.
         return False
 
     def getKDLtf(self, base_frame, frame):
+#        try:
         pose = self.listener.lookupTransform(base_frame, frame, rospy.Time(0))
+#        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+#            print "could not transform: ", base_frame, frame
+#            return None
         return pm.fromTf(pose)
 
     fingers_links = {
