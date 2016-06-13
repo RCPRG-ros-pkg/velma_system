@@ -22,7 +22,7 @@
   <run_depend>gazebo_ros</run_depend>
   <run_depend>orocos_kdl</run_depend>
   <run_depend>kdl_parser</run_depend>
-  <run_depend>rtt_gazebo</run_depend>
+  <run_depend>rtt_gazebo_deployer</run_depend>
   <run_depend>barrett_hand_common</run_depend>
   
   <!--
