@@ -19,13 +19,13 @@
   <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma.ops' use_gazebo_kinect:=false" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace velma_controller" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
 
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
     <param name="use_tf_static" value="false"/>
   </node>
 
-  <group ns="velma_controller">
+  <group ns="gazebo">
     <rosparam>
       FRIl:
         fri_port: 49938

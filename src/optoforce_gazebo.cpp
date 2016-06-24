@@ -52,7 +52,7 @@
             std::cout << "ERROR: OptoforceGazebo::configureHook: gazebo model is NULL" << std::endl;
             return false;
         }
-
+/*
         if (frame_id_vec_.size() != n_sensors_) {
             std::cout << "ERROR: OptoforceGazebo::configureHook: frame_id_vec_.size() != n_sensors_   " << frame_id_vec_.size() << "!=" << n_sensors_ << std::endl;
             return false;
@@ -107,7 +107,7 @@
         }
 
         force_out_.resize(n_sensors_);
-
+*/
         std::cout << "OptoforceGazebo::configureHook: ok" << std::endl;
         return true;
     }
@@ -115,10 +115,11 @@
     void OptoforceGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
-
+/*
         for (int i = 0; i < n_sensors_; i++) {
             port_force_out_[i]->write(force_out_[i]);
         }
+*/
     }
 
     bool OptoforceGazebo::startHook() {
@@ -134,7 +135,7 @@
 
         model_ = model;
 
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
+/*        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
         if (model_dart_.get() == NULL) {
@@ -147,7 +148,7 @@
         detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
 
         jc_.reset(new gazebo::physics::JointController(model_));
-
+*/
         return true;
     }
 

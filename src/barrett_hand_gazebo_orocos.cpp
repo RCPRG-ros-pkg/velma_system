@@ -61,7 +61,7 @@
         std::string hand_joint_names[] = {"_HandFingerOneKnuckleOneJoint", "_HandFingerOneKnuckleTwoJoint", "_HandFingerOneKnuckleThreeJoint",
             "_HandFingerTwoKnuckleOneJoint", "_HandFingerTwoKnuckleTwoJoint", "_HandFingerTwoKnuckleThreeJoint",
             "_HandFingerThreeKnuckleTwoJoint", "_HandFingerThreeKnuckleThreeJoint" };
-
+/*
         for (int i = 0; i < 8; i++) {
             std::string name( prefix_ + hand_joint_names[i] );
             dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
@@ -93,7 +93,7 @@
         for (int i = 0; i < 8; i++) {
             jc_->SetPositionTarget(joints_[i]->GetScopedName(), 0.0);
         }
-
+*/
         std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;
     }

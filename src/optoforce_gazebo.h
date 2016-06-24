@@ -39,8 +39,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -90,10 +90,10 @@ public:
     int32_t median_filter_samples_, median_filter_max_samples_;
 
     gazebo::physics::ModelPtr model_;
-    gazebo::physics::DARTModelPtr model_dart_;
-    dart::dynamics::Skeleton *dart_sk_;
-    dart::simulation::World *dart_world_;
-    dart::collision::CollisionDetector* detector_;
+//    gazebo::physics::DARTModelPtr model_dart_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    dart::simulation::World *dart_world_;
+//    dart::collision::CollisionDetector* detector_;
 
     gazebo::physics::JointControllerPtr jc_;
     std::vector<gazebo::physics::JointPtr> joints_;

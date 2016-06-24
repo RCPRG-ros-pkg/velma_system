@@ -35,7 +35,7 @@
         }
 
         model_ = model;
-
+/*
         dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
@@ -45,7 +45,7 @@
         }
 
         dart_sk_ = model_dart_->GetDARTSkeleton();
-
+*/
         jc_ = new gazebo::physics::JointController(model_);
 
         return true;
@@ -69,7 +69,7 @@ double BarrettHandGazebo::getFingerAngle(int fidx) const {
 // Update the controller
 void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-    if (!model_dart_ || joints_.size() == 0) {
+/*    if (!model_dart_ || joints_.size() == 0) {
         return;
     }
 
@@ -241,5 +241,6 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     jc_->Update();
+*/
 }
 

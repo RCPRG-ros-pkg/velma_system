@@ -35,8 +35,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -95,9 +95,9 @@ public:
     std::vector<double> transform_rpy_;
 
     gazebo::physics::ModelPtr model_;
-    dart::dynamics::Skeleton *dart_sk_;
-    gazebo::physics::JointPtr joint_;
-    dart::dynamics::BodyNode *dart_bn_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    gazebo::physics::JointPtr joint_;
+//    dart::dynamics::BodyNode *dart_bn_;
 
     std::vector<KDL::Wrench> slow_buffer_;
     std::vector<KDL::Wrench> fast_buffer_;

@@ -45,7 +45,7 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     model_ = model;
-
+/*
     gazebo::physics::DARTModelPtr model_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
     if (model_dart.get() == NULL) {
         std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
@@ -53,7 +53,7 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     dart_sk_ = model_dart->GetDARTSkeleton();
-
+*/
     return true;
 }
 
@@ -61,10 +61,10 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 // Update the controller
 void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+/*
     if (joint_.get() == NULL) {
         return;
     }
-
     Eigen::Vector6d wr = dart_bn_->getBodyForce();
     KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
     KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
@@ -106,6 +106,6 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
         WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
     }
-
+*/
 }
 

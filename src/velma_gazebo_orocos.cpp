@@ -119,6 +119,20 @@
 
     bool VelmaGazebo::configureHook() {
         std::cout << "VelmaGazebo::configureHook: ok" << std::endl;
+
+        ros::param::get("/gazebo/LeftForceTransformation/tool_weight", l_tool_weight_);
+        ros::param::get("/gazebo/LeftForceTransformation/gravity_arm_in_wrist/x", l_tool_x_);
+        ros::param::get("/gazebo/LeftForceTransformation/gravity_arm_in_wrist/y", l_tool_y_);
+        ros::param::get("/gazebo/LeftForceTransformation/gravity_arm_in_wrist/z", l_tool_z_);
+
+        ros::param::get("/gazebo/RightForceTransformation/tool_weight", r_tool_weight_);
+        ros::param::get("/gazebo/RightForceTransformation/gravity_arm_in_wrist/x", r_tool_x_);
+        ros::param::get("/gazebo/RightForceTransformation/gravity_arm_in_wrist/y", r_tool_y_);
+        ros::param::get("/gazebo/RightForceTransformation/gravity_arm_in_wrist/z", r_tool_z_);
+
+        std::cout << "r_tool: " << r_tool_weight_ << " " << r_tool_x_ << " " << r_tool_y_ << " " << r_tool_z_ << std::endl;
+        std::cout << "l_tool: " << l_tool_weight_ << " " << l_tool_x_ << " " << l_tool_y_ << " " << l_tool_z_ << std::endl;
+
         return true;
     }
 

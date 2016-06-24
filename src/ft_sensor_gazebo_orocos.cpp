@@ -41,13 +41,13 @@ bool FtSensorGazebo::startHook() {
 }
 
 bool FtSensorGazebo::configureHook() {
-    joint_ = model_->GetJoint(joint_name_);
+/*    joint_ = model_->GetJoint(joint_name_);
     if (joint_.get() == NULL) {
         std::cout << "ERROR: FtSensorGazebo::configureHook: could not find joint \"" << joint_name_ << "\"" << std::endl;
         return false;
     }
 
-    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
+//    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
 
     if (transform_xyz_.size() != 3) {
         std::cout << "ERROR: FtSensorGazebo::configureHook: wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << std::endl;
@@ -60,7 +60,7 @@ bool FtSensorGazebo::configureHook() {
     }
 
     T_W_S_ = KDL::Frame(KDL::Rotation::RPY(transform_rpy_[0], transform_rpy_[1], transform_rpy_[2]), KDL::Vector(transform_xyz_[0], transform_xyz_[1], transform_xyz_[2]));
-
+*/
     return true;
 }
 

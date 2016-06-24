@@ -123,10 +123,8 @@
                 for (int cidx = 0; cidx < col_count; cidx++) {
                     const std::string &col_name = (*it)->GetCollisions()[cidx]->GetName();
                     if (col_name == collision_names[i]) {
-                        //Eigen::Quaterniond q(dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().rotation());
-                        //std::cout << "tactile skin: " << link_name << "   " << dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                        link_names_.push_back( link_name );
-                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
+//                        link_names_.push_back( link_name );
+//                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
                         found = true;
                         break;
                     }
@@ -179,7 +177,7 @@
         }
 
         model_ = model;
-
+/*
         dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
@@ -191,7 +189,7 @@
         dart_sk_ = model_dart_->GetDARTSkeleton();
 
         detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
-
+*/
         return true;
     }
 
@@ -203,7 +201,7 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
     }
-
+/*
     if (!model_dart_) {
         std::cout << "ERROR: BarrettTactileGazebo: !model_dart_" << std::endl;
         return;
@@ -269,7 +267,7 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     ts_[1]->updatePressure(tact[1]);
     ts_[2]->updatePressure(tact[2]);
     ts_[3]->updatePressure(tact[3]);
-
+*/
 }
 
 ORO_LIST_COMPONENT_TYPE(BarrettTactileGazebo)

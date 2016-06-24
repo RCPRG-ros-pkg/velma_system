@@ -25,8 +25,9 @@
   <arg     if="$(arg debug)" name="script_type" value="debug"/>
 
   <!-- start gazebo server-->
-  <node name="velma_controller" pkg="gazebo_ros" type="$(arg script_type)" respawn="false" output="screen"
-	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart" />
+  <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
+	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e ode" >
+  </node>
 
   <!-- start gazebo client -->
   <group if="$(arg gui)">

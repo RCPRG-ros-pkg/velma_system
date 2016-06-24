@@ -35,8 +35,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -116,14 +116,14 @@ public:
     ros::NodeHandle *nh_;
 
     gazebo::physics::ModelPtr model_;
-    gazebo::physics::DARTModelPtr model_dart_;
-    dart::dynamics::Skeleton *dart_sk_;
-    dart::simulation::World *dart_world_;
+//    gazebo::physics::DARTModelPtr model_dart_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    dart::simulation::World *dart_world_;
 
     // BarrettHand
     std::vector<gazebo::physics::JointPtr>  joints_;
 
-    std::vector<dart::dynamics::Joint*>  joints_dart_;
+//    std::vector<dart::dynamics::Joint*>  joints_dart_;
 
     std::vector<int > too_big_force_counter_;
     bool move_hand_;

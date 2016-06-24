@@ -53,9 +53,10 @@ LeftHandOptoforce.loadService("rosparam")
 LeftHandOptoforce.rosparam.getAll()
 LeftHandOptoforce.configure()
 
-stream("LeftHandOptoforce.force_0_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_0"))
-stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
-stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
+// TODO: uncomment
+//stream("LeftHandOptoforce.force_0_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_0"))
+//stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
+//stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
 
 setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
 RightHand.loadService("sim_clock_activity")
