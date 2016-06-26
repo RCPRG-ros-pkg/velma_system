@@ -118,7 +118,20 @@
     }
 
     bool VelmaGazebo::configureHook() {
-        std::cout << "VelmaGazebo::configureHook: ok" << std::endl;
+
+        if (init_joint_names_.size() != init_joint_positions_.size()) {
+            std::cout << "ERROR: VelmaGazebo::configureHook: init_joint_names_.size() != init_joint_positions_.size(), " <<
+                init_joint_names_.size() << "!=" << init_joint_positions_.size() << std::endl;
+            return false;
+        }
+
+        std::map<std::string, double> init_joint_map;
+        for (int i=0; i<init_joint_names_.size(); i++) {
+            std::cout << "VelmaGazebo::configureHook: inital position: " << init_joint_names_[i] << " " << init_joint_positions_[i] << std::endl;
+            init_joint_map[init_joint_names_[i]] = init_joint_positions_[i];
+        }
+        setInitialPosition(init_joint_map);
+        setJointsDisabledPID();
 
         ros::param::get("/gazebo/LeftForceTransformation/tool_weight", l_tool_weight_);
         ros::param::get("/gazebo/LeftForceTransformation/gravity_arm_in_wrist/x", l_tool_x_);
@@ -133,6 +146,7 @@
         std::cout << "r_tool: " << r_tool_weight_ << " " << r_tool_x_ << " " << r_tool_y_ << " " << r_tool_z_ << std::endl;
         std::cout << "l_tool: " << l_tool_weight_ << " " << l_tool_x_ << " " << l_tool_y_ << " " << l_tool_z_ << std::endl;
 
+        std::cout << "VelmaGazebo::configureHook: ok" << std::endl;
         return true;
     }
 

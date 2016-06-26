@@ -96,8 +96,9 @@ public:
 
     gazebo::physics::ModelPtr model_;
 //    dart::dynamics::Skeleton *dart_sk_;
-//    gazebo::physics::JointPtr joint_;
+    gazebo::physics::JointPtr joint_;
 //    dart::dynamics::BodyNode *dart_bn_;
+    gazebo::physics::LinkPtr link_;
 
     std::vector<KDL::Wrench> slow_buffer_;
     std::vector<KDL::Wrench> fast_buffer_;

@@ -36,8 +36,6 @@
 
         model_ = model;
 /*
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
-
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
         if (model_dart_.get() == NULL) {
             std::cout << "BarrettHandGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
@@ -69,7 +67,8 @@ double BarrettHandGazebo::getFingerAngle(int fidx) const {
 // Update the controller
 void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-/*    if (!model_dart_ || joints_.size() == 0) {
+//    if (!model_dart_ || joints_.size() == 0) {
+    if (joints_.size() == 0) {
         return;
     }
 
@@ -231,8 +230,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             }
         }
         if (too_big_force_counter_[fidx] == 100) {
-            joints_dart_[k2_jnt]->setPositionLimited(false);
-            joints_dart_[k3_jnt]->setPositionLimited(false);
+//            joints_dart_[k2_jnt]->setPositionLimited(false);
+//            joints_dart_[k3_jnt]->setPositionLimited(false);
             jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
             jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
             std::cout << "finger " << fidx << " is broken: " << std::endl;//k2_wrench.body1Force.GetLength() << " " << k2_wrench.body1Torque.GetLength() << " " << k3_wrench.body1Force.GetLength() << " " << k3_wrench.body1Torque.GetLength() << std::endl;
@@ -241,6 +240,6 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     jc_->Update();
-*/
+
 }
 

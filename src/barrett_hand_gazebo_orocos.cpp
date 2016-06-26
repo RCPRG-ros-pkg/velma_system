@@ -61,14 +61,14 @@
         std::string hand_joint_names[] = {"_HandFingerOneKnuckleOneJoint", "_HandFingerOneKnuckleTwoJoint", "_HandFingerOneKnuckleThreeJoint",
             "_HandFingerTwoKnuckleOneJoint", "_HandFingerTwoKnuckleTwoJoint", "_HandFingerTwoKnuckleThreeJoint",
             "_HandFingerThreeKnuckleTwoJoint", "_HandFingerThreeKnuckleThreeJoint" };
-/*
+
         for (int i = 0; i < 8; i++) {
             std::string name( prefix_ + hand_joint_names[i] );
-            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
+//            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
             gazebo::physics::JointPtr joint = model_->GetJoint(name);
             joints_.push_back(joint);
-            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
-            joints_dart_.push_back( joint_dart );
+//            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
+//            joints_dart_.push_back( joint_dart );
             joint->SetEffortLimit(0, 1);
         }
 
@@ -93,7 +93,7 @@
         for (int i = 0; i < 8; i++) {
             jc_->SetPositionTarget(joints_[i]->GetScopedName(), 0.0);
         }
-*/
+
         std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;
     }

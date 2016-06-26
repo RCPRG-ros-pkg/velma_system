@@ -338,12 +338,18 @@ bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     return true;
 }
 
-void VelmaGazebo::setInitialPosition() {
-    double angle = 90.0/180.0*3.1415;
+void VelmaGazebo::setInitialPosition(const std::map<std::string, double> &init_q) {
+//    double angle = 90.0/180.0*3.1415;
 
     std::vector<gazebo::physics::JointPtr>  joints = model_->GetJoints();
     for (int i=0; i<joints.size(); i++) {
-        joints[i]->SetPosition(0, 0);
+        std::map<std::string, double>::const_iterator it = init_q.find(joints[i]->GetName());
+        if (it == init_q.end()) {
+            joints[i]->SetPosition(0, 0);
+        }
+        else {
+            joints[i]->SetPosition(0, it->second);
+        }
         joints[i]->SetVelocity(0, 0);
     }
 
@@ -364,6 +370,18 @@ void VelmaGazebo::setInitialPosition() {
 
 void VelmaGazebo::setJointsDisabledPID() {
     jc_->Reset();
+
+    std::string joint_names[15] = {"torso_0_joint", "right_arm_0_joint", "right_arm_1_joint",
+        "right_arm_2_joint", "right_arm_3_joint", "right_arm_4_joint", "right_arm_5_joint",
+        "right_arm_6_joint", "left_arm_0_joint", "left_arm_1_joint", "left_arm_2_joint",
+        "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint", "left_arm_6_joint"};
+
+    for (int i=0; i<15; i++) {
+        gazebo::physics::JointPtr joint = model_->GetJoint(joint_names[i]);
+        jc_->AddJoint(joint);
+        jc_->SetPositionPID(joint->GetScopedName(), gazebo::common::PID(10.0, 0, 0.0, 1.1, -1.1, 10.0,-10.0));
+        jc_->SetPositionTarget(joint->GetScopedName(), joint->GetAngle(0).Radian());
+    }
 /*
     for (int i = 0; i < r_dart_joints_.size(); i++) {
         jc_->AddJoint(r_joints_[i]);

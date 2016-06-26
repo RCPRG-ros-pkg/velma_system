@@ -160,6 +160,10 @@ public:
 
   protected:
 
+    // ROS parameters
+    std::vector<std::string> init_joint_names_;
+	std::vector<double> init_joint_positions_;
+
     Eigen::VectorXd       tmp_r_JointTorqueCommand_in_;
     std_msgs::Int32       tmp_r_KRL_CMD_in_;
     tFriRobotState        tmp_r_RobotState_out_;
@@ -205,7 +209,7 @@ public:
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
     double clip(double n, double lower, double upper) const;
-    void setInitialPosition();
+    void setInitialPosition(const std::map<std::string, double> &init_q);
     void setJointsDisabledPID();
     void setJointsEnabledPID();
 

@@ -37,6 +37,9 @@
         std::cout << "VelmaGazebo ROS node name: " << ros::this_node::getName() << std::endl;
         std::cout << "VelmaGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
+        addProperty("init_joint_names", init_joint_names_);
+        addProperty("init_joint_positions", init_joint_positions_);
+
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&VelmaGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&VelmaGazebo::gazeboUpdateHook,this,RTT::ClientThread);

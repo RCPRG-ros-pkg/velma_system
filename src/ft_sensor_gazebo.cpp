@@ -61,12 +61,15 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 // Update the controller
 void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-/*
+
     if (joint_.get() == NULL) {
         return;
     }
-    Eigen::Vector6d wr = dart_bn_->getBodyForce();
-    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
+    gazebo::math::Vector3 force = link_->GetWorldForce();
+    gazebo::math::Vector3 torque = link_->GetWorldTorque();
+//    Eigen::Vector6d wr = dart_bn_->getBodyForce();
+//    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
+    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(force.x, force.y, force.z), -KDL::Vector(torque.x, torque.y, torque.z) );
     KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
 
     slow_filtered_wrench_ = KDL::Wrench();
@@ -106,6 +109,5 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
         WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
     }
-*/
 }
 
