@@ -275,20 +275,20 @@ Class used as Velma robot Interface.
     def isInJntImp(self):
         return self.getControllerBehaviour() == self.BEHAVOIUR_JNT_IMP
 
-    def __init__(self):
+    def __init__(self, namespace="/velma_controller"):
 
         self.listener = tf.TransformListener();
 
         # read the joint information from the ROS parameter server
-        self.body_joint_names = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/joint_names")
-        self.body_joint_lower_limits = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/lower_limits")
-        self.body_joint_upper_limits = rospy.get_param("/velma_controller/SplineTrajectoryActionJoint/upper_limits")
+        self.body_joint_names = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/joint_names")
+        self.body_joint_lower_limits = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/lower_limits")
+        self.body_joint_upper_limits = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/upper_limits")
 
-        self.head_joint_names = rospy.get_param("/velma_controller/HeadSplineTrajectoryActionJoint/joint_names")
-        self.head_joint_lower_limits = rospy.get_param("/velma_controller/HeadSplineTrajectoryActionJoint/lower_limits")
-        self.head_joint_upper_limits = rospy.get_param("/velma_controller/HeadSplineTrajectoryActionJoint/upper_limits")
+        self.head_joint_names = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/joint_names")
+        self.head_joint_lower_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/lower_limits")
+        self.head_joint_upper_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/upper_limits")
 
-        self.all_joint_names = rospy.get_param("/velma_controller/JntPub/joint_names")
+        self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
         self.js_pos = {}
         self.js_pos_history = []
