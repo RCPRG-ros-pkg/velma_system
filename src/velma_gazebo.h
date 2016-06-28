@@ -36,7 +36,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 //#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
+#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -52,7 +52,7 @@
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
 
-#include <gazebo/physics/ode/ODECollision.hh>
+//#include <gazebo/physics/ode/ODECollision.hh>
 
 //#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
@@ -254,9 +254,9 @@ public:
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
-    boost::shared_ptr< gazebo::physics::ODECollision > ode_col1, ode_col2;
+//    boost::shared_ptr< gazebo::physics::ODECollision > ode_col1, ode_col2;
 
-    std::map<dGeomID, std::string> gmap;
+//    std::map<dGeomID, std::string> gmap;
 
     void getMassJointPositions(Eigen::VectorXd &q);
     void getExternalForces(Eigen::VectorXd &q);

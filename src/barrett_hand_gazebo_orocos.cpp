@@ -80,7 +80,7 @@
             jc_->AddJoint(joints_[i]);
         }
 
-        double torque = 5.0;
+        double torque = 1.0;
         jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
         jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
         jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));

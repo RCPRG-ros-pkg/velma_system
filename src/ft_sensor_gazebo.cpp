@@ -65,8 +65,10 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if (joint_.get() == NULL) {
         return;
     }
-    gazebo::math::Vector3 force = link_->GetWorldForce();
-    gazebo::math::Vector3 torque = link_->GetWorldTorque();
+    gazebo::math::Vector3 force = joint_->GetLinkForce(0);
+    gazebo::math::Vector3 torque = joint_->GetLinkTorque(0);
+    //gazebo::math::Vector3 force = link_->GetWorldForce();
+    //gazebo::math::Vector3 torque = link_->GetWorldTorque();
 //    Eigen::Vector6d wr = dart_bn_->getBodyForce();
 //    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
     KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(force.x, force.y, force.z), -KDL::Vector(torque.x, torque.y, torque.z) );

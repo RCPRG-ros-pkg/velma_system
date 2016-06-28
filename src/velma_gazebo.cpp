@@ -27,9 +27,9 @@
 
 #include "velma_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
-#include <gazebo/physics/ode/ODELink.hh>
-#include <gazebo/physics/ode/ODECollision.hh>
-#include <gazebo/physics/ode/ODEPhysics.hh>
+//#include <gazebo/physics/ode/ODELink.hh>
+//#include <gazebo/physics/ode/ODECollision.hh>
+//#include <gazebo/physics/ode/ODEPhysics.hh>
 
 void VelmaGazebo::getMassJointPositions(Eigen::VectorXd &q) {
     std::string joint_names[15] = {"torso_0_joint", "right_arm_0_joint", "right_arm_1_joint",
@@ -339,33 +339,21 @@ bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 }
 
 void VelmaGazebo::setInitialPosition(const std::map<std::string, double> &init_q) {
-//    double angle = 90.0/180.0*3.1415;
-
     std::vector<gazebo::physics::JointPtr>  joints = model_->GetJoints();
     for (int i=0; i<joints.size(); i++) {
         std::map<std::string, double>::const_iterator it = init_q.find(joints[i]->GetName());
-        if (it == init_q.end()) {
-            joints[i]->SetPosition(0, 0);
+        double pos = 0.0;
+        if (it != init_q.end()) {
+            pos = it->second;
         }
-        else {
-            joints[i]->SetPosition(0, it->second);
+        gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joints[i] );
+        if (joint_dart != NULL) {
+            joint_dart->GetDARTJoint()->setPosition(0, pos);
         }
+
+        joints[i]->SetPosition(0, pos);
         joints[i]->SetVelocity(0, 0);
     }
-
-/*
-    r_dart_joints_[1]->setPosition(0, -angle);
-    l_dart_joints_[1]->setPosition(0, angle);
-
-    r_dart_joints_[2]->setPosition(0, angle);
-    l_dart_joints_[2]->setPosition(0, -angle);
-
-    r_dart_joints_[3]->setPosition(0, angle);
-    l_dart_joints_[3]->setPosition(0, -angle);
-
-    r_dart_joints_[5]->setPosition(0, -angle);
-    l_dart_joints_[5]->setPosition(0, angle);
-*/
 }
 
 void VelmaGazebo::setJointsDisabledPID() {
