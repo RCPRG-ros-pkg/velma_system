@@ -28,7 +28,6 @@
 #include "velma_gazebo.h"
 
     void VelmaGazebo::updateHook() {
-//        std::cout << "VelmaGazebo::updateHook" << std::endl;
 
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);

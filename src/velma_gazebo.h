@@ -36,7 +36,7 @@
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 //#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -60,7 +60,7 @@
 
 #include <kuka_lwr_fri/friComm.h>
 
-#include "velma_dyn_model.h"
+#include "manipulator_mass_matrix.h"
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
@@ -216,34 +216,15 @@ public:
     ros::NodeHandle *nh_;
 
     gazebo::physics::ModelPtr model_;
-//    gazebo::physics::DARTModelPtr model_dart_;
-//    dart::dynamics::Skeleton *dart_sk_;
-//    dart::simulation::World *dart_world_;
 
     // torso and KUKA LWRs
-    std::vector<gazebo::physics::JointPtr >  r_joints_;
-    std::vector<gazebo::physics::JointPtr >  l_joints_;
-    std::vector<gazebo::physics::JointPtr >  t_joints_;
-    std::vector<int > r_indices_;
-    std::vector<int > l_indices_;
-    std::vector<int > t_indices_;
-
-//    std::vector<dart::dynamics::Joint* > r_dart_joints_;
-//    std::vector<dart::dynamics::Joint* > l_dart_joints_;
-//    std::vector<dart::dynamics::Joint* > t_dart_joints_;
-
-    Eigen::VectorXd r_force_prev_;
-    Eigen::VectorXd l_force_prev_;
-
     bool r_command_mode_;
     bool l_command_mode_;
 
     double right_tool_mass_;
     KDL::Vector right_tool_com_W_;
-//    dart::dynamics::BodyNode *right_tool_bn_dart_;
     double left_tool_mass_;
     KDL::Vector left_tool_com_W_;
-//    dart::dynamics::BodyNode *left_tool_bn_dart_;
 
     // head
     gazebo::physics::JointPtr head_pan_joint_;
@@ -254,10 +235,6 @@ public:
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
-//    boost::shared_ptr< gazebo::physics::ODECollision > ode_col1, ode_col2;
-
-//    std::map<dGeomID, std::string> gmap;
-
     void getMassJointPositions(Eigen::VectorXd &q);
     void getExternalForces(Eigen::VectorXd &q);
     void getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
@@ -265,11 +242,12 @@ public:
     void setForces(const Eigen::VectorXd &t);
     void getGravComp(Eigen::VectorXd &t);
 
-    DynModelVelma dyn_model_;
-    Eigen::VectorXd mass_q_;
-
     double l_tool_weight_, l_tool_x_, l_tool_y_, l_tool_z_;
     double r_tool_weight_, r_tool_x_, r_tool_y_, r_tool_z_;
+
+    std::shared_ptr<manipulator_mass_matrix::Manipulator > mm_l_, mm_r_;
+
+    std::map<std::string, double > init_q_map_;
 };
 
 #endif  // VELMA_GAZEBO_H__

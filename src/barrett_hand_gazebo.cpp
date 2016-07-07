@@ -213,8 +213,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 k3_angle_dest = finger_int_[fidx]/3;
             }
 
-            std::cout << "finger " << fidx << "  dest: " << k2_angle_dest << "   " << k3_angle_dest << "   cur: " << joints_[k2_jnt]->GetAngle(0).Radian()
-                << "  " << joints_[k3_jnt]->GetAngle(0).Radian() << std::endl;
+//            std::cout << "finger " << fidx << "  dest: " << k2_angle_dest << "   " << k3_angle_dest << "   cur: " << joints_[k2_jnt]->GetAngle(0).Radian()
+//                << "  " << joints_[k3_jnt]->GetAngle(0).Radian() << std::endl;
             jc_->SetPositionTarget(joints_[k2_jnt]->GetScopedName(), k2_angle_dest);
             jc_->SetPositionTarget(joints_[k3_jnt]->GetScopedName(), k3_angle_dest);
         }

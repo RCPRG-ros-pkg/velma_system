@@ -27,9 +27,6 @@
 
 #include "velma_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
-//#include <gazebo/physics/ode/ODELink.hh>
-//#include <gazebo/physics/ode/ODECollision.hh>
-//#include <gazebo/physics/ode/ODEPhysics.hh>
 
 void VelmaGazebo::getMassJointPositions(Eigen::VectorXd &q) {
     std::string joint_names[15] = {"torso_0_joint", "right_arm_0_joint", "right_arm_1_joint",
@@ -60,8 +57,9 @@ void VelmaGazebo::getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorX
         "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint", "left_arm_6_joint"};
 
     for (int i=0; i<15; i++) {
-        q(i) = model_->GetJoint(joint_names[i])->GetAngle(0).Radian();
-        dq(i) = model_->GetJoint(joint_names[i])->GetVelocity(0);
+        gazebo::physics::JointPtr joint = model_->GetJoint(joint_names[i]);
+        q(i) = joint->GetAngle(0).Radian();
+        dq(i) = joint->GetVelocity(0);
     }
 }
 
@@ -69,8 +67,9 @@ void VelmaGazebo::getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::Vec
     std::string joint_names[2] = {"head_pan_joint", "head_tilt_joint"};
 
     for (int i=0; i<2; i++) {
-        q(i) = model_->GetJoint(joint_names[i])->GetAngle(0).Radian();
-        dq(i) = model_->GetJoint(joint_names[i])->GetVelocity(0);
+        gazebo::physics::JointPtr joint = model_->GetJoint(joint_names[i]);
+        q(i) = joint->GetAngle(0).Radian();
+        dq(i) = joint->GetVelocity(0);
     }
 }
 
@@ -94,11 +93,7 @@ KDL::Frame gz2kdl(const gazebo::math::Pose &p) {
 }
 
 void VelmaGazebo::getGravComp(Eigen::VectorXd &t) {
-//    std::cout << "getGravComp" << std::endl;
-
     t(0) = 0.0;
-
-//    std::cout << model_->GetJoint("right_arm_6_joint")->GetJointLink(0)->GetName() << std::endl;
 
     KDL::Vector gr = gz2kdl( gazebo::physics::get_world()->GetPhysicsEngine()->GetGravity() );
 
@@ -149,196 +144,32 @@ void VelmaGazebo::getGravComp(Eigen::VectorXd &t) {
 
 bool VelmaGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
-        if(model.get() == NULL) {
-            std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
-            return false;
-        }
-
-        model_ = model;
-
-        mass_q_.resize(15);
-
-
-/*
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
-
-        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-        if (model_dart_.get() == NULL) {
-            std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-            return false;
-        }
-
-        dart_sk_ = model_dart_->GetDARTSkeleton();
-*/
-        jc_ = new gazebo::physics::JointController(model);
-
-        // head joints
-        head_pan_joint_ = model->GetJoint("head_pan_joint");
-        head_tilt_joint_ = model->GetJoint("head_tilt_joint");
-
-    Eigen::VectorXd grav(15);
-    getGravComp(grav);
-
-/*
-        std::string srdf;
-        ros::param::get("/robot_semantic_description", srdf);
-        dart::collision::CollisionDetector* detector = dart_world_->getConstraintSolver()->getCollisionDetector();
-
-        std::vector<std::pair<std::string, std::string> > disabled_collisions;
-        parseSRDF(srdf, disabled_collisions);
-        for (std::vector<std::pair<std::string, std::string> >::const_iterator it = disabled_collisions.begin(); it != disabled_collisions.end(); it++) {
-            dart::dynamics::BodyNode *bn1 = dart_sk_->getBodyNode(it->first);
-            dart::dynamics::BodyNode *bn2 = dart_sk_->getBodyNode(it->second);
-            detector->disablePair(bn1, bn2);
-        }
-        dart_sk_->enableSelfCollision(false);
-
-        // fill in gazebo joints pointer vectors
-
-        // right arm joints
-        for(unsigned int i = 0; i < 7; i++) {
-            std::string joint_name = std::string("right_arm_") + std::to_string(i) + "_joint";
-            gazebo::physics::JointPtr joint = model->GetJoint(joint_name);
-            if (joint) {
-                gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-                this->r_joints_.push_back(joint);
-                r_dart_joints_.push_back( joint_dart->GetDARTJoint() );
-                r_indices_.push_back(r_dart_joints_.back()->getIndexInSkeleton(0));
-            }
-            else {
-                RTT::log(RTT::Error) << "A joint named " << joint_name.c_str() << " is not part of Mechanism Controlled joints." << RTT::endlog();
-                return false;
-            }
-        }
-
-        // left arm joints
-        for(unsigned int i = 0; i < 7; i++) {
-            std::string joint_name = std::string("left_arm_") + std::to_string(i) + "_joint";
-            gazebo::physics::JointPtr joint = model->GetJoint(joint_name);
-            if (joint) {
-                gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-                this->l_joints_.push_back(joint);
-                l_dart_joints_.push_back( joint_dart->GetDARTJoint() );
-                l_indices_.push_back(l_dart_joints_.back()->getIndexInSkeleton(0));
-            }
-            else {
-                RTT::log(RTT::Error) << "A joint named " << joint_name.c_str() << " is not part of Mechanism Controlled joints." << RTT::endlog();
-                return false;
-            }
-        }
-
-        // torso joints
-        for(unsigned int i = 0; i < 1; i++) {
-            std::string joint_name = std::string("torso_") + std::to_string(i) + "_joint";
-            gazebo::physics::JointPtr joint = model->GetJoint(joint_name);     
-            if (joint) {
-                gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-                this->t_joints_.push_back(joint);
-                t_dart_joints_.push_back( joint_dart->GetDARTJoint() );
-                t_indices_.push_back(t_dart_joints_.back()->getIndexInSkeleton(0));
-            }
-            else {
-                RTT::log(RTT::Error) << "A joint named " << joint_name.c_str() << " is not part of Mechanism Controlled joints." << RTT::endlog();
-                return false;
-            }
-        }
-
-
-        // print DART collisions
-        for (int bidx = 0; bidx < dart_sk_->getNumBodyNodes(); bidx++) {
-            dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(bidx);
-            std::cout << "BodyNode " << bidx << "  " << bn->getName() << std::endl;
-            int num_sh = bn->getNumCollisionShapes();
-            for (int i = 0; i < num_sh; i++) {
-                dart::dynamics::Shape *sh = bn->getCollisionShape(i);
-                if (sh == NULL) {
-                    std::cout << "   shape " << i << "  is NULL" << std::endl;
-                    continue;
-                }
-                if (sh->getShapeType() == dart::dynamics::Shape::MESH) {
-                    dart::dynamics::MeshShape *msh = static_cast<dart::dynamics::MeshShape*>(sh);
-                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
-                    std::cout << "   shape " << i << "  is mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                }
-                else {
-                    Eigen::Quaterniond q(sh->getLocalTransform().rotation());
-                    std::cout << "   shape " << i << "  is not mesh:  " << sh->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                }
-            }
-        }
-
-        // print Gazebo collisions
-        for (gazebo::physics::Link_V::const_iterator it = model->GetLinks().begin(); it != model->GetLinks().end(); it++) {
-            std::cout << "link: " << (*it)->GetName() << std::endl;
-            int col_count = (*it)->GetCollisions().size();
-            for (int i = 0; i < col_count; i++) {
-                gazebo::math::Vector3 pos = (*it)->GetCollisions()[i]->GetRelativePose().pos;
-                gazebo::math::Quaternion q = (*it)->GetCollisions()[i]->GetRelativePose().rot;
-                std::cout << "   collision " << (*it)->GetCollisions()[i]->GetName() << "  " << pos.x << " " << pos.y << " " << pos.z << "  " << q.x << " " << q.y << " " << q.z << " " << q.w << " " << std::endl; 
-            }
-        }
-
-    for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
-        dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
-        std::cout << bn->getName() << "  " << bn->getMass() << std::endl;
+    if(model.get() == NULL) {
+        std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+        return false;
     }
 
-    // data needed for wrist wrench estimation
-    right_tool_mass_ = 0.0;
-    right_tool_bn_dart_ = dart_sk_->getBodyNode("right_arm_7_link");
-    Eigen::Isometry3d ET_WO_Wr = right_tool_bn_dart_->getTransform();
-    Eigen::Vector3d comr(0,0,0);
-    for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
-        dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
-        if (bn->getName().find("right_Hand") == 0 || bn->getName().find("right_arm_7_link") == 0) {
-            right_tool_mass_ += bn->getMass();
-            Eigen::Isometry3d ET_WO_L = bn->getTransform();
-            Eigen::Isometry3d ET_W_L = ET_WO_Wr.inverse() * ET_WO_L;
-            comr += ET_W_L * bn->getLocalCOM() * bn->getMass();            
-        }
-    }
-    comr /= right_tool_mass_;
-    right_tool_com_W_ = KDL::Vector(comr(0), comr(1), comr(2));
+    model_ = model;
 
-//boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( model_->GetJoint(joint_name_) )->GetDARTJoint()->getChildBodyNode();
+    mm_r_.reset( new manipulator_mass_matrix::Manipulator(model, "right_arm_0_joint", "right_arm_6_joint",
+                1.2391, gazebo::math::Vector3(0.175,0.0134,-0.0781), 0.1, 0, 0, 0.1, 0, 0.1) );
 
-    left_tool_mass_ = 0.0;
-    left_tool_bn_dart_ = dart_sk_->getBodyNode("left_arm_7_link");
-    Eigen::Isometry3d ET_WO_Wl = left_tool_bn_dart_->getTransform();
-    Eigen::Vector3d coml(0,0,0);
-    for (int i = 0; i < dart_sk_->getNumBodyNodes(); i++) {
-        dart::dynamics::BodyNode *bn = dart_sk_->getBodyNode(i);
-        if (bn->getName().find("left_Hand") == 0 || bn->getName().find("left_arm_7_link") == 0) {
-            left_tool_mass_ += bn->getMass();
-            Eigen::Isometry3d ET_WO_L = bn->getTransform();
-            Eigen::Isometry3d ET_W_L = ET_WO_Wl.inverse() * ET_WO_L;
-            coml += ET_W_L * bn->getLocalCOM() * bn->getMass();            
-        }
-    }
-    coml /= left_tool_mass_;
-    left_tool_com_W_ = KDL::Vector(coml(0), coml(1), coml(2));
+    mm_l_.reset( new manipulator_mass_matrix::Manipulator(model, "left_arm_0_joint", "left_arm_6_joint",
+                1.2391, gazebo::math::Vector3(-0.175,0.0134,-0.0781), 0.1, 0, 0, 0.1, 0, 0.1) );
 
-//    std::cout << "mass: " << mass << "  COM: " << com.transpose() << std::endl;
+    jc_ = new gazebo::physics::JointController(model);
 
+    // head joints
+    head_pan_joint_ = model->GetJoint("head_pan_joint");
+    head_tilt_joint_ = model->GetJoint("head_tilt_joint");
 
-//BodyNode::setMass(double _mass)
-//setLocalCOM
-
-    r_force_prev_.resize(7);
-    l_force_prev_.resize(7);
-
-    setInitialPosition();
-
-//    setJointsDisabledPID();
-    setJointsEnabledPID();
-
-*/
     rtt_rosclock::set_sim_clock_activity(this);
 
     return true;
 }
 
 void VelmaGazebo::setInitialPosition(const std::map<std::string, double> &init_q) {
+    init_q_map_ = init_q;
     std::vector<gazebo::physics::JointPtr>  joints = model_->GetJoints();
     for (int i=0; i<joints.size(); i++) {
         std::map<std::string, double>::const_iterator it = init_q.find(joints[i]->GetName());
@@ -358,31 +189,6 @@ void VelmaGazebo::setInitialPosition(const std::map<std::string, double> &init_q
 
 void VelmaGazebo::setJointsDisabledPID() {
     jc_->Reset();
-
-    std::string joint_names[15] = {"torso_0_joint", "right_arm_0_joint", "right_arm_1_joint",
-        "right_arm_2_joint", "right_arm_3_joint", "right_arm_4_joint", "right_arm_5_joint",
-        "right_arm_6_joint", "left_arm_0_joint", "left_arm_1_joint", "left_arm_2_joint",
-        "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint", "left_arm_6_joint"};
-
-    for (int i=0; i<15; i++) {
-        gazebo::physics::JointPtr joint = model_->GetJoint(joint_names[i]);
-        jc_->AddJoint(joint);
-        jc_->SetPositionPID(joint->GetScopedName(), gazebo::common::PID(10.0, 0, 0.0, 1.1, -1.1, 10.0,-10.0));
-        jc_->SetPositionTarget(joint->GetScopedName(), joint->GetAngle(0).Radian());
-    }
-/*
-    for (int i = 0; i < r_dart_joints_.size(); i++) {
-        jc_->AddJoint(r_joints_[i]);
-        jc_->SetPositionPID(r_joints_[i]->GetScopedName(), gazebo::common::PID(10.0, 0, 0.0, 1.1, -1.1, 10.0,-10.0));
-        jc_->SetPositionTarget(r_joints_[i]->GetScopedName(), r_dart_joints_[i]->getPosition(0));
-    }
-
-    for (int i = 0; i < l_dart_joints_.size(); i++) {
-        jc_->AddJoint(l_joints_[i]);
-        jc_->SetPositionPID(l_joints_[i]->GetScopedName(), gazebo::common::PID(10.0, 0, 0.0, 1.1, -1.1, 10.0,-10.0));
-        jc_->SetPositionTarget(l_joints_[i]->GetScopedName(), l_dart_joints_[i]->getPosition(0));
-    }
-*/
 
     jc_->AddJoint(head_pan_joint_);
     jc_->SetPositionPID(head_pan_joint_->GetScopedName(), gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
@@ -412,16 +218,17 @@ double VelmaGazebo::clip(double n, double lower, double upper) const {
 // Update the controller
 void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-    getMassJointPositions(mass_q_);
-    dyn_model_.computeM(mass_q_);
-
-
     // mass matrix
-    const Eigen::MatrixXd &mass_matrix = dyn_model_.getM();
+    mm_r_->updatePoses(model);
+    const Eigen::MatrixXd &mmr = mm_r_->getMassMatrix();
+
+    mm_l_->updatePoses(model);
+    const Eigen::MatrixXd &mml = mm_l_->getMassMatrix();
+
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 7; j++) {
-            tmp_r_MassMatrix_out_(i,j) = mass_matrix(i+1, j+1);
-            tmp_l_MassMatrix_out_(i,j) = mass_matrix(i+8, j+8);
+            tmp_r_MassMatrix_out_(i,j) = mmr(i,j);
+            tmp_l_MassMatrix_out_(i,j) = mml(i,j);
         }
     }
 
@@ -430,41 +237,19 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     grav.setZero();
     getGravComp(grav);
 
-
-/*    if (!model_dart_) {
-        return;
-    }
-
-    // mass matrix
-    const Eigen::MatrixXd &mass_matrix = dart_sk_->getMassMatrix();
-    for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 7; j++) {
-            tmp_r_MassMatrix_out_(i,j) = mass_matrix(r_indices_[i], r_indices_[j]);
-            tmp_l_MassMatrix_out_(i,j) = mass_matrix(l_indices_[i], l_indices_[j]);
-        }
-    }
-
     // gravity forces
-    Eigen::VectorXd grav = dart_sk_->getGravityForces();
     for (int i = 0; i < 7; i++) {
-        tmp_r_GravityTorque_out_(i) = grav(r_indices_[i]);
-        tmp_l_GravityTorque_out_(i) = grav(l_indices_[i]);
+        tmp_r_GravityTorque_out_(i) = grav(i+1);
+        tmp_l_GravityTorque_out_(i) = grav(i+8);
     }
-
-    if (grav.size() != dart_sk_->getNumDofs()) {
-        std::cout << "ERROR: VelmaGazebo::gazeboUpdateHook: grav.size() != dart_sk_->getNumDofs()   " << grav.size() << "!=" << dart_sk_->getNumDofs() << std::endl;
-        return;
-    }
-*/
 
     Eigen::VectorXd ext_f(14);
     getExternalForces(ext_f);
-//TODO: dart:    const Eigen::VectorXd &ext_f = dart_sk_->getExternalForces() + dart_sk_->getConstraintForces() + dart_sk_->getCoriolisForces();
 
     // external forces
     for (int i = 0; i < 7; i++) {
-        tmp_r_JointTorque_out_(i) = 0;//ext_f[i];
-        tmp_l_JointTorque_out_(i) = 0;//ext_f[i+7];
+        tmp_r_JointTorque_out_(i) = ext_f[i] - grav(i+1);
+        tmp_l_JointTorque_out_(i) = ext_f[i+7] - grav(i+8);
     }
 
     Eigen::VectorXd q(15), dq(15);
@@ -491,6 +276,7 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     tmp_t_MotorVelocity_out_ = dq(0) * torso_trans_mult;
 
 /*
+    // TODO
     // calculate the wrench on the wrist
     Eigen::Isometry3d ET_WO_Wr = right_tool_bn_dart_->getTransform();
     Eigen::Vector3d grav_Wr = ET_WO_Wr.inverse().rotation() * Eigen::Vector3d(0,0,-9.81);
@@ -560,12 +346,9 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         tmp_hp_q_in_ = hp_q_in_;
         tmp_ht_q_in_ = ht_q_in_;
 
+
         tmp_r_command_mode = r_command_mode_;
         tmp_l_command_mode = l_command_mode_;
-
-        r_JointTorqueCommand_in_.setZero();
-        l_JointTorqueCommand_in_.setZero();
-        t_MotorCurrentCommand_in_ = 0.0;
     }
 
     // torque command
@@ -574,18 +357,33 @@ void VelmaGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             grav(i+1) += tmp_r_JointTorqueCommand_in_(i);
         }
     }
+    else {
+        std::string joint_names[7] = {"right_arm_0_joint", "right_arm_1_joint",
+        "right_arm_2_joint", "right_arm_3_joint", "right_arm_4_joint", "right_arm_5_joint",
+        "right_arm_6_joint"};
+        for (int i = 0; i < 7; i++) {
+            grav(i+1) += 10.0 * (init_q_map_[joint_names[i]] - tmp_r_JointPosition_out_(i));
+        }
+    }
 
     if (tmp_l_command_mode) {
         for (int i = 0; i < 7; i++) {
             grav(i+8) += tmp_l_JointTorqueCommand_in_(i);
+        }
+    } else {
+        std::string joint_names[7] = {"left_arm_0_joint", "left_arm_1_joint",
+        "left_arm_2_joint", "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint",
+        "left_arm_6_joint"};
+        for (int i = 0; i < 7; i++) {
+            grav(i+8) += 10.0 * (init_q_map_[joint_names[i]] - tmp_l_JointPosition_out_(i));
         }
     }
 
     grav(0) += tmp_t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant;
 
     setForces(grav);
-//    dart_sk_->setForces(grav);
 
+    // joint controller for the head
     jc_->SetPositionTarget(head_pan_joint_->GetScopedName(), -tmp_hp_q_in_ / head_trans);
     jc_->SetPositionTarget(head_tilt_joint_->GetScopedName(), tmp_ht_q_in_ / head_trans);
 
