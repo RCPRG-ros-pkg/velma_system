@@ -23,7 +23,7 @@ include_directories(
   ${Boost_INCLUDE_DIR}
   ${catkin_INCLUDE_DIRS}
   ${GAZEBO_INCLUDE_DIRS}
-  /usr/include/gazebo-7/gazebo
+#  /usr/include/gazebo-7/gazebo
   ${orocos_kdl_INCLUDE_DIRS}
   ${Eigen_INCLUDE_DIR}
   )
@@ -37,14 +37,26 @@ orocos_use_package( rtt-typekit )
 #set(CMAKE_BUILD_TYPE Debug)
 
 ## Default component
-orocos_component(velma_gazebo src/velma_gazebo_init.cpp src/velma_gazebo.cpp src/velma_gazebo_orocos.cpp src/velma_gazebo_srdf.cpp src/manipulator_mass_matrix.cpp)
+orocos_component(lwr_gazebo src/lwr_gazebo_init.cpp src/lwr_gazebo.cpp src/lwr_gazebo_orocos.cpp src/manipulator_mass_matrix.cpp)
+orocos_component(torso_gazebo src/torso_gazebo_init.cpp src/torso_gazebo.cpp src/torso_gazebo_orocos.cpp)
 orocos_component(barrett_hand_gazebo src/barrett_hand_gazebo.cpp src/barrett_hand_gazebo_init.cpp src/barrett_hand_gazebo_orocos.cpp)
 orocos_component(barrett_tactile_gazebo src/barrett_tactile_gazebo.cpp)
 orocos_component(optoforce_gazebo src/optoforce_gazebo.cpp)
 orocos_component(ft_sensor_gazebo src/ft_sensor_gazebo.cpp src/ft_sensor_gazebo_init.cpp src/ft_sensor_gazebo_orocos.cpp)
 
-set_target_properties(velma_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
-target_link_libraries(velma_gazebo
+set_target_properties(lwr_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
+target_link_libraries(lwr_gazebo
+  ${GAZEBO_LIBRARIES}
+  ${catkin_LIBRARIES}
+  ${OROCOS-RTT_LIBRARIES} 
+  ${OROCOS-RTT_RTT-SCRIPTING_LIBRARY} 
+  ${OROCOS-RTT_RTT-TRANSPORT-CORBA_LIBRARY}
+  ${USE_OROCOS_LIBRARIES}
+  ${Boost_LIBRARIES}
+)
+
+set_target_properties(torso_gazebo PROPERTIES COMPILE_FLAGS -DRTT_COMPONENT)
+target_link_libraries(torso_gazebo
   ${GAZEBO_LIBRARIES}
   ${catkin_LIBRARIES}
   ${OROCOS-RTT_LIBRARIES} 
