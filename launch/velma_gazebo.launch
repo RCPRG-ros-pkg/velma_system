@@ -3,7 +3,6 @@
 
   <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
 
-<!--  <rosparam param="/gazebo/joints/joint_names">['joint1', 'joint2', 'joint3', 'joint4', 'joint5', 'joint6', 'joint7']</rosparam>-->
   <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
     <arg name="paused" value="false"/>
@@ -59,19 +58,9 @@
           iyy: 0.1
           iyz: 0.0
           izz: 0.1
-      FRIl:
-        fri_port: 49938
-        joint_offset: [0.0,0.0,0.0,-0.0,0.0,0.0,0.0]
-      FRIr:
-        fri_port: 49948
-        joint_offset: [0.0,-0.0,-0.0,-0.0,-0.0,0.0,0.0]
       RightHand:
         prefix: right
       LeftHand:
-        prefix: left
-      rightHandMoveAction:
-        prefix: right
-      leftHandMoveAction:
         prefix: left
       RightHandTactile:
         prefix: right
@@ -80,159 +69,16 @@
         n_sensors: 3
         frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
       RightFtSensor:
-        joint_name: right_arm_6_joint
-        transform_xyz: [0.115, 0.0, -0.078]
-        transform_rpy: [0, 1.57079632679, 0]
+        joint_name: rightFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
       LeftFtSensor:
-        joint_name: left_arm_6_joint
-        transform_xyz: [-0.115, 0.0, -0.078]
-        transform_rpy: [0, -1.57079632679, 0]
-      RightForceTransformation:
-        is_right_turn_frame: true
-        tool_weight: 12.391
-        gravity_arm_in_wrist:
-          x: 0.1749
-          y: 0.0134
-          z: -0.0781
-        sensor_frame:
-          orientation:
-            w: 0.707106781188
-            x: 0.0
-            y: 0.707106781185
-            z: 0.0
-          position:
-            x: 0.115
-            y: 0.0
-            z: -0.078
-      LeftForceTransformation:
-        is_right_turn_frame: true
-        tool_weight: 12.391
-        gravity_arm_in_wrist:
-          x: -0.1749
-          y: 0.0134
-          z: -0.0781
-        sensor_frame:
-          orientation:
-            w: 0.707106781188
-            x: 0.0
-            y: -0.707106781185
-            z: 0.0
-          position:
-            x: -0.115
-            y: 0.0
-            z: -0.078
-      LWRlDiag:
-        prefix: left_arm_
-      LWRrDiag:
-        prefix: right_arm_
-      HeadIK:
-        v_rot:  0.800
-        v_lean: 0.375
-        v_head: 0.392
-        h_cam:  0.0
-        v_cam:  0.225
-      TorsoPanTransmision:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-      TorsoPanTransmisionInv:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-        motor_constant: 0.00105
-      HeadPanVelocityLimiter:
-        max_vel: 50.0
-      HeadTiltVelocityLimiter:
-        max_vel: 50.0
-      HeadPanTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-      HeadPanTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
-      HeadTiltTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-      HeadTiltTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
-      HeadPosAggregate:
-        number_of_ports: 2
-      HeadVelAggregate:
-        number_of_ports: 2
-      HeadPosSplit:
-        number_of_ports: 2
-      TorsoTrqSplit:
-        number_of_ports: 1
-      TorsoPosAggregate:
-        number_of_ports: 1
-      TorsoVelAggregate:
-        number_of_ports: 1
-      Ts:
-        outputs: [1, 7, 7]
-      TrajectoryGeneratorJoint:
-        number_of_joints: 15
-      HeadTrajectoryGeneratorJoint:
-        number_of_joints: 2
-      SplineTrajectoryActionJoint:
-        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
-        lower_limits: [-2.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
-        upper_limits: [2.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-      HeadSplineTrajectoryActionJoint:
-        joint_names: [head_pan_joint, head_tilt_joint]
-        lower_limits: [-1.57, -1]
-        upper_limits: [1.57, 1]
-      JntImp:
-        number_of_joints: 15
-        initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.0, 200.01]
-      JntLimit:
-        upper_limit: [100.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-        lower_limit: [-100.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
-        limit_range: [0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26]
-        max_trq: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0]
-      JntPub:
-        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint, head_pan_joint, head_tilt_joint, right_HandFingerOneKnuckleOneJoint, right_HandFingerOneKnuckleTwoJoint, right_HandFingerOneKnuckleThreeJoint, right_HandFingerTwoKnuckleOneJoint, right_HandFingerTwoKnuckleTwoJoint, right_HandFingerTwoKnuckleThreeJoint, right_HandFingerThreeKnuckleTwoJoint, right_HandFingerThreeKnuckleThreeJoint, left_HandFingerOneKnuckleOneJoint, left_HandFingerOneKnuckleTwoJoint, left_HandFingerOneKnuckleThreeJoint, left_HandFingerTwoKnuckleOneJoint, left_HandFingerTwoKnuckleTwoJoint, left_HandFingerTwoKnuckleThreeJoint, left_HandFingerThreeKnuckleTwoJoint, left_HandFingerThreeKnuckleThreeJoint ]
-      PT:
-        input_frames: 2
-      ToolIntRight:
-        activate_pose_init: true
-        init_setpoint:
-          orientation:
-            w: 1.0
-            x: 0.0
-            y: 0.0
-            z: 0.0
-          position:
-            x: 0.0
-            y: 0.0
-            z: 0.0
-      ToolIntLeft:
-        activate_pose_init: true
-        init_setpoint:
-          orientation:
-            w: 1.0
-            x: 0.0
-            y: 0.0
-            z: 0.0
-          position:
-            x: 0.0
-            y: 0.0
-            z: 0.0
-      TfPub:
-        frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
-        child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
+        joint_name: leftFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
     </rosparam>
+
+    <include file="$(find velma_controller)/launch/velma_common_params.launch" />
   </group>
+
 </launch>
