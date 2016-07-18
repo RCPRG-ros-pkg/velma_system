@@ -1,13 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(rtt_cartesian_trajectory_msgs)
+project(rtt_velma_low_level_interface_msgs)
 
-find_package(catkin REQUIRED COMPONENTS rtt_roscomm cartesian_trajectory_msgs)
+find_package(catkin REQUIRED COMPONENTS rtt_roscomm velma_low_level_interface_msgs)
 
-ros_generate_rtt_typekit(cartesian_trajectory_msgs)
-#ros_generate_rtt_service_proxies(cartesian_trajectory_msgs)
+ros_generate_rtt_typekit(velma_low_level_interface_msgs)
 
 orocos_generate_package(
-  DEPENDS cartesian_trajectory_msgs
-  DEPENDS_TARGETS rtt_roscomm rtt_std_msgs rtt_geometry_msgs rtt_actionlib_msgs
+  DEPENDS velma_low_level_interface_msgs
+  DEPENDS_TARGETS rtt_roscomm rtt_std_msgs rtt_geometry_msgs rtt_barrett_hand_controller_msgs
 
 )

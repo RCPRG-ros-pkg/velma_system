@@ -39,7 +39,5 @@ float64[7] rArm_t
 
 # leftKRLcmd
 # rightKRLcmd
-float64 lArm_cmd
-float64 rArm_cmd
-
+float64 robot_cmd
 

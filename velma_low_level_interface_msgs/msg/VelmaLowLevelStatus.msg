@@ -9,11 +9,12 @@ float64 lHand_q
 float64 rHand_q
 
 # RightHandTactile.BHPressureState_OUTPORT
-float
+barrett_hand_controller_msgs/BHPressureState rHand_p
 
-LeftHandOptoforce.force_0_OUTPORT
-LeftHandOptoforce.force_1_OUTPORT
-LeftHandOptoforce.force_2_OUTPORT
+# LeftHandOptoforce.force_0_OUTPORT
+# LeftHandOptoforce.force_1_OUTPORT
+# LeftHandOptoforce.force_2_OUTPORT
+geometry_msgs/WrenchStamped[3] lHand_f
 
 # torsoMotorPosition
 float64 tMotor_q
