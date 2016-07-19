@@ -51,8 +51,8 @@ float64[7] rArm_t
 
 # leftArmWrench
 # rightArmWrench
-float64[6] lArm_w
-float64[6] rArm_w
+geometry_msgs/Wrench lArm_w
+geometry_msgs/Wrench rArm_w
 
 # leftArmMassMatrix
 # rightArmMassMatrix
@@ -66,22 +66,22 @@ float64[7] rArm_gt
 
 # leftFtSensorRawWrench
 # rightFtSensorRawWrench
-float64[6] lFTSensor_rw
-float64[6] rFTSensor_rw
+geometry_msgs/Wrench lFTSensor_rw
+geometry_msgs/Wrench rFTSensor_rw
 
 # leftFtSensorFastFilteredWrench
 # rightFtSensorFastFilteredWrench
-float64[6] lFTSensor_ffw
-float64[6] rFTSensor_ffw
+geometry_msgs/Wrench lFTSensor_ffw
+geometry_msgs/Wrench rFTSensor_ffw
 
 # leftFtSensorSlowFilteredWrench
 # rightFtSensorSlowFilteredWrench
-float64[6] lFTSensor_sfw
-float64[6] rFTSensor_sfw
+geometry_msgs/Wrench lFTSensor_sfw
+geometry_msgs/Wrench rFTSensor_sfw
 
-# leftArmRobotState_OUTPORT_name()           { return string("FRIl.RobotState_OUTPORT"); }
-# leftArmFRIState_OUTPORT_name()             { return string("FRIl.FRIState_OUTPORT"); }
-# rightArmRobotState_OUTPORT_name()          { return string("FRIr.RobotState_OUTPORT"); }
-# rightArmFRIState_OUTPORT_name()            { return string("FRIr.FRIState_OUTPORT"); }
-int32 robot_s
+uint8[40] rArm_tFriIntfState
+uint8[36] rArm_tFriRobotState
+
+uint8[40] lArm_tFriIntfState
+uint8[36] lArm_tFriRobotState
 
