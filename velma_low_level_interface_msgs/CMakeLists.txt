@@ -6,6 +6,8 @@ find_package(catkin REQUIRED
   COMPONENTS std_msgs geometry_msgs barrett_hand_controller_msgs message_generation actionlib_msgs)
 
 add_message_files(FILES
+  VelmaLowLevelCommandArm.msg
+  VelmaLowLevelCommandHand.msg
   VelmaLowLevelCommand.msg
   VelmaLowLevelStatus.msg
   )
