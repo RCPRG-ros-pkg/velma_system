@@ -54,10 +54,10 @@
         ts_[2]->setGeometry("finger3_tip_info", finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2, 0.001);
         ts_[3]->setGeometry("palm_info", palm_sensor_center, palm_sensor_halfside1, palm_sensor_halfside2, 0.001);
 
-        tactile_out_.finger1_tip.resize(24);
-        tactile_out_.finger2_tip.resize(24);
-        tactile_out_.finger3_tip.resize(24);
-        tactile_out_.palm_tip.resize(24);
+//        tactile_out_.finger1_tip.resize(24);
+//        tactile_out_.finger2_tip.resize(24);
+//        tactile_out_.finger3_tip.resize(24);
+//        tactile_out_.palm_tip.resize(24);
 
         this->ports()->addPort("BHPressureState_OUTPORT", port_tactile_out_);
         this->ports()->addPort("calibrate_tactile_sensors_INPORT", port_calibrate_in_);

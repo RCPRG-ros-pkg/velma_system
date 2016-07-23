@@ -59,7 +59,7 @@
 #include <geometry_msgs/WrenchStamped.h>
 
 #include <kuka_lwr_fri/friComm.h>
-#include "barrett_hand_common/tactile.h"
+//#include "barrett_hand_common/tactile.h"
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
