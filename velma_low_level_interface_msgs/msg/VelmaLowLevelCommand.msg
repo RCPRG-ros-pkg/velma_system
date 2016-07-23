@@ -1,4 +1,4 @@
-int32 rHandTactile_cmd
+int32 rHand_tactileCmd
 
 # torsoMotorCurrentCommand
 # headPanMotorCurrentCommand
