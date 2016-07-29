@@ -2,5 +2,5 @@
 float64[7] t
 
 # leftKRLcmd
-int32 cmd
+std_msgs/Int32 cmd
 
