@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+  <arg name="use_kinect" default="false"/>
+  <arg name="gui" default="true"/>
+
+  <!-- Orocos target (gnulinux, xenomai, etc) -->
+  <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
+  <!-- Path to look for dynamically-loaded plugins and components (something like /lib/orocos) -->
+  <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>
+  <arg name="LOG_LEVEL" default="error"/>
+
+  <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="verbose" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="false"/>
+  </include>
+
+  <node
+    name="velma_high_level"
+    pkg="rtt_ros" type="deployer"
+    args="--DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_sim_gazebo)/config/velma_high.ops --" output="screen">
+    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
+    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
+  </node>
+
+  <!-- load robot description-->
+  <param name="/use_sim_time" value="true"/>
+  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma_low_level.ops' use_gazebo_kinect:=$(arg use_kinect)" />
+  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+  
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <param name="use_tf_static" value="false"/>
+  </node>
+
+  <group ns="gazebo">
+    <rosparam>
+      LWRrSim:
+        name: right
+        init_joint_names: [right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint]
+        init_joint_positions: [0,-1.57,1.57,1.57,0,-1.57,0]
+        tool:
+          m: 1.2391
+          com:
+            x: 0.1749
+            y: 0.0134
+            z: -0.0781
+          ixx: 0.1
+          ixy: 0.0
+          ixz: 0.0
+          iyy: 0.1
+          iyz: 0.0
+          izz: 0.1
+      LWRlSim:
+        name: left
+        init_joint_names: [left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
+        init_joint_positions: [0,1.57,-1.57,-1.57,0,1.57,0]
+        tool:
+          m: 1.2391
+          com:
+            x: -0.1749
+            y: 0.0134
+            z: -0.0781
+          ixx: 0.1
+          ixy: 0.0
+          ixz: 0.0
+          iyy: 0.1
+          iyz: 0.0
+          izz: 0.1
+      RightHand:
+        prefix: right
+      LeftHand:
+        prefix: left
+      RightHandTactile:
+        prefix: right
+      LeftHandOptoforce:
+        device_name: gazebo_leftHand
+        n_sensors: 3
+        frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
+      RightFtSensor:
+        joint_name: rightFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
+      LeftFtSensor:
+        joint_name: leftFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
+    </rosparam>
+
+    <include file="$(find velma_controller)/launch/velma_common_params.launch" />
+  </group>
+
+</launch>

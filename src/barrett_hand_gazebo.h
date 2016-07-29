@@ -87,7 +87,6 @@ public:
     Eigen::Vector4d max_measured_pressure_in_;
     std_msgs::Empty reset_in_;
     uint32_t        status_out_;
-    std_msgs::Int32 filter_in_;
     Eigen::VectorXd q_out_;
     Eigen::VectorXd t_out_;
     //barrett_hand_controller_msgs::BHTemp temp_out_;
