@@ -1,3 +1,5 @@
+uint32 test
+
 VelmaLowLevelStatusArm rArm
 VelmaLowLevelStatusArm lArm
 

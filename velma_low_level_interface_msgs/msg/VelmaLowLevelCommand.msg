@@ -1,3 +1,5 @@
+uint32 test
+
 int32 rHand_tactileCmd
 
 # torsoMotorCurrentCommand
