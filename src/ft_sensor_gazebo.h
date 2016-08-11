@@ -120,6 +120,8 @@ public:
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
+
+    bool data_valid_;
 };
 
 #endif  // FT_SENSOR_GAZEBO_H__

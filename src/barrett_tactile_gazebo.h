@@ -93,6 +93,8 @@ public:
 //    dart::simulation::World *dart_world_;
 //    dart::collision::CollisionDetector* detector_;
 
+    bool data_valid_;
+
     std::vector<std::string > link_names_;
     std::vector<Eigen::Isometry3d > vec_T_C_L_;
 

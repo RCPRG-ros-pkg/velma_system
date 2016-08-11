@@ -32,7 +32,8 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name) :
     slow_buffer_size_(2),
     fast_buffer_size_(100),
     slow_buffer_index_(0),
-    fast_buffer_index_(0)
+    fast_buffer_index_(0),
+    data_valid_(false)
 {
     nh_ = new ros::NodeHandle();
 

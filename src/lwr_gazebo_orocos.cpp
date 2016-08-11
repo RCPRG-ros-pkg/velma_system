@@ -32,6 +32,10 @@
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        if (!data_valid_) {
+            return;
+        }
+
         port_MassMatrix_out_.write(MassMatrix_out_);
         port_GravityTorque_out_.write(GravityTorque_out_);
         port_JointTorque_out_.write(JointTorque_out_);

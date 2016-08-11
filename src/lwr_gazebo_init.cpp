@@ -28,7 +28,8 @@
 #include "lwr_gazebo.h"
 
     LWRGazebo::LWRGazebo(std::string const& name) : 
-        TaskContext(name)
+        TaskContext(name),
+        data_valid_(false)
     {
 
         nh_ = new ros::NodeHandle();

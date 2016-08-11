@@ -13,7 +13,6 @@
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
  
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  DISCLAIMED. IN NO EVENT SHALL <COPYright HOLDER> BE LIABLE FOR ANY
@@ -30,6 +29,10 @@
     void BarrettHandGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
+
+        if (!data_valid_) {
+            return;
+        }
 
         //
         // BarrettHand

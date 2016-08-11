@@ -136,6 +136,8 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         tmp_t_MotorCurrentCommand_in_ = t_MotorCurrentCommand_in_;
         tmp_hp_q_in_ = hp_q_in_;
         tmp_ht_q_in_ = ht_q_in_;
+
+        data_valid_ = true;
     }
 
     Eigen::VectorXd grav(1);

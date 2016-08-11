@@ -31,7 +31,8 @@
     OptoforceGazebo::OptoforceGazebo(std::string const& name) : 
         TaskContext(name),
         model_(NULL),
-        n_sensors_(0)
+        n_sensors_(0),
+        data_valid_(false)
     {
         nh_ = new ros::NodeHandle();
 
@@ -115,6 +116,10 @@
     void OptoforceGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
+
+        if (!data_valid_) {
+            return;
+        }
 /*
         for (int i = 0; i < n_sensors_; i++) {
             port_force_out_[i]->write(force_out_[i]);
@@ -177,6 +182,7 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     jc_->Update();
+    data_valid_ = true;
 }
 
 ORO_LIST_COMPONENT_TYPE(OptoforceGazebo)

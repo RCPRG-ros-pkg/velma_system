@@ -9,7 +9,7 @@
   <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
   <!-- Path to look for dynamically-loaded plugins and components (something like /lib/orocos) -->
   <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>
-  <arg name="LOG_LEVEL" default="error"/>
+  <arg name="ORO_LOGLEVEL" default="5"/>
 
   <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
     <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
@@ -19,16 +19,17 @@
     <arg name="verbose" value="true"/>
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
+    <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
   </include>
-
+<!--
   <node
     name="velma_high_level"
     pkg="rtt_ros" type="deployer"
-    args="--DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_sim_gazebo)/config/velma_high.ops --" output="screen">
+    args="- -DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_sim_gazebo)/config/velma_high.ops - -" output="screen">
     <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
   </node>
-
+-->
   <!-- load robot description-->
   <param name="/use_sim_time" value="true"/>
   <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma_low_level.ops' use_gazebo_kinect:=$(arg use_kinect)" />
@@ -74,6 +75,15 @@
           iyy: 0.1
           iyz: 0.0
           izz: 0.1
+      safety_controller:
+<!--        damping_rArm: [-0.4, -0.4, -0.4, -0.1, -0.1, -0.1, -0.1]
+        damping_lArm: [-0.4, -0.4, -0.4, -0.1, -0.1, -0.1, -0.1]-->
+        damping_rArm: [0, 0, 0, 0, 0, 0, 0]
+        damping_lArm: [0, 0, 0, 0, 0, 0, 0]
+        damping_torso: [0]
+      rJntImp:
+        number_of_joints: 7
+        initial_stiffness: [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
       RightHand:
         prefix: right
       LeftHand:

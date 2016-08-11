@@ -132,12 +132,14 @@ public:
 
     gazebo::physics::JointController *jc_;
 
-    //! Synchronization
-    RTT::os::MutexRecursive gazebo_mutex_;
-
     void getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
     void getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
     void setForces(const Eigen::VectorXd &t);
+
+    //! Synchronization
+    RTT::os::MutexRecursive gazebo_mutex_;
+
+    bool data_valid_;
 };
 
 #endif  // TORSO_GAZEBO_H__

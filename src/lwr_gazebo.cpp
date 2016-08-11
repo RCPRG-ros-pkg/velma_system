@@ -199,6 +199,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         CartesianWrench_out_ = tmp_CartesianWrench_out_;
         tmp_JointTorqueCommand_in_ = JointTorqueCommand_in_;
         tmp_command_mode = command_mode_;
+        data_valid_ = true;
     }
 
     // torque command

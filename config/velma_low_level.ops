@@ -4,13 +4,21 @@ import("rtt_rosparam");
 require("os")
 
 ros.import("rtt_rosclock");
-
+ros.import("rtt_rospack")
 ros.import("rtt_actionlib");
 ros.import("rtt_barrett_hand_controller_msgs");
+ros.import("rtt_geometry_msgs");
+ros.import("rtt_velma_low_level_interface_msgs");
+ros.import("velma_low_level_interface");
+
 ros.import("eigen_typekit");
-ros.import("rtt_control_msgs");
+ros.import("rtt_std_msgs");
+ros.import("port_operations");
+
 ros.import("conman");
 ros.import("conman_ros");
+
+ros.import("rtt_control_msgs");
 ros.import("lwr_fri");
 ros.import("oro_joint_state_publisher");
 ros.import("controller_common");
@@ -20,10 +28,8 @@ ros.import("rtt_std_msgs");
 ros.import("rtt_tf");
 ros.import("internal_space_spline_trajectory_action");
 ros.import("internal_space_spline_trajectory_generator");
-ros.import("port_operations");
 ros.import("velma_sim_gazebo");
-ros.import("rtt_velma_low_level_interface_msgs");
-ros.import("velma_low_level_interface");
+ros.import("velma_low_level_safety");
 
 //------------------------------------------------------------------------------
 //-- Simulation interface
@@ -102,52 +108,36 @@ RightFtSensor.configure()
 #stream("RightFtSensor.fastFilteredWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench_fast"))
 #stream("RightFtSensor.slowFilteredWrench_OUTPORT", ros.comm.topic("/right_arm/ft_sensor/wrench_slow"))
 
+
+
+
+
+
+
+
 #
-# low-level interface
+# the low level interfaces
 #
+
 var ConnPolicy cpTx;
 cpTx.transport = 2;                 # the MQueue protocol id
 cpTx.name_id   = "/lli_status";     # the connection id
 
 loadComponent("lli_lo_tx","VelmaLLILoTx")
-setActivity("lli_lo_tx", 0.001, 1, ORO_SCHED_RT);
+setActivity("lli_lo_tx", 0, 1, ORO_SCHED_RT);
 lli_lo_tx.configure();
 stream("lli_lo_tx.status_OUTPORT", cpTx);
-
-var ConnPolicy cpRx;
-cpRx.transport = 2;                 # the MQueue protocol id
-cpRx.name_id   = "/lli_command";    # the connection id
 
 loadComponent("lli_lo_rx","VelmaLLILoRx")
 setActivity("lli_lo_rx", 0, 1, ORO_SCHED_RT);
 lli_lo_rx.configure();
-stream("lli_lo_rx.command_INPORT", cpRx);
 
-# command
-connect("lli_lo_rx.cmd_rArm_t_OUTPORT",         "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_rArm_cmd_OUTPORT",       "LWRrSim.KRL_CMD_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_rHand_q_OUTPORT",        "RightHand.q_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_rHand_dq_OUTPORT",       "RightHand.v_INPORT", ConnPolicy())
-#connect("lli_lo_rx.cmd_rHand_max_p_OUTPORT",    "RightHand.mp_INPORT", ConnPolicy())   # TODO
-connect("lli_lo_rx.cmd_rHand_max_i_OUTPORT",    "RightHand.t_INPORT", ConnPolicy())
-#connect("lli_lo_rx.cmd_rHand_hold_OUTPORT",     "RightHand.hold_INPORT", ConnPolicy()) # TODO
-
-connect("lli_lo_rx.cmd_lArm_t_OUTPORT",         "LWRlSim.JointTorqueCommand_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_lArm_cmd_OUTPORT",       "LWRlSim.KRL_CMD_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_lHand_q_OUTPORT",        "LeftHand.q_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_lHand_dq_OUTPORT",       "LeftHand.v_INPORT", ConnPolicy())
-#connect("lli_lo_rx.cmd_lHand_max_p_OUTPORT",    "LeftHand.mp_INPORT", ConnPolicy())    # TODO
-connect("lli_lo_rx.cmd_lHand_max_i_OUTPORT",    "LeftHand.t_INPORT", ConnPolicy())
-#connect("lli_lo_rx.cmd_lHand_hold_OUTPORT",     "LeftHand.hold_INPORT", ConnPolicy())  # TODO
-
-#connect("lli_lo_rx.cmd_rHand_tactileCmd_OUTPORT",   "RightHandTactile.calibrate_tactile_sensors_INPORT", ConnPolicy()) # TODO
-connect("lli_lo_rx.cmd_tMotor_i_OUTPORT",           "TorsoSim.t_MotorCurrentCommand_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_hpMotor_i_OUTPORT",          "TorsoSim.head_pan_motor_current_command_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_htMotor_i_OUTPORT",          "TorsoSim.head_tilt_motor_current_command_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_hpMotor_q_OUTPORT",          "TorsoSim.head_pan_motor_position_command_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_htMotor_q_OUTPORT",          "TorsoSim.head_tilt_motor_position_command_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
-connect("lli_lo_rx.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
+#
+# the actual testing component
+#
+#loadComponent("lli_lo_test","VelmaLLILoTest")
+#setActivity("lli_lo_test", 0, 1, ORO_SCHED_RT);
+#lli_lo_test.configure();
 
 # status
 connect("LWRrSim.JointPosition_OUTPORT",                    "lli_lo_tx.status_rArm_q_INPORT", ConnPolicy())
@@ -189,22 +179,80 @@ connect("LeftFtSensor.rawWrench_OUTPORT",                   "lli_lo_tx.status_lF
 connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_ffw_INPORT", ConnPolicy())
 connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_sfw_INPORT", ConnPolicy())
 
+#
+# the safety component
+#
+loadComponent("safety_controller","VelmaLowLevelSafety");
+setActivity("safety_controller", 0, 1, ORO_SCHED_RT);
+safety_controller.configure();
+
+connect("lli_lo_rx.command_OUTPORT",               "safety_controller.command_INPORT", ConnPolicy())
+connect("lli_lo_tx.status_OUTPORT",                "safety_controller.status_INPORT", ConnPolicy())
+
+# command
+connect("safety_controller.cmd_rArm_t_OUTPORT",         "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy())
+connect("safety_controller.cmd_rArm_cmd_OUTPORT",       "LWRrSim.KRL_CMD_INPORT", ConnPolicy())
+connect("safety_controller.cmd_rHand_q_OUTPORT",        "RightHand.q_INPORT", ConnPolicy())
+connect("safety_controller.cmd_rHand_dq_OUTPORT",       "RightHand.v_INPORT", ConnPolicy())
+#connect("safety_controller.cmd_rHand_max_p_OUTPORT",    "RightHand.mp_INPORT", ConnPolicy())   # TODO
+connect("safety_controller.cmd_rHand_max_i_OUTPORT",    "RightHand.t_INPORT", ConnPolicy())
+#connect("safety_controller.cmd_rHand_hold_OUTPORT",     "RightHand.hold_INPORT", ConnPolicy()) # TODO
+
+connect("safety_controller.cmd_lArm_t_OUTPORT",         "LWRlSim.JointTorqueCommand_INPORT", ConnPolicy())
+connect("safety_controller.cmd_lArm_cmd_OUTPORT",       "LWRlSim.KRL_CMD_INPORT", ConnPolicy())
+connect("safety_controller.cmd_lHand_q_OUTPORT",        "LeftHand.q_INPORT", ConnPolicy())
+connect("safety_controller.cmd_lHand_dq_OUTPORT",       "LeftHand.v_INPORT", ConnPolicy())
+#connect("safety_controller.cmd_lHand_max_p_OUTPORT",    "LeftHand.mp_INPORT", ConnPolicy())    # TODO
+connect("safety_controller.cmd_lHand_max_i_OUTPORT",    "LeftHand.t_INPORT", ConnPolicy())
+#connect("safety_controller.cmd_lHand_hold_OUTPORT",     "LeftHand.hold_INPORT", ConnPolicy())  # TODO
+
+#connect("safety_controller.cmd_rHand_tactileCmd_OUTPORT",   "RightHandTactile.calibrate_tactile_sensors_INPORT", ConnPolicy()) # TODO
+connect("safety_controller.cmd_tMotor_i_OUTPORT",           "TorsoSim.t_MotorCurrentCommand_INPORT", ConnPolicy())
+connect("safety_controller.cmd_hpMotor_i_OUTPORT",          "TorsoSim.head_pan_motor_current_command_INPORT", ConnPolicy())
+connect("safety_controller.cmd_htMotor_i_OUTPORT",          "TorsoSim.head_tilt_motor_current_command_INPORT", ConnPolicy())
+connect("safety_controller.cmd_hpMotor_q_OUTPORT",          "TorsoSim.head_pan_motor_position_command_INPORT", ConnPolicy())
+connect("safety_controller.cmd_htMotor_q_OUTPORT",          "TorsoSim.head_tilt_motor_position_command_INPORT", ConnPolicy())
+connect("safety_controller.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
+connect("safety_controller.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
 //------------------------------------------------------------------------------
 //-- Controller manager
 //------------------------------------------------------------------------------
-#loadComponent("scheme", "conman::Scheme");
-#setActivity("scheme", 0, 5, ORO_SCHED_RT);
-#scheme.loadService("conman_ros");
-#scheme.configure();
+loadComponent("scheme", "conman::Scheme");
+setActivity("scheme", 0.001, 5, ORO_SCHED_RT);
+scheme.loadService("conman_ros");
+scheme.configure();
 
-#addPeer("lli_lo_rx", "scheme");
+addPeer("scheme", "TorsoSim");
+addPeer("scheme", "LWRrSim");
+addPeer("scheme", "LWRlSim");
+addPeer("scheme", "RightHandTactile");
+addPeer("scheme", "RightHand");
+addPeer("scheme", "LeftHand");
+addPeer("scheme", "LeftHandOptoforce");
+addPeer("scheme", "LeftFtSensor");
+addPeer("scheme", "RightFtSensor");
+addPeer("scheme", "lli_lo_rx");
+addPeer("scheme", "lli_lo_tx");
+addPeer("scheme", "safety_controller");
+scheme.addBlock("lli_lo_rx");
+scheme.addBlock("lli_lo_tx");
+scheme.addBlock("safety_controller");
+scheme.latchConnections("lli_lo_tx", "safety_controller", true);
+scheme.addBlock("TorsoSim");
+scheme.addBlock("LWRrSim");
+scheme.addBlock("LWRlSim");
+scheme.addBlock("RightHandTactile");
+scheme.addBlock("RightHand");
+scheme.addBlock("LeftHand");
+scheme.addBlock("LeftHandOptoforce");
+scheme.addBlock("LeftFtSensor");
+scheme.addBlock("RightFtSensor");
 
-#addPeer("scheme", "lli_lo_test");
-#scheme.addBlock("lli_lo_test");
+lli_lo_tx.start();
+lli_lo_rx.start();
 
-#scheme.start();
-
+safety_controller.start();
 
 TorsoSim.start();
 LWRrSim.start();
@@ -216,11 +264,5 @@ LeftHandOptoforce.start();
 LeftFtSensor.start();
 RightFtSensor.start();
 
-lli_lo_tx.start();
-lli_lo_rx.start();
-
-## camera trigger
-
-//string torsoMotorPosition_OUTPORT_name()        { return string("TGR.Trigger", "EC.torso.subnode0.DigitalOutput1"); }
-//string torsoMotorPosition_OUTPORT_name()        { return string("TGR.Trigger", "EC.torso.subnode0.DigitalOutput2"); }
+scheme.start();
 

@@ -33,7 +33,8 @@
         TaskContext(name),
         median_filter_samples_(1),
         median_filter_max_samples_(8),
-        model_(NULL)
+        model_(NULL),
+        data_valid_(false)
     {
         nh_ = new ros::NodeHandle();
         std::cout << "BarrettTactileGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
@@ -143,26 +144,29 @@
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        if (!data_valid_) {
+            return;
+        }
 
-            tactile_out_.header.stamp = rtt_rosclock::host_now();
+        tactile_out_.header.stamp = rtt_rosclock::host_now();
 
-            max_pressure_out_.setZero();
-            for (int i=0; i<24; ++i)
-            {
-                tactile_out_.finger1_tip[i] = ts_[0]->getPressure(i,median_filter_samples_);
-                tactile_out_.finger2_tip[i] = ts_[1]->getPressure(i,median_filter_samples_);
-                tactile_out_.finger3_tip[i] = ts_[2]->getPressure(i,median_filter_samples_);
-                tactile_out_.palm_tip[i] = ts_[3]->getPressure(i,median_filter_samples_);
-                for (int puck_id = 0; puck_id < 4; puck_id++) {
-                    if (max_pressure_out_(puck_id) < ts_[puck_id]->getPressure(i,median_filter_samples_)) {
-                        max_pressure_out_(puck_id) = ts_[puck_id]->getPressure(i,median_filter_samples_);
-                    }
+        max_pressure_out_.setZero();
+        for (int i=0; i<24; ++i)
+        {
+            tactile_out_.finger1_tip[i] = ts_[0]->getPressure(i,median_filter_samples_);
+            tactile_out_.finger2_tip[i] = ts_[1]->getPressure(i,median_filter_samples_);
+            tactile_out_.finger3_tip[i] = ts_[2]->getPressure(i,median_filter_samples_);
+            tactile_out_.palm_tip[i] = ts_[3]->getPressure(i,median_filter_samples_);
+            for (int puck_id = 0; puck_id < 4; puck_id++) {
+                if (max_pressure_out_(puck_id) < ts_[puck_id]->getPressure(i,median_filter_samples_)) {
+                    max_pressure_out_(puck_id) = ts_[puck_id]->getPressure(i,median_filter_samples_);
                 }
             }
+        }
 
-            port_max_pressure_out_.write(max_pressure_out_);
-            port_tactile_out_.write(tactile_out_);
-            port_tactile_info_out_.write(pressure_info_);
+        port_max_pressure_out_.write(max_pressure_out_);
+        port_tactile_out_.write(tactile_out_);
+        port_tactile_info_out_.write(pressure_info_);
     }
 
     bool BarrettTactileGazebo::startHook() {
@@ -201,6 +205,8 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
     }
+
+    data_valid_ = true;
 /*
     if (!model_dart_) {
         std::cout << "ERROR: BarrettTactileGazebo: !model_dart_" << std::endl;

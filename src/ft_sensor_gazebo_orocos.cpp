@@ -31,6 +31,9 @@ void FtSensorGazebo::updateHook() {
     // Synchronize with gazeboUpdate()
     RTT::os::MutexLock lock(gazebo_mutex_);
 
+    if (!data_valid_) {
+        return;
+    }
     port_raw_wrench_out_.write(raw_wrench_out_);
     port_slow_filtered_wrench_out_.write(slow_filtered_wrench_out_);
     port_fast_filtered_wrench_out_.write(fast_filtered_wrench_out_);

@@ -104,7 +104,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         finger_int_[1] = getFingerAngle(1);
         finger_int_[2] = getFingerAngle(2);
         status_out_ = 0;
-        std::cout << "move hand" << std::endl;
+//        std::cout << "move hand" << std::endl;
     }
 //    std::cout << "status_out_: " << status_out_ << std::endl;
 
@@ -243,5 +243,6 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
     jc_->Update();
 
+    data_valid_ = true;
 }
 

@@ -113,6 +113,7 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         WrenchKDLToMsg(wr_S, raw_wrench_out_);
         WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
         WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
+        data_valid_ = true;
     }
 }
 

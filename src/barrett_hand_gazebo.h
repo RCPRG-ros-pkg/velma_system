@@ -119,6 +119,8 @@ public:
 //    dart::dynamics::Skeleton *dart_sk_;
 //    dart::simulation::World *dart_world_;
 
+    bool data_valid_;
+
     // BarrettHand
     std::vector<gazebo::physics::JointPtr>  joints_;
 

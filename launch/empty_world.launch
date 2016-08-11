@@ -8,6 +8,7 @@
   <arg name="verbose" default="false"/>
   <arg name="debug" default="false"/>
   <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+  <arg name="ORO_LOGLEVEL" default="4"/>
 
   <!-- set use_sim_time flag -->
   <group if="$(arg use_sim_time)">
@@ -27,6 +28,7 @@
   <!-- start gazebo server-->
   <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
 	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart" >
+    <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
   </node>
 
   <!-- start gazebo client -->

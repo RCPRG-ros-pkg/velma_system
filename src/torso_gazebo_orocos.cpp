@@ -32,6 +32,10 @@
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        if (!data_valid_) {
+            return;
+        }
+
         port_t_MotorPosition_out_.write(t_MotorPosition_out_);
         port_t_MotorVelocity_out_.write(t_MotorVelocity_out_);
 

@@ -118,6 +118,8 @@ public:
     Eigen::VectorXd       tmp_JointTorque_out_;
     Eigen::VectorXd       tmp_GravityTorque_out_;
 
+    bool data_valid_;
+
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
     void setInitialPosition(const std::map<std::string, double> &init_q);

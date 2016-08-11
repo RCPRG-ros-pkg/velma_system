@@ -28,7 +28,8 @@
 #include "torso_gazebo.h"
 
     TorsoGazebo::TorsoGazebo(std::string const& name) : 
-        TaskContext(name)
+        TaskContext(name),
+        data_valid_(false)
     {
 
         nh_ = new ros::NodeHandle();
