@@ -23,5 +23,7 @@ VelmaLowLevelCommandArm lArm
 VelmaLowLevelCommandArm rArm
 
 VelmaLowLevelCommandHand lHand
+bool lHand_valid
 VelmaLowLevelCommandHand rHand
+bool rHand_valid
 
