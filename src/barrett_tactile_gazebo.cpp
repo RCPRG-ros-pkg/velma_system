@@ -70,13 +70,8 @@
 		this->addProperty("prefix", prefix_);
 
         // tactile array info
-        pressure_info_.sensor.resize(4);
         for (int id=0; id<4; ++id) {
             pressure_info_.sensor[id].frame_id = ts_[id]->getName();
-            pressure_info_.sensor[id].center.resize(24);
-            pressure_info_.sensor[id].halfside1.resize(24);
-            pressure_info_.sensor[id].halfside2.resize(24);
-            pressure_info_.sensor[id].force_per_unit.resize(24);
             for (int i=0; i<24; ++i)
             {
                 pressure_info_.sensor[id].force_per_unit[i] = 1.0/256.0;
