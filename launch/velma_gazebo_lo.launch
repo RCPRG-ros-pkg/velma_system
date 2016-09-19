@@ -4,6 +4,7 @@
   <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
   <arg name="use_kinect" default="false"/>
   <arg name="gui" default="true"/>
+  <arg name="DEBUG" default="false"/>
 
   <!-- Orocos target (gnulinux, xenomai, etc) -->
   <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
@@ -18,7 +19,7 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="verbose" value="true"/>
     <arg name="headless" value="false"/>
-    <arg name="debug" value="false"/>
+    <arg name="debug" value="$(arg DEBUG)"/>
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
   </include>
 <!--
