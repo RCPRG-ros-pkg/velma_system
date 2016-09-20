@@ -44,7 +44,12 @@
 
         // FRI comm state
         FRIState_out_.quality = FRI_QUALITY_PERFECT;
-        FRIState_out_.state = FRI_STATE_CMD;      // FRI_STATE_MON
+        if (command_mode_) {
+            FRIState_out_.state = FRI_STATE_CMD;
+        }
+        else {
+            FRIState_out_.state = FRI_STATE_MON;
+        }
         port_FRIState_out_.write(FRIState_out_);
         port_FRIState_out_.write(FRIState_out_);
 
@@ -52,15 +57,17 @@
         RobotState_out_.power = 0x7F;
         RobotState_out_.error = 0;
         RobotState_out_.warning = 0;
-        RobotState_out_.control == FRI_CTRL_POSITION;     // FRI_CTRL_CART_IMP, FRI_CTRL_JNT_IMP
+        RobotState_out_.control = FRI_CTRL_JNT_IMP;
         port_RobotState_out_.write(RobotState_out_);
 
         if (port_KRL_CMD_in_.read(KRL_CMD_in_) == RTT::NewData) {
             if (KRL_CMD_in_.data == 1) {
                 command_mode_ = true;
+                std::cout << "switched to command mode" << std::endl;
             }
             else if (KRL_CMD_in_.data == 2) {
                 command_mode_ = false;
+                std::cout << "switched to monitor mode" << std::endl;
             }
         }
 
