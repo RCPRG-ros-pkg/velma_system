@@ -133,53 +133,6 @@ setActivity("lli_lo_rx", 0, 1, ORO_SCHED_RT);
 lli_lo_rx.configure();
 
 #
-# the actual testing component
-#
-#loadComponent("lli_lo_test","VelmaLLILoTest")
-#setActivity("lli_lo_test", 0, 1, ORO_SCHED_RT);
-#lli_lo_test.configure();
-
-# status
-connect("LWRrSim.JointPosition_OUTPORT",                    "lli_lo_tx.status_rArm_q_INPORT", ConnPolicy())
-connect("LWRrSim.JointVelocity_OUTPORT",                    "lli_lo_tx.status_rArm_dq_INPORT", ConnPolicy())
-connect("LWRrSim.JointTorque_OUTPORT",                      "lli_lo_tx.status_rArm_t_INPORT", ConnPolicy())
-connect("LWRrSim.GravityTorque_OUTPORT",                    "lli_lo_tx.status_rArm_gt_INPORT", ConnPolicy())
-connect("LWRrSim.CartesianWrench_OUTPORT",                  "lli_lo_tx.status_rArm_w_INPORT", ConnPolicy())
-connect("LWRrSim.MassMatrix_OUTPORT",                       "lli_lo_tx.status_rArm_mmx_INPORT", ConnPolicy())
-connect("LWRrSim.FRIState_OUTPORT",                         "lli_lo_tx.status_rArm_friIntfState_INPORT", ConnPolicy())
-connect("LWRrSim.RobotState_OUTPORT",                       "lli_lo_tx.status_rArm_friRobotState_INPORT", ConnPolicy())
-connect("RightHand.q_OUTPORT",                              "lli_lo_tx.status_rHand_q_INPORT", ConnPolicy())
-connect("RightHand.status_OUTPORT",                         "lli_lo_tx.status_rHand_s_INPORT", ConnPolicy())
-
-connect("LWRlSim.JointPosition_OUTPORT",                    "lli_lo_tx.status_lArm_q_INPORT", ConnPolicy())
-connect("LWRlSim.JointVelocity_OUTPORT",                    "lli_lo_tx.status_lArm_dq_INPORT", ConnPolicy())
-connect("LWRlSim.JointTorque_OUTPORT",                      "lli_lo_tx.status_lArm_t_INPORT", ConnPolicy())
-connect("LWRlSim.GravityTorque_OUTPORT",                    "lli_lo_tx.status_lArm_gt_INPORT", ConnPolicy())
-connect("LWRlSim.CartesianWrench_OUTPORT",                  "lli_lo_tx.status_lArm_w_INPORT", ConnPolicy())
-connect("LWRlSim.MassMatrix_OUTPORT",                       "lli_lo_tx.status_lArm_mmx_INPORT", ConnPolicy())
-connect("LWRlSim.FRIState_OUTPORT",                         "lli_lo_tx.status_lArm_friIntfState_INPORT", ConnPolicy())
-connect("LWRlSim.RobotState_OUTPORT",                       "lli_lo_tx.status_lArm_friRobotState_INPORT", ConnPolicy())
-connect("LeftHand.q_OUTPORT",                               "lli_lo_tx.status_lHand_q_INPORT", ConnPolicy())
-connect("LeftHand.status_OUTPORT",                          "lli_lo_tx.status_lHand_s_INPORT", ConnPolicy())
-
-connect("TorsoSim.t_MotorPosition_OUTPORT",                 "lli_lo_tx.status_tMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "lli_lo_tx.status_tMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_position_OUTPORT",         "lli_lo_tx.status_hpMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "lli_lo_tx.status_hpMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "lli_lo_tx.status_htMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "lli_lo_tx.status_htMotor_dq_INPORT", ConnPolicy())
-connect("RightHandTactile.BHPressureState_OUTPORT",         "lli_lo_tx.status_rHand_p_INPORT", ConnPolicy())
-#connect("lli_lo_test.status_lHand_f_OUTPORT",             "lli_lo_tx.status_lHand_f_INPORT", ConnPolicy())
-# TODO LeftHandOptoforce.force_0_OUTPORT
-
-connect("RightFtSensor.rawWrench_OUTPORT",                  "lli_lo_tx.status_rFt_rw_INPORT", ConnPolicy())
-connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "lli_lo_tx.status_rFt_ffw_INPORT", ConnPolicy())
-connect("RightFtSensor.slowFilteredWrench_OUTPORT",         "lli_lo_tx.status_rFt_sfw_INPORT", ConnPolicy())
-connect("LeftFtSensor.rawWrench_OUTPORT",                   "lli_lo_tx.status_lFt_rw_INPORT", ConnPolicy())
-connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_ffw_INPORT", ConnPolicy())
-connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_sfw_INPORT", ConnPolicy())
-
-#
 # the safety component
 #
 loadComponent("safety_controller","VelmaLowLevelSafety");
@@ -188,8 +141,9 @@ safety_controller.loadService("rosparam")
 safety_controller.rosparam.getAll()
 safety_controller.configure();
 
-connect("lli_lo_rx.command_OUTPORT",               "safety_controller.command_INPORT", ConnPolicy())
-connect("lli_lo_tx.status_OUTPORT",                "safety_controller.status_INPORT", ConnPolicy())
+
+connect("lli_lo_rx.command_OUTPORT",            "safety_controller.command_INPORT", ConnPolicy())
+connect("safety_controller.status_OUTPORT",     "lli_lo_tx.status_INPORT", ConnPolicy())
 
 # command
 connect("safety_controller.cmd_rArm_t_OUTPORT",         "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy())
@@ -217,6 +171,46 @@ connect("safety_controller.cmd_htMotor_q_OUTPORT",          "TorsoSim.head_tilt_
 connect("safety_controller.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
 connect("safety_controller.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
+# status
+connect("LWRrSim.JointPosition_OUTPORT",                    "safety_controller.status_rArm_q_INPORT", ConnPolicy())
+connect("LWRrSim.JointVelocity_OUTPORT",                    "safety_controller.status_rArm_dq_INPORT", ConnPolicy())
+connect("LWRrSim.JointTorque_OUTPORT",                      "safety_controller.status_rArm_t_INPORT", ConnPolicy())
+connect("LWRrSim.GravityTorque_OUTPORT",                    "safety_controller.status_rArm_gt_INPORT", ConnPolicy())
+connect("LWRrSim.CartesianWrench_OUTPORT",                  "safety_controller.status_rArm_w_INPORT", ConnPolicy())
+connect("LWRrSim.MassMatrix_OUTPORT",                       "safety_controller.status_rArm_mmx_INPORT", ConnPolicy())
+connect("LWRrSim.FRIState_OUTPORT",                         "safety_controller.status_rArm_friIntfState_INPORT", ConnPolicy())
+connect("LWRrSim.RobotState_OUTPORT",                       "safety_controller.status_rArm_friRobotState_INPORT", ConnPolicy())
+connect("RightHand.q_OUTPORT",                              "safety_controller.status_rHand_q_INPORT", ConnPolicy())
+connect("RightHand.status_OUTPORT",                         "safety_controller.status_rHand_s_INPORT", ConnPolicy())
+
+connect("LWRlSim.JointPosition_OUTPORT",                    "safety_controller.status_lArm_q_INPORT", ConnPolicy())
+connect("LWRlSim.JointVelocity_OUTPORT",                    "safety_controller.status_lArm_dq_INPORT", ConnPolicy())
+connect("LWRlSim.JointTorque_OUTPORT",                      "safety_controller.status_lArm_t_INPORT", ConnPolicy())
+connect("LWRlSim.GravityTorque_OUTPORT",                    "safety_controller.status_lArm_gt_INPORT", ConnPolicy())
+connect("LWRlSim.CartesianWrench_OUTPORT",                  "safety_controller.status_lArm_w_INPORT", ConnPolicy())
+connect("LWRlSim.MassMatrix_OUTPORT",                       "safety_controller.status_lArm_mmx_INPORT", ConnPolicy())
+connect("LWRlSim.FRIState_OUTPORT",                         "safety_controller.status_lArm_friIntfState_INPORT", ConnPolicy())
+connect("LWRlSim.RobotState_OUTPORT",                       "safety_controller.status_lArm_friRobotState_INPORT", ConnPolicy())
+connect("LeftHand.q_OUTPORT",                               "safety_controller.status_lHand_q_INPORT", ConnPolicy())
+connect("LeftHand.status_OUTPORT",                          "safety_controller.status_lHand_s_INPORT", ConnPolicy())
+
+connect("TorsoSim.t_MotorPosition_OUTPORT",                 "safety_controller.status_tMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "safety_controller.status_tMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_position_OUTPORT",         "safety_controller.status_hpMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "safety_controller.status_hpMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "safety_controller.status_htMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "safety_controller.status_htMotor_dq_INPORT", ConnPolicy())
+connect("RightHandTactile.BHPressureState_OUTPORT",         "safety_controller.status_rHand_p_INPORT", ConnPolicy())
+#connect("lli_lo_test.status_lHand_f_OUTPORT",             "safety_controller.status_lHand_f_INPORT", ConnPolicy())
+# TODO LeftHandOptoforce.force_0_OUTPORT
+
+connect("RightFtSensor.rawWrench_OUTPORT",                  "safety_controller.status_rFt_rw_INPORT", ConnPolicy())
+connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "safety_controller.status_rFt_ffw_INPORT", ConnPolicy())
+connect("RightFtSensor.slowFilteredWrench_OUTPORT",         "safety_controller.status_rFt_sfw_INPORT", ConnPolicy())
+connect("LeftFtSensor.rawWrench_OUTPORT",                   "safety_controller.status_lFt_rw_INPORT", ConnPolicy())
+connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "safety_controller.status_lFt_ffw_INPORT", ConnPolicy())
+connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "safety_controller.status_lFt_sfw_INPORT", ConnPolicy())
+
 //------------------------------------------------------------------------------
 //-- Controller manager
 //------------------------------------------------------------------------------
@@ -237,10 +231,11 @@ addPeer("scheme", "RightFtSensor");
 addPeer("scheme", "lli_lo_rx");
 addPeer("scheme", "lli_lo_tx");
 addPeer("scheme", "safety_controller");
+
 scheme.addBlock("lli_lo_rx");
 scheme.addBlock("lli_lo_tx");
 scheme.addBlock("safety_controller");
-scheme.latchConnections("lli_lo_tx", "safety_controller", true);
+##scheme.latchConnections("lli_lo_tx", "safety_controller", true);
 scheme.addBlock("TorsoSim");
 scheme.addBlock("LWRrSim");
 scheme.addBlock("LWRlSim");
@@ -250,6 +245,28 @@ scheme.addBlock("LeftHand");
 scheme.addBlock("LeftHandOptoforce");
 scheme.addBlock("LeftFtSensor");
 scheme.addBlock("RightFtSensor");
+
+
+scheme.latchConnections("TorsoSim", "safety_controller", true);
+scheme.latchConnections("LWRrSim", "safety_controller", true);
+scheme.latchConnections("LWRlSim", "safety_controller", true);
+scheme.latchConnections("RightHand", "safety_controller", true);
+scheme.latchConnections("LeftHand", "safety_controller", true);
+scheme.latchConnections("LeftHandOptoforce", "safety_controller", true);
+scheme.latchConnections("LeftFtSensor", "safety_controller", true);
+scheme.latchConnections("RightFtSensor", "safety_controller", true);
+#scheme.latchOutputs("TorsoSim", true);
+#scheme.latchOutputs("LWRrSim", true);
+#scheme.latchOutputs("LWRlSim", true);
+#scheme.latchOutputs("RightHandTactile", true);
+#scheme.latchOutputs("RightHand", true);
+#scheme.latchOutputs("LeftHand", true);
+#scheme.latchOutputs("LeftHandOptoforce", true);
+#scheme.latchOutputs("LeftFtSensor", true);
+#scheme.latchOutputs("RightFtSensor", true);
+scheme.latchConnections("RightHandTactile", "safety_controller", true);
+
+
 
 lli_lo_tx.start();
 lli_lo_rx.start();
