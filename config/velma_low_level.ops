@@ -184,6 +184,8 @@ connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "lli_lo_tx.status_lF
 #
 loadComponent("safety_controller","VelmaLowLevelSafety");
 setActivity("safety_controller", 0, 1, ORO_SCHED_RT);
+safety_controller.loadService("rosparam")
+safety_controller.rosparam.getAll()
 safety_controller.configure();
 
 connect("lli_lo_rx.command_OUTPORT",               "safety_controller.command_INPORT", ConnPolicy())

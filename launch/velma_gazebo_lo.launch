@@ -77,11 +77,9 @@
           iyz: 0.0
           izz: 0.1
       safety_controller:
-<!--        damping_rArm: [-0.4, -0.4, -0.4, -0.1, -0.1, -0.1, -0.1]
-        damping_lArm: [-0.4, -0.4, -0.4, -0.1, -0.1, -0.1, -0.1]-->
-        damping_rArm: [0, 0, 0, 0, 0, 0, 0]
-        damping_lArm: [0, 0, 0, 0, 0, 0, 0]
-        damping_torso: [0]
+        l_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        r_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        torso_damping_factor: 20
       rJntImp:
         number_of_joints: 7
         initial_stiffness: [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
