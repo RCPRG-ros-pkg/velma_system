@@ -1,6 +1,6 @@
 uint32 test
 
-int32 rHand_tactileCmd
+VelmaLowLevelCommandTactile rTact
 
 # torsoMotorCurrentCommand
 # headPanMotorCurrentCommand
@@ -23,7 +23,5 @@ VelmaLowLevelCommandArm lArm
 VelmaLowLevelCommandArm rArm
 
 VelmaLowLevelCommandHand lHand
-bool lHand_valid
 VelmaLowLevelCommandHand rHand
-bool rHand_valid
 

@@ -8,5 +8,5 @@ float64[4] max_i
 
 bool hold
 
-
+bool valid
 
