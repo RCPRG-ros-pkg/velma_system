@@ -26,14 +26,23 @@
 */
 
 #include "lwr_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     void LWRGazebo::updateHook() {
+        Logger::In in("LWRGazebo::updateHook");
 
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+
         if (!data_valid_) {
+            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
+        }
+        else {
+            Logger::log() << Logger::Debug << Logger::endl;
         }
 
         port_MassMatrix_out_.write(MassMatrix_out_);
@@ -41,6 +50,31 @@
         port_JointTorque_out_.write(JointTorque_out_);
         port_JointPosition_out_.write(JointPosition_out_);
         port_JointVelocity_out_.write(JointVelocity_out_);
+
+        if (port_KRL_CMD_in_.read(KRL_CMD_in_) == RTT::NewData) {
+            if (KRL_CMD_in_.data == 1) {
+                if (!command_mode_) {
+                    command_mode_ = true;
+                    Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
+                }
+                else {
+                    Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
+                }
+            }
+            else if (KRL_CMD_in_.data == 2) {
+                if (command_mode_) {
+                    command_mode_ = false;
+                    Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;
+                }
+                else {
+                    Logger::log() << Logger::Warning <<  "tried to switch to monitor mode while in monitor mode" << Logger::endl;
+                }
+            }
+        }
+
+        if (port_JointTorqueCommand_in_.read(JointTorqueCommand_in_) == RTT::NewData) {
+        }
+
 
         // FRI comm state
         FRIState_out_.quality = FRI_QUALITY_PERFECT;
@@ -60,20 +94,6 @@
         RobotState_out_.control = FRI_CTRL_JNT_IMP;
         port_RobotState_out_.write(RobotState_out_);
 
-        if (port_KRL_CMD_in_.read(KRL_CMD_in_) == RTT::NewData) {
-            if (KRL_CMD_in_.data == 1) {
-                command_mode_ = true;
-                std::cout << "switched to command mode" << std::endl;
-            }
-            else if (KRL_CMD_in_.data == 2) {
-                command_mode_ = false;
-                std::cout << "switched to monitor mode" << std::endl;
-            }
-        }
-
-        if (port_JointTorqueCommand_in_.read(JointTorqueCommand_in_) == RTT::NewData) {
-        }
-
         port_CartesianWrench_out_.write(CartesianWrench_out_);
     }
 
@@ -82,16 +102,20 @@
     }
 
     bool LWRGazebo::configureHook() {
+        Logger::In in("LWRGazebo::configureHook");
 
         if (init_joint_names_.size() != init_joint_positions_.size()) {
-            std::cout << "ERROR: LWRGazebo::configureHook: init_joint_names_.size() != init_joint_positions_.size(), " <<
-                init_joint_names_.size() << "!=" << init_joint_positions_.size() << std::endl;
+            Logger::log() << Logger::Error <<
+                "ERROR: LWRGazebo::configureHook: init_joint_names_.size() != init_joint_positions_.size(), " <<
+                init_joint_names_.size() << "!=" << init_joint_positions_.size() << Logger::endl;
             return false;
         }
 
         std::map<std::string, double> init_joint_map;
         for (int i=0; i<init_joint_names_.size(); i++) {
-            std::cout << "LWRGazebo::configureHook: inital position: " << init_joint_names_[i] << " " << init_joint_positions_[i] << std::endl;
+            Logger::log() << Logger::Info <<
+                "LWRGazebo::configureHook: inital position: " << init_joint_names_[i] << " " <<
+                init_joint_positions_[i] << Logger::endl;
             init_joint_map[init_joint_names_[i]] = init_joint_positions_[i];
         }
         setInitialPosition(init_joint_map);
@@ -103,12 +127,13 @@
         for (int i = 0; i < 7; ++i) {
             joint_names_[i] = name_ + joint_suffix[i];
         }
-        std::cout << "tool parameters for " << name_ << " LWR: " << tool_.m << " " << tool_.com.x << " " << tool_.com.y << " " << tool_.com.z << std::endl;
+        Logger::log() << Logger::Info <<
+            "tool parameters for " << name_ << " LWR: " << tool_.m << " " << tool_.com.x << " " <<
+            tool_.com.y << " " << tool_.com.z << Logger::endl;
 
         mm_.reset( new manipulator_mass_matrix::Manipulator(model_, name_ + "_arm_0_joint", name_ + "_arm_6_joint",
                     tool_.m, gazebo::math::Vector3(tool_.com.x,tool_.com.y,tool_.com.z), tool_.ixx, tool_.ixy, tool_.ixz, tool_.iyy, tool_.iyz, tool_.izz) );
 
-        std::cout << "LWRGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
