@@ -4,6 +4,4 @@ float64[7] t
 float64[7] gt
 geometry_msgs/Wrench w
 float64[28] mmx
-uint8[40] friIntfState
-uint8[36] friRobotState
 

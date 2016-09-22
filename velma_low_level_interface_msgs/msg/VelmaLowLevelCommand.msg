@@ -1,6 +1,6 @@
 uint32 test
 
-VelmaLowLevelCommandTactile rTact
+VelmaLowLevelCommandSimple rTact
 
 # torsoMotorCurrentCommand
 # headPanMotorCurrentCommand
@@ -24,4 +24,6 @@ VelmaLowLevelCommandArm rArm
 
 VelmaLowLevelCommandHand lHand
 VelmaLowLevelCommandHand rHand
+
+VelmaLowLevelCommandSimple sc
 

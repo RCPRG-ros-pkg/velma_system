@@ -8,7 +8,7 @@ find_package(catkin REQUIRED
 add_message_files(FILES
   VelmaLowLevelCommandArm.msg
   VelmaLowLevelCommandHand.msg
-  VelmaLowLevelCommandTactile.msg
+  VelmaLowLevelCommandSimple.msg
   VelmaLowLevelCommand.msg
   VelmaLowLevelStatusArm.msg
   VelmaLowLevelStatusHand.msg
