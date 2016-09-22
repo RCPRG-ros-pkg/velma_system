@@ -27,6 +27,9 @@
 
 #include "optoforce_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     OptoforceGazebo::OptoforceGazebo(std::string const& name) : 
         TaskContext(name),
@@ -52,7 +55,7 @@
         Logger::In in("OptoforceGazebo::configureHook");
 
         if(model_.get() == NULL) {
-            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 /*
@@ -136,7 +139,7 @@
         Logger::In in("OptoforceGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 

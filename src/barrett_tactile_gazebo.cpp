@@ -28,6 +28,9 @@
 #include "barrett_tactile_gazebo.h"
 #include "barrett_hand_common/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name) : 
         TaskContext(name),
@@ -90,12 +93,12 @@
         Logger::In in("BarrettTactileGazebo::configureHook");
 
         if(model_.get() == NULL) {
-            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         if (prefix_.empty()) {
-            Logger::log() << Logger::ERROR << "param 'prefix' is empty" << Logger::endl;
+            Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 
@@ -164,7 +167,7 @@
         Logger::In in("BarrettTactileGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 

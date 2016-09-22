@@ -90,7 +90,7 @@ bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     Logger::In in("LWRGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+        Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 

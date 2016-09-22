@@ -68,7 +68,7 @@ using namespace RTT;
         Logger::In in("BarrettHandGazebo::configureHook");
 
         if (prefix_.empty()) {
-            Logger::log() << Logger::ERROR << "param 'prefix' is empty" << Logger::endl;
+            Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 

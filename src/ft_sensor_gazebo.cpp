@@ -26,6 +26,9 @@
 */
 
 #include "ft_sensor_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
 void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
                                     geometry_msgs::Wrench &out) const {
@@ -41,7 +44,7 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     Logger::In in("FtSensorGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
+        Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 
