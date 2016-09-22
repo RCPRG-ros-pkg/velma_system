@@ -26,24 +26,20 @@
 */
 
 #include "barrett_hand_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     bool BarrettHandGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+        Logger::In in("BarrettHandGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            std::cout << "BarrettHandGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::Error <<  "the gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         model_ = model;
-/*
-        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-        if (model_dart_.get() == NULL) {
-            std::cout << "BarrettHandGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-            return false;
-        }
 
-        dart_sk_ = model_dart_->GetDARTSkeleton();
-*/
         jc_ = new gazebo::physics::JointController(model_);
 
         return true;
@@ -67,7 +63,8 @@ double BarrettHandGazebo::getFingerAngle(int fidx) const {
 // Update the controller
 void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-//    if (!model_dart_ || joints_.size() == 0) {
+    Logger::In in("BarrettHandGazebo::gazeboUpdateHook");
+
     if (joints_.size() == 0) {
         return;
     }
@@ -114,14 +111,14 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             spread_int_ -= v_in_[f1k1_dof_idx] * 0.001;
             if (spread_int_ <= q_in_[f1k1_dof_idx]) {
                 status_out_ |= STATUS_IDLE4;
-                std::cout << "spread idle" << std::endl;
+                Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
             }
         }
         else if (spread_int_ < q_in_[f1k1_dof_idx]) {
             spread_int_ += v_in_[f1k1_dof_idx] * 0.001;
             if (spread_int_ >= q_in_[f1k1_dof_idx]) {
                 status_out_ |= STATUS_IDLE4;
-                std::cout << "spread idle" << std::endl;
+                Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
             }
         }
 
@@ -132,16 +129,16 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
         if (std::fabs(spread_force) > 0.5) {
             status_out_ |= STATUS_OVERCURRENT4;
-            std::cout << "spread overcurrent" << std::endl;
+            Logger::log() << Logger::Info <<  "spread overcurrent" << Logger::endl;
             jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), mean_spread);
             jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), mean_spread);
         }
         else {
             if (!jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), spread_int_)) {
-                std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetPositionTarget(" << joints_[f1k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joints_[f1k1_jnt_idx]->GetScopedName() << ")" << Logger::endl;
             }
             if (!jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), spread_int_)) {
-                std::cout << "ERROR: BarrettHandGazebo::gazeboUpdateHook: jc_->SetPositionTarget(" << joints_[f2k1_jnt_idx]->GetScopedName() << ")" << std::endl;
+                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joints_[f2k1_jnt_idx]->GetScopedName() << ")" << Logger::endl;
             }
         }
     }
@@ -165,7 +162,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 is_opening = true;
                 if (finger_int_[fidx] <= q_in_[k2_dof]) {
                     status_out_ |= STATUS_IDLEi;
-                    std::cout << "finger " << fidx << " idle" << std::endl;
+                    Logger::log() << Logger::Info << "finger " << fidx << " idle" << Logger::endl;
                 }
             }
             else if (finger_int_[fidx] < q_in_[k2_dof]) {
@@ -173,7 +170,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 is_opening = false;
                 if (finger_int_[fidx] >= q_in_[k2_dof]) {
                     status_out_ |= STATUS_IDLEi;
-                    std::cout << "finger " << fidx << " idle" << std::endl;
+                    Logger::log() << Logger::Info << "finger " << fidx << " idle" << Logger::endl;
                 }
             }
 
@@ -185,14 +182,14 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             if (!is_opening && std::fabs(k2_force) > 0.25) {
                 clutch_break_angle_[fidx] = k2_angle;
                 clutch_break_[fidx] = true;
-                std::cout << "finger " << fidx << " clutch is broken" << std::endl;
+                Logger::log() << Logger::Info << "finger " << fidx << " clutch is disengaged" << Logger::endl;
             }
 
             double k3_angle_dest;
             double k2_angle_dest;
             if (std::fabs(k2_force) + std::fabs(k3_force) > 0.5) {
                 status_out_ |= STATUS_OVERCURRENTi;
-                std::cout << "finger " << fidx << " overcurrent" << std::endl;
+                Logger::log() << Logger::Info << "finger " << fidx << " overcurrent" << Logger::endl;
                 k2_angle_dest = k2_angle;
                 k3_angle_dest = k3_angle;
             }
@@ -204,7 +201,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                     k3_angle_dest = finger_int_[fidx]/3;
                     if (k2_angle < 0.03) {
                         clutch_break_[fidx] = false;
-                        std::cout << "finger " << fidx << " clutch is restored" << std::endl;
+                        Logger::log() << Logger::Info << "finger " << fidx << " clutch is engaged" << Logger::endl;
                     }
                 }
             }
@@ -236,7 +233,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //            joints_dart_[k3_jnt]->setPositionLimited(false);
             jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
             jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
-            std::cout << "finger " << fidx << " is broken: " << std::endl;//k2_wrench.body1Force.GetLength() << " " << k2_wrench.body1Torque.GetLength() << " " << k3_wrench.body1Force.GetLength() << " " << k3_wrench.body1Torque.GetLength() << std::endl;
+            Logger::log() << Logger::Info << "finger " << fidx << " is broken" << Logger::endl;
             too_big_force_counter_[fidx]++;
         }
     }

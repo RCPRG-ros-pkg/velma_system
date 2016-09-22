@@ -49,8 +49,10 @@
     }
 
     bool OptoforceGazebo::configureHook() {
+        Logger::In in("OptoforceGazebo::configureHook");
+
         if(model_.get() == NULL) {
-            std::cout << "ERROR: OptoforceGazebo::configureHook: gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 /*
@@ -109,7 +111,6 @@
 
         force_out_.resize(n_sensors_);
 */
-        std::cout << "OptoforceGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
@@ -132,9 +133,10 @@
     }
 
     bool OptoforceGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+        Logger::In in("OptoforceGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            std::cout << "OptoforceGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 

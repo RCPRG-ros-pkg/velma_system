@@ -33,10 +33,6 @@
     {
 
         nh_ = new ros::NodeHandle();
-        std::cout << "TorsoGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
-
-        std::cout << "TorsoGazebo ROS node name: " << ros::this_node::getName() << std::endl;
-        std::cout << "TorsoGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&TorsoGazebo::gazeboConfigureHook,this,RTT::ClientThread);

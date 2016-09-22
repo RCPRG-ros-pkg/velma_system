@@ -33,10 +33,6 @@
     {
 
         nh_ = new ros::NodeHandle();
-        std::cout << "LWRGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
-
-        std::cout << "LWRGazebo ROS node name: " << ros::this_node::getName() << std::endl;
-        std::cout << "LWRGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
         addProperty("init_joint_names", init_joint_names_);
         addProperty("init_joint_positions", init_joint_positions_);

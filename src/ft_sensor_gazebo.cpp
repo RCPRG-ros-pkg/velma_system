@@ -38,9 +38,10 @@ void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
 }
 
 bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+    Logger::In in("FtSensorGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+        Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 

@@ -37,10 +37,6 @@
         data_valid_(false)
     {
         nh_ = new ros::NodeHandle();
-        std::cout << "BarrettTactileGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
-
-        std::cout << "BarrettTactileGazebo ROS node name: " << ros::this_node::getName() << std::endl;
-        std::cout << "BarrettTactileGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&BarrettTactileGazebo::gazeboConfigureHook,this,RTT::ClientThread);
@@ -54,11 +50,6 @@
         ts_[1]->setGeometry("finger2_tip_info", finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2, 0.001);
         ts_[2]->setGeometry("finger3_tip_info", finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2, 0.001);
         ts_[3]->setGeometry("palm_info", palm_sensor_center, palm_sensor_halfside1, palm_sensor_halfside2, 0.001);
-
-//        tactile_out_.finger1_tip.resize(24);
-//        tactile_out_.finger2_tip.resize(24);
-//        tactile_out_.finger3_tip.resize(24);
-//        tactile_out_.palm_tip.resize(24);
 
         this->ports()->addPort("BHPressureState_OUTPORT", port_tactile_out_);
         this->ports()->addPort("calibrate_tactile_sensors_INPORT", port_calibrate_in_);
@@ -96,13 +87,15 @@
     }
 
     bool BarrettTactileGazebo::configureHook() {
+        Logger::In in("BarrettTactileGazebo::configureHook");
+
         if(model_.get() == NULL) {
-            std::cout << "ERROR: gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         if (prefix_.empty()) {
-            std::cout << "ERROR: BarrettTactileGazebo::configureHook: prefix is empty" << std::endl;
+            Logger::log() << Logger::ERROR << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 
@@ -131,7 +124,6 @@
             }
         }
 
-        std::cout << "BarrettTactileGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
@@ -169,26 +161,15 @@
     }
 
     bool BarrettTactileGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+        Logger::In in("BarrettTactileGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            std::cout << "BarrettTactileGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         model_ = model;
-/*
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
-        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-        if (model_dart_.get() == NULL) {
-            std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-            return false;
-        }
-
-        dart_sk_ = model_dart_->GetDARTSkeleton();
-
-        detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
-*/
         return true;
     }
 

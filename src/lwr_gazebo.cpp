@@ -27,6 +27,9 @@
 
 #include "lwr_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
 void LWRGazebo::getExternalForces(Eigen::VectorXd &q) {
     for (int i=0; i<joint_names_.size(); i++) {
@@ -84,9 +87,10 @@ void LWRGazebo::getGravComp(Eigen::VectorXd &t) {
 }
 
 bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+    Logger::In in("LWRGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        std::cout << "LWRGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+        Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 
@@ -190,6 +194,9 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     // exchange the data between Orocos and Gazebo
     {
         RTT::os::MutexLock lock(gazebo_mutex_);
+
+        Logger::In in("LWRGazebo::gazeboUpdateHook");
+        Logger::log() << Logger::Debug << Logger::endl;
 
         MassMatrix_out_ = tmp_MassMatrix_out_;
         GravityTorque_out_ = tmp_GravityTorque_out_;

@@ -81,7 +81,7 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 
     while (joint && joint->GetName() != first_joint) {
         gazebo::physics::LinkPtr link = joint->GetParent();
-        std::cout << "Manipulator::Manipulator  " << joint->GetName() << std::endl;
+//        std::cout << "Manipulator::Manipulator  " << joint->GetName() << std::endl;
         links.push_front(LinkPtr(new Link(link->GetName())));
         gazebo::physics::InertialPtr in = link->GetInertial();
         links.front()->setInertia(in->GetMass(), in->GetCoG(), in->GetIXX(), in->GetIXY(),
@@ -98,7 +98,7 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
     }
     links_.reserve(links.size());
     for (LinkList::const_iterator it = links.begin(); it != links.end(); it++) {
-        std::cout << "Manipulator::Manipulator  " << (*it)->getName() << "  " << (*it)->getJointName() << std::endl;
+//        std::cout << "Manipulator::Manipulator  " << (*it)->getName() << "  " << (*it)->getJointName() << std::endl;
         links_.push_back( *it );
         joint = model->GetJoint((*it)->getJointName());
         (*it)->updateLocalJacobian(joint->GetInitialAnchorPose(), joint->GetAxisFrameOffset(0) * joint->GetLocalAxis(0));

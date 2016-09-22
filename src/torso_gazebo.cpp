@@ -27,6 +27,9 @@
 
 #include "torso_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
 void TorsoGazebo::getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq) {
     std::string joint_names[1] = {"torso_0_joint"};
@@ -62,9 +65,10 @@ KDL::Frame gz2kdl(const gazebo::math::Pose &p) {
 }
 
 bool TorsoGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+    Logger::In in("TorsoGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        std::cout << "TorsoGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+        Logger::log() << Logger::ERROR << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 
@@ -125,6 +129,9 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     // exchange the data between Orocos and Gazebo
     {
         RTT::os::MutexLock lock(gazebo_mutex_);
+
+        Logger::In in("TorsoGazebo::gazeboUpdateHook");
+        Logger::log() << Logger::Debug << Logger::endl;
 
         t_MotorPosition_out_ = tmp_t_MotorPosition_out_;
         t_MotorVelocity_out_ = tmp_t_MotorVelocity_out_;

@@ -25,13 +25,23 @@
 */
 
 #include "barrett_hand_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     void BarrettHandGazebo::updateHook() {
+
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        Logger::In in("BarrettHandGazebo::updateHook");
+
         if (!data_valid_) {
+            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
+        }
+        else {
+            Logger::log() << Logger::Debug << Logger::endl;
         }
 
         //
@@ -43,7 +53,7 @@
         port_status_out_.write(status_out_);
 
         if (port_q_in_.read(q_in_) == RTT::NewData) {
-            std::cout << "q_in_: new data " << q_in_.transpose() << std::endl;
+            Logger::log() << Logger::Info << "q_in_: new data " << q_in_.transpose() << Logger::endl;
             move_hand_ = true;
         }
         port_v_in_.read(v_in_);
@@ -55,9 +65,10 @@
     }
 
     bool BarrettHandGazebo::configureHook() {
+        Logger::In in("BarrettHandGazebo::configureHook");
 
         if (prefix_.empty()) {
-            std::cout << "ERROR: BarrettHandGazebo::configureHook: prefix is empty" << std::endl;
+            Logger::log() << Logger::ERROR << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 
@@ -97,7 +108,6 @@
             jc_->SetPositionTarget(joints_[i]->GetScopedName(), 0.0);
         }
 
-        std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;
     }
 

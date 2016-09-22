@@ -26,14 +26,22 @@
 */
 
 #include "torso_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     void TorsoGazebo::updateHook() {
+        Logger::In in("TorsoGazebo::updateHook");
 
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
         if (!data_valid_) {
+            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
+        }
+        else {
+            Logger::log() << Logger::Debug << Logger::endl;
         }
 
         port_t_MotorPosition_out_.write(t_MotorPosition_out_);
@@ -63,7 +71,6 @@
 
     bool TorsoGazebo::configureHook() {
         setJointsPID();
-        std::cout << "TorsoGazebo::configureHook: ok" << std::endl;
         return true;
     }
 

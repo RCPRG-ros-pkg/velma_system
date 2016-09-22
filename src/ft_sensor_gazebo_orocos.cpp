@@ -44,9 +44,11 @@ bool FtSensorGazebo::startHook() {
 }
 
 bool FtSensorGazebo::configureHook() {
+    Logger::In in("FtSensorGazebo::configureHook");
+
     joint_ = model_->GetJoint(joint_name_);
     if (joint_.get() == NULL) {
-        std::cout << "ERROR: FtSensorGazebo::configureHook: could not find joint \"" << joint_name_ << "\"" << std::endl;
+        Logger::log() << Logger::ERROR << "could not find joint \"" << joint_name_ << "\"" << Logger::endl;
         return false;
     }
 
@@ -54,12 +56,12 @@ bool FtSensorGazebo::configureHook() {
 //    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
 
     if (transform_xyz_.size() != 3) {
-        std::cout << "ERROR: FtSensorGazebo::configureHook: wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << std::endl;
+        Logger::log() << Logger::ERROR << "wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << Logger::endl;
         return false;
     }
 
     if (transform_rpy_.size() != 3) {
-        std::cout << "ERROR: FtSensorGazebo::configureHook: wrong transform_rpy: vector size is " << transform_rpy_.size() << ", should be 3" << std::endl;
+        Logger::log() << Logger::ERROR << "wrong transform_rpy: vector size is " << transform_rpy_.size() << ", should be 3" << Logger::endl;
         return false;
     }
 
