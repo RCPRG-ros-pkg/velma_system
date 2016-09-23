@@ -2,22 +2,9 @@ uint32 test
 
 VelmaLowLevelCommandSimple rTact
 
-# torsoMotorCurrentCommand
-# headPanMotorCurrentCommand
-# headTiltMotorCurrentCommand
-float64 tMotor_i
-float64 hpMotor_i
-float64 htMotor_i
-
-# headPanMotorPositionCommand
-# headTiltMotorPositionCommand
-float64 hpMotor_q
-float64 htMotor_q
-
-# headPanMotorVelocityCommand
-# headTiltMotorVelocityCommand
-float64 hpMotor_dq
-float64 htMotor_dq
+VelmaLowLevelCommandMotor tMotor
+VelmaLowLevelCommandMotor hpMotor
+VelmaLowLevelCommandMotor htMotor
 
 VelmaLowLevelCommandArm lArm
 VelmaLowLevelCommandArm rArm
