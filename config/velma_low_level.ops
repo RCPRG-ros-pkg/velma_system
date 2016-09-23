@@ -37,11 +37,14 @@ ros.import("velma_low_level_safety");
 
 bool useSimulationTime()   { return true; }
 
-setActivityOnCPU("TorsoSim", 0.001, 6, ORO_SCHED_RT, 3)
-TorsoSim.loadService("sim_clock_activity")
-TorsoSim.loadService("rosparam")
-TorsoSim.rosparam.getAll()
-TorsoSim.configure()
+setActivityOnCPU("TorsoSim", 0.001, 6, ORO_SCHED_RT, 3);
+TorsoSim.loadService("sim_clock_activity");
+TorsoSim.loadService("rosparam");
+TorsoSim.rosparam.getAll();
+
+if (!TorsoSim.configure()) then {
+    kickOutAll();
+}
 
 setActivityOnCPU("LWRrSim", 0.001, 6, ORO_SCHED_RT, 3)
 LWRrSim.loadService("sim_clock_activity")
@@ -284,4 +287,7 @@ LeftFtSensor.start();
 RightFtSensor.start();
 
 scheme.start();
+
+#break;  # the while loop
+#}
 
