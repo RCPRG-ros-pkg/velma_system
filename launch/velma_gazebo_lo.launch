@@ -80,6 +80,10 @@
         l_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
         r_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
         torso_damping_factor: 20
+        arm_q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+        arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
+        arm_t_limits: [10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0]
       rJntImp:
         number_of_joints: 7
         initial_stiffness: [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
