@@ -15,6 +15,7 @@ add_message_files(FILES
   VelmaLowLevelStatusHand.msg
   VelmaLowLevelStatusFT.msg
   VelmaLowLevelStatusMotor.msg
+  VelmaLowLevelStatusSC.msg
   VelmaLowLevelStatus.msg
   )
   

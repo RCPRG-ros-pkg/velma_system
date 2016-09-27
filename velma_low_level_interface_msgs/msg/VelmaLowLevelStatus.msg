@@ -1,5 +1,7 @@
 uint32 test
 
+VelmaLowLevelStatusSC sc
+
 VelmaLowLevelStatusArm rArm
 VelmaLowLevelStatusArm lArm
 
