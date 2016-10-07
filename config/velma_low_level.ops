@@ -145,6 +145,7 @@ safety_controller.rosparam.getAll()
 safety_controller.configure();
 
 
+
 connect("lli_lo_rx.command_OUTPORT",            "safety_controller.command_INPORT", ConnPolicy())
 connect("safety_controller.status_OUTPORT",     "lli_lo_tx.status_INPORT", ConnPolicy())
 
