@@ -19,5 +19,5 @@ VelmaLowLevelStatusMotor htMotor
 
 barrett_hand_controller_msgs/BHPressureState rHand_p
 
-geometry_msgs/WrenchStamped[3] lHand_f
+geometry_msgs/Wrench[3] lHand_f
 
