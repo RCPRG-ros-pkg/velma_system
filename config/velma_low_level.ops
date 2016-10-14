@@ -37,8 +37,9 @@ ros.import("velma_low_level_safety");
 
 bool useSimulationTime()   { return true; }
 
-setActivityOnCPU("TorsoSim", 0.001, 6, ORO_SCHED_RT, 3);
-TorsoSim.loadService("sim_clock_activity");
+#setActivityOnCPU("TorsoSim", 0.001, 6, ORO_SCHED_RT, 3);
+#setActivity("TorsoSim", 0, 6, ORO_SCHED_RT);
+#TorsoSim.loadService("sim_clock_activity");
 TorsoSim.loadService("rosparam");
 TorsoSim.rosparam.getAll();
 
@@ -46,19 +47,22 @@ if (!TorsoSim.configure()) then {
     kickOutAll();
 }
 
-setActivityOnCPU("LWRrSim", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("LWRrSim", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("LWRrSim", 0, 6, ORO_SCHED_RT)
 LWRrSim.loadService("sim_clock_activity")
 LWRrSim.loadService("rosparam")
 LWRrSim.rosparam.getAll()
 LWRrSim.configure()
 
-setActivityOnCPU("LWRlSim", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("LWRlSim", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("LWRlSim", 0, 6, ORO_SCHED_RT)
 LWRlSim.loadService("sim_clock_activity")
 LWRlSim.loadService("rosparam")
 LWRlSim.rosparam.getAll()
 LWRlSim.configure()
 
-setActivityOnCPU("RightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("RightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
+setActivity("RightHandTactile", 0, 6, ORO_SCHED_RT)
 RightHandTactile.loadService("sim_clock_activity")
 RightHandTactile.loadService("rosparam")
 RightHandTactile.rosparam.getAll()
@@ -70,7 +74,8 @@ RightHandTactile.configure()
 #stream("RightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
 //connect("RightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
 
-setActivityOnCPU("LeftHandOptoforce", 0.025, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("LeftHandOptoforce", 0.025, 6, ORO_SCHED_RT, 3)
+setActivity("LeftHandOptoforce", 0, 6, ORO_SCHED_RT)
 LeftHandOptoforce.loadService("sim_clock_activity")
 LeftHandOptoforce.loadService("rosparam")
 LeftHandOptoforce.rosparam.getAll()
@@ -81,13 +86,15 @@ LeftHandOptoforce.configure()
 //stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
 //stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
 
-setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("RightHand", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("RightHand", 0, 6, ORO_SCHED_RT)
 RightHand.loadService("sim_clock_activity")
 RightHand.loadService("rosparam")
 RightHand.rosparam.getAll()
 RightHand.configure()
 
-setActivityOnCPU("LeftHand", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("LeftHand", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("LeftHand", 0, 6, ORO_SCHED_RT)
 LeftHand.loadService("sim_clock_activity")
 LeftHand.loadService("rosparam")
 LeftHand.rosparam.getAll()
@@ -95,14 +102,16 @@ LeftHand.configure()
 
 // F/T sensors
 
-setActivityOnCPU("LeftFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("LeftFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("LeftFtSensor", 0, 6, ORO_SCHED_RT)
 LeftFtSensor.loadService("sim_clock_activity")
 LeftFtSensor.loadService("rosparam")
 LeftFtSensor.rosparam.getAll()
 LeftFtSensor.configure()
 #stream("LeftFtSensor.rawWrench_OUTPORT", ros.comm.topic("/left_arm/ft_sensor/wrench"))
 
-setActivityOnCPU("RightFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+#setActivityOnCPU("RightFtSensor", 0.001, 6, ORO_SCHED_RT, 3)
+setActivity("RightFtSensor", 0, 6, ORO_SCHED_RT)
 RightFtSensor.loadService("sim_clock_activity")
 RightFtSensor.loadService("rosparam")
 RightFtSensor.rosparam.getAll()
@@ -127,19 +136,19 @@ cpTx.transport = 2;                 # the MQueue protocol id
 cpTx.name_id   = "/lli_status";     # the connection id
 
 loadComponent("lli_lo_tx","VelmaLLILoTx")
-setActivity("lli_lo_tx", 0, 1, ORO_SCHED_RT);
+setActivity("lli_lo_tx", 0, 6, ORO_SCHED_RT);
 lli_lo_tx.configure();
 stream("lli_lo_tx.status_OUTPORT", cpTx);
 
 loadComponent("lli_lo_rx","VelmaLLILoRx")
-setActivity("lli_lo_rx", 0, 1, ORO_SCHED_RT);
-lli_lo_rx.configure();
+setActivity("lli_lo_rx", 0.001, 6, ORO_SCHED_RT);
+lli_lo_rx.loadService("sim_clock_activity");
 
 #
 # the safety component
 #
 loadComponent("safety_controller","VelmaLowLevelSafety");
-setActivity("safety_controller", 0, 1, ORO_SCHED_RT);
+setActivity("safety_controller", 0, 6, ORO_SCHED_RT);
 safety_controller.loadService("rosparam")
 safety_controller.rosparam.getAll()
 safety_controller.configure();
@@ -218,62 +227,64 @@ connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "safety_controller.s
 //------------------------------------------------------------------------------
 //-- Controller manager
 //------------------------------------------------------------------------------
-loadComponent("scheme", "conman::Scheme");
-setActivity("scheme", 0.001, 5, ORO_SCHED_RT);
-scheme.loadService("conman_ros");
-scheme.configure();
+#loadComponent("scheme", "conman::Scheme");
+#setActivity("scheme", 0.001, 6, ORO_SCHED_RT);
+#scheme.loadService("sim_clock_activity");
+#scheme.loadService("conman_ros");
+#scheme.configure();
 
-addPeer("scheme", "TorsoSim");
-addPeer("scheme", "LWRrSim");
-addPeer("scheme", "LWRlSim");
-addPeer("scheme", "RightHandTactile");
-addPeer("scheme", "RightHand");
-addPeer("scheme", "LeftHand");
-addPeer("scheme", "LeftHandOptoforce");
-addPeer("scheme", "LeftFtSensor");
-addPeer("scheme", "RightFtSensor");
-addPeer("scheme", "lli_lo_rx");
-addPeer("scheme", "lli_lo_tx");
-addPeer("scheme", "safety_controller");
+#addPeer("scheme", "TorsoSim");
+#addPeer("scheme", "LWRrSim");
+#addPeer("scheme", "LWRlSim");
+#addPeer("scheme", "RightHandTactile");
+#addPeer("scheme", "RightHand");
+#addPeer("scheme", "LeftHand");
+#addPeer("scheme", "LeftHandOptoforce");
+#addPeer("scheme", "LeftFtSensor");
+#addPeer("scheme", "RightFtSensor");
+#addPeer("scheme", "lli_lo_rx");
+#addPeer("scheme", "lli_lo_tx");
+#addPeer("scheme", "safety_controller");
 
-scheme.addBlock("lli_lo_rx");
-scheme.addBlock("lli_lo_tx");
-scheme.addBlock("safety_controller");
-##scheme.latchConnections("lli_lo_tx", "safety_controller", true);
-scheme.addBlock("TorsoSim");
-scheme.addBlock("LWRrSim");
-scheme.addBlock("LWRlSim");
-scheme.addBlock("RightHandTactile");
-scheme.addBlock("RightHand");
-scheme.addBlock("LeftHand");
-scheme.addBlock("LeftHandOptoforce");
-scheme.addBlock("LeftFtSensor");
-scheme.addBlock("RightFtSensor");
-
-
-scheme.latchConnections("TorsoSim", "safety_controller", true);
-scheme.latchConnections("LWRrSim", "safety_controller", true);
-scheme.latchConnections("LWRlSim", "safety_controller", true);
-scheme.latchConnections("RightHand", "safety_controller", true);
-scheme.latchConnections("LeftHand", "safety_controller", true);
-scheme.latchConnections("LeftHandOptoforce", "safety_controller", true);
-scheme.latchConnections("LeftFtSensor", "safety_controller", true);
-scheme.latchConnections("RightFtSensor", "safety_controller", true);
-#scheme.latchOutputs("TorsoSim", true);
-#scheme.latchOutputs("LWRrSim", true);
-#scheme.latchOutputs("LWRlSim", true);
-#scheme.latchOutputs("RightHandTactile", true);
-#scheme.latchOutputs("RightHand", true);
-#scheme.latchOutputs("LeftHand", true);
-#scheme.latchOutputs("LeftHandOptoforce", true);
-#scheme.latchOutputs("LeftFtSensor", true);
-#scheme.latchOutputs("RightFtSensor", true);
-scheme.latchConnections("RightHandTactile", "safety_controller", true);
+#scheme.addBlock("lli_lo_rx");
+#scheme.addBlock("lli_lo_tx");
+#scheme.addBlock("safety_controller");
+#scheme.addBlock("TorsoSim");
+#scheme.addBlock("LWRrSim");
+#scheme.addBlock("LWRlSim");
+#scheme.addBlock("RightHandTactile");
+#scheme.addBlock("RightHand");
+#scheme.addBlock("LeftHand");
+#scheme.addBlock("LeftHandOptoforce");
+#scheme.addBlock("LeftFtSensor");
+#scheme.addBlock("RightFtSensor");
 
 
+#scheme.latchConnections("TorsoSim", "safety_controller", true);
+#scheme.latchConnections("LWRrSim", "safety_controller", true);
+#scheme.latchConnections("LWRlSim", "safety_controller", true);
+#scheme.latchConnections("RightHand", "safety_controller", true);
+#scheme.latchConnections("LeftHand", "safety_controller", true);
+#scheme.latchConnections("LeftHandOptoforce", "safety_controller", true);
+#scheme.latchConnections("LeftFtSensor", "safety_controller", true);
+#scheme.latchConnections("RightFtSensor", "safety_controller", true);
+#scheme.latchConnections("RightHandTactile", "safety_controller", true);
+
+aliasPeer("lli_lo_rx", "safety_controller", "a");
+aliasPeer("lli_lo_rx", "lli_lo_tx", "b");
+aliasPeer("lli_lo_rx", "TorsoSim", "c");
+aliasPeer("lli_lo_rx", "LWRrSim", "d");
+aliasPeer("lli_lo_rx", "LWRlSim", "e");
+aliasPeer("lli_lo_rx", "RightHandTactile", "f");
+aliasPeer("lli_lo_rx", "RightHand", "g");
+aliasPeer("lli_lo_rx", "LeftHand", "h");
+aliasPeer("lli_lo_rx", "LeftHandOptoforce", "i");
+aliasPeer("lli_lo_rx", "LeftFtSensor", "j");
+aliasPeer("lli_lo_rx", "RightFtSensor", "k");
+
+lli_lo_rx.configure();
 
 lli_lo_tx.start();
-lli_lo_rx.start();
 
 safety_controller.start();
 
@@ -287,7 +298,9 @@ LeftHandOptoforce.start();
 LeftFtSensor.start();
 RightFtSensor.start();
 
-scheme.start();
+lli_lo_rx.start();
+
+#scheme.start();
 
 #break;  # the while loop
 #}

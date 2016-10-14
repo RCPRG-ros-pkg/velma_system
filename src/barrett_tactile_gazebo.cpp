@@ -138,8 +138,6 @@ using namespace RTT;
             return;
         }
 
-        tactile_out_.header.stamp = rtt_rosclock::host_now();
-
         max_pressure_out_.setZero();
         for (int i=0; i<24; ++i)
         {
