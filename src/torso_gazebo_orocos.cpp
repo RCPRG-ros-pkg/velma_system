@@ -31,17 +31,17 @@
 using namespace RTT;
 
     void TorsoGazebo::updateHook() {
-        Logger::In in("TorsoGazebo::updateHook");
 
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
         if (!data_valid_) {
-            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+//          Logger::In in("TorsoGazebo::updateHook");
+//            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
         }
         else {
-            Logger::log() << Logger::Debug << Logger::endl;
+//            Logger::log() << Logger::Debug << Logger::endl;
         }
 
         port_t_MotorPosition_out_.write(t_MotorPosition_out_);

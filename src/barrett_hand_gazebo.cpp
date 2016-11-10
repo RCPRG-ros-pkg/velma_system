@@ -130,15 +130,15 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         if (std::fabs(spread_force) > 0.5) {
             status_out_ |= STATUS_OVERCURRENT4;
             Logger::log() << Logger::Info <<  "spread overcurrent" << Logger::endl;
-            jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), mean_spread);
-            jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), mean_spread);
+            jc_->SetPositionTarget(joint_scoped_names_[f1k1_jnt_idx], mean_spread);
+            jc_->SetPositionTarget(joint_scoped_names_[f2k1_jnt_idx], mean_spread);
         }
         else {
-            if (!jc_->SetPositionTarget(joints_[f1k1_jnt_idx]->GetScopedName(), spread_int_)) {
-                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joints_[f1k1_jnt_idx]->GetScopedName() << ")" << Logger::endl;
+            if (!jc_->SetPositionTarget(joint_scoped_names_[f1k1_jnt_idx], spread_int_)) {
+                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joint_scoped_names_[f1k1_jnt_idx] << ")" << Logger::endl;
             }
-            if (!jc_->SetPositionTarget(joints_[f2k1_jnt_idx]->GetScopedName(), spread_int_)) {
-                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joints_[f2k1_jnt_idx]->GetScopedName() << ")" << Logger::endl;
+            if (!jc_->SetPositionTarget(joint_scoped_names_[f2k1_jnt_idx], spread_int_)) {
+                Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joint_scoped_names_[f2k1_jnt_idx] << ")" << Logger::endl;
             }
         }
     }
@@ -212,8 +212,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
 //            std::cout << "finger " << fidx << "  dest: " << k2_angle_dest << "   " << k3_angle_dest << "   cur: " << joints_[k2_jnt]->GetAngle(0).Radian()
 //                << "  " << joints_[k3_jnt]->GetAngle(0).Radian() << std::endl;
-            jc_->SetPositionTarget(joints_[k2_jnt]->GetScopedName(), k2_angle_dest);
-            jc_->SetPositionTarget(joints_[k3_jnt]->GetScopedName(), k3_angle_dest);
+            jc_->SetPositionTarget(joint_scoped_names_[k2_jnt], k2_angle_dest);
+            jc_->SetPositionTarget(joint_scoped_names_[k3_jnt], k3_angle_dest);
         }
 
         // fingers may break if the force is too big
@@ -231,8 +231,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         if (too_big_force_counter_[fidx] == 100) {
 //            joints_dart_[k2_jnt]->setPositionLimited(false);
 //            joints_dart_[k3_jnt]->setPositionLimited(false);
-            jc_->SetPositionPID(joints_[k2_jnt]->GetScopedName(), gazebo::common::PID());
-            jc_->SetPositionPID(joints_[k3_jnt]->GetScopedName(), gazebo::common::PID());
+            jc_->SetPositionPID(joint_scoped_names_[k2_jnt], gazebo::common::PID());
+            jc_->SetPositionPID(joint_scoped_names_[k3_jnt], gazebo::common::PID());
             Logger::log() << Logger::Info << "finger " << fidx << " is broken" << Logger::endl;
             too_big_force_counter_[fidx]++;
         }

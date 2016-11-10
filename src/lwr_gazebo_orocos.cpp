@@ -31,18 +31,18 @@
 using namespace RTT;
 
     void LWRGazebo::updateHook() {
-        Logger::In in("LWRGazebo::updateHook");
 
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
 
         if (!data_valid_) {
-            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+            //Logger::In in("LWRGazebo::updateHook");
+            //Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
         }
         else {
-            Logger::log() << Logger::Debug << Logger::endl;
+            //Logger::log() << Logger::Debug << Logger::endl;
         }
 
         port_MassMatrix_out_.write(MassMatrix_out_);
@@ -55,19 +55,19 @@ using namespace RTT;
             if (1 == KRL_CMD_in_.data) {
                 if (!command_mode_) {
                     command_mode_ = true;
-                    Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
+                    //Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
                 }
                 else {
-                    Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
+                    //Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
                 }
             }
             else if (2 == KRL_CMD_in_.data) {
                 if (command_mode_) {
                     command_mode_ = false;
-                    Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;
+                    //Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;
                 }
                 else {
-                    Logger::log() << Logger::Warning <<  "tried to switch to monitor mode while in monitor mode" << Logger::endl;
+                    //Logger::log() << Logger::Warning <<  "tried to switch to monitor mode while in monitor mode" << Logger::endl;
                 }
             }
         }
@@ -118,15 +118,24 @@ using namespace RTT;
                 init_joint_positions_[i] << Logger::endl;
             init_joint_map[init_joint_names_[i]] = init_joint_positions_[i];
         }
-        setInitialPosition(init_joint_map);
 
-        std::string joint_suffix[7] = {"_arm_0_joint", "_arm_1_joint", "_arm_2_joint",
-                                        "_arm_3_joint", "_arm_4_joint", "_arm_5_joint",
-                                        "_arm_6_joint"};
-        joint_names_.resize(7);
         for (int i = 0; i < 7; ++i) {
-            joint_names_[i] = name_ + joint_suffix[i];
+            std::string joint_name = std::string("velma::") + name_ + "_arm_" + std::to_string(i) + "_joint";
+            joints_.push_back(model_->GetJoint(joint_name));
         }
+
+        std::vector<double > init_q_vec;
+        for (int i = 0; i < joints_.size(); ++i) {
+            init_q_vec.push_back(init_joint_map[joints_[i]->GetName()]);
+        }
+        setInitialPosition(init_q_vec);
+
+        link_names_.resize(7);
+        for (int i = 0; i < 7; ++i) {
+            link_names_[i] = std::string("velma::") + name_ + "_arm_" + std::to_string(i+1) + "_link";
+            links_.push_back(model_->GetLink(link_names_[i]));
+        }
+
         Logger::log() << Logger::Info <<
             "tool parameters for " << name_ << " LWR: " << tool_.m << " " << tool_.com.x << " " <<
             tool_.com.y << " " << tool_.com.z << Logger::endl;

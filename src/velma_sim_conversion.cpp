@@ -25,37 +25,13 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ft_sensor_gazebo.h"
+#include "velma_sim_conversion.h"
 
-FtSensorGazebo::FtSensorGazebo(std::string const& name) :
-    TaskContext(name),
-    slow_buffer_size_(2),
-    fast_buffer_size_(100),
-    slow_buffer_index_(0),
-    fast_buffer_index_(0),
-    data_valid_(false)
-{
-    nh_ = new ros::NodeHandle();
-
-    addProperty("joint_name", joint_name_);
-    addProperty("transform_xyz", transform_xyz_);
-    addProperty("transform_rpy", transform_rpy_);
-
-    // Add required gazebo interfaces
-    this->provides("gazebo")->addOperation("configure",&FtSensorGazebo::gazeboConfigureHook,this,RTT::ClientThread);
-    this->provides("gazebo")->addOperation("update",&FtSensorGazebo::gazeboUpdateHook,this,RTT::ClientThread);
-
-    // right KUKA FRI ports
-    this->ports()->addPort("rawWrench_OUTPORT", port_raw_wrench_out_).doc("");
-    this->ports()->addPort("fastFilteredWrench_OUTPORT", port_fast_filtered_wrench_out_).doc("");
-    this->ports()->addPort("slowFilteredWrench_OUTPORT", port_slow_filtered_wrench_out_).doc("");
-
-    slow_buffer_.resize(slow_buffer_size_);
-    fast_buffer_.resize(fast_buffer_size_);
+KDL::Vector gz2kdl(const gazebo::math::Vector3 &v) {
+    return KDL::Vector(v.x, v.y, v.z);
 }
 
-FtSensorGazebo::~FtSensorGazebo() {
+KDL::Frame gz2kdl(const gazebo::math::Pose &p) {
+    return KDL::Frame(KDL::Rotation::Quaternion(p.rot.x,p.rot.y,p.rot.z,p.rot.w), gz2kdl(p.pos));
 }
-
-ORO_LIST_COMPONENT_TYPE(FtSensorGazebo)
 

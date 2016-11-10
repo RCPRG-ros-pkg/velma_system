@@ -25,37 +25,15 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ft_sensor_gazebo.h"
+#ifndef VELMA_SIM_CONVERSIONS_H__
+#define VELMA_SIM_CONVERSIONS_H__
 
-FtSensorGazebo::FtSensorGazebo(std::string const& name) :
-    TaskContext(name),
-    slow_buffer_size_(2),
-    fast_buffer_size_(100),
-    slow_buffer_index_(0),
-    fast_buffer_index_(0),
-    data_valid_(false)
-{
-    nh_ = new ros::NodeHandle();
+#include <gazebo/gazebo.hh>
+#include <kdl/frames.hpp>
 
-    addProperty("joint_name", joint_name_);
-    addProperty("transform_xyz", transform_xyz_);
-    addProperty("transform_rpy", transform_rpy_);
+KDL::Vector gz2kdl(const gazebo::math::Vector3 &v);
 
-    // Add required gazebo interfaces
-    this->provides("gazebo")->addOperation("configure",&FtSensorGazebo::gazeboConfigureHook,this,RTT::ClientThread);
-    this->provides("gazebo")->addOperation("update",&FtSensorGazebo::gazeboUpdateHook,this,RTT::ClientThread);
+KDL::Frame gz2kdl(const gazebo::math::Pose &p);
 
-    // right KUKA FRI ports
-    this->ports()->addPort("rawWrench_OUTPORT", port_raw_wrench_out_).doc("");
-    this->ports()->addPort("fastFilteredWrench_OUTPORT", port_fast_filtered_wrench_out_).doc("");
-    this->ports()->addPort("slowFilteredWrench_OUTPORT", port_slow_filtered_wrench_out_).doc("");
-
-    slow_buffer_.resize(slow_buffer_size_);
-    fast_buffer_.resize(fast_buffer_size_);
-}
-
-FtSensorGazebo::~FtSensorGazebo() {
-}
-
-ORO_LIST_COMPONENT_TYPE(FtSensorGazebo)
+#endif  // VELMA_SIM_CONVERSIONS_H__
 

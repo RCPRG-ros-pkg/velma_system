@@ -28,42 +28,34 @@
 #include "lwr_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
 #include <rtt/Logger.hpp>
+#include "velma_sim_conversion.h"
 
 using namespace RTT;
 
-void LWRGazebo::getExternalForces(Eigen::VectorXd &q) {
-    for (int i=0; i<joint_names_.size(); i++) {
-        q(i) = model_->GetJoint(joint_names_[i])->GetForce(0);
+void LWRGazebo::getExternalForces(LWRGazebo::Joints &q) {
+    for (int i=0; i<joints_.size(); i++) {
+        q(i) = joints_[i]->GetForce(0);
     }
 }
 
-void LWRGazebo::getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq) {
-    for (int i=0; i<joint_names_.size(); i++) {
-        gazebo::physics::JointPtr joint = model_->GetJoint(joint_names_[i]);
-        q(i) = joint->GetAngle(0).Radian();
-        dq(i) = joint->GetVelocity(0);
+void LWRGazebo::getJointPositionAndVelocity(LWRGazebo::Joints &q, LWRGazebo::Joints &dq) {
+    for (int i=0; i<joints_.size(); i++) {
+        q(i) = joints_[i]->GetAngle(0).Radian();
+        dq(i) = joints_[i]->GetVelocity(0);
     }
 }
 
-void LWRGazebo::setForces(const Eigen::VectorXd &t) {
-    for (int i=0; i<joint_names_.size(); i++) {
-        model_->GetJoint(joint_names_[i])->SetForce(0, t(i));
+void LWRGazebo::setForces(const LWRGazebo::Joints &t) {
+    for (int i=0; i<joints_.size(); i++) {
+        joints_[i]->SetForce(0, t(i));
     }
 }
 
-KDL::Vector gz2kdl(const gazebo::math::Vector3 &v) {
-    return KDL::Vector(v.x, v.y, v.z);
-}
-
-KDL::Frame gz2kdl(const gazebo::math::Pose &p) {
-    return KDL::Frame(KDL::Rotation::Quaternion(p.rot.x,p.rot.y,p.rot.z,p.rot.w), gz2kdl(p.pos));
-}
-
-void LWRGazebo::getGravComp(Eigen::VectorXd &t) {
+void LWRGazebo::getGravComp(LWRGazebo::Joints &t) {
     KDL::Vector gr = gz2kdl( gazebo::physics::get_world()->GetPhysicsEngine()->GetGravity() );
 
-    gazebo::physics::LinkPtr link = model_->GetLink(name_ + "_arm_7_link");
-    gazebo::physics::JointPtr joint = model_->GetJoint(name_ + "_arm_6_joint");
+    gazebo::physics::LinkPtr link = links_[6];
+    gazebo::physics::JointPtr joint = joints_[6];
     KDL::Frame T_W_L7 = gz2kdl( link->GetWorldPose() );
     KDL::Vector cog = T_W_L7 * KDL::Vector(tool_.com.x, tool_.com.y, tool_.com.z);
     KDL::Vector r = cog-gz2kdl( joint->GetWorldPose().pos );
@@ -73,8 +65,8 @@ void LWRGazebo::getGravComp(Eigen::VectorXd &t) {
     t(6) = KDL::dot(axis, torque);
 
     for (int i=6; i>0; i--) {
-        link = model_->GetLink(name_ + std::string("_arm_") + std::to_string(i) + "_link");
-        joint = model_->GetJoint(name_ + std::string("_arm_") + std::to_string(i-1) + "_joint");
+        link = links_[i-1];
+        joint = joints_[i-1];
         cog = (cog*mass + gz2kdl(link->GetWorldCoGPose().pos)*link->GetInertial()->GetMass()) / (mass+link->GetInertial()->GetMass());
         mass += link->GetInertial()->GetMass();
         r = cog-gz2kdl( joint->GetWorldPose().pos );
@@ -101,18 +93,17 @@ bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     return true;
 }
 
-void LWRGazebo::setInitialPosition(const std::map<std::string, double> &init_q) {
-    init_q_map_ = init_q;
-    std::vector<gazebo::physics::JointPtr>  joints = model_->GetJoints();
+void LWRGazebo::setInitialPosition(const std::vector<double > &init_q) {
+    // non-RT code
+    init_q_vec_ = init_q;
 
-    for (std::map<std::string, double>::const_iterator it = init_q.begin(); it != init_q.end(); it++) {
-        gazebo::physics::JointPtr joint = model_->GetJoint( it->first );
-        gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
+    for (int i = 0; i < joints_.size(); ++i) {
+        gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joints_[i] );
         if (joint_dart != NULL) {
-            joint_dart->GetDARTJoint()->setPosition(0, it->second);
+            joint_dart->GetDARTJoint()->setPosition(0, init_q_vec_[i]);
         }
-        joint->SetPosition(0, it->second);
-        joint->SetVelocity(0, 0);
+        joints_[i]->SetPosition(0, init_q_vec_[i]);
+        joints_[i]->SetVelocity(0, 0);
     }
 }
 
@@ -131,7 +122,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     // gravity forces
-    Eigen::VectorXd grav(7);
+    Joints grav(7);
     grav.setZero();
     getGravComp(grav);
 
@@ -140,7 +131,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         tmp_GravityTorque_out_(i) = grav(i);
     }
 
-    Eigen::VectorXd ext_f(7);
+    Joints ext_f(7);
     getExternalForces(ext_f);
 
     // external forces
@@ -148,7 +139,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         tmp_JointTorque_out_(i) = ext_f[i] - grav(i);
     }
 
-    Eigen::VectorXd q(7), dq(7);
+    Joints q(7), dq(7);
     getJointPositionAndVelocity(q, dq);
 
     // joint position
@@ -216,8 +207,8 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         }
     }
     else {
-        for (int i = 0; i < joint_names_.size(); i++) {
-            grav(i) += 10.0 * (init_q_map_[joint_names_[i]] - tmp_JointPosition_out_(i));
+        for (int i = 0; i < joints_.size(); i++) {
+            grav(i) += 10.0 * (init_q_vec_[i] - tmp_JointPosition_out_(i));
         }
     }
 

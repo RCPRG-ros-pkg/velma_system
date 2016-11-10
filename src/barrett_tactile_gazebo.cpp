@@ -178,6 +178,7 @@ using namespace RTT;
 // Update the controller
 void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+    // TODO
     if (link_names_.size() != 4) {
 //        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
@@ -254,5 +255,3 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 }
 
 ORO_LIST_COMPONENT_TYPE(BarrettTactileGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

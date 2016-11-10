@@ -29,7 +29,11 @@
 
     TorsoGazebo::TorsoGazebo(std::string const& name) : 
         TaskContext(name),
-        data_valid_(false)
+        data_valid_(false),
+        q_(1),
+        dq_(1),
+        qh_(2),
+        dqh_(2)
     {
 
         nh_ = new ros::NodeHandle();
@@ -63,5 +67,3 @@
     }
 
 ORO_LIST_COMPONENT_TYPE(TorsoGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

@@ -40,7 +40,7 @@ namespace manipulator_mass_matrix {
 
 class Link {
 public:
-    Link(const std::string &name);
+    Link(const std::string &name, const gazebo::physics::LinkPtr &gz_link);
     void setInertia(double mass, const gazebo::math::Vector3 &cog, double IXX, double IXY, double IXZ, double IYY, double IYZ, double IZZ);
     const std::string &getName() const;
     void setJointAcceleration(double accel);
@@ -57,6 +57,8 @@ public:
 
     gazebo::physics::ModelPtr model_;
 
+    gazebo::physics::LinkPtr getGazeboLink() const;
+
 protected:
     Eigen::Matrix<double, 6, 6> mI_;
     std::string name_;
@@ -69,8 +71,7 @@ protected:
     std::shared_ptr<Link > child_;
     gazebo::math::Pose relative_pose_;
     int index_;
-
-    
+    gazebo::physics::LinkPtr gz_link_;    
 };
 
 class Manipulator {

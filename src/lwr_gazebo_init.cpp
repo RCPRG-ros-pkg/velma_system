@@ -61,29 +61,12 @@
         this->ports()->addPort("JointTorque_OUTPORT",               port_JointTorque_out_).doc("");
         this->ports()->addPort("GravityTorque_OUTPORT",             port_GravityTorque_out_);
         this->ports()->addPort("JointPosition_OUTPORT",             port_JointPosition_out_).doc("");
-        JointTorqueCommand_in_.resize(7);
         JointTorqueCommand_in_.setZero();
-        JointPosition_out_.resize(7);
-        JointVelocity_out_.resize(7);
-        JointTorque_out_.resize(7);
-        GravityTorque_out_.resize(7);
-        port_JointPosition_out_.setDataSample(    JointPosition_out_);
-        port_JointVelocity_out_.setDataSample(    JointVelocity_out_);
-        port_JointTorque_out_.setDataSample(      JointTorque_out_);
-        port_GravityTorque_out_.setDataSample(    GravityTorque_out_);
 
         command_mode_ = false;
-
-        tmp_JointTorqueCommand_in_.resize(7);
-        tmp_JointPosition_out_.resize(7);
-        tmp_JointVelocity_out_.resize(7);
-        tmp_JointTorque_out_.resize(7);
-        tmp_GravityTorque_out_.resize(7);
     }
 
     LWRGazebo::~LWRGazebo() {
     }
 
 ORO_LIST_COMPONENT_TYPE(LWRGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

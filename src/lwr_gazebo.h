@@ -43,6 +43,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+
 #include "Eigen/Dense"
 
 #include <rtt/Component.hpp>
@@ -62,31 +63,34 @@ typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
 class LWRGazebo : public RTT::TaskContext
 {
+protected:
+    typedef Eigen::Matrix<double, 7, 1> Joints;
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // right KUKA FRI ports
-    RTT::InputPort<Eigen::VectorXd >        port_JointTorqueCommand_in_;  // FRIx.JointTorqueCommand
+    RTT::InputPort<Joints >                 port_JointTorqueCommand_in_;  // FRIx.JointTorqueCommand
     RTT::InputPort<std_msgs::Int32 >        port_KRL_CMD_in_;             // FRIx.KRL_CMD
     RTT::OutputPort<tFriRobotState >        port_RobotState_out_;         // FRIx.RobotState
     RTT::OutputPort<tFriIntfState >         port_FRIState_out_;           // FRIx.FRIState
-    RTT::OutputPort<Eigen::VectorXd >       port_JointPosition_out_;      // FRIx.JointPosition
-    RTT::OutputPort<Eigen::VectorXd >       port_JointVelocity_out_;      // FRIx.JointVelocity
+    RTT::OutputPort<Joints >                port_JointPosition_out_;      // FRIx.JointPosition
+    RTT::OutputPort<Joints >                port_JointVelocity_out_;      // FRIx.JointVelocity
     RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench_out_;    // FRIx.CartesianWrench
     RTT::OutputPort<Matrix77d >             port_MassMatrix_out_;         // FRIx.MassMatrix
-    RTT::OutputPort<Eigen::VectorXd >       port_JointTorque_out_;        // FRIx.JointTorque
-    RTT::OutputPort<Eigen::VectorXd >       port_GravityTorque_out_;      // FRIx.GravityTorque
+    RTT::OutputPort<Joints >                port_JointTorque_out_;        // FRIx.JointTorque
+    RTT::OutputPort<Joints >                port_GravityTorque_out_;      // FRIx.GravityTorque
 
-    Eigen::VectorXd       JointTorqueCommand_in_;
-    std_msgs::Int32       KRL_CMD_in_;
-    tFriRobotState        RobotState_out_;
-    tFriIntfState         FRIState_out_;
-    Eigen::VectorXd       JointPosition_out_;
-    Eigen::VectorXd       JointVelocity_out_;
-    geometry_msgs::Wrench CartesianWrench_out_;
-    Matrix77d             MassMatrix_out_;
-    Eigen::VectorXd       JointTorque_out_;
-    Eigen::VectorXd       GravityTorque_out_;
+    Joints                  JointTorqueCommand_in_;
+    std_msgs::Int32         KRL_CMD_in_;
+    tFriRobotState          RobotState_out_;
+    tFriIntfState           FRIState_out_;
+    Joints                  JointPosition_out_;
+    Joints                  JointVelocity_out_;
+    geometry_msgs::Wrench   CartesianWrench_out_;
+    Matrix77d               MassMatrix_out_;
+    Joints                  JointTorque_out_;
+    Joints                  GravityTorque_out_;
 
     // public methods
     LWRGazebo(std::string const& name);
@@ -104,25 +108,23 @@ public:
     std::vector<std::string> init_joint_names_;
 	std::vector<double> init_joint_positions_;
     geometry_msgs::Inertia tool_;
-//    double tool_weight_, tool_ixx_, tool_ixy_, tool_ixz_, tool_iyy_, tool_iyz_, tool_izz_;
-//    geometry_msgs::Vector3 tool_arm_;
 
-    Eigen::VectorXd       tmp_JointTorqueCommand_in_;
+    Joints                tmp_JointTorqueCommand_in_;
     std_msgs::Int32       tmp_KRL_CMD_in_;
     tFriRobotState        tmp_RobotState_out_;
     tFriIntfState         tmp_FRIState_out_;
-    Eigen::VectorXd       tmp_JointPosition_out_;
-    Eigen::VectorXd       tmp_JointVelocity_out_;
+    Joints                tmp_JointPosition_out_;
+    Joints                tmp_JointVelocity_out_;
     geometry_msgs::Wrench tmp_CartesianWrench_out_;
     Matrix77d             tmp_MassMatrix_out_;
-    Eigen::VectorXd       tmp_JointTorque_out_;
-    Eigen::VectorXd       tmp_GravityTorque_out_;
+    Joints                tmp_JointTorque_out_;
+    Joints                tmp_GravityTorque_out_;
 
     bool data_valid_;
 
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
-    void setInitialPosition(const std::map<std::string, double> &init_q);
+    void setInitialPosition(const std::vector<double > &init_q);
 
     ros::NodeHandle *nh_;
 
@@ -137,16 +139,19 @@ public:
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
-    void getExternalForces(Eigen::VectorXd &q);
-    void getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
-    void setForces(const Eigen::VectorXd &t);
-    void getGravComp(Eigen::VectorXd &t);
+    void getExternalForces(Joints &q);
+    void getJointPositionAndVelocity(Joints &q, Joints &dq);
+    void setForces(const Joints &t);
+    void getGravComp(Joints &t);
 
     std::shared_ptr<manipulator_mass_matrix::Manipulator > mm_;
 
-    std::map<std::string, double > init_q_map_;
+    std::vector<double > init_q_vec_;
 
-    std::vector<std::string> joint_names_;
+    std::vector<std::string> link_names_;
+
+    std::vector<gazebo::physics::JointPtr > joints_;
+    std::vector<gazebo::physics::LinkPtr > links_;
 };
 
 #endif  // LWR_GAZEBO_H__

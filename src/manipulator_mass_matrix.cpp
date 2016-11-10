@@ -73,7 +73,7 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 
     LinkList links;
 
-    links.push_front(LinkPtr(new Link(joint->GetChild()->GetName())));
+    links.push_front(LinkPtr(new Link(joint->GetChild()->GetName(), model->GetLink(joint->GetChild()->GetName()) )));
     links.front()->setInertia(tool_mass, tool_cog, tool_IXX, tool_IXY,
                             tool_IXZ, tool_IYY, tool_IYZ, tool_IZZ);
     links.front()->setJointName(joint->GetName());
@@ -82,7 +82,7 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
     while (joint && joint->GetName() != first_joint) {
         gazebo::physics::LinkPtr link = joint->GetParent();
 //        std::cout << "Manipulator::Manipulator  " << joint->GetName() << std::endl;
-        links.push_front(LinkPtr(new Link(link->GetName())));
+        links.push_front(LinkPtr(new Link(link->GetName(), link)));
         gazebo::physics::InertialPtr in = link->GetInertial();
         links.front()->setInertia(in->GetMass(), in->GetCoG(), in->GetIXX(), in->GetIXY(),
                             in->GetIXZ(), in->GetIYY(), in->GetIYZ(), in->GetIZZ());
@@ -119,8 +119,8 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 void Manipulator::updatePoses(gazebo::physics::ModelPtr model) {
     links_[0]->setRelativePose( gazebo::math::Pose() );
     for (int i=1; i<links_.size(); ++i) {
-        Eigen::Isometry3d T_W_1 = ConvPose(model->GetLink( links_[i-1]->getName() )->GetWorldPose());
-        Eigen::Isometry3d T_W_2 = ConvPose(model->GetLink( links_[i]->getName() )->GetWorldPose());
+        Eigen::Isometry3d T_W_1 = ConvPose(links_[i-1]->getGazeboLink()->GetWorldPose());
+        Eigen::Isometry3d T_W_2 = ConvPose(links_[i]->getGazeboLink()->GetWorldPose());
         Eigen::Isometry3d T_1_2 = T_W_1.inverse() * T_W_2;
 //        gazebo::math::Pose T_W_1 = model->GetLink( links_[i-1]->getName() )->GetWorldPose();
 //        gazebo::math::Pose T_W_2 = model->GetLink( links_[i]->getName() )->GetWorldPose();
@@ -129,12 +129,17 @@ void Manipulator::updatePoses(gazebo::physics::ModelPtr model) {
     }
 }
 
+gazebo::physics::LinkPtr Link::getGazeboLink() const {
+    return gz_link_;
+}
+
 void Link::setRelativePose(const gazebo::math::Pose &p) {
     relative_pose_ = p;
 }
 
-Link::Link(const std::string &name) :
-    name_(name)
+Link::Link(const std::string &name, const gazebo::physics::LinkPtr &gz_link) :
+    name_(name),
+    gz_link_(gz_link)
 {
 }
 

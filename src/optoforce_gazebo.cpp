@@ -191,5 +191,3 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 }
 
 ORO_LIST_COMPONENT_TYPE(OptoforceGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

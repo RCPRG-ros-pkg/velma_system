@@ -43,6 +43,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+
 #include "Eigen/Dense"
 
 #include <rtt/Component.hpp>
@@ -127,8 +128,12 @@ public:
     gazebo::physics::ModelPtr model_;
 
     // head
+    gazebo::physics::JointPtr torso_joint_;
     gazebo::physics::JointPtr head_pan_joint_;
     gazebo::physics::JointPtr head_tilt_joint_;
+
+    std::string head_pan_scoped_name_;
+    std::string head_tilt_scoped_name_;
 
     gazebo::physics::JointController *jc_;
 
@@ -140,6 +145,8 @@ public:
     RTT::os::MutexRecursive gazebo_mutex_;
 
     bool data_valid_;
+    Eigen::VectorXd q_, dq_;
+    Eigen::VectorXd qh_, dqh_;
 };
 
 #endif  // TORSO_GAZEBO_H__

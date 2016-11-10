@@ -34,14 +34,13 @@ using namespace RTT;
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
-        Logger::In in("BarrettHandGazebo::updateHook");
-
         if (!data_valid_) {
-            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+            //Logger::In in("BarrettHandGazebo::updateHook");
+            //Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
         }
         else {
-            Logger::log() << Logger::Debug << Logger::endl;
+            //Logger::log() << Logger::Debug << Logger::endl;
         }
 
         //
@@ -53,7 +52,8 @@ using namespace RTT;
         port_status_out_.write(status_out_);
 
         if (port_q_in_.read(q_in_) == RTT::NewData) {
-            Logger::log() << Logger::Info << "q_in_: new data " << q_in_.transpose() << Logger::endl;
+            //Logger::In in("BarrettHandGazebo::updateHook");
+            //Logger::log() << Logger::Info << "q_in_: new data " << q_in_.transpose() << Logger::endl;
             move_hand_ = true;
         }
         port_v_in_.read(v_in_);
@@ -66,7 +66,6 @@ using namespace RTT;
 
     bool BarrettHandGazebo::configureHook() {
         Logger::In in("BarrettHandGazebo::configureHook");
-
         if (prefix_.empty()) {
             Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
@@ -81,6 +80,8 @@ using namespace RTT;
 //            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
             gazebo::physics::JointPtr joint = model_->GetJoint(name);
             joints_.push_back(joint);
+            joint_scoped_names_.push_back(joint->GetScopedName());
+
 //            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
 //            joints_dart_.push_back( joint_dart );
             joint->SetEffortLimit(0, 1);

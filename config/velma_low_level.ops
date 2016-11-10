@@ -20,14 +20,11 @@ ros.import("conman_ros");
 
 ros.import("rtt_control_msgs");
 ros.import("lwr_fri");
-ros.import("oro_joint_state_publisher");
 ros.import("controller_common");
 ros.import("velma_controller");
 ros.import("rtt_cartesian_trajectory_msgs");
 ros.import("rtt_std_msgs");
 ros.import("rtt_tf");
-ros.import("internal_space_spline_trajectory_action");
-ros.import("internal_space_spline_trajectory_generator");
 ros.import("velma_sim_gazebo");
 ros.import("velma_low_level_safety");
 
@@ -254,6 +251,22 @@ connect("LeftFtSensor.rawWrench_OUTPORT",                   "lli_lo_tx.status_lF
 connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_ffw_INPORT", ConnPolicy())
 connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "lli_lo_tx.status_lFt_sfw_INPORT", ConnPolicy())
 
+
+var bool triggerOnStart = false
+set safety_controller.TriggerOnStart = triggerOnStart
+set TorsoSim.TriggerOnStart = triggerOnStart
+set lli_lo_rx.TriggerOnStart = triggerOnStart
+set RightHandTactile.TriggerOnStart = triggerOnStart
+set RightHand.TriggerOnStart = triggerOnStart
+set LeftHand.TriggerOnStart = triggerOnStart
+set LeftHandOptoforce.TriggerOnStart = triggerOnStart
+set LeftFtSensor.TriggerOnStart = triggerOnStart
+set RightFtSensor.TriggerOnStart = triggerOnStart
+set LWRrSim.TriggerOnStart = triggerOnStart
+set LWRlSim.TriggerOnStart = triggerOnStart
+set lli_lo_tx.TriggerOnStart = triggerOnStart
+
+
 # add slave tasks to lli_lo_rx
 addPeer("lli_lo_rx", "safety_controller");
 addPeer("lli_lo_rx", "TorsoSim");
@@ -263,6 +276,10 @@ addPeer("lli_lo_rx", "LeftHand");
 addPeer("lli_lo_rx", "LeftHandOptoforce");
 addPeer("lli_lo_rx", "LeftFtSensor");
 addPeer("lli_lo_rx", "RightFtSensor");
+
+addPeer("lli_lo_rx", "LWRrSim");
+addPeer("lli_lo_rx", "LWRlSim");
+
 addPeer("lli_lo_rx", "lli_lo_tx");
 
 # set slave tasks execution order (before configure)
@@ -274,10 +291,43 @@ lli_lo_rx.pushBackPeerExecution("LeftHand");
 lli_lo_rx.pushBackPeerExecution("LeftHandOptoforce");
 lli_lo_rx.pushBackPeerExecution("LeftFtSensor");
 lli_lo_rx.pushBackPeerExecution("RightFtSensor");
+
+lli_lo_rx.pushBackPeerExecution("LWRrSim");
+lli_lo_rx.pushBackPeerExecution("LWRlSim");
+
 lli_lo_rx.pushBackPeerExecution("lli_lo_tx");
 
 lli_lo_rx.configure();
 
+
+#
+# diagnostics component
+#
+loadComponent("diag","DiagnosticComponent");
+setActivity("diag", 0.01, 0, ORO_SCHED_OTHER);
+diag.loadService("sim_clock_activity");
+
+addPeer("diag", "lli_lo_rx");
+addPeer("diag", "lli_lo_tx");
+addPeer("diag", "safety_controller");
+addPeer("diag", "TorsoSim");
+addPeer("diag", "RightHandTactile");
+addPeer("diag", "RightHand");
+addPeer("diag", "LeftHand");
+addPeer("diag", "LeftHandOptoforce");
+addPeer("diag", "LeftFtSensor");
+addPeer("diag", "RightFtSensor");
+addPeer("diag", "LWRrSim");
+addPeer("diag", "LWRlSim");
+
+connect("safety_controller.status_sc_OUTPORT",      "diag.status_sc_INPORT", ConnPolicy())
+stream("diag.diag_OUTPORT", ros.comm.topic("/velma_low_level/diag"))
+
+diag.configure();
+
+#
+# start components
+#
 lli_lo_tx.start();
 
 safety_controller.start();
@@ -294,6 +344,7 @@ RightFtSensor.start();
 
 lli_lo_rx.start();
 
+diag.start();
 
 #break;  # the while loop
 #}

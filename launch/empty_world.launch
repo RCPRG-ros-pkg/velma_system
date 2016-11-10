@@ -29,6 +29,7 @@
   <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
 	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart" >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
+    <env name="LD_PRELOAD" value="libmalloc_hook.so" />
   </node>
 
   <!-- start gazebo client -->
