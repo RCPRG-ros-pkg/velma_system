@@ -13,7 +13,6 @@
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
  
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
  DISCLAIMED. IN NO EVENT SHALL <COPYright HOLDER> BE LIABLE FOR ANY
@@ -26,10 +25,23 @@
 */
 
 #include "barrett_hand_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     void BarrettHandGazebo::updateHook() {
+
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
+
+        if (!data_valid_) {
+            //Logger::In in("BarrettHandGazebo::updateHook");
+            //Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+            return;
+        }
+        else {
+            //Logger::log() << Logger::Debug << Logger::endl;
+        }
 
         //
         // BarrettHand
@@ -40,7 +52,8 @@
         port_status_out_.write(status_out_);
 
         if (port_q_in_.read(q_in_) == RTT::NewData) {
-            std::cout << "q_in_: new data " << q_in_.transpose() << std::endl;
+            //Logger::In in("BarrettHandGazebo::updateHook");
+            //Logger::log() << Logger::Info << "q_in_: new data " << q_in_.transpose() << Logger::endl;
             move_hand_ = true;
         }
         port_v_in_.read(v_in_);
@@ -52,9 +65,9 @@
     }
 
     bool BarrettHandGazebo::configureHook() {
-
+        Logger::In in("BarrettHandGazebo::configureHook");
         if (prefix_.empty()) {
-            std::cout << "ERROR: BarrettHandGazebo::configureHook: prefix is empty" << std::endl;
+            Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 
@@ -64,11 +77,13 @@
 
         for (int i = 0; i < 8; i++) {
             std::string name( prefix_ + hand_joint_names[i] );
-            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
+//            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
             gazebo::physics::JointPtr joint = model_->GetJoint(name);
             joints_.push_back(joint);
-            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
-            joints_dart_.push_back( joint_dart );
+            joint_scoped_names_.push_back(joint->GetScopedName());
+
+//            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
+//            joints_dart_.push_back( joint_dart );
             joint->SetEffortLimit(0, 1);
         }
 
@@ -80,7 +95,7 @@
             jc_->AddJoint(joints_[i]);
         }
 
-        double torque = 5.0;
+        double torque = 1.0;
         jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
         jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
         jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
@@ -94,7 +109,6 @@
             jc_->SetPositionTarget(joints_[i]->GetScopedName(), 0.0);
         }
 
-        std::cout << "BarrettHandGazebo::configureHook(" << prefix_ << "): ok " << std::endl;
         return true;
     }
 

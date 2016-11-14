@@ -25,51 +25,52 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ft_sensor_gazebo.h"
+#include "torso_gazebo.h"
 #include <rtt/Logger.hpp>
 
 using namespace RTT;
 
-void FtSensorGazebo::updateHook() {
-    // Synchronize with gazeboUpdate()
-    RTT::os::MutexLock lock(gazebo_mutex_);
+    void TorsoGazebo::updateHook() {
 
-    if (!data_valid_) {
-        return;
-    }
-    port_raw_wrench_out_.write(raw_wrench_out_);
-    port_slow_filtered_wrench_out_.write(slow_filtered_wrench_out_);
-    port_fast_filtered_wrench_out_.write(fast_filtered_wrench_out_);
-}
+        // Synchronize with gazeboUpdate()
+        RTT::os::MutexLock lock(gazebo_mutex_);
 
-bool FtSensorGazebo::startHook() {
-    return true;
-}
+        if (!data_valid_) {
+//          Logger::In in("TorsoGazebo::updateHook");
+//            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+            return;
+        }
+        else {
+//            Logger::log() << Logger::Debug << Logger::endl;
+        }
 
-bool FtSensorGazebo::configureHook() {
-    Logger::In in("FtSensorGazebo::configureHook");
+        port_t_MotorPosition_out_.write(t_MotorPosition_out_);
+        port_t_MotorVelocity_out_.write(t_MotorVelocity_out_);
 
-    joint_ = model_->GetJoint(joint_name_);
-    if (joint_.get() == NULL) {
-        Logger::log() << Logger::Error << "could not find joint \"" << joint_name_ << "\"" << Logger::endl;
-        return false;
-    }
+        if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_) == RTT::NewData) {
+        }
 
-    link_ = joint_->GetJointLink(0);
-//    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
-
-    if (transform_xyz_.size() != 3) {
-        Logger::log() << Logger::Error << "wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << Logger::endl;
-        return false;
-    }
-
-    if (transform_rpy_.size() != 3) {
-        Logger::log() << Logger::Error << "wrong transform_rpy: vector size is " << transform_rpy_.size() << ", should be 3" << Logger::endl;
-        return false;
+        //
+        // head
+        //
+        port_hp_q_in_.read(hp_q_in_);
+        port_hp_v_in_.read(hp_v_in_);
+        port_hp_c_in_.read(hp_c_in_);
+        port_hp_q_out_.write(hp_q_out_);
+        port_hp_v_out_.write(hp_v_out_);
+        port_ht_q_in_.read(ht_q_in_);
+        port_ht_v_in_.read(ht_v_in_);
+        port_ht_c_in_.read(ht_c_in_);
+        port_ht_q_out_.write(ht_q_out_);
+        port_ht_v_out_.write(ht_v_out_);
     }
 
-    T_W_S_ = KDL::Frame(KDL::Rotation::RPY(transform_rpy_[0], transform_rpy_[1], transform_rpy_[2]), KDL::Vector(transform_xyz_[0], transform_xyz_[1], transform_xyz_[2]));
+    bool TorsoGazebo::startHook() {
+      return true;
+    }
 
-    return true;
-}
+    bool TorsoGazebo::configureHook() {
+        setJointsPID();
+        return true;
+    }
 

@@ -26,6 +26,9 @@
 */
 
 #include "ft_sensor_gazebo.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
 void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
                                     geometry_msgs::Wrench &out) const {
@@ -38,14 +41,15 @@ void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
 }
 
 bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+    Logger::In in("FtSensorGazebo::gazeboConfigureHook");
 
     if(model.get() == NULL) {
-        std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+        Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
         return false;
     }
 
     model_ = model;
-
+/*
     gazebo::physics::DARTModelPtr model_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
     if (model_dart.get() == NULL) {
         std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
@@ -53,7 +57,7 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     dart_sk_ = model_dart->GetDARTSkeleton();
-
+*/
     return true;
 }
 
@@ -61,12 +65,20 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 // Update the controller
 void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+
     if (joint_.get() == NULL) {
         return;
     }
+    gazebo::math::Vector3 force = joint_->GetLinkForce(0);
+    gazebo::math::Vector3 torque = joint_->GetLinkTorque(0);
+    //gazebo::math::Vector3 force = link_->GetWorldForce();
+    //gazebo::math::Vector3 torque = link_->GetWorldTorque();
+//    Eigen::Vector6d wr = dart_bn_->getBodyForce();
+//    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
 
-    Eigen::Vector6d wr = dart_bn_->getBodyForce();
-    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
+//    std::cout << "F/T sensor " << joint_name_ << "  f: " << force.x << " " << force.y << " " << force.z << "  t: " << torque.x << " " << torque.y << " " << torque.z << std::endl;
+
+    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(force.x, force.y, force.z), -KDL::Vector(torque.x, torque.y, torque.z) );
     KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
 
     slow_filtered_wrench_ = KDL::Wrench();
@@ -105,7 +117,7 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         WrenchKDLToMsg(wr_S, raw_wrench_out_);
         WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
         WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
+        data_valid_ = true;
     }
-
 }
 

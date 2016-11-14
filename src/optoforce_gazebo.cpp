@@ -27,11 +27,15 @@
 
 #include "optoforce_gazebo.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     OptoforceGazebo::OptoforceGazebo(std::string const& name) : 
         TaskContext(name),
         model_(NULL),
-        n_sensors_(0)
+        n_sensors_(0),
+        data_valid_(false)
     {
         nh_ = new ros::NodeHandle();
 
@@ -48,11 +52,13 @@
     }
 
     bool OptoforceGazebo::configureHook() {
+        Logger::In in("OptoforceGazebo::configureHook");
+
         if(model_.get() == NULL) {
-            std::cout << "ERROR: OptoforceGazebo::configureHook: gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
-
+/*
         if (frame_id_vec_.size() != n_sensors_) {
             std::cout << "ERROR: OptoforceGazebo::configureHook: frame_id_vec_.size() != n_sensors_   " << frame_id_vec_.size() << "!=" << n_sensors_ << std::endl;
             return false;
@@ -107,8 +113,7 @@
         }
 
         force_out_.resize(n_sensors_);
-
-        std::cout << "OptoforceGazebo::configureHook: ok" << std::endl;
+*/
         return true;
     }
 
@@ -116,9 +121,14 @@
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        if (!data_valid_) {
+            return;
+        }
+/*
         for (int i = 0; i < n_sensors_; i++) {
             port_force_out_[i]->write(force_out_[i]);
         }
+*/
     }
 
     bool OptoforceGazebo::startHook() {
@@ -126,15 +136,16 @@
     }
 
     bool OptoforceGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+        Logger::In in("OptoforceGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            std::cout << "OptoforceGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         model_ = model;
 
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
+/*        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
 
         model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
         if (model_dart_.get() == NULL) {
@@ -147,7 +158,7 @@
         detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
 
         jc_.reset(new gazebo::physics::JointController(model_));
-
+*/
         return true;
     }
 
@@ -176,8 +187,7 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     jc_->Update();
+    data_valid_ = true;
 }
 
 ORO_LIST_COMPONENT_TYPE(OptoforceGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

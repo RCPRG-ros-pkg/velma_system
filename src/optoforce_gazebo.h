@@ -39,8 +39,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -49,6 +49,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+
 #include "Eigen/Dense"
 
 #include <rtt/Component.hpp>
@@ -59,7 +60,7 @@
 #include <geometry_msgs/WrenchStamped.h>
 
 #include <kuka_lwr_fri/friComm.h>
-#include "barrett_hand_common/tactile.h"
+//#include "barrett_hand_common/tactile.h"
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
@@ -90,10 +91,10 @@ public:
     int32_t median_filter_samples_, median_filter_max_samples_;
 
     gazebo::physics::ModelPtr model_;
-    gazebo::physics::DARTModelPtr model_dart_;
-    dart::dynamics::Skeleton *dart_sk_;
-    dart::simulation::World *dart_world_;
-    dart::collision::CollisionDetector* detector_;
+//    gazebo::physics::DARTModelPtr model_dart_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    dart::simulation::World *dart_world_;
+//    dart::collision::CollisionDetector* detector_;
 
     gazebo::physics::JointControllerPtr jc_;
     std::vector<gazebo::physics::JointPtr> joints_;
@@ -106,6 +107,8 @@ public:
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
+
+    bool data_valid_;
 };
 
 #endif  // OPTOFORCE_GAZEBO_H__

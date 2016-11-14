@@ -35,8 +35,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -45,6 +45,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+
 #include "Eigen/Dense"
 
 #include <rtt/Component.hpp>
@@ -58,38 +59,38 @@
 
 #include <kuka_lwr_fri/friComm.h>
 
-typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
-
 class BarrettHandGazebo : public RTT::TaskContext
 {
+protected:
+    typedef Eigen::Matrix<double, 4, 1> Dofs;
+    typedef Eigen::Matrix<double, 8, 1> Joints;
+
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // orocos ports
-    RTT::InputPort<Eigen::VectorXd>  port_q_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_v_in_;
-    RTT::InputPort<Eigen::VectorXd>  port_t_in_;
+    RTT::InputPort<Dofs>  port_q_in_;
+    RTT::InputPort<Dofs>  port_v_in_;
+    RTT::InputPort<Dofs>  port_t_in_;
     RTT::InputPort<double>           port_mp_in_;
     RTT::InputPort<int32_t>          port_hold_in_;
-    RTT::InputPort<Eigen::Vector4d > port_max_measured_pressure_in_;
+    RTT::InputPort<Dofs > port_max_measured_pressure_in_;
     RTT::InputPort<std_msgs::Empty>  port_reset_in_;
     RTT::OutputPort<uint32_t>        port_status_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_q_out_;
-    RTT::OutputPort<Eigen::VectorXd> port_t_out_;
+    RTT::OutputPort<Joints> port_q_out_;
+    RTT::OutputPort<Joints> port_t_out_;
     //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_temp_out_;
 
-    Eigen::VectorXd q_in_;
-    Eigen::VectorXd v_in_;
-    Eigen::VectorXd t_in_;
+    Dofs q_in_;
+    Dofs v_in_;
+    Dofs t_in_;
     double          mp_in_;
     int32_t         hold_in_;
-    Eigen::Vector4d max_measured_pressure_in_;
+    Dofs max_measured_pressure_in_;
     std_msgs::Empty reset_in_;
     uint32_t        status_out_;
-    std_msgs::Int32 filter_in_;
-    Eigen::VectorXd q_out_;
-    Eigen::VectorXd t_out_;
+    Joints q_out_;
+    Joints t_out_;
     //barrett_hand_controller_msgs::BHTemp temp_out_;
 
     // public methods
@@ -116,14 +117,17 @@ public:
     ros::NodeHandle *nh_;
 
     gazebo::physics::ModelPtr model_;
-    gazebo::physics::DARTModelPtr model_dart_;
-    dart::dynamics::Skeleton *dart_sk_;
-    dart::simulation::World *dart_world_;
+//    gazebo::physics::DARTModelPtr model_dart_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    dart::simulation::World *dart_world_;
+
+    bool data_valid_;
 
     // BarrettHand
-    std::vector<gazebo::physics::JointPtr>  joints_;
+    std::vector<gazebo::physics::JointPtr> joints_;
+    std::vector<std::string> joint_scoped_names_;
 
-    std::vector<dart::dynamics::Joint*>  joints_dart_;
+//    std::vector<dart::dynamics::Joint*>  joints_dart_;
 
     std::vector<int > too_big_force_counter_;
     bool move_hand_;

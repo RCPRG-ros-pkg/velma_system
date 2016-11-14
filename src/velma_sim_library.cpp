@@ -25,51 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "ft_sensor_gazebo.h"
-#include <rtt/Logger.hpp>
+#include <rtt/Component.hpp>
 
-using namespace RTT;
-
-void FtSensorGazebo::updateHook() {
-    // Synchronize with gazeboUpdate()
-    RTT::os::MutexLock lock(gazebo_mutex_);
-
-    if (!data_valid_) {
-        return;
-    }
-    port_raw_wrench_out_.write(raw_wrench_out_);
-    port_slow_filtered_wrench_out_.write(slow_filtered_wrench_out_);
-    port_fast_filtered_wrench_out_.write(fast_filtered_wrench_out_);
-}
-
-bool FtSensorGazebo::startHook() {
-    return true;
-}
-
-bool FtSensorGazebo::configureHook() {
-    Logger::In in("FtSensorGazebo::configureHook");
-
-    joint_ = model_->GetJoint(joint_name_);
-    if (joint_.get() == NULL) {
-        Logger::log() << Logger::Error << "could not find joint \"" << joint_name_ << "\"" << Logger::endl;
-        return false;
-    }
-
-    link_ = joint_->GetJointLink(0);
-//    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
-
-    if (transform_xyz_.size() != 3) {
-        Logger::log() << Logger::Error << "wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << Logger::endl;
-        return false;
-    }
-
-    if (transform_rpy_.size() != 3) {
-        Logger::log() << Logger::Error << "wrong transform_rpy: vector size is " << transform_rpy_.size() << ", should be 3" << Logger::endl;
-        return false;
-    }
-
-    T_W_S_ = KDL::Frame(KDL::Rotation::RPY(transform_rpy_[0], transform_rpy_[1], transform_rpy_[2]), KDL::Vector(transform_xyz_[0], transform_xyz_[1], transform_xyz_[2]));
-
-    return true;
-}
+ORO_CREATE_COMPONENT_LIBRARY()
 

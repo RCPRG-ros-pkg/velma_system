@@ -28,18 +28,18 @@
 #include "barrett_tactile_gazebo.h"
 #include "barrett_hand_common/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Logger.hpp>
+
+using namespace RTT;
 
     BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name) : 
         TaskContext(name),
         median_filter_samples_(1),
         median_filter_max_samples_(8),
-        model_(NULL)
+        model_(NULL),
+        data_valid_(false)
     {
         nh_ = new ros::NodeHandle();
-        std::cout << "BarrettTactileGazebo ROS node namespace: " << nh_->getNamespace() << std::endl;
-
-        std::cout << "BarrettTactileGazebo ROS node name: " << ros::this_node::getName() << std::endl;
-        std::cout << "BarrettTactileGazebo ROS node namespace2: " << ros::this_node::getNamespace() << std::endl;
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&BarrettTactileGazebo::gazeboConfigureHook,this,RTT::ClientThread);
@@ -54,11 +54,6 @@
         ts_[2]->setGeometry("finger3_tip_info", finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2, 0.001);
         ts_[3]->setGeometry("palm_info", palm_sensor_center, palm_sensor_halfside1, palm_sensor_halfside2, 0.001);
 
-        tactile_out_.finger1_tip.resize(24);
-        tactile_out_.finger2_tip.resize(24);
-        tactile_out_.finger3_tip.resize(24);
-        tactile_out_.palm_tip.resize(24);
-
         this->ports()->addPort("BHPressureState_OUTPORT", port_tactile_out_);
         this->ports()->addPort("calibrate_tactile_sensors_INPORT", port_calibrate_in_);
         this->ports()->addPort("set_median_filter_INPORT", port_filter_in_);
@@ -69,13 +64,8 @@
 		this->addProperty("prefix", prefix_);
 
         // tactile array info
-        pressure_info_.sensor.resize(4);
         for (int id=0; id<4; ++id) {
             pressure_info_.sensor[id].frame_id = ts_[id]->getName();
-            pressure_info_.sensor[id].center.resize(24);
-            pressure_info_.sensor[id].halfside1.resize(24);
-            pressure_info_.sensor[id].halfside2.resize(24);
-            pressure_info_.sensor[id].force_per_unit.resize(24);
             for (int i=0; i<24; ++i)
             {
                 pressure_info_.sensor[id].force_per_unit[i] = 1.0/256.0;
@@ -100,13 +90,15 @@
     }
 
     bool BarrettTactileGazebo::configureHook() {
+        Logger::In in("BarrettTactileGazebo::configureHook");
+
         if(model_.get() == NULL) {
-            std::cout << "ERROR: gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         if (prefix_.empty()) {
-            std::cout << "ERROR: BarrettTactileGazebo::configureHook: prefix is empty" << std::endl;
+            Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
 
@@ -123,10 +115,8 @@
                 for (int cidx = 0; cidx < col_count; cidx++) {
                     const std::string &col_name = (*it)->GetCollisions()[cidx]->GetName();
                     if (col_name == collision_names[i]) {
-                        //Eigen::Quaterniond q(dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().rotation());
-                        //std::cout << "tactile skin: " << link_name << "   " << dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getOffset().transpose() << "  " << q.x() << " " << q.y() << " " << q.z() << " " << q.w() << " " << std::endl;
-                        link_names_.push_back( link_name );
-                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
+//                        link_names_.push_back( link_name );
+//                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
                         found = true;
                         break;
                     }
@@ -137,7 +127,6 @@
             }
         }
 
-        std::cout << "BarrettTactileGazebo::configureHook: ok" << std::endl;
         return true;
     }
 
@@ -145,26 +134,27 @@
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
+        if (!data_valid_) {
+            return;
+        }
 
-            tactile_out_.header.stamp = rtt_rosclock::host_now();
-
-            max_pressure_out_.setZero();
-            for (int i=0; i<24; ++i)
-            {
-                tactile_out_.finger1_tip[i] = ts_[0]->getPressure(i,median_filter_samples_);
-                tactile_out_.finger2_tip[i] = ts_[1]->getPressure(i,median_filter_samples_);
-                tactile_out_.finger3_tip[i] = ts_[2]->getPressure(i,median_filter_samples_);
-                tactile_out_.palm_tip[i] = ts_[3]->getPressure(i,median_filter_samples_);
-                for (int puck_id = 0; puck_id < 4; puck_id++) {
-                    if (max_pressure_out_(puck_id) < ts_[puck_id]->getPressure(i,median_filter_samples_)) {
-                        max_pressure_out_(puck_id) = ts_[puck_id]->getPressure(i,median_filter_samples_);
-                    }
+        max_pressure_out_.setZero();
+        for (int i=0; i<24; ++i)
+        {
+            tactile_out_.finger1_tip[i] = ts_[0]->getPressure(i,median_filter_samples_);
+            tactile_out_.finger2_tip[i] = ts_[1]->getPressure(i,median_filter_samples_);
+            tactile_out_.finger3_tip[i] = ts_[2]->getPressure(i,median_filter_samples_);
+            tactile_out_.palm_tip[i] = ts_[3]->getPressure(i,median_filter_samples_);
+            for (int puck_id = 0; puck_id < 4; puck_id++) {
+                if (max_pressure_out_(puck_id) < ts_[puck_id]->getPressure(i,median_filter_samples_)) {
+                    max_pressure_out_(puck_id) = ts_[puck_id]->getPressure(i,median_filter_samples_);
                 }
             }
+        }
 
-            port_max_pressure_out_.write(max_pressure_out_);
-            port_tactile_out_.write(tactile_out_);
-            port_tactile_info_out_.write(pressure_info_);
+        port_max_pressure_out_.write(max_pressure_out_);
+        port_tactile_out_.write(tactile_out_);
+        port_tactile_info_out_.write(pressure_info_);
     }
 
     bool BarrettTactileGazebo::startHook() {
@@ -172,25 +162,14 @@
     }
 
     bool BarrettTactileGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
+        Logger::In in("BarrettTactileGazebo::gazeboConfigureHook");
 
         if(model.get() == NULL) {
-            std::cout << "BarrettTactileGazebo::gazeboConfigureHook: the gazebo model is NULL" << std::endl;
+            Logger::log() << Logger::Error << "gazebo model is NULL" << Logger::endl;
             return false;
         }
 
         model_ = model;
-
-        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
-
-        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-        if (model_dart_.get() == NULL) {
-            std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-            return false;
-        }
-
-        dart_sk_ = model_dart_->GetDARTSkeleton();
-
-        detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
 
         return true;
     }
@@ -199,11 +178,14 @@
 // Update the controller
 void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+    // TODO
     if (link_names_.size() != 4) {
 //        std::cout << "ERROR: BarrettTactileGazebo: link_names_.size() != 4" << std::endl;
         return;
     }
 
+    data_valid_ = true;
+/*
     if (!model_dart_) {
         std::cout << "ERROR: BarrettTactileGazebo: !model_dart_" << std::endl;
         return;
@@ -269,9 +251,7 @@ void BarrettTactileGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     ts_[1]->updatePressure(tact[1]);
     ts_[2]->updatePressure(tact[2]);
     ts_[3]->updatePressure(tact[3]);
-
+*/
 }
 
 ORO_LIST_COMPONENT_TYPE(BarrettTactileGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
-

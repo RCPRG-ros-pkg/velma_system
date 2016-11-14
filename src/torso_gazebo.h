@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef FT_SENSOR_GAZEBO_H__
-#define FT_SENSOR_GAZEBO_H__
+#ifndef TORSO_GAZEBO_H__
+#define TORSO_GAZEBO_H__
 
 #include <ros/callback_queue.h>
 #include <ros/advertise_options.h>
@@ -35,8 +35,6 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-//#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -53,31 +51,53 @@
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
 
-//#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
-//#include <geometry_msgs/Twist.h>
 
 #include <kuka_lwr_fri/friComm.h>
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
 
-class FtSensorGazebo : public RTT::TaskContext
+class TorsoGazebo : public RTT::TaskContext
 {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    RTT::OutputPort<geometry_msgs::Wrench> port_raw_wrench_out_;
-    RTT::OutputPort<geometry_msgs::Wrench> port_fast_filtered_wrench_out_;
-    RTT::OutputPort<geometry_msgs::Wrench> port_slow_filtered_wrench_out_;
+    // torso ports
+    RTT::InputPort<double >    port_t_MotorCurrentCommand_in_;
+    RTT::OutputPort<double >   port_t_MotorPosition_out_;
+    RTT::OutputPort<double >   port_t_MotorVelocity_out_;
 
-    geometry_msgs::Wrench raw_wrench_out_;
-    geometry_msgs::Wrench fast_filtered_wrench_out_;
-    geometry_msgs::Wrench slow_filtered_wrench_out_;
+    double t_MotorCurrentCommand_in_;
+    double t_MotorPosition_out_;
+    double t_MotorVelocity_out_;
+
+    // head ports
+    RTT::InputPort<double>      port_hp_q_in_;
+    RTT::InputPort<double>      port_hp_v_in_;
+    RTT::InputPort<double>      port_hp_c_in_;
+    RTT::OutputPort<double>     port_hp_q_out_;
+    RTT::OutputPort<double>     port_hp_v_out_;
+    RTT::InputPort<double>      port_ht_q_in_;
+    RTT::InputPort<double>      port_ht_v_in_;
+    RTT::InputPort<double>      port_ht_c_in_;
+    RTT::OutputPort<double>     port_ht_q_out_;
+    RTT::OutputPort<double>     port_ht_v_out_;
+
+    double hp_q_in_;
+    double hp_v_in_;
+    double hp_c_in_;
+    double hp_q_out_;
+    double hp_v_out_;
+    double ht_q_in_;
+    double ht_v_in_;
+    double ht_c_in_;
+    double ht_q_out_;
+    double ht_v_out_;
 
     // public methods
-    FtSensorGazebo(std::string const& name);
-    ~FtSensorGazebo();
+    TorsoGazebo(std::string const& name);
+    ~TorsoGazebo();
     void updateHook();
     bool startHook();
     bool configureHook();
@@ -86,44 +106,48 @@ public:
 
   protected:
 
-    void WrenchKDLToMsg(const KDL::Wrench &in, geometry_msgs::Wrench &out) const;
+    double tmp_t_MotorCurrentCommand_in_;
+    double tmp_t_MotorPosition_out_;
+    double tmp_t_MotorVelocity_out_;
+
+    double tmp_hp_q_in_;
+    double tmp_hp_v_in_;
+    double tmp_hp_c_in_;
+    double tmp_hp_q_out_;
+    double tmp_hp_v_out_;
+    double tmp_ht_q_in_;
+    double tmp_ht_v_in_;
+    double tmp_ht_c_in_;
+    double tmp_ht_q_out_;
+    double tmp_ht_v_out_;
+
+    void setJointsPID();
 
     ros::NodeHandle *nh_;
 
-    // ROS parameters
-    std::string joint_name_;
-    std::vector<double> transform_xyz_;
-    std::vector<double> transform_rpy_;
-
     gazebo::physics::ModelPtr model_;
-//    dart::dynamics::Skeleton *dart_sk_;
-    gazebo::physics::JointPtr joint_;
-//    dart::dynamics::BodyNode *dart_bn_;
-    gazebo::physics::LinkPtr link_;
 
-    std::vector<KDL::Wrench> slow_buffer_;
-    std::vector<KDL::Wrench> fast_buffer_;
+    // head
+    gazebo::physics::JointPtr torso_joint_;
+    gazebo::physics::JointPtr head_pan_joint_;
+    gazebo::physics::JointPtr head_tilt_joint_;
 
-    int slow_buffer_index_;
-    int fast_buffer_index_;
+    std::string head_pan_scoped_name_;
+    std::string head_tilt_scoped_name_;
 
-    int slow_buffer_size_;
-    int fast_buffer_size_;
+    gazebo::physics::JointController *jc_;
 
-    KDL::Wrench slow_filtered_wrench_;
-    KDL::Wrench fast_filtered_wrench_;
-
-    // properties
-    std::vector<double> force_limits_;
-    RTT::Property<KDL::Wrench> offset_prop_;
-
-    KDL::Frame T_W_S_;
+    void getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
+    void getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
+    void setForces(const Eigen::VectorXd &t);
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
     bool data_valid_;
+    Eigen::VectorXd q_, dq_;
+    Eigen::VectorXd qh_, dqh_;
 };
 
-#endif  // FT_SENSOR_GAZEBO_H__
+#endif  // TORSO_GAZEBO_H__
 

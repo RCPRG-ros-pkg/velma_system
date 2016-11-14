@@ -39,8 +39,8 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-#include <gazebo/physics/dart/DARTModel.hh>
-#include <gazebo/physics/dart/DARTJoint.hh>
+//#include <gazebo/physics/dart/DARTModel.hh>
+//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
 #include <ros/ros.h>
@@ -49,6 +49,7 @@
 #include <kdl/chainfksolverpos_recursive.hpp>
 #include <kdl/chainjnttojacsolver.hpp>
 #include <kdl_parser/kdl_parser.hpp>
+
 #include "Eigen/Dense"
 
 #include <rtt/Component.hpp>
@@ -88,10 +89,12 @@ public:
     int32_t median_filter_samples_, median_filter_max_samples_;
 
     gazebo::physics::ModelPtr model_;
-    gazebo::physics::DARTModelPtr model_dart_;
-    dart::dynamics::Skeleton *dart_sk_;
-    dart::simulation::World *dart_world_;
-    dart::collision::CollisionDetector* detector_;
+//    gazebo::physics::DARTModelPtr model_dart_;
+//    dart::dynamics::Skeleton *dart_sk_;
+//    dart::simulation::World *dart_world_;
+//    dart::collision::CollisionDetector* detector_;
+
+    bool data_valid_;
 
     std::vector<std::string > link_names_;
     std::vector<Eigen::Isometry3d > vec_T_C_L_;

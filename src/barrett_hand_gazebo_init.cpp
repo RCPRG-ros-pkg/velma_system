@@ -29,7 +29,8 @@
 
     BarrettHandGazebo::BarrettHandGazebo(std::string const& name) : 
         TaskContext(name),
-        too_big_force_counter_(3, 0)
+        too_big_force_counter_(3, 0),
+        data_valid_(false)
     {
 
         nh_ = new ros::NodeHandle();
@@ -51,17 +52,13 @@
         //this->ports()->addPort("BHTemp",        port_temp_out_);
         this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
         this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
-        q_in_.resize(4); q_in_.setZero();
-        v_in_.resize(4); v_in_.setZero();
-        t_in_.resize(4); t_in_.setZero();
+        q_in_.setZero();
+        v_in_.setZero();
+        t_in_.setZero();
         mp_in_ = 0.0;
         hold_in_ = 0;    // false
         max_measured_pressure_in_.setZero();
-        q_out_.resize(8);
-        t_out_.resize(8);
         //temp_out_.temp.resize(8);
-        port_q_out_.setDataSample(q_out_);
-        port_t_out_.setDataSample(t_out_);
         //port_temp_out_.setDataSample(temp_out_);
         status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
         clutch_break_[0] = clutch_break_[1] = clutch_break_[2] = false;
@@ -72,5 +69,4 @@
     }
 
 ORO_LIST_COMPONENT_TYPE(BarrettHandGazebo)
-ORO_CREATE_COMPONENT_LIBRARY();
 
