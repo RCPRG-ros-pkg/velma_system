@@ -105,6 +105,12 @@
         joint_name: leftFtSensorJoint
         transform_xyz: [0, 0, 0]
         transform_rpy: [0, 0, 0]
+      lli_lo_rx:
+        channel_name: lli_cmd
+        event_port: false
+        always_update_peers: true
+      lli_lo_tx:
+        channel_name: lli_status
     </rosparam>
 
     <include file="$(find velma_controller)/launch/velma_common_params.launch" />

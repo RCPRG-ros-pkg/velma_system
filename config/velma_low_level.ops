@@ -114,19 +114,17 @@ RightFtSensor.configure()
 #
 # the low level interfaces
 #
-
-var ConnPolicy cpTx;
-cpTx.transport = 2;                 # the MQueue protocol id
-cpTx.name_id   = "/lli_status";     # the connection id
-
 loadComponent("lli_lo_tx","VelmaLLILoTx")
 setActivity("lli_lo_tx", 0, 6, ORO_SCHED_RT);
+lli_lo_tx.loadService("rosparam");
+lli_lo_tx.rosparam.getAll();
 lli_lo_tx.configure();
-stream("lli_lo_tx.status_OUTPORT", cpTx);
 
 loadComponent("lli_lo_rx","VelmaLLILoRx")
 setActivity("lli_lo_rx", 0.001, 6, ORO_SCHED_RT);
 lli_lo_rx.loadService("sim_clock_activity");
+lli_lo_rx.loadService("rosparam");
+lli_lo_rx.rosparam.getAll();
 
 #
 # the safety component
