@@ -57,7 +57,6 @@ target_link_libraries(velma_low_level_behaviors ${catkin_LIBRARIES} ${USE_OROCOS
 
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
-  LIBRARIES velma_low_level_behaviors
   INCLUDE_DIRS include
   DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm behavior_manager_msgs velma_low_level_interface_msgs
 )
