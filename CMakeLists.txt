@@ -8,6 +8,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   velma_low_level_interface_msgs
+  velma_low_level_interface
+  eigen_conversions
   common_interfaces
   common_behavior
   kuka_lwr_fri
@@ -16,9 +18,12 @@ find_package(catkin REQUIRED COMPONENTS
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 
-include_directories(${catkin_INCLUDE_DIRS})
+find_package(Eigen3 REQUIRED)
+
+include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 
 ### Orocos Dependencies ###
 # Note that orocos_use_package() does not need to be called for any dependency
@@ -40,6 +45,10 @@ orocos_component(velma_low_level_behaviors
     src/state_safe.cpp
     src/common_predicates.cpp
     src/velma_low_level_behaviors.cpp
+    src/components/diagnostic_component.cpp
+    src/components/velma_low_level_master_component.cpp
+    src/components/idle_component.cpp
+    src/components/safe_component.cpp
 )
 
 target_link_libraries(velma_low_level_behaviors ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
