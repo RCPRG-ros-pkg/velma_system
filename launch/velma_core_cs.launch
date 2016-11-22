@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="LOG_LEVEL" default="Info"/>
+  <arg name="DEBUG" default="false"/>
+
+  <arg unless="$(arg DEBUG)" name="DEPLOYER_NAME" value="deployer"/>
+  <arg     if="$(arg DEBUG)" name="DEPLOYER_NAME" value="deployer-debug"/>
+
+  <!-- Orocos target (gnulinux, xenomai, etc) -->
+  <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
+  <!-- Path to look for dynamically-loaded plugins and components (something like /lib/orocos) -->
+  <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>
+
+  <node
+    name="velma_high_level"
+    pkg="rtt_ros" type="$(arg DEPLOYER_NAME)"
+    args="--DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_core_cs)/config/velma_core_cs.ops --" output="screen">
+    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
+    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
+<!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
+  </node>
+
+  <group ns="velma_high_level">
+    <rosparam>
+      master_component:
+        state_names: [idle, safe]
+        initial_state_name: safe
+    </rosparam>
+
+    <include file="$(find velma_core_cs)/launch/velma_common_params.launch" />
+  </group>
+
+</launch>

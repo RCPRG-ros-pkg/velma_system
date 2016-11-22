@@ -1,0 +1,967 @@
+import("rtt_ros");
+import("rtt_roscomm");
+import("rtt_rosparam");
+require("os")
+
+ros.import("rtt_rospack")
+ros.import("rtt_actionlib");
+ros.import("rtt_barrett_hand_controller_msgs");
+ros.import("barrett_hand_move_action");
+
+ros.import("eigen_typekit");
+ros.import("rtt_control_msgs");
+ros.import("rtt_rosclock");
+ros.import("conman");
+ros.import("conman_ros");
+##ros.import("lwr_fri");
+ros.import("controller_common");
+ros.import("velma_controller");
+ros.import("rtt_cartesian_trajectory_msgs");
+ros.import("rtt_std_msgs");
+ros.import("rtt_tf");
+ros.import("port_operations")
+ros.import("force_control");
+ros.import("rtt_force_control_msgs");
+
+ros.import("velma_core_cs");
+ros.import("rtt_velma_low_level_interface_msgs");
+ros.import("velma_low_level_interface");
+ros.import("rtt_velma_core_cs_msgs");
+ros.import("velma_core_cs_interface");
+
+#ros.import("rtt_behavior_manager_msgs");
+#ros.import("behavior_manager");
+
+var bool disableROS = true;
+
+// dot graph generation
+//ros.import("rtt_dot_service")
+//loadService("gazebo","dot")
+
+
+#
+# the low-level interface
+#
+loadComponent("lli_hi_rx","VelmaLLIHiRx")
+setActivity("lli_hi_rx", 0, 10, ORO_SCHED_RT);
+lli_hi_rx.loadService("rosparam");
+lli_hi_rx.rosparam.getAll();
+
+#
+# Controller manager
+#
+loadComponent("scheme", "conman::Scheme");
+scheme.loadService("conman_ros");
+scheme.configure();
+
+#
+# master component
+#
+loadComponent("master_component","VelmaCoreCsMaster");
+setActivity("master_component", 0, 6, ORO_SCHED_RT);
+addPeer("master_component", "scheme");
+
+# TODO: connect commands from higher level
+#connect(TODO, "master_component.command_INPORT", ConnPolicy())
+
+master_component.loadService("rosparam")
+master_component.rosparam.getAll()
+
+# add slave tasks to lli_hi_rx
+addPeer("lli_hi_rx", "master_component");
+addPeer("lli_hi_rx", "scheme");
+
+# set slave tasks execution order (before configure)
+lli_hi_rx.pushBackPeerExecution("master_component");
+lli_hi_rx.pushBackPeerExecution("scheme");
+
+lli_hi_rx.configure();
+
+
+loadComponent("lli_hi_tx","VelmaLLIHiTx")
+setActivity("lli_hi_tx", 0, 1, ORO_SCHED_RT);
+lli_hi_tx.loadService("rosparam");
+lli_hi_tx.rosparam.getAll();
+lli_hi_tx.configure();
+
+
+
+# command
+#connect("lli_hi_test.cmd_rHand_tactileCmd_OUTPORT",   "lli_hi_tx.cmd_rHand_tactileCmd_INPORT", ConnPolicy())
+
+# status
+#connect("lli_hi_rx.status_rHand_p_OUTPORT",             "lli_hi_test.status_rHand_p_INPORT", ConnPolicy())
+#connect("lli_hi_rx.status_lHand_f_OUTPORT",             "lli_hi_test.status_lHand_f_INPORT", ConnPolicy())
+#connect("lli_hi_rx.status_rFt_ffw_OUTPORT",             "lli_hi_test.status_rFt_ffw_INPORT", ConnPolicy())
+#connect("lli_hi_rx.status_lFt_ffw_OUTPORT",             "lli_hi_test.status_lFt_ffw_INPORT", ConnPolicy())
+
+## Load a BarrettHand move action
+
+loadComponent("rightHandMoveAction","BarrettHandMoveAction")
+setActivityOnCPU("rightHandMoveAction", 0.01, 0, ORO_SCHED_OTHER, 0);
+rightHandMoveAction.loadService("rosparam");
+rightHandMoveAction.rosparam.getAll();
+
+loadComponent("leftHandMoveAction","BarrettHandMoveAction")
+setActivityOnCPU("leftHandMoveAction", 0.01, 0, ORO_SCHED_OTHER, 0);
+leftHandMoveAction.loadService("rosparam");
+leftHandMoveAction.rosparam.getAll();
+
+## load head command limiters
+
+loadComponent("HeadPanVelocityLimiter", "VelocityLimiter");
+HeadPanVelocityLimiter.loadService("rosparam");
+HeadPanVelocityLimiter.rosparam.getAll();
+
+loadComponent("HeadTiltVelocityLimiter", "VelocityLimiter");
+HeadTiltVelocityLimiter.loadService("rosparam");
+HeadTiltVelocityLimiter.rosparam.getAll();
+
+## load torso transmisions
+
+loadComponent("TorsoPanTransmision", "SimpleTransmision");
+TorsoPanTransmision.loadService("rosparam");
+TorsoPanTransmision.rosparam.getAll();
+
+loadComponent("TorsoPanTransmisionInv", "SimpleTransmisionInv");
+TorsoPanTransmisionInv.loadService("rosparam");
+TorsoPanTransmisionInv.rosparam.getAll();
+
+## load head transmisions
+
+loadComponent("HeadPanTransmision", "SimpleTransmision");
+HeadPanTransmision.loadService("rosparam");
+HeadPanTransmision.rosparam.getAll();
+
+loadComponent("HeadPanTransmisionInv", "SimpleTransmisionInv");
+HeadPanTransmisionInv.loadService("rosparam");
+HeadPanTransmisionInv.rosparam.getAll();
+
+//tilt
+loadComponent("HeadTiltTransmision", "SimpleTransmision");
+HeadTiltTransmision.loadService("rosparam");
+HeadTiltTransmision.rosparam.getAll();
+
+loadComponent("HeadTiltTransmisionInv", "SimpleTransmisionInv");
+HeadTiltTransmisionInv.loadService("rosparam");
+HeadTiltTransmisionInv.rosparam.getAll();
+
+## load vector concatenations and splits
+// torqure controlled joint concate
+loadComponent("Jc", "VectorConcate1_7_7_0");
+loadComponent("Jvc", "VectorConcate1_7_7_0");
+loadComponent("JcAll", "VectorConcate15_2_8_8");
+loadComponent("JvcAll", "VectorConcate15_2_8_8");
+
+## load wrench decimators
+loadComponent("Dwr", "DecimatorWrench");
+setActivityOnCPU("Dwr", 0.01, 1, ORO_SCHED_RT, 0)
+
+loadComponent("Dwl", "DecimatorWrench");
+setActivityOnCPU("Dwl", 0.01, 1, ORO_SCHED_RT, 0)
+
+## load mass matrix component
+
+//loadComponent("Mass", "RobotMassMatrix15_2");
+loadComponent("Mass", "MassTest15_2");
+Mass.loadService("robot");
+Mass.configure();
+
+## load torque publishers
+
+loadComponent("TorquePubRight", "TorquePublisher7")
+setActivityOnCPU("TorquePubRight", 0.01, 1, ORO_SCHED_RT, 0)
+
+loadComponent("TorquePubLeft", "TorquePublisher7")
+setActivityOnCPU("TorquePubLeft", 0.01, 1, ORO_SCHED_RT, 0)
+
+## load gravity component
+
+#loadComponent("VG", "VelmaGrav");
+#VG.configure();
+
+## load cartesian trajectory action
+loadComponent("CartTrjActionRight", "CartesianTrajectoryAction");
+setActivityOnCPU("CartTrjActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+
+loadComponent("CartTrjActionLeft", "CartesianTrajectoryAction");
+setActivityOnCPU("CartTrjActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
+
+## load camera trigger
+
+loadComponent("TGR", "TriggerGenerator");
+setActivityOnCPU("TGR", 0.1, 2, ORO_SCHED_RT, 1);
+TGR.configure();
+
+##
+## connect to the interface components
+##
+
+## LWR commands
+
+#stream("lli_hi_tx.cmd_rArm_cmd_INPORT", ros.comm.topic("/right_arm/KRL_CMD"));
+#stream("lli_hi_tx.cmd_lArm_cmd_INPORT", ros.comm.topic("/left_arm/KRL_CMD"));
+
+## move hand action
+
+connect("rightHandMoveAction.q_OUTPORT",    "lli_hi_tx.cmd_rHand_q_INPORT", ConnPolicy());
+connect("rightHandMoveAction.v_OUTPORT",    "lli_hi_tx.cmd_rHand_dq_INPORT", ConnPolicy());
+connect("rightHandMoveAction.t_OUTPORT",    "lli_hi_tx.cmd_rHand_max_i_INPORT", ConnPolicy());
+#connect("rightHandMoveAction.mp_OUTPORT",   "lli_hi_tx.cmd_rHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("rightHandMoveAction.hold_OUTPORT", "lli_hi_tx.cmd_rHand_hold_INPORT", ConnPolicy());  # TODO
+connect("lli_hi_rx.status_rHand_s_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
+
+connect("leftHandMoveAction.q_OUTPORT",     "lli_hi_tx.cmd_lHand_q_INPORT", ConnPolicy());
+connect("leftHandMoveAction.v_OUTPORT",     "lli_hi_tx.cmd_lHand_dq_INPORT", ConnPolicy());
+connect("leftHandMoveAction.t_OUTPORT",     "lli_hi_tx.cmd_lHand_max_i_INPORT", ConnPolicy());
+#connect("leftHandMoveAction.mp_OUTPORT",    "lli_hi_tx.cmd_lHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("leftHandMoveAction.hold_OUTPORT",  "lli_hi_tx.cmd_lHand_hold_INPORT", ConnPolicy());  # TODO
+connect("lli_hi_rx.status_lHand_s_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
+
+## torso transmision
+
+connect("lli_hi_rx.status_tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lli_hi_rx.status_tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "lli_hi_tx.cmd_tMotor_i_INPORT", ConnPolicy())
+
+
+## camera trigger
+
+//connect("TGR.Trigger", "EC.torso.subnode0.DigitalOutput1", ConnPolicy());
+//connect("TGR.Trigger", "EC.torso.subnode0.DigitalOutput2", ConnPolicy());
+
+## head command limiters
+
+connect("lli_hi_rx.status_hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadPanVelocityLimiter.Position_OUTPORT",   "lli_hi_tx.cmd_hpMotor_q_INPORT", ConnPolicy());
+
+connect("lli_hi_rx.status_htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "lli_hi_tx.cmd_htMotor_q_INPORT", ConnPolicy());
+
+## head transmisions
+
+connect("lli_hi_rx.status_hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lli_hi_rx.status_hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+
+connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "lli_hi_tx.cmd_hpMotor_i_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "lli_hi_tx.cmd_hpMotor_dq_INPORT", ConnPolicy())
+
+connect("lli_hi_rx.status_htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lli_hi_rx.status_htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
+
+connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "lli_hi_tx.cmd_htMotor_i_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "lli_hi_tx.cmd_htMotor_dq_INPORT", ConnPolicy())
+
+## vector concatenations and splits
+
+connect("lli_hi_rx.status_rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
+connect("lli_hi_rx.status_lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
+
+connect("lli_hi_rx.status_rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
+connect("lli_hi_rx.status_lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
+
+connect("lli_hi_rx.status_rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
+connect("lli_hi_rx.status_lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
+
+connect("lli_hi_rx.status_rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
+connect("lli_hi_rx.status_lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
+
+loadComponent("Ts", "VectorSplit1_7_7_0");
+connect("Ts.Out1", "lli_hi_tx.cmd_rArm_t_INPORT", ConnPolicy());
+connect("Ts.Out2", "lli_hi_tx.cmd_lArm_t_INPORT", ConnPolicy());
+
+## wrench decimators
+
+connect("lli_hi_rx.status_rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
+connect("lli_hi_rx.status_lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
+
+## mass matrix component
+
+connect("lli_hi_rx.status_lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
+connect("lli_hi_rx.status_rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
+
+## torque publishers
+
+connect("lli_hi_rx.status_rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
+connect("lli_hi_rx.status_rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
+
+connect("lli_hi_rx.status_lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
+connect("lli_hi_rx.status_lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
+
+## gravity component
+
+#connect("lli_hi_rx.status_lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
+#connect("lli_hi_rx.status_rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
+
+## cartesian trajectory action
+
+connect("lli_hi_rx.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
+connect("lli_hi_rx.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_INPORT", ConnPolicy());
+
+##
+## start interface components
+##
+
+#start_interface_components();
+
+##
+
+#stream("lli_hi_rx.status_rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
+#stream("lli_hi_rx.status_lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
+
+if (disableROS == false) then {
+    stream("Dwr.Out", ros.comm.topic("/right_arm/wrench"));
+    stream("Dwl.Out", ros.comm.topic("/left_arm/wrench"));
+}
+
+connect("Jc.Out", "Mass.JointPosition_INPORT", ConnPolicy());
+
+connect("HeadPanTransmisionInv.MotorPosition_OUTPORT", "HeadPanVelocityLimiter.Position_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorPosition_OUTPORT", "HeadTiltVelocityLimiter.Position_INPORT", ConnPolicy())
+
+rightHandMoveAction.configure();
+rightHandMoveAction.loadService("actionlib");
+rightHandMoveAction.actionlib.connect("/right_hand/move_hand");
+
+leftHandMoveAction.configure();
+leftHandMoveAction.loadService("actionlib");
+leftHandMoveAction.actionlib.connect("/left_hand/move_hand");
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+//-- Torso Joystick Teleop
+//------------------------------------------------------------------------------
+
+loadComponent("TJ", "TorsoTeleopJoy")
+setActivityOnCPU("TJ", 0.01, 6, ORO_SCHED_RT, 0)
+TJ.loadService("rosparam");
+TJ.rosparam.getAll();
+TJ.configure();
+
+if (disableROS == false) then {
+    stream("TJ.Joy_INPORT", ros.comm.topic("/joy"));
+}
+
+//------------------------------------------------------------------------------
+//-- Camera Trigger
+//------------------------------------------------------------------------------
+
+if (disableROS == false) then {
+    stream("TGR.TriggerStamp", ros.comm.topic("/camera_trigger_stamp"));
+}
+
+//------------------------------------------------------------------------------
+//-- Velma controller
+//------------------------------------------------------------------------------
+
+// Head position aggregate
+loadComponent("HeadPosAggregate","PortDoubleAggregate2")
+HeadPosAggregate.configure()
+
+connect("HeadPosAggregate.InputPort_0", "HeadPanTransmision.JointPosition_OUTPORT", ConnPolicy())
+connect("HeadPosAggregate.InputPort_1", "HeadTiltTransmision.JointPosition_OUTPORT", ConnPolicy())
+
+// Head Velocity port aggregate
+loadComponent("HeadVelAggregate","PortDoubleAggregate2")
+HeadVelAggregate.configure()
+
+connect("HeadVelAggregate.InputPort_0", "HeadPanTransmision.JointVelocity_OUTPORT", ConnPolicy())
+connect("HeadVelAggregate.InputPort_1", "HeadTiltTransmision.JointVelocity_OUTPORT", ConnPolicy())
+
+// Head PositionCommand split
+
+loadComponent("HeadPosSplit","PortDoubleSplit2")
+HeadPosSplit.configure()
+
+connect("HeadPosSplit.OutputPort_0", "HeadPanTransmisionInv.JointPosition_INPORT", ConnPolicy())
+connect("HeadPosSplit.OutputPort_1", "HeadTiltTransmisionInv.JointPosition_INPORT", ConnPolicy())
+
+// Torso Position port aggregate
+loadComponent("TorsoPosAggregate","PortDoubleAggregate1")
+TorsoPosAggregate.configure()
+connect("TorsoPosAggregate.OutputPort", "Jc.In0", ConnPolicy());
+connect("TorsoPanTransmision.JointPosition_OUTPORT", "TorsoPosAggregate.InputPort_0", ConnPolicy())
+
+// Torso Velocity port aggregate
+loadComponent("TorsoVelAggregate","PortDoubleAggregate1")
+TorsoVelAggregate.configure()
+connect("TorsoVelAggregate.OutputPort", "Jvc.In0", ConnPolicy());
+connect("TorsoPanTransmision.JointVelocity_OUTPORT", "TorsoVelAggregate.InputPort_0", ConnPolicy())
+
+connect("Jc.Out", "JcAll.In0", ConnPolicy());
+connect("HeadPosAggregate.OutputPort", "JcAll.In1", ConnPolicy());
+
+connect("Jvc.Out", "JvcAll.In0", ConnPolicy());
+
+#connect("Ts.Out0", "TorsoTrqSplit.InputPort", ConnPolicy());
+
+// Torso torque port spliter
+loadComponent("TorsoTrqSplit","PortDoubleSplit1")
+TorsoTrqSplit.configure()
+connect("TorsoTrqSplit.OutputPort_0", "TorsoPanTransmisionInv.JointTorque_INPORT", ConnPolicy())
+connect("Ts.Out0", "TorsoTrqSplit.InputPort", ConnPolicy());
+
+connect("HeadVelAggregate.OutputPort", "JvcAll.In1", ConnPolicy());
+
+loadComponent("CImp", "CartesianImpedance15_2");
+CImp.loadService("robot");
+CImp.configure();
+
+connect("Jc.Out", "CImp.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "CImp.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix_OUTPORT", "CImp.MassMatrixInv_INPORT", ConnPolicy());
+
+connect("CImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
+
+loadComponent("PoseIntRight", "CartesianInterpolator");
+
+connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
+
+loadComponent("PoseIntLeft", "CartesianInterpolator");
+
+connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand1_INPORT", ConnPolicy());
+
+// tool
+
+loadComponent("ToolIntRight", "CartesianInterpolator")
+ToolIntRight.configure();
+ToolIntRight.loadService("rosparam");
+ToolIntRight.rosparam.getAll();
+connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand0_INPORT", ConnPolicy())
+
+loadComponent("ToolIntLeft", "CartesianInterpolator")
+ToolIntLeft.configure();
+ToolIntLeft.loadService("rosparam");
+ToolIntLeft.rosparam.getAll();
+connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand1_INPORT", ConnPolicy())
+
+loadComponent("TfPub", "TfPublisher")
+setActivityOnCPU("TfPub", 0.01, 1, ORO_SCHED_RT, 0)
+TfPub.loadService("rosparam");
+TfPub.rosparam.getAll();
+TfPub.configure();
+connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "TfPub.In0", ConnPolicy())
+connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "TfPub.In1", ConnPolicy())
+connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "TfPub.In2", ConnPolicy())
+connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "TfPub.In3", ConnPolicy())
+
+if (disableROS == false) then {
+    stream("TfPub.OutTf", ros.comm.topic("/tf"))
+}
+
+connect("Ts.Out1", "TorquePubRight.InJointTorqueCommand", ConnPolicy())
+TorquePubRight.configure();
+if (disableROS == false) then {
+    stream("TorquePubRight.OutTorques", ros.comm.topic("/right_arm/torques"))
+}
+
+connect("Ts.Out1", "TorquePubLeft.InJointTorqueCommand", ConnPolicy())
+TorquePubLeft.configure();
+if (disableROS == false) then {
+    stream("TorquePubLeft.OutTorques", ros.comm.topic("/left_arm/torques"))
+}
+
+// impedance
+
+loadComponent("ImpedanceIntRight", "CartesianImpedanceInterpolator");
+connect("ImpedanceIntRight.CartesianImpedanceCommand_OUTPORT", "CImp.CartImpedanceCommand0_INPORT", ConnPolicy());
+
+loadComponent("ImpedanceIntLeft", "CartesianImpedanceInterpolator");
+connect("ImpedanceIntLeft.CartesianImpedanceCommand_OUTPORT", "CImp.CartImpedanceCommand1_INPORT", ConnPolicy());
+
+loadComponent("JntImp", "JointImpedance15")
+JntImp.loadService("rosparam");
+JntImp.rosparam.getAll();
+
+connect("Jc.Out", "JntImp.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "JntImp.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix_OUTPORT", "JntImp.MassMatrix_INPORT", ConnPolicy());
+connect("JntImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
+
+loadComponent("FK", "VelmaFK");
+FK.loadService("robot");
+
+connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "FK.LeftTool_INPORT", ConnPolicy())
+connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "FK.RightTool_INPORT", ConnPolicy())
+
+connect("Jc.Out", "FK.JointPosition_INPORT", ConnPolicy())
+
+connect("FK.LeftPosition_OUTPORT", "PoseIntLeft.CartesianPosition_INPORT", ConnPolicy())
+connect("FK.RightPosition_OUTPORT", "PoseIntRight.CartesianPosition_INPORT", ConnPolicy())
+
+connect("FK.RightPosition_OUTPORT", "TfPub.In4", ConnPolicy())
+connect("FK.LeftPosition_OUTPORT", "TfPub.In5", ConnPolicy())
+
+## Force transformation
+
+loadComponent("RightForceTransformation", "ForceTransformation")
+RightForceTransformation.loadService("rosparam");
+RightForceTransformation.rosparam.getAll();
+RightForceTransformation.configure()
+
+connect("RightForceTransformation.CurrentWristPose", "FK.RightWrist_OUTPORT", ConnPolicy())
+connect("lli_hi_rx.status_rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("lli_hi_rx.status_rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("RightForceTransformation.Tool", "ToolIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy())
+
+if (disableROS == false) then {
+    stream("RightForceTransformation.ToolGravityParam", ros.comm.topic("/right_arm/tg_param"))
+    stream("RightForceTransformation.OutputEndEffectorWrench", ros.comm.topic("/right_arm/transformed_wrench"))
+}
+
+loadComponent("LeftForceTransformation", "ForceTransformation")
+LeftForceTransformation.loadService("rosparam");
+LeftForceTransformation.rosparam.getAll();
+LeftForceTransformation.configure()
+
+connect("LeftForceTransformation.CurrentWristPose", "FK.LeftWrist_OUTPORT", ConnPolicy())
+connect("lli_hi_rx.status_lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("lli_hi_rx.status_lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("LeftForceTransformation.Tool", "ToolIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy())
+
+if (disableROS == false) then {
+    stream("LeftForceTransformation.ToolGravityParam", ros.comm.topic("/left_arm/tg_param"))
+    stream("LeftForceTransformation.OutputEndEffectorWrench", ros.comm.topic("/left_arm/transformed_wrench"))
+}
+
+## ForceControlLaw
+
+loadComponent("RightForceControl", "ForceControlLaw")
+RightForceControl.configure()
+connect("RightForceControl.OutputEndEffectorPose", "CImp.CartPositionCommand0_INPORT", ConnPolicy())
+connect("RightForceControl.CurrentEndEffectorPose", "FK.RightPosition_OUTPORT", ConnPolicy())
+connect("RightForceTransformation.OutputEndEffectorWrench", "RightForceControl.CurrentEndEffectorWrench", ConnPolicy())
+//connect("RightForceControl.IsSynchronisedIn","Irp6otHardwareInterface.IsSynchronised", ConnPolicy())
+//connect("RightForceControl.GeneratorActiveOut","Irp6otHardwareInterface.GeneratorActiveIn", ConnPolicy())
+if (disableROS == false) then {
+    stream("RightForceControl.CurrentFclParam", ros.comm.topic("/right_arm/fcl_param"))
+}
+
+loadComponent("LeftForceControl", "ForceControlLaw")
+LeftForceControl.configure()
+connect("LeftForceControl.OutputEndEffectorPose", "CImp.CartPositionCommand1_INPORT", ConnPolicy())
+connect("LeftForceControl.CurrentEndEffectorPose", "FK.LeftPosition_OUTPORT", ConnPolicy())
+connect("LeftForceTransformation.OutputEndEffectorWrench", "LeftForceControl.CurrentEndEffectorWrench", ConnPolicy())
+//connect("LeftForceControl.IsSynchronisedIn","Irp6otHardwareInterface.IsSynchronised", ConnPolicy())
+//connect("LeftForceControl.GeneratorActiveOut","Irp6otHardwareInterface.GeneratorActiveIn", ConnPolicy())
+if (disableROS == false) then {
+    stream("LeftForceControl.CurrentFclParam", ros.comm.topic("/left_arm/fcl_param"))
+}
+
+## joint trajectory generator
+
+loadComponent("TrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerator15");
+TrajectoryGeneratorJoint.loadService("rosparam");
+TrajectoryGeneratorJoint.rosparam.getAll();
+connect("Jc.Out","TrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
+connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","JntImp.JointPositionCommand_INPORT", ConnPolicy());
+
+loadComponent("JntLimit", "JointLimitAvoidance15");
+JntLimit.loadService("rosparam");
+JntLimit.rosparam.getAll();
+
+connect("Jc.Out", "JntLimit.JointPosition_INPORT", ConnPolicy());
+connect("Jvc.Out", "JntLimit.JointVelocity_INPORT", ConnPolicy());
+connect("Mass.MassMatrix_OUTPORT", "JntLimit.MassMatrix_INPORT", ConnPolicy());
+connect("JntLimit.JointTorqueCommand_OUTPORT", "CImp.NullSpaceTorqueCommand_INPORT", ConnPolicy());
+
+
+//connect("TJ.NullSpaceTorqueCommand_OUTPORT", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
+#connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
+
+// head look-at
+
+//loadComponent("HeadIK", "HeadLookAt3D")
+//HeadIK.loadService("rosparam");
+//HeadIK.rosparam.getAll();
+//HeadIK.configure();
+
+//loadComponent("PT", "PoseTransform")
+//PT.loadService("rosparam");
+//PT.rosparam.getAll();
+//PT.configure();
+
+//connect("PT.SecondaryTargetPoint", "HeadIK.TargetPoint_INPORT", ConnPolicy());
+
+//if ((os.isenv("HEAD_JOY") == false) || (os.getenv("HEAD_JOY") == "true")) then {
+//  connect("TJ.PrimaryFrameSelector_OUTPORT", "PT.PrimaryFrameSelector", ConnPolicy());
+//  connect("TJ.HeadTargetPoint_OUTPORT", "PT.PrimaryTargetPoint", ConnPolicy());
+//  connect("FK.RightPosition_OUTPORT", "PT.PrimaryFrame1", ConnPolicy());
+//  connect("FK.LeftPosition_OUTPORT", "PT.PrimaryFrame2", ConnPolicy());
+//  stream("PT.PrimaryTargetPassThrough", ros.comm.topic("/head_lookat_pose"));
+//}
+//else {
+//    stream("HeadIK.TargetPoint_INPORT", ros.comm.topic("/head_lookat_pose"));
+//}
+
+//stream("PT.PrimaryTargetPoint", ros.comm.topic("/head_lookat_pose"));
+
+//connect("HeadPosSplit.InputPort", "HeadIK.HeadJointPositionCommand_OUTPORT", ConnPolicy());
+////connect("TorsoPosAggregate.OutputPort", "HeadIK.JointPosition_INPORT", ConnPolicy());
+
+
+
+
+loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerator2");
+HeadTrajectoryGeneratorJoint.loadService("rosparam");
+HeadTrajectoryGeneratorJoint.rosparam.getAll();
+connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
+connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","HeadPosSplit.InputPort", ConnPolicy());
+
+// CONFIGURE
+Jc.configure();
+Jvc.configure();
+JcAll.configure();
+JvcAll.configure();
+Ts.configure();
+Dwr.configure();
+Dwl.configure();
+PoseIntRight.configure();
+PoseIntLeft.configure();
+ImpedanceIntRight.configure()
+ImpedanceIntLeft.configure()
+JntLimit.configure();
+TrajectoryGeneratorJoint.configure();
+HeadTrajectoryGeneratorJoint.configure();
+FK.configure();
+JntImp.configure();
+
+var bool triggerOnStart = false
+set master_component.TriggerOnStart = triggerOnStart
+set CImp.TriggerOnStart = triggerOnStart
+set JntLimit.TriggerOnStart = triggerOnStart
+set PoseIntRight.TriggerOnStart = triggerOnStart
+set PoseIntLeft.TriggerOnStart = triggerOnStart
+set JntImp.TriggerOnStart = triggerOnStart
+set TrajectoryGeneratorJoint.TriggerOnStart = triggerOnStart
+set RightForceControl.TriggerOnStart = triggerOnStart
+set LeftForceControl.TriggerOnStart = triggerOnStart
+set RightForceTransformation.TriggerOnStart = triggerOnStart
+set LeftForceTransformation.TriggerOnStart = triggerOnStart
+set lli_hi_tx.TriggerOnStart = triggerOnStart
+set Mass.TriggerOnStart = triggerOnStart
+
+addPeer("scheme", "TorsoPanTransmision")
+addPeer("scheme", "TorsoPanTransmisionInv")
+addPeer("scheme", "HeadPanVelocityLimiter")
+addPeer("scheme", "HeadTiltVelocityLimiter")
+addPeer("scheme", "HeadPanTransmision")
+addPeer("scheme", "HeadPanTransmisionInv")
+addPeer("scheme", "HeadTiltTransmision")
+addPeer("scheme", "HeadTiltTransmisionInv")
+addPeer("scheme", "HeadPosAggregate")
+addPeer("scheme", "HeadPosSplit")
+addPeer("scheme", "TorsoTrqSplit")
+addPeer("scheme", "TorsoPosAggregate")
+addPeer("scheme", "TorsoVelAggregate")
+addPeer("scheme", "Jc");
+addPeer("scheme", "Jvc");
+addPeer("scheme", "JcAll");
+addPeer("scheme", "JvcAll");
+addPeer("scheme", "Mass");
+addPeer("scheme", "CImp");
+addPeer("scheme", "Ts");
+addPeer("scheme", "JntLimit");
+addPeer("scheme", "PoseIntRight");
+addPeer("scheme", "PoseIntLeft");
+addPeer("scheme", "ImpedanceIntRight");
+addPeer("scheme", "ImpedanceIntLeft");
+#addPeer("scheme", "VG");
+addPeer("scheme", "ToolIntRight");
+addPeer("scheme", "ToolIntLeft");
+addPeer("scheme", "JntImp");
+addPeer("scheme", "FK");
+addPeer("scheme", "TrajectoryGeneratorJoint");
+addPeer("scheme", "HeadTrajectoryGeneratorJoint");
+addPeer("scheme", "RightForceControl");
+addPeer("scheme", "LeftForceControl");
+addPeer("scheme", "RightForceTransformation");
+addPeer("scheme", "LeftForceTransformation");
+addPeer("scheme", "lli_hi_tx");
+//addPeer("scheme", "HeadIK");
+//addPeer("scheme", "PT");
+
+scheme.addBlock("TorsoPanTransmision");
+scheme.addBlock("TorsoPanTransmisionInv");
+scheme.addBlock("HeadPanVelocityLimiter");
+scheme.addBlock("HeadTiltVelocityLimiter");
+scheme.addBlock("HeadPanTransmision");
+scheme.addBlock("HeadPanTransmisionInv");
+scheme.addBlock("HeadTiltTransmision");
+scheme.addBlock("HeadTiltTransmisionInv");
+scheme.addBlock("HeadPosAggregate");
+scheme.addBlock("HeadPosSplit");
+scheme.addBlock("TorsoTrqSplit");
+scheme.addBlock("TorsoPosAggregate");
+scheme.addBlock("TorsoVelAggregate");
+scheme.addBlock("Jc");
+scheme.addBlock("Jvc");
+scheme.addBlock("JcAll");
+scheme.addBlock("JvcAll");
+scheme.addBlock("Mass");
+scheme.addBlock("CImp");
+scheme.addBlock("Ts");
+scheme.addBlock("JntLimit");
+scheme.addBlock("PoseIntRight");
+scheme.addBlock("PoseIntLeft");
+scheme.addBlock("ImpedanceIntRight");
+scheme.addBlock("ImpedanceIntLeft");
+scheme.latchConnections("CImp", "PoseIntRight", true);
+scheme.latchConnections("CImp", "PoseIntLeft", true);
+#scheme.addBlock("VG");
+scheme.addBlock("ToolIntRight");
+scheme.addBlock("ToolIntLeft");
+scheme.addBlock("JntImp");
+scheme.addBlock("FK");
+scheme.addBlock("TrajectoryGeneratorJoint");
+scheme.addBlock("HeadTrajectoryGeneratorJoint");
+scheme.addBlock("RightForceControl");
+scheme.addBlock("LeftForceControl");
+scheme.addBlock("RightForceTransformation");
+scheme.addBlock("LeftForceTransformation");
+scheme.addBlock("lli_hi_tx");
+//scheme.addBlock("HeadIK");
+//scheme.addBlock("PT")
+
+master_component.configure();
+
+//------------------------------------------------------------------------------
+//-- ROS Diagnostics
+//------------------------------------------------------------------------------
+
+loadComponent("JntPub", "JointStatePublisher33");
+setActivityOnCPU("JntPub", 0.002, 2, ORO_SCHED_RT, 0);
+JntPub.loadService("rosparam");
+JntPub.rosparam.getAll();
+
+connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
+connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
+connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
+//connect("CImp.JointTorqueCommand_OUTPORT", "JntPub.JointEffort", ConnPolicy());
+
+if (disableROS == false) then {
+    stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
+    stream("JntPub.joint_state", ros.comm.topic("/joint_states2"));
+}
+
+JntPub.configure()
+
+//------------------------------------------------------------------------------
+//-- ROS Command interface
+//------------------------------------------------------------------------------
+
+connect("CartTrjActionRight.CartesianTrajectoryCommand_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("CartTrjActionRight.CartesianPositionCommand_INPORT", "PoseIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy());
+connect("FK.RightPosition_OUTPORT", "CartTrjActionRight.CartesianPosition_INPORT", ConnPolicy())
+
+if (disableROS == false) then {
+    stream("CartTrjActionRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
+}
+
+CartTrjActionRight.configure();
+CartTrjActionRight.loadService("actionlib")
+CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
+
+connect("CartTrjActionLeft.CartesianTrajectoryCommand_OUTPORT", "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("CartTrjActionLeft.CartesianPositionCommand_INPORT", "PoseIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy());
+connect("FK.LeftPosition_OUTPORT", "CartTrjActionLeft.CartesianPosition_INPORT", ConnPolicy())
+
+if (disableROS == false) then {
+    stream("CartTrjActionLeft.trajectory", ros.comm.topic("/left_arm/trajectory"));
+}
+
+CartTrjActionLeft.configure();
+CartTrjActionLeft.loadService("actionlib")
+CartTrjActionLeft.actionlib.connect("/left_arm/cartesian_trajectory")
+
+// Joint
+
+loadComponent("SplineTrajectoryActionJoint", "InternalSpaceSplineTrajectoryAction15")
+setActivityOnCPU("SplineTrajectoryActionJoint", 0.01 ,2 ,ORO_SCHED_RT, 0)
+SplineTrajectoryActionJoint.loadService("rosparam");
+SplineTrajectoryActionJoint.rosparam.getAll();
+SplineTrajectoryActionJoint.loadService("actionlib")
+SplineTrajectoryActionJoint.actionlib.connect("/spline_trajectory_action_joint")
+connect("SplineTrajectoryActionJoint.trajectoryPtr", "TrajectoryGeneratorJoint.trajectoryPtr_INPORT", ConnPolicy())
+connect("Jc.Out","SplineTrajectoryActionJoint.JointPosition", ConnPolicy())
+connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT", "SplineTrajectoryActionJoint.JointPositionCommand", ConnPolicy())
+SplineTrajectoryActionJoint.configure()
+
+loadComponent("HeadSplineTrajectoryActionJoint", "InternalSpaceSplineTrajectoryAction2")
+setActivityOnCPU("HeadSplineTrajectoryActionJoint", 0.01 ,2 ,ORO_SCHED_RT, 0)
+HeadSplineTrajectoryActionJoint.loadService("rosparam");
+HeadSplineTrajectoryActionJoint.rosparam.getAll();
+HeadSplineTrajectoryActionJoint.loadService("actionlib")
+HeadSplineTrajectoryActionJoint.actionlib.connect("/head_spline_trajectory_action_joint")
+connect("HeadSplineTrajectoryActionJoint.trajectoryPtr", "HeadTrajectoryGeneratorJoint.trajectoryPtr_INPORT", ConnPolicy())
+connect("HeadPosAggregate.OutputPort","HeadSplineTrajectoryActionJoint.JointPosition", ConnPolicy())
+connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT", "HeadSplineTrajectoryActionJoint.JointPositionCommand", ConnPolicy())
+HeadSplineTrajectoryActionJoint.configure()
+
+// tool
+
+loadComponent("ToolActionRight", "CartesianTrajectoryAction");
+setActivityOnCPU("ToolActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+ToolActionRight.configure()
+ToolActionRight.loadService("actionlib")
+ToolActionRight.actionlib.connect("/right_arm/tool_trajectory")
+connect("ToolActionRight.CartesianTrajectoryCommand_OUTPORT","ToolIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy())
+
+loadComponent("ToolActionLeft", "CartesianTrajectoryAction");
+setActivityOnCPU("ToolActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
+ToolActionLeft.configure()
+ToolActionLeft.loadService("actionlib")
+ToolActionLeft.actionlib.connect("/left_arm/tool_trajectory")
+connect("ToolActionLeft.CartesianTrajectoryCommand_OUTPORT","ToolIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy())
+
+// impedance
+
+loadComponent("CartImpActionRight", "CartesianImpedanceAction");
+setActivityOnCPU("CartImpActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+
+connect("CartImpActionRight.CartesianImpedanceTrajectoryCommand_OUTPORT", "ImpedanceIntRight.CartesianImpedanceTrajectoryCommand_INPORT", ConnPolicy());
+
+if (disableROS == false) then {
+    stream("CartImpActionRight.impedance_INPORT", ros.comm.topic("/right_arm/impedance"));
+}
+
+CartImpActionRight.configure();
+CartImpActionRight.loadService("actionlib")
+CartImpActionRight.actionlib.connect("/right_arm/cartesian_impedance")
+
+loadComponent("CartImpActionLeft", "CartesianImpedanceAction");
+setActivityOnCPU("CartImpActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
+
+connect("CartImpActionLeft.CartesianImpedanceTrajectoryCommand_OUTPORT", "ImpedanceIntLeft.CartesianImpedanceTrajectoryCommand_INPORT", ConnPolicy());
+
+if (disableROS == false) then {
+    stream("CartImpActionLeft.impedance_INPORT", ros.comm.topic("/left_arm/impedance"));
+}
+
+CartImpActionLeft.configure();
+CartImpActionLeft.loadService("actionlib")
+CartImpActionLeft.actionlib.connect("/left_arm/cartesian_impedance")
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+//-- Behavior manager
+//------------------------------------------------------------------------------
+
+#loadComponent("bm","BehaviorManager");
+#setMasterSlaveActivity("lli_hi_rx", "bm");
+##setActivity("bm", 0, 1, ORO_SCHED_RT);
+#bm.loadService("rosparam");
+#bm.rosparam.getAll();
+
+##loadService("bm","rosservice");
+##bm.rosservice.connect("behavior.switchBehavior", "/velma/switchBehavior", "behavior_manager_msgs/SwitchBehavior")
+
+#addPeer("bm", "scheme");
+#bm.configure();
+
+#connect("bm.cmd_sc_cmd_OUTPORT","lli_hi_tx.cmd_safety_controller_cmd_INPORT", ConnPolicy())
+#connect("bm.cmd_sc_valid_OUTPORT","lli_hi_tx.cmd_safety_controller_valid_INPORT", ConnPolicy())
+
+#connect("lli_hi_rx.status_sc_OUTPORT","bm.port_status_sc_INPORT", ConnPolicy())
+
+connect("lli_hi_rx.status_test_OUTPORT","lli_hi_tx.cmd_test_INPORT", ConnPolicy())
+
+
+#loadComponent("bi","BehaviorInterface");
+#setActivity("bi", 0.01, 1, ORO_SCHED_RT);
+#bi.loadService("rosparam");
+#bi.rosparam.getAll();
+
+#loadService("bi","rosservice");
+#bi.rosservice.connect("behavior.switchBehavior", "/velma/switchBehavior", "behavior_manager_msgs/SwitchBehavior")
+
+#connect("bi.behavior_OUTPORT","bm.behavior_INPORT", ConnPolicy())
+
+#bi.configure();
+
+
+
+
+
+
+
+
+
+
+//------------------------------------------------------------------------------
+
+lli_hi_rx.start();
+
+if (disableROS == false) then {
+    TJ.start();
+}
+
+TorsoPanTransmision.start();
+TorsoPanTransmisionInv.start();
+HeadPanTransmision.start();
+HeadPanTransmisionInv.start();
+HeadTiltTransmision.start();
+HeadTiltTransmisionInv.start();
+HeadPanVelocityLimiter.start();
+HeadTiltVelocityLimiter.start();
+HeadPosSplit.start();
+HeadPosAggregate.start();
+TorsoTrqSplit.start();
+TorsoPosAggregate.start();
+TorsoVelAggregate.start();
+Jc.start();
+Jvc.start();
+JcAll.start();
+JvcAll.start();
+Ts.start();
+if (disableROS == false) then {
+    Dwr.start();
+    Dwl.start();
+    JntPub.start();
+}
+CartTrjActionRight.start();
+CartTrjActionLeft.start();
+ImpedanceIntRight.start();
+ImpedanceIntLeft.start();
+CartImpActionRight.start();
+CartImpActionLeft.start();
+ToolActionRight.start();
+ToolActionLeft.start();
+ToolIntRight.start();
+ToolIntLeft.start();
+TGR.start();
+if (disableROS == false) then {
+    TfPub.start();
+    TorquePubRight.start();
+    TorquePubLeft.start();
+    SplineTrajectoryActionJoint.start();
+    HeadSplineTrajectoryActionJoint.start();
+}
+FK.start();
+if (disableROS == false) then {
+    rightHandMoveAction.start();
+    leftHandMoveAction.start();
+}
+
+lli_hi_tx.start();
+
+scheme.start();
+
+master_component.start();
+
+#bm.start();
+
+#bi.start();
+
+// dot graph generation
+//dot.dot_file="/home/dseredyn/ws_sim_full/oro.dot"
+//dot.generate();
+
