@@ -28,13 +28,15 @@
 #include "common_behavior/abstract_behavior.h"
 
 #include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface_msgs/VelmaLowLevelStatus.h"
+#include "velma_low_level_interface_msgs/VelmaRealEffectorStatus.h"
+
+#include "common_predicates.h"
 
 using namespace velma_low_level_interface_msgs;
 
-class BehaviorIdle : public BehaviorBase<VelmaLowLevelStatus, VelmaLowLevelCommand> {
+class BehaviorIdle : public BehaviorBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
 public:
-    typedef VelmaLowLevelStatus TYPE_BUF_LO;
+    typedef VelmaRealEffectorStatus TYPE_BUF_LO;
     typedef VelmaLowLevelCommand TYPE_BUF_HI;
 
     BehaviorIdle();
@@ -61,7 +63,18 @@ bool BehaviorIdle::checkErrorCondition(
             const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
             const std::vector<RTT::TaskContext*> &components) const
 {
-    return false;
+    bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
+    bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
+    bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
+    bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
+    bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
+
+    if (hwOk && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+    {
+        return false;
+    }
+
+    return true;
 }
 
 bool BehaviorIdle::checkStopCondition(
@@ -72,5 +85,5 @@ bool BehaviorIdle::checkStopCondition(
     return false;
 }
 
-static BehaviorRegistrar<VelmaLowLevelStatus, VelmaLowLevelCommand, BehaviorIdle> registrar("idle");
+static BehaviorRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, BehaviorIdle> registrar("idle");
 

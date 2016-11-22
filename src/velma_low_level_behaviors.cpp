@@ -25,46 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_state.h"
+#include <rtt/Component.hpp>
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface_msgs/VelmaRealEffectorStatus.h"
-
-using namespace velma_low_level_interface_msgs;
-
-class StateSafe : public StateBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
-public:
-    typedef VelmaRealEffectorStatus TYPE_BUF_LO;
-    typedef VelmaLowLevelCommand TYPE_BUF_HI;
-
-    StateSafe();
-
-    virtual bool checkInitialCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components,
-            const std::string& prev_state_name,
-            bool in_error) const;
-};
-
-StateSafe::StateSafe() :
-    StateBase("safe", "safe")
-{
-}
-
-bool StateSafe::checkInitialCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components,
-            const std::string& prev_state_name,
-            bool in_error) const
-{
-    if (prev_state_name == "safe") {
-        return false;
-    }
-
-    return true;
-}
-
-static StateRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, StateSafe> registrar("safe");
+ORO_CREATE_COMPONENT_LIBRARY()
 

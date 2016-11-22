@@ -28,13 +28,13 @@
 #include "common_behavior/abstract_state.h"
 
 #include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface_msgs/VelmaLowLevelStatus.h"
+#include "velma_low_level_interface_msgs/VelmaRealEffectorStatus.h"
 
 using namespace velma_low_level_interface_msgs;
 
-class StateIdle : public StateBase<VelmaLowLevelStatus, VelmaLowLevelCommand> {
+class StateIdle : public StateBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
 public:
-    typedef VelmaLowLevelStatus TYPE_BUF_LO;
+    typedef VelmaRealEffectorStatus TYPE_BUF_LO;
     typedef VelmaLowLevelCommand TYPE_BUF_HI;
 
     StateIdle();
@@ -66,5 +66,5 @@ bool StateIdle::checkInitialCondition(
     return true;
 }
 
-static StateRegistrar<VelmaLowLevelStatus, VelmaLowLevelCommand, StateIdle> registrar("idle");
+static StateRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, StateIdle> registrar("idle");
 
