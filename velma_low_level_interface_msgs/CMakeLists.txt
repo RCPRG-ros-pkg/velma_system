@@ -17,6 +17,10 @@ add_message_files(FILES
   VelmaLowLevelStatusMotor.msg
   VelmaLowLevelStatusSC.msg
   VelmaLowLevelStatus.msg
+  VelmaRealEffectorStatus.msg
+  VelmaRealEffectorCommand.msg
+  VelmaRealEffectorArmFriIntf.msg
+  VelmaRealEffectorArmFriRobot.msg
   )
   
 

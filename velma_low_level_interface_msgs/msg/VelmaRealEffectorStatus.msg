@@ -1,13 +1,16 @@
 uint32 test
 
-VelmaLowLevelStatusSC sc
-bool sc_valid
-
 VelmaLowLevelStatusArm rArm
 bool rArm_valid
 
+VelmaRealEffectorArmFriRobot rArmFriRobot
+VelmaRealEffectorArmFriIntf rArmFriIntf
+
 VelmaLowLevelStatusArm lArm
 bool lArm_valid
+
+VelmaRealEffectorArmFriRobot lArmFriRobot
+VelmaRealEffectorArmFriIntf lArmFriIntf
 
 VelmaLowLevelStatusHand rHand
 bool rHand_valid
