@@ -1,10 +1,10 @@
 <package>
-  <name>velma_low_level_behaviors</name>
+  <name>velma_core_ve_body</name>
   <version>0.1.1</version>
   <license>BSD</license>
   <maintainer email="dawid.seredynski@gmail.com">Dawid Seredynski</maintainer>
   <description>
-    velma_low_level_behaviors
+    velma_core_ve_body
   </description>
 
   <buildtool_depend>catkin</buildtool_depend>

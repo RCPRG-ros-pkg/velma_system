@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(velma_low_level_behaviors)
+project(velma_core_ve_body)
 
 set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 
@@ -38,20 +38,20 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ### Orocos Targets ###
 
-orocos_component(velma_low_level_behaviors
+orocos_component(velma_core_ve_body
     src/behavior_idle.cpp
     src/behavior_safe.cpp
     src/state_idle.cpp
     src/state_safe.cpp
     src/common_predicates.cpp
-    src/velma_low_level_behaviors.cpp
+    src/velma_core_ve_body.cpp
     src/components/diagnostic_component.cpp
     src/components/velma_low_level_master_component.cpp
     src/components/idle_component.cpp
     src/components/safe_component.cpp
 )
 
-target_link_libraries(velma_low_level_behaviors ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
+target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
 ### Orocos Package Exports and Install Targets ###
 
