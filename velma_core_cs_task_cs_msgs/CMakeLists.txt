@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.6)
 
-project(velma_core_cs_msgs)
+project(velma_core_cs_task_cs_msgs)
 
 find_package(catkin REQUIRED
   COMPONENTS std_msgs geometry_msgs message_generation actionlib_msgs)
