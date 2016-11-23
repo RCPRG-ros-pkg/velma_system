@@ -27,11 +27,11 @@
 
 #include "common_behavior/abstract_behavior.h"
 
-#include "velma_core_cs_msgs/VelmaCoreCsCommand.h"
+#include "velma_core_cs_task_cs_msgs/VelmaCoreCsCommand.h"
 #include "velma_core_cs_ve_body_msgs/VelmaLowLevelStatus.h"
 
 using namespace velma_core_cs_ve_body_msgs;
-using namespace velma_core_cs_msgs;
+using namespace velma_core_cs_task_cs_msgs;
 
 namespace velma_core_cs_types {
 

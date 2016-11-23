@@ -29,11 +29,11 @@
 
 #include <common_behavior/master_component.h>
 
-#include "velma_core_cs_msgs/VelmaCoreCsCommand.h"
+#include "velma_core_cs_task_cs_msgs/VelmaCoreCsCommand.h"
 
 #include "velma_core_cs_ve_body_interface/velma_lli_status_ports.h"
 
-typedef MasterComponent<velma_lli_types::VelmaStatus_Ports, velma_core_cs_msgs::VelmaCoreCsCommand > VelmaCoreCsMaster;
+typedef MasterComponent<velma_lli_types::VelmaStatus_Ports, velma_core_cs_task_cs_msgs::VelmaCoreCsCommand > VelmaCoreCsMaster;
 
 ORO_LIST_COMPONENT_TYPE(VelmaCoreCsMaster)
 
