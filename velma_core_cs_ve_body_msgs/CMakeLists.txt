@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8.6)
 
-project(velma_low_level_interface_msgs)
+project(velma_core_cs_ve_body_msgs)
 
 find_package(catkin REQUIRED
   COMPONENTS std_msgs geometry_msgs barrett_hand_controller_msgs message_generation actionlib_msgs)
