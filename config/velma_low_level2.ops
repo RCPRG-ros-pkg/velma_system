@@ -8,9 +8,9 @@ ros.import("rtt_rospack")
 ros.import("rtt_actionlib");
 ros.import("rtt_barrett_hand_controller_msgs");
 ros.import("rtt_geometry_msgs");
-ros.import("rtt_velma_low_level_interface_msgs");
-ros.import("velma_low_level_interface");
-ros.import("velma_low_level_behaviors");
+ros.import("rtt_velma_core_cs_ve_body_msgs");
+ros.import("velma_core_cs_ve_body_msgs");
+ros.import("velma_core_ve_body");
 
 ros.import("eigen_typekit");
 ros.import("rtt_std_msgs");
