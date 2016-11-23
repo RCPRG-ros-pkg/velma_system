@@ -78,6 +78,12 @@ lli_hi_rx.pushBackPeerExecution("scheme");
 lli_hi_rx.configure();
 
 
+loadComponent("status_split","VelmaLLIStatusSplit")
+setActivity("status_split", 0, 6, ORO_SCHED_RT);
+status_split.configure();
+connect("lli_hi_rx.msg_OUTPORT", "status_split.msg_INPORT", ConnPolicy())
+
+
 loadComponent("lli_hi_tx","VelmaLLIHiTx")
 setActivity("lli_hi_tx", 0, 1, ORO_SCHED_RT);
 lli_hi_tx.loadService("rosparam");
@@ -85,15 +91,20 @@ lli_hi_tx.rosparam.getAll();
 lli_hi_tx.configure();
 
 
+loadComponent("command_concate","VelmaLLICommandConcate")
+setActivity("command_concate", 0, 6, ORO_SCHED_RT);
+command_concate.configure();
+connect("command_concate.msg_OUTPORT", "lli_hi_tx.msg_INPORT", ConnPolicy())
+
 
 # command
-#connect("lli_hi_test.cmd_rHand_tactileCmd_OUTPORT",   "lli_hi_tx.cmd_rHand_tactileCmd_INPORT", ConnPolicy())
+#connect("lli_hi_test.cmd_rHand_tactileCmd_OUTPORT",   "command_concate.cmd_rHand_tactileCmd_INPORT", ConnPolicy())
 
 # status
-#connect("lli_hi_rx.status_rHand_p_OUTPORT",             "lli_hi_test.status_rHand_p_INPORT", ConnPolicy())
-#connect("lli_hi_rx.status_lHand_f_OUTPORT",             "lli_hi_test.status_lHand_f_INPORT", ConnPolicy())
-#connect("lli_hi_rx.status_rFt_ffw_OUTPORT",             "lli_hi_test.status_rFt_ffw_INPORT", ConnPolicy())
-#connect("lli_hi_rx.status_lFt_ffw_OUTPORT",             "lli_hi_test.status_lFt_ffw_INPORT", ConnPolicy())
+#connect("status_split.status_rHand_p_OUTPORT",             "lli_hi_test.status_rHand_p_INPORT", ConnPolicy())
+#connect("status_split.status_lHand_f_OUTPORT",             "lli_hi_test.status_lHand_f_INPORT", ConnPolicy())
+#connect("status_split.status_rFt_ffw_OUTPORT",             "lli_hi_test.status_rFt_ffw_INPORT", ConnPolicy())
+#connect("status_split.status_lFt_ffw_OUTPORT",             "lli_hi_test.status_lFt_ffw_INPORT", ConnPolicy())
 
 ## Load a BarrettHand move action
 
@@ -197,32 +208,27 @@ TGR.configure();
 ## connect to the interface components
 ##
 
-## LWR commands
-
-#stream("lli_hi_tx.cmd_rArm_cmd_INPORT", ros.comm.topic("/right_arm/KRL_CMD"));
-#stream("lli_hi_tx.cmd_lArm_cmd_INPORT", ros.comm.topic("/left_arm/KRL_CMD"));
-
 ## move hand action
 
-connect("rightHandMoveAction.q_OUTPORT",    "lli_hi_tx.cmd_rHand_q_INPORT", ConnPolicy());
-connect("rightHandMoveAction.v_OUTPORT",    "lli_hi_tx.cmd_rHand_dq_INPORT", ConnPolicy());
-connect("rightHandMoveAction.t_OUTPORT",    "lli_hi_tx.cmd_rHand_max_i_INPORT", ConnPolicy());
-#connect("rightHandMoveAction.mp_OUTPORT",   "lli_hi_tx.cmd_rHand_max_p_INPORT", ConnPolicy()); # TODO
-#connect("rightHandMoveAction.hold_OUTPORT", "lli_hi_tx.cmd_rHand_hold_INPORT", ConnPolicy());  # TODO
-connect("lli_hi_rx.status_rHand_s_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
+connect("rightHandMoveAction.q_OUTPORT",    "command_concate.cmd_rHand_q_INPORT", ConnPolicy());
+connect("rightHandMoveAction.v_OUTPORT",    "command_concate.cmd_rHand_dq_INPORT", ConnPolicy());
+connect("rightHandMoveAction.t_OUTPORT",    "command_concate.cmd_rHand_max_i_INPORT", ConnPolicy());
+#connect("rightHandMoveAction.mp_OUTPORT",   "command_concate.cmd_rHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("rightHandMoveAction.hold_OUTPORT", "command_concate.cmd_rHand_hold_INPORT", ConnPolicy());  # TODO
+connect("status_split.status_rHand_s_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
 
-connect("leftHandMoveAction.q_OUTPORT",     "lli_hi_tx.cmd_lHand_q_INPORT", ConnPolicy());
-connect("leftHandMoveAction.v_OUTPORT",     "lli_hi_tx.cmd_lHand_dq_INPORT", ConnPolicy());
-connect("leftHandMoveAction.t_OUTPORT",     "lli_hi_tx.cmd_lHand_max_i_INPORT", ConnPolicy());
-#connect("leftHandMoveAction.mp_OUTPORT",    "lli_hi_tx.cmd_lHand_max_p_INPORT", ConnPolicy()); # TODO
-#connect("leftHandMoveAction.hold_OUTPORT",  "lli_hi_tx.cmd_lHand_hold_INPORT", ConnPolicy());  # TODO
-connect("lli_hi_rx.status_lHand_s_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
+connect("leftHandMoveAction.q_OUTPORT",     "command_concate.cmd_lHand_q_INPORT", ConnPolicy());
+connect("leftHandMoveAction.v_OUTPORT",     "command_concate.cmd_lHand_dq_INPORT", ConnPolicy());
+connect("leftHandMoveAction.t_OUTPORT",     "command_concate.cmd_lHand_max_i_INPORT", ConnPolicy());
+#connect("leftHandMoveAction.mp_OUTPORT",    "command_concate.cmd_lHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("leftHandMoveAction.hold_OUTPORT",  "command_concate.cmd_lHand_hold_INPORT", ConnPolicy());  # TODO
+connect("status_split.status_lHand_s_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
 
 ## torso transmision
 
-connect("lli_hi_rx.status_tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("lli_hi_rx.status_tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
-connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "lli_hi_tx.cmd_tMotor_i_INPORT", ConnPolicy())
+connect("status_split.status_tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("status_split.status_tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "command_concate.cmd_tMotor_i_INPORT", ConnPolicy())
 
 
 ## camera trigger
@@ -232,71 +238,71 @@ connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "lli_hi_tx.cmd_tMotor_i_
 
 ## head command limiters
 
-connect("lli_hi_rx.status_hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadPanVelocityLimiter.Position_OUTPORT",   "lli_hi_tx.cmd_hpMotor_q_INPORT", ConnPolicy());
+connect("status_split.status_hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadPanVelocityLimiter.Position_OUTPORT",   "command_concate.cmd_hpMotor_q_INPORT", ConnPolicy());
 
-connect("lli_hi_rx.status_htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "lli_hi_tx.cmd_htMotor_q_INPORT", ConnPolicy());
+connect("status_split.status_htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "command_concate.cmd_htMotor_q_INPORT", ConnPolicy());
 
 ## head transmisions
 
-connect("lli_hi_rx.status_hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("lli_hi_rx.status_hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("status_split.status_hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("status_split.status_hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "lli_hi_tx.cmd_hpMotor_i_INPORT", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "lli_hi_tx.cmd_hpMotor_dq_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "command_concate.cmd_hpMotor_i_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "command_concate.cmd_hpMotor_dq_INPORT", ConnPolicy())
 
-connect("lli_hi_rx.status_htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("lli_hi_rx.status_htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("status_split.status_htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("status_split.status_htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "lli_hi_tx.cmd_htMotor_i_INPORT", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "lli_hi_tx.cmd_htMotor_dq_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "command_concate.cmd_htMotor_i_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "command_concate.cmd_htMotor_dq_INPORT", ConnPolicy())
 
 ## vector concatenations and splits
 
-connect("lli_hi_rx.status_rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
-connect("lli_hi_rx.status_lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
+connect("status_split.status_rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
+connect("status_split.status_lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
 
-connect("lli_hi_rx.status_rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
-connect("lli_hi_rx.status_lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
+connect("status_split.status_rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
+connect("status_split.status_lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
 
-connect("lli_hi_rx.status_rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
-connect("lli_hi_rx.status_lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
+connect("status_split.status_rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
+connect("status_split.status_lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
 
-connect("lli_hi_rx.status_rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
-connect("lli_hi_rx.status_lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
+connect("status_split.status_rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
+connect("status_split.status_lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit1_7_7_0");
-connect("Ts.Out1", "lli_hi_tx.cmd_rArm_t_INPORT", ConnPolicy());
-connect("Ts.Out2", "lli_hi_tx.cmd_lArm_t_INPORT", ConnPolicy());
+connect("Ts.Out1", "command_concate.cmd_rArm_t_INPORT", ConnPolicy());
+connect("Ts.Out2", "command_concate.cmd_lArm_t_INPORT", ConnPolicy());
 
 ## wrench decimators
 
-connect("lli_hi_rx.status_rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
-connect("lli_hi_rx.status_lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
+connect("status_split.status_rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
+connect("status_split.status_lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
 
 ## mass matrix component
 
-connect("lli_hi_rx.status_lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
-connect("lli_hi_rx.status_rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
+connect("status_split.status_lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
+connect("status_split.status_rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
 
 ## torque publishers
 
-connect("lli_hi_rx.status_rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
-connect("lli_hi_rx.status_rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
+connect("status_split.status_rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
+connect("status_split.status_rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
 
-connect("lli_hi_rx.status_lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
-connect("lli_hi_rx.status_lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
+connect("status_split.status_lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
+connect("status_split.status_lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
 
 ## gravity component
 
-#connect("lli_hi_rx.status_lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
-#connect("lli_hi_rx.status_rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
+#connect("status_split.status_lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
+#connect("status_split.status_rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
 
 ## cartesian trajectory action
 
-connect("lli_hi_rx.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
-connect("lli_hi_rx.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_INPORT", ConnPolicy());
+connect("status_split.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
+connect("status_split.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_INPORT", ConnPolicy());
 
 ##
 ## start interface components
@@ -306,8 +312,8 @@ connect("lli_hi_rx.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_I
 
 ##
 
-#stream("lli_hi_rx.status_rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
-#stream("lli_hi_rx.status_lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
+#stream("status_split.status_rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
+#stream("status_split.status_lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
 
 if (disableROS == false) then {
     stream("Dwr.Out", ros.comm.topic("/right_arm/wrench"));
@@ -504,8 +510,8 @@ RightForceTransformation.rosparam.getAll();
 RightForceTransformation.configure()
 
 connect("RightForceTransformation.CurrentWristPose", "FK.RightWrist_OUTPORT", ConnPolicy())
-connect("lli_hi_rx.status_rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("lli_hi_rx.status_rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("status_split.status_rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("status_split.status_rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("RightForceTransformation.Tool", "ToolIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 if (disableROS == false) then {
@@ -519,8 +525,8 @@ LeftForceTransformation.rosparam.getAll();
 LeftForceTransformation.configure()
 
 connect("LeftForceTransformation.CurrentWristPose", "FK.LeftWrist_OUTPORT", ConnPolicy())
-connect("lli_hi_rx.status_lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("lli_hi_rx.status_lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("status_split.status_lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("status_split.status_lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("LeftForceTransformation.Tool", "ToolIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 if (disableROS == false) then {
@@ -643,6 +649,8 @@ set LeftForceControl.TriggerOnStart = triggerOnStart
 set RightForceTransformation.TriggerOnStart = triggerOnStart
 set LeftForceTransformation.TriggerOnStart = triggerOnStart
 set lli_hi_tx.TriggerOnStart = triggerOnStart
+set command_concate.TriggerOnStart = triggerOnStart
+set status_split.TriggerOnStart = triggerOnStart
 set Mass.TriggerOnStart = triggerOnStart
 
 addPeer("scheme", "TorsoPanTransmision")
@@ -682,6 +690,8 @@ addPeer("scheme", "LeftForceControl");
 addPeer("scheme", "RightForceTransformation");
 addPeer("scheme", "LeftForceTransformation");
 addPeer("scheme", "lli_hi_tx");
+addPeer("scheme", "status_split");
+addPeer("scheme", "command_concate");
 //addPeer("scheme", "HeadIK");
 //addPeer("scheme", "PT");
 
@@ -724,6 +734,9 @@ scheme.addBlock("LeftForceControl");
 scheme.addBlock("RightForceTransformation");
 scheme.addBlock("LeftForceTransformation");
 scheme.addBlock("lli_hi_tx");
+scheme.addBlock("status_split");
+scheme.addBlock("command_concate");
+
 //scheme.addBlock("HeadIK");
 //scheme.addBlock("PT")
 
@@ -851,53 +864,13 @@ CartImpActionLeft.actionlib.connect("/left_arm/cartesian_impedance")
 
 
 
-//------------------------------------------------------------------------------
-//-- Behavior manager
-//------------------------------------------------------------------------------
-
-#loadComponent("bm","BehaviorManager");
-#setMasterSlaveActivity("lli_hi_rx", "bm");
-##setActivity("bm", 0, 1, ORO_SCHED_RT);
-#bm.loadService("rosparam");
-#bm.rosparam.getAll();
-
-##loadService("bm","rosservice");
-##bm.rosservice.connect("behavior.switchBehavior", "/velma/switchBehavior", "behavior_manager_msgs/SwitchBehavior")
-
-#addPeer("bm", "scheme");
-#bm.configure();
-
-#connect("bm.cmd_sc_cmd_OUTPORT","lli_hi_tx.cmd_safety_controller_cmd_INPORT", ConnPolicy())
-#connect("bm.cmd_sc_valid_OUTPORT","lli_hi_tx.cmd_safety_controller_valid_INPORT", ConnPolicy())
-
-#connect("lli_hi_rx.status_sc_OUTPORT","bm.port_status_sc_INPORT", ConnPolicy())
-
-connect("lli_hi_rx.status_test_OUTPORT","lli_hi_tx.cmd_test_INPORT", ConnPolicy())
-
-
-#loadComponent("bi","BehaviorInterface");
-#setActivity("bi", 0.01, 1, ORO_SCHED_RT);
-#bi.loadService("rosparam");
-#bi.rosparam.getAll();
-
-#loadService("bi","rosservice");
-#bi.rosservice.connect("behavior.switchBehavior", "/velma/switchBehavior", "behavior_manager_msgs/SwitchBehavior")
-
-#connect("bi.behavior_OUTPORT","bm.behavior_INPORT", ConnPolicy())
-
-#bi.configure();
-
-
-
-
-
-
+connect("status_split.status_test_OUTPORT","command_concate.cmd_test_INPORT", ConnPolicy())
 
 
 
 
 //------------------------------------------------------------------------------
-
+status_split.start();
 lli_hi_rx.start();
 
 if (disableROS == false) then {
@@ -951,15 +924,13 @@ if (disableROS == false) then {
     leftHandMoveAction.start();
 }
 
+command_concate.start();
+
 lli_hi_tx.start();
 
 scheme.start();
 
 master_component.start();
-
-#bm.start();
-
-#bi.start();
 
 // dot graph generation
 //dot.dot_file="/home/dseredyn/ws_sim_full/oro.dot"
