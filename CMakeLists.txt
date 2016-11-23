@@ -43,6 +43,8 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
     src/components/velma_core_cs_master_component.cpp
+    src/state_idle.cpp
+    src/behavior_idle.cpp
 )
 
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
