@@ -26,8 +26,8 @@ ros.import("rtt_force_control_msgs");
 ros.import("velma_core_cs");
 ros.import("rtt_velma_core_cs_ve_body_msgs");
 ros.import("velma_core_cs_ve_body_interface");
-ros.import("rtt_velma_core_cs_msgs");
-ros.import("velma_core_cs_interface");
+ros.import("rtt_velma_core_cs_task_cs_msgs");
+ros.import("velma_core_cs_task_cs_interface");
 
 #ros.import("rtt_behavior_manager_msgs");
 #ros.import("behavior_manager");
