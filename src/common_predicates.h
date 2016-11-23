@@ -28,10 +28,10 @@
 #ifndef VELMA_LOW_LEVEL_COMMON_PREDICATES_H__
 #define VELMA_LOW_LEVEL_COMMON_PREDICATES_H__
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface_msgs/VelmaRealEffectorStatus.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
+#include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
 
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 
 bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf);
 bool isLwrInCmdState(const VelmaRealEffectorArmFriIntf& friIntf);

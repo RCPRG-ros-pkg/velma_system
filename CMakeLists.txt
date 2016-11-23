@@ -7,8 +7,8 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
-  velma_low_level_interface_msgs
-  velma_low_level_interface
+  velma_core_cs_ve_body_msgs
+  velma_core_cs_ve_body_interface
   eigen_conversions
   common_interfaces
   common_behavior
@@ -32,7 +32,7 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 
 #catkin_package(
 #  INCLUDE_DIRS include
-#  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm behavior_manager_msgs velma_low_level_interface_msgs
+#  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_ve_body_msgs
 #)
 
 include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
@@ -58,7 +58,7 @@ target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRAR
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
   INCLUDE_DIRS include
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm behavior_manager_msgs velma_low_level_interface_msgs
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_ve_body_msgs
 )
 
 #orocos_install_headers(

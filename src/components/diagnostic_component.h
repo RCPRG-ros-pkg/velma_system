@@ -38,9 +38,9 @@
 
 #include <diagnostic_msgs/DiagnosticArray.h>
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelStatus.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelStatus.h"
 
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 
 class DiagnosticComponent: public RTT::TaskContext {
 public:

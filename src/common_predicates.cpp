@@ -28,7 +28,7 @@
 #include "common_predicates.h"
 #include <kuka_lwr_fri/friComm.h>
 
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 
 bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf) {
     if (friRobot.power != 0x7F                           // error

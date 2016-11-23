@@ -32,13 +32,12 @@
 #include <rtt/base/PortInterface.hpp>
 #include <kuka_lwr_fri/friComm.h>
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-//#include "velma_low_level_interface_msgs/VelmaLowLevelStatusSC.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
 
 #include "eigen_conversions/eigen_msg.h"
 
-#include "velma_low_level_interface/velma_lli_real_effector_commands.h"
-#include "velma_low_level_interface/velma_lli_real_effector_status.h"
+#include "velma_core_cs_ve_body_interface/velma_lli_real_effector_commands.h"
+#include "velma_core_cs_ve_body_interface/velma_lli_real_effector_status.h"
 
 #include <math.h>
 
@@ -47,7 +46,7 @@
 #include <sys/time.h>
 
 using namespace RTT;
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 
 static const int DIAG_R_ARM_INVALID = 0;
 static const int DIAG_L_ARM_INVALID = 1;

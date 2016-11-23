@@ -29,11 +29,11 @@
 
 #include <common_behavior/master_component.h>
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
 
-#include "velma_low_level_interface/velma_lli_real_effector_status.h"
+#include "velma_core_cs_ve_body_interface/velma_lli_real_effector_status.h"
 
-typedef MasterComponent<velma_lli_types::RE_VelmaStatus_Ports, velma_low_level_interface_msgs::VelmaLowLevelCommand > VelmaLowLevelMaster;
+typedef MasterComponent<velma_lli_types::RE_VelmaStatus_Ports, velma_core_cs_ve_body_msgs::VelmaLowLevelCommand > VelmaLowLevelMaster;
 
 ORO_LIST_COMPONENT_TYPE(VelmaLowLevelMaster)
 

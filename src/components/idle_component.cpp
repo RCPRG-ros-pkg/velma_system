@@ -32,10 +32,10 @@
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface/velma_lli_command_ports.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
+#include "velma_core_cs_ve_body_interface/velma_lli_command_ports.h"
 
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 using namespace RTT;
 
 class VelmaLowIdleComponent: public RTT::TaskContext {

@@ -27,12 +27,12 @@
 
 #include "common_behavior/abstract_behavior.h"
 
-#include "velma_low_level_interface_msgs/VelmaLowLevelCommand.h"
-#include "velma_low_level_interface_msgs/VelmaRealEffectorStatus.h"
+#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
+#include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
 
 #include "common_predicates.h"
 
-using namespace velma_low_level_interface_msgs;
+using namespace velma_core_cs_ve_body_msgs;
 
 namespace velma_core_ve_body_types {
 
