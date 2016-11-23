@@ -120,8 +120,8 @@
       lli_lo_tx:
         channel_name: lli_status
       master_component:
-        state_names: [idle, safe]
-        initial_state_name: safe
+        state_names: [state_velma_core_ve_body_idle, state_velma_core_ve_body_safe]
+        initial_state_name: state_velma_core_ve_body_safe
     </rosparam>
 
     <include file="$(find velma_controller)/launch/velma_common_params.launch" />
