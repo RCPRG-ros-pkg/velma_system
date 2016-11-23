@@ -34,56 +34,48 @@
 
 using namespace velma_low_level_interface_msgs;
 
+namespace velma_core_ve_body_types {
+
 class BehaviorIdle : public BehaviorBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
 public:
     typedef VelmaRealEffectorStatus TYPE_BUF_LO;
     typedef VelmaLowLevelCommand TYPE_BUF_HI;
 
-    BehaviorIdle();
+    BehaviorIdle() :
+        BehaviorBase("behavior_velma_core_ve_body_idle")
+    {
+        addRunningComponent("bypass");
+    }
 
-    virtual bool checkErrorCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const;
+    bool checkErrorCondition(
+                const TYPE_BUF_LO& buf_lo,
+                const TYPE_BUF_HI& buf_hi,
+                const std::vector<RTT::TaskContext*> &components) const
+    {
+        bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
+        bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
+        bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-    virtual bool checkStopCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const;
-};
+        if (hwOk && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+        {
+            return false;
+        }
 
-BehaviorIdle::BehaviorIdle() :
-    BehaviorBase("idle")
-{
-    addRunningComponent("bypass");
-}
+        return true;
+    }
 
-bool BehaviorIdle::checkErrorCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const
-{
-    bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
-    bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
-    bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
-    bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
-    bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
-
-    if (hwOk && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+    bool checkStopCondition(
+                const TYPE_BUF_LO& buf_lo,
+                const TYPE_BUF_HI& buf_hi,
+                const std::vector<RTT::TaskContext*> &components) const
     {
         return false;
     }
+};
 
-    return true;
-}
+};  // namespace velma_core_ve_body_types
 
-bool BehaviorIdle::checkStopCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const
-{
-    return false;
-}
-
-static BehaviorRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, BehaviorIdle> registrar("idle");
+REGISTER_BEHAVIOR( VelmaRealEffectorStatus, VelmaLowLevelCommand, velma_core_ve_body_types::BehaviorIdle );
 

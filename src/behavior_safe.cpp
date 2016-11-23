@@ -34,65 +34,57 @@
 
 using namespace velma_low_level_interface_msgs;
 
+namespace velma_core_ve_body_types {
+
 class BehaviorSafe : public BehaviorBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
 public:
     typedef VelmaRealEffectorStatus TYPE_BUF_LO;
     typedef VelmaLowLevelCommand TYPE_BUF_HI;
 
-    BehaviorSafe();
-
-    virtual bool checkErrorCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const;
-
-    virtual bool checkStopCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const;
-};
-
-BehaviorSafe::BehaviorSafe() :
-    BehaviorBase("safe")
-{
-    addRunningComponent("safe");
-}
-
-bool BehaviorSafe::checkErrorCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const
-{
-    return false;
-}
-
-bool BehaviorSafe::checkStopCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components) const
-{
-//    for (int i = 0; i < components.size(); ++i) {
-//        getTaskState
-//        if (components[i]->getName() == "safe" && components[i]->getTaskState() == RTT::base::TaskCore::Running) {
-//            return false;
-//        }
-//    }
-
-    bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
-    bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
-    bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
-    bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
-    bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
-
-    bool resetCmd = (buf_hi.sc.valid && buf_hi.sc.cmd == 1);
-
-    if (hwOk && resetCmd && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+    BehaviorSafe() :
+        BehaviorBase("behavior_velma_core_ve_body_safe")
     {
-        return true;
+        addRunningComponent("safe");
     }
 
-    return false;
-}
+    bool checkErrorCondition(
+                const TYPE_BUF_LO& buf_lo,
+                const TYPE_BUF_HI& buf_hi,
+                const std::vector<RTT::TaskContext*> &components) const
+    {
+        return false;
+    }
 
-static BehaviorRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, BehaviorSafe> registrar("safe");
+    bool checkStopCondition(
+                const TYPE_BUF_LO& buf_lo,
+                const TYPE_BUF_HI& buf_hi,
+                const std::vector<RTT::TaskContext*> &components) const
+    {
+    //    for (int i = 0; i < components.size(); ++i) {
+    //        getTaskState
+    //        if (components[i]->getName() == "safe" && components[i]->getTaskState() == RTT::base::TaskCore::Running) {
+    //            return false;
+    //        }
+    //    }
+
+        bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
+        bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
+        bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
+
+        bool resetCmd = (buf_hi.sc.valid && buf_hi.sc.cmd == 1);
+
+        if (hwOk && resetCmd && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+        {
+            return true;
+        }
+
+        return false;
+    }
+};
+
+};  // namespace velma_core_ve_body_types
+
+REGISTER_BEHAVIOR( VelmaRealEffectorStatus, VelmaLowLevelCommand, velma_core_ve_body_types::BehaviorSafe );
 

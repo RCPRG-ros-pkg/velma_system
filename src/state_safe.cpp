@@ -32,39 +32,34 @@
 
 using namespace velma_low_level_interface_msgs;
 
+namespace velma_core_ve_body_types {
+
 class StateSafe : public StateBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
 public:
     typedef VelmaRealEffectorStatus TYPE_BUF_LO;
     typedef VelmaLowLevelCommand TYPE_BUF_HI;
 
-    StateSafe();
-
-    virtual bool checkInitialCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components,
-            const std::string& prev_state_name,
-            bool in_error) const;
-};
-
-StateSafe::StateSafe() :
-    StateBase("safe", "safe")
-{
-}
-
-bool StateSafe::checkInitialCondition(
-            const TYPE_BUF_LO& buf_lo, //const interface_ports::ContainerOuter &buf_lo_info,
-            const TYPE_BUF_HI& buf_hi, //const interface_ports::ContainerOuter &buf_hi_info,
-            const std::vector<RTT::TaskContext*> &components,
-            const std::string& prev_state_name,
-            bool in_error) const
-{
-    if (prev_state_name == "safe") {
-        return false;
+    StateSafe() :
+        StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
+    {
     }
 
-    return true;
-}
+    bool checkInitialCondition(
+                const TYPE_BUF_LO& buf_lo,
+                const TYPE_BUF_HI& buf_hi,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_ve_body_safe") {
+            return false;
+        }
 
-static StateRegistrar<VelmaRealEffectorStatus, VelmaLowLevelCommand, StateSafe> registrar("safe");
+        return true;
+    }
+};
+
+};  // namespace velma_core_ve_body_types
+
+REGISTER_STATE( VelmaRealEffectorStatus, VelmaLowLevelCommand, velma_core_ve_body_types::StateSafe );
 
