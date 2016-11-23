@@ -17,8 +17,8 @@
   <build_depend>behavior_manager_msgs</build_depend>
   <build_depend>velma_core_cs_msgs</build_depend>
   <build_depend>velma_core_cs_interface</build_depend>
-  <build_depend>velma_low_level_interface_msgs</build_depend>
-  <build_depend>velma_low_level_interface</build_depend>
+  <build_depend>velma_core_cs_ve_body_msgs</build_depend>
+  <build_depend>velma_core_cs_ve_body_interface</build_depend>
   <build_depend>common_interfaces</build_depend>
   <build_depend>common_behavior</build_depend>
   <build_depend>kuka_lwr_fri</build_depend>

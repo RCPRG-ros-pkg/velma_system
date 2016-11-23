@@ -31,7 +31,7 @@
 
 #include "velma_core_cs_msgs/VelmaCoreCsCommand.h"
 
-#include "velma_low_level_interface/velma_lli_status_ports.h"
+#include "velma_core_cs_ve_body_interface/velma_lli_status_ports.h"
 
 typedef MasterComponent<velma_lli_types::VelmaStatus_Ports, velma_core_cs_msgs::VelmaCoreCsCommand > VelmaCoreCsMaster;
 

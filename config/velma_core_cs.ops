@@ -24,8 +24,8 @@ ros.import("force_control");
 ros.import("rtt_force_control_msgs");
 
 ros.import("velma_core_cs");
-ros.import("rtt_velma_low_level_interface_msgs");
-ros.import("velma_low_level_interface");
+ros.import("rtt_velma_core_cs_ve_body_msgs");
+ros.import("velma_core_cs_ve_body_interface");
 ros.import("rtt_velma_core_cs_msgs");
 ros.import("velma_core_cs_interface");
 
