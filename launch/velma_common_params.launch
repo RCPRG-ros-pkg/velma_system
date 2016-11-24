@@ -137,9 +137,9 @@
       TfPub:
         frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
         child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
-      lli_hi_tx:
+      core_ve_body_command_tx:
         channel_name: lli_cmd
-      lli_hi_rx:
+      core_ve_body_status_rx:
         channel_name: lli_status
         event_port: true
         always_update_peers: false

@@ -39,10 +39,10 @@ var bool disableROS = true;
 #
 # the low-level interface
 #
-loadComponent("lli_hi_rx","VelmaLLIHiRx")
-setActivity("lli_hi_rx", 0, 10, ORO_SCHED_RT);
-lli_hi_rx.loadService("rosparam");
-lli_hi_rx.rosparam.getAll();
+loadComponent("core_ve_body_status_rx","VelmaCoreCsVeBodyStatusRx")
+setActivity("core_ve_body_status_rx", 0, 10, ORO_SCHED_RT);
+core_ve_body_status_rx.loadService("rosparam");
+core_ve_body_status_rx.rosparam.getAll();
 
 #
 # Controller manager
@@ -61,37 +61,38 @@ addPeer("master_component", "scheme");
 # TODO: connect commands from higher level
 #connect(TODO, "master_component.command_INPORT", ConnPolicy())
 
+connect("core_ve_body_status_rx.msg_OUTPORT", "master_component.status_INPORT", ConnPolicy())
+
 master_component.loadService("rosparam")
 master_component.rosparam.getAll()
 
-# add slave tasks to lli_hi_rx
-addPeer("lli_hi_rx", "master_component");
-addPeer("lli_hi_rx", "scheme");
+# add slave tasks to core_ve_body_status_rx
+addPeer("core_ve_body_status_rx", "master_component");
+addPeer("core_ve_body_status_rx", "scheme");
 
 # set slave tasks execution order (before configure)
-lli_hi_rx.pushBackPeerExecution("master_component");
-lli_hi_rx.pushBackPeerExecution("scheme");
+core_ve_body_status_rx.pushBackPeerExecution("master_component");
+core_ve_body_status_rx.pushBackPeerExecution("scheme");
 
-lli_hi_rx.configure();
+core_ve_body_status_rx.configure();
 
 
-loadComponent("status_split","VelmaLLIStatusSplit")
+loadComponent("status_split","VelmaCoreCsVeBodyStatusSplit")
 setActivity("status_split", 0, 6, ORO_SCHED_RT);
 status_split.configure();
-connect("lli_hi_rx.msg_OUTPORT", "status_split.msg_INPORT", ConnPolicy())
+connect("core_ve_body_status_rx.msg_OUTPORT", "status_split.msg_INPORT", ConnPolicy())
+
+loadComponent("core_ve_body_command_tx","VelmaCoreCsVeBodyCommandTx")
+setActivity("core_ve_body_command_tx", 0, 1, ORO_SCHED_RT);
+core_ve_body_command_tx.loadService("rosparam");
+core_ve_body_command_tx.rosparam.getAll();
+core_ve_body_command_tx.configure();
 
 
-loadComponent("lli_hi_tx","VelmaLLIHiTx")
-setActivity("lli_hi_tx", 0, 1, ORO_SCHED_RT);
-lli_hi_tx.loadService("rosparam");
-lli_hi_tx.rosparam.getAll();
-lli_hi_tx.configure();
-
-
-loadComponent("command_concate","VelmaLLICommandConcate")
+loadComponent("command_concate","VelmaCoreCsVeBodyCommandConcate")
 setActivity("command_concate", 0, 6, ORO_SCHED_RT);
 command_concate.configure();
-connect("command_concate.msg_OUTPORT", "lli_hi_tx.msg_INPORT", ConnPolicy())
+connect("command_concate.msg_OUTPORT", "core_ve_body_command_tx.msg_INPORT", ConnPolicy())
 
 
 # command
@@ -645,7 +646,7 @@ set RightForceControl.TriggerOnStart = triggerOnStart
 set LeftForceControl.TriggerOnStart = triggerOnStart
 set RightForceTransformation.TriggerOnStart = triggerOnStart
 set LeftForceTransformation.TriggerOnStart = triggerOnStart
-set lli_hi_tx.TriggerOnStart = triggerOnStart
+set core_ve_body_command_tx.TriggerOnStart = triggerOnStart
 set command_concate.TriggerOnStart = triggerOnStart
 set status_split.TriggerOnStart = triggerOnStart
 set Mass.TriggerOnStart = triggerOnStart
@@ -686,7 +687,7 @@ addPeer("scheme", "RightForceControl");
 addPeer("scheme", "LeftForceControl");
 addPeer("scheme", "RightForceTransformation");
 addPeer("scheme", "LeftForceTransformation");
-addPeer("scheme", "lli_hi_tx");
+addPeer("scheme", "core_ve_body_command_tx");
 addPeer("scheme", "status_split");
 addPeer("scheme", "command_concate");
 //addPeer("scheme", "HeadIK");
@@ -730,7 +731,7 @@ scheme.addBlock("RightForceControl");
 scheme.addBlock("LeftForceControl");
 scheme.addBlock("RightForceTransformation");
 scheme.addBlock("LeftForceTransformation");
-scheme.addBlock("lli_hi_tx");
+scheme.addBlock("core_ve_body_command_tx");
 scheme.addBlock("status_split");
 scheme.addBlock("command_concate");
 
@@ -868,7 +869,7 @@ connect("status_split.status_test_OUTPORT","command_concate.cmd_test_INPORT", Co
 
 //------------------------------------------------------------------------------
 status_split.start();
-lli_hi_rx.start();
+core_ve_body_status_rx.start();
 
 if (disableROS == false) then {
     TJ.start();
@@ -923,7 +924,7 @@ if (disableROS == false) then {
 
 command_concate.start();
 
-lli_hi_tx.start();
+core_ve_body_command_tx.start();
 
 scheme.start();
 
