@@ -339,8 +339,7 @@ addPeer("diag", "LWRlSim");
 addPeer("diag", "safe");
 addPeer("diag", "bypass");
 
-#connect("safety_controller.status_sc_OUTPORT",      "diag.status_sc_INPORT", ConnPolicy())
-stream("diag.diag_OUTPORT", ros.comm.topic("/velma_low_level/diag"))
+stream("diag.diag_OUTPORT", ros.comm.topic("/velma_core_ve_body/diag"))
 
 diag.configure();
 
