@@ -23,16 +23,20 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <build_depend>velma_core_cs_task_cs_msgs</build_depend>
   <build_depend>rtt_roscomm</build_depend>
-
-  <run_depend>velma_core_cs_task_cs_msgs</run_depend>
   <run_depend>rtt_roscomm</run_depend>
+
+  <build_depend>velma_core_cs_task_cs_msgs</build_depend>
+  <run_depend>velma_core_cs_task_cs_msgs</run_depend>
 
   <build_depend>rtt_std_msgs</build_depend>
   <run_depend>rtt_std_msgs</run_depend>
+
   <build_depend>rtt_geometry_msgs</build_depend>
   <run_depend>rtt_geometry_msgs</run_depend>
+
+  <build_depend>rtt_cartesian_trajectory_msgs</build_depend>
+  <run_depend>rtt_cartesian_trajectory_msgs</run_depend>
 
   <export>
     <rtt_ros>
