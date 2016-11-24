@@ -1,0 +1,29 @@
+uint32 test
+
+velma_core_ve_body_re_body_msgs/CommandSimple rTact
+bool rTact_valid
+
+velma_core_ve_body_re_body_msgs/CommandMotor tMotor
+bool tMotor_valid
+
+velma_core_ve_body_re_body_msgs/CommandMotor hpMotor
+bool hpMotor_valid
+
+velma_core_ve_body_re_body_msgs/CommandMotor htMotor
+bool htMotor_valid
+
+velma_core_ve_body_re_body_msgs/CommandArm lArm
+bool lArm_valid
+
+velma_core_ve_body_re_body_msgs/CommandArm rArm
+bool rArm_valid
+
+velma_core_ve_body_re_body_msgs/CommandHand lHand
+bool lHand_valid
+
+velma_core_ve_body_re_body_msgs/CommandHand rHand
+bool rHand_valid
+
+velma_core_ve_body_re_body_msgs/CommandSimple sc
+bool sc_valid
+

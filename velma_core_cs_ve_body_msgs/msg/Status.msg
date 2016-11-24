@@ -1,0 +1,38 @@
+uint32 test
+
+StatusSC sc
+bool sc_valid
+
+velma_core_ve_body_re_body_msgs/StatusArm rArm
+bool rArm_valid
+
+velma_core_ve_body_re_body_msgs/StatusArm lArm
+bool lArm_valid
+
+velma_core_ve_body_re_body_msgs/StatusHand rHand
+bool rHand_valid
+
+velma_core_ve_body_re_body_msgs/StatusHand lHand
+bool lHand_valid
+
+velma_core_ve_body_re_body_msgs/StatusFT rFt
+bool rFt_valid
+
+velma_core_ve_body_re_body_msgs/StatusFT lFt
+bool lFt_valid
+
+velma_core_ve_body_re_body_msgs/StatusMotor tMotor
+bool tMotor_valid
+
+velma_core_ve_body_re_body_msgs/StatusMotor hpMotor
+bool hpMotor_valid
+
+velma_core_ve_body_re_body_msgs/StatusMotor htMotor
+bool htMotor_valid
+
+barrett_hand_controller_msgs/BHPressureState rHand_p
+bool rHand_p_valid
+
+geometry_msgs/Wrench[3] lHand_f
+bool lHand_f_valid
+
