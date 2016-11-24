@@ -31,9 +31,9 @@
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
 
-#include "velma_core_ve_body_re_body_interface/status_ports.h"
+#include "velma_core_ve_body_re_body_msgs/Status.h"
 
-typedef MasterComponent<velma_core_ve_body_re_body_interface::VelmaStatus_Ports, velma_core_cs_ve_body_msgs::Command > VelmaLowLevelMaster;
+typedef MasterComponent<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command > VelmaLowLevelMaster;
 
 ORO_LIST_COMPONENT_TYPE(VelmaLowLevelMaster)
 
