@@ -6,8 +6,8 @@ find_package(catkin REQUIRED
   COMPONENTS std_msgs geometry_msgs message_generation actionlib_msgs)
 
 add_message_files(FILES
-  VelmaCoreCsCommand.msg
-  VelmaCoreCsStatus.msg
+  Command.msg
+  Status.msg
 )
   
 
