@@ -27,18 +27,15 @@
 
 #include "common_behavior/abstract_state.h"
 
-#include "velma_core_cs_task_cs_msgs/VelmaCoreCsCommand.h"
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelStatus.h"
-
-using namespace velma_core_cs_ve_body_msgs;
-using namespace velma_core_cs_task_cs_msgs;
+#include "velma_core_cs_task_cs_msgs/Command.h"
+#include "velma_core_cs_ve_body_msgs/Status.h"
 
 namespace velma_core_cs_types {
 
-class StateIdle : public StateBase<VelmaLowLevelStatus, VelmaCoreCsCommand> {
+class StateIdle : public StateBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
 public:
-    typedef VelmaLowLevelStatus TYPE_BUF_LO;
-    typedef VelmaCoreCsCommand TYPE_BUF_HI;
+    typedef velma_core_cs_ve_body_msgs::Status TYPE_BUF_LO;
+    typedef velma_core_cs_task_cs_msgs::Command TYPE_BUF_HI;
 
     StateIdle() :
         StateBase("state_velma_core_cs_idle", "behavior_velma_core_cs_idle")
@@ -62,5 +59,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_STATE( VelmaLowLevelStatus, VelmaCoreCsCommand, velma_core_cs_types::StateIdle );
+REGISTER_STATE( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::StateIdle );
 

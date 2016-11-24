@@ -27,18 +27,15 @@
 
 #include "common_behavior/abstract_behavior.h"
 
-#include "velma_core_cs_task_cs_msgs/VelmaCoreCsCommand.h"
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelStatus.h"
-
-using namespace velma_core_cs_ve_body_msgs;
-using namespace velma_core_cs_task_cs_msgs;
+#include "velma_core_cs_task_cs_msgs/Command.h"
+#include "velma_core_cs_ve_body_msgs/Status.h"
 
 namespace velma_core_cs_types {
 
-class BehaviorIdle : public BehaviorBase<VelmaLowLevelStatus, VelmaCoreCsCommand> {
+class BehaviorIdle : public BehaviorBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
 public:
-    typedef VelmaLowLevelStatus TYPE_BUF_LO;
-    typedef VelmaCoreCsCommand TYPE_BUF_HI;
+    typedef velma_core_cs_ve_body_msgs::Status TYPE_BUF_LO;
+    typedef velma_core_cs_task_cs_msgs::Command TYPE_BUF_HI;
 
     BehaviorIdle() :
         BehaviorBase("behavior_velma_core_cs_idle")
@@ -67,5 +64,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_BEHAVIOR( VelmaLowLevelStatus, VelmaCoreCsCommand, velma_core_cs_types::BehaviorIdle );
+REGISTER_BEHAVIOR( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::BehaviorIdle );
 
