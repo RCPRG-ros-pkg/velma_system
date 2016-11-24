@@ -11,6 +11,8 @@ ros.import("rtt_geometry_msgs");
 ros.import("rtt_velma_core_cs_ve_body_msgs");
 ros.import("velma_core_cs_ve_body_interface");
 ros.import("velma_core_ve_body");
+ros.import("rtt_velma_core_ve_body_re_body_msgs");
+ros.import("velma_core_ve_body_re_body_interface");
 
 ros.import("eigen_typekit");
 ros.import("rtt_std_msgs");
@@ -123,28 +125,33 @@ safe.configure();
 #
 # the low level interfaces
 #
-loadComponent("lli_lo_tx","VelmaLLILoTx")
-setActivity("lli_lo_tx", 0, 6, ORO_SCHED_RT);
-lli_lo_tx.loadService("rosparam");
-lli_lo_tx.rosparam.getAll();
-lli_lo_tx.configure();
+loadComponent("core_ve_body_status_tx","VelmaCoreCsVeBodyStatusTx")
+setActivity("core_ve_body_status_tx", 0, 6, ORO_SCHED_RT);
+core_ve_body_status_tx.loadService("rosparam");
+core_ve_body_status_tx.rosparam.getAll();
+core_ve_body_status_tx.configure();
 
-loadComponent("status_concate","VelmaLLIStatusConcate")
-setActivity("status_concate", 0, 6, ORO_SCHED_RT);
-status_concate.configure();
-connect("status_concate.msg_OUTPORT", "lli_lo_tx.msg_INPORT", ConnPolicy())
+loadComponent("core_ve_body_status_concate","VelmaCoreCsVeBodyStatusConcate")
+setActivity("core_ve_body_status_concate", 0, 6, ORO_SCHED_RT);
+core_ve_body_status_concate.configure();
+connect("core_ve_body_status_concate.msg_OUTPORT", "core_ve_body_status_tx.msg_INPORT", ConnPolicy())
 
-loadComponent("lli_lo_rx","VelmaLLILoRx")
-setActivity("lli_lo_rx", 0.001, 6, ORO_SCHED_RT);
-lli_lo_rx.loadService("sim_clock_activity");
-lli_lo_rx.loadService("rosparam");
-lli_lo_rx.rosparam.getAll();
+loadComponent("core_cs_command_rx","VelmaCoreCsVeBodyCommandRx")
+setActivity("core_cs_command_rx", 0.001, 6, ORO_SCHED_RT);
+core_cs_command_rx.loadService("sim_clock_activity");
+core_cs_command_rx.loadService("rosparam");
+core_cs_command_rx.rosparam.getAll();
 
-# command_split component is unnecessary in this case
-#loadComponent("command_split","VelmaLLICommandSplit")
-#setActivity("command_split", 0, 6, ORO_SCHED_RT);
-#command_split.configure();
-#connect("lli_lo_rx.msg_OUTPORT", "command_split.msg_INPORT", ConnPolicy())
+# core_cs_command_split component is unnecessary in this case
+#loadComponent("core_cs_command_split","VelmaCoreCsVeBodyCommandSplit")
+#setActivity("core_cs_command_split", 0, 6, ORO_SCHED_RT);
+#core_cs_command_split.configure();
+#connect("core_cs_command_rx.msg_OUTPORT", "core_cs_command_split.msg_INPORT", ConnPolicy())
+
+
+loadComponent("core_re_body_status_concate","VelmaCoreVeBodyReBodyStatusConcate")
+setActivity("core_re_body_status_concate", 0, 6, ORO_SCHED_RT);
+core_re_body_status_concate.configure();
 
 #
 # command
@@ -164,7 +171,7 @@ connect("safe.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity
 connect("safe.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
 #
-# status for safety_controller
+# status for safe component
 #
 connect("LWRrSim.JointPosition_OUTPORT",                    "safe.status_rArm_q_INPORT", ConnPolicy())
 connect("LWRrSim.JointVelocity_OUTPORT",                    "safe.status_rArm_dq_INPORT", ConnPolicy())
@@ -172,8 +179,6 @@ connect("LWRrSim.JointTorque_OUTPORT",                      "safe.status_rArm_t_
 connect("LWRrSim.GravityTorque_OUTPORT",                    "safe.status_rArm_gt_INPORT", ConnPolicy())
 connect("LWRrSim.CartesianWrench_OUTPORT",                  "safe.status_rArm_w_INPORT", ConnPolicy())
 connect("LWRrSim.MassMatrix_OUTPORT",                       "safe.status_rArm_mmx_INPORT", ConnPolicy())
-#connect("LWRrSim.FRIState_OUTPORT",                         "safe.status_rArm_friIntfState_INPORT", ConnPolicy())
-#connect("LWRrSim.RobotState_OUTPORT",                       "safe.status_rArm_friRobotState_INPORT", ConnPolicy())
 
 connect("LWRlSim.JointPosition_OUTPORT",                    "safe.status_lArm_q_INPORT", ConnPolicy())
 connect("LWRlSim.JointVelocity_OUTPORT",                    "safe.status_lArm_dq_INPORT", ConnPolicy())
@@ -181,8 +186,6 @@ connect("LWRlSim.JointTorque_OUTPORT",                      "safe.status_lArm_t_
 connect("LWRlSim.GravityTorque_OUTPORT",                    "safe.status_lArm_gt_INPORT", ConnPolicy())
 connect("LWRlSim.CartesianWrench_OUTPORT",                  "safe.status_lArm_w_INPORT", ConnPolicy())
 connect("LWRlSim.MassMatrix_OUTPORT",                       "safe.status_lArm_mmx_INPORT", ConnPolicy())
-#connect("LWRlSim.FRIState_OUTPORT",                         "safe.status_lArm_friIntfState_INPORT", ConnPolicy())
-#connect("LWRlSim.RobotState_OUTPORT",                       "safe.status_lArm_friRobotState_INPORT", ConnPolicy())
 
 connect("TorsoSim.t_MotorPosition_OUTPORT",                 "safe.status_tMotor_q_INPORT", ConnPolicy())
 connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "safe.status_tMotor_dq_INPORT", ConnPolicy())
@@ -192,45 +195,91 @@ connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "safe.status_htMotor
 connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "safe.status_htMotor_dq_INPORT", ConnPolicy())
 
 #
-# status for lli_lo_tx
+# status concate for core_ve_body_status_tx
 #
-connect("LWRrSim.JointPosition_OUTPORT",                    "status_concate.status_rArm_q_INPORT", ConnPolicy())
-connect("LWRrSim.JointVelocity_OUTPORT",                    "status_concate.status_rArm_dq_INPORT", ConnPolicy())
-connect("LWRrSim.JointTorque_OUTPORT",                      "status_concate.status_rArm_t_INPORT", ConnPolicy())
-connect("LWRrSim.GravityTorque_OUTPORT",                    "status_concate.status_rArm_gt_INPORT", ConnPolicy())
-connect("LWRrSim.CartesianWrench_OUTPORT",                  "status_concate.status_rArm_w_INPORT", ConnPolicy())
-connect("LWRrSim.MassMatrix_OUTPORT",                       "status_concate.status_rArm_mmx_INPORT", ConnPolicy())
-connect("RightHand.q_OUTPORT",                              "status_concate.status_rHand_q_INPORT", ConnPolicy())
-connect("RightHand.status_OUTPORT",                         "status_concate.status_rHand_s_INPORT", ConnPolicy())
+connect("LWRrSim.JointPosition_OUTPORT",                    "core_ve_body_status_concate.status_rArm_q_INPORT", ConnPolicy())
+connect("LWRrSim.JointVelocity_OUTPORT",                    "core_ve_body_status_concate.status_rArm_dq_INPORT", ConnPolicy())
+connect("LWRrSim.JointTorque_OUTPORT",                      "core_ve_body_status_concate.status_rArm_t_INPORT", ConnPolicy())
+connect("LWRrSim.GravityTorque_OUTPORT",                    "core_ve_body_status_concate.status_rArm_gt_INPORT", ConnPolicy())
+connect("LWRrSim.CartesianWrench_OUTPORT",                  "core_ve_body_status_concate.status_rArm_w_INPORT", ConnPolicy())
+connect("LWRrSim.MassMatrix_OUTPORT",                       "core_ve_body_status_concate.status_rArm_mmx_INPORT", ConnPolicy())
 
-connect("LWRlSim.JointPosition_OUTPORT",                    "status_concate.status_lArm_q_INPORT", ConnPolicy())
-connect("LWRlSim.JointVelocity_OUTPORT",                    "status_concate.status_lArm_dq_INPORT", ConnPolicy())
-connect("LWRlSim.JointTorque_OUTPORT",                      "status_concate.status_lArm_t_INPORT", ConnPolicy())
-connect("LWRlSim.GravityTorque_OUTPORT",                    "status_concate.status_lArm_gt_INPORT", ConnPolicy())
-connect("LWRlSim.CartesianWrench_OUTPORT",                  "status_concate.status_lArm_w_INPORT", ConnPolicy())
-connect("LWRlSim.MassMatrix_OUTPORT",                       "status_concate.status_lArm_mmx_INPORT", ConnPolicy())
-connect("LeftHand.q_OUTPORT",                               "status_concate.status_lHand_q_INPORT", ConnPolicy())
-connect("LeftHand.status_OUTPORT",                          "status_concate.status_lHand_s_INPORT", ConnPolicy())
+connect("RightHand.q_OUTPORT",                              "core_ve_body_status_concate.status_rHand_q_INPORT", ConnPolicy())
+connect("RightHand.status_OUTPORT",                         "core_ve_body_status_concate.status_rHand_s_INPORT", ConnPolicy())
 
-connect("TorsoSim.t_MotorPosition_OUTPORT",                 "status_concate.status_tMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "status_concate.status_tMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_position_OUTPORT",         "status_concate.status_hpMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "status_concate.status_hpMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "status_concate.status_htMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "status_concate.status_htMotor_dq_INPORT", ConnPolicy())
-connect("RightHandTactile.BHPressureState_OUTPORT",         "status_concate.status_rHand_p_INPORT", ConnPolicy())
-#connect("lli_lo_test.status_lHand_f_OUTPORT",             "status_concate.status_lHand_f_INPORT", ConnPolicy())
+connect("LWRlSim.JointPosition_OUTPORT",                    "core_ve_body_status_concate.status_lArm_q_INPORT", ConnPolicy())
+connect("LWRlSim.JointVelocity_OUTPORT",                    "core_ve_body_status_concate.status_lArm_dq_INPORT", ConnPolicy())
+connect("LWRlSim.JointTorque_OUTPORT",                      "core_ve_body_status_concate.status_lArm_t_INPORT", ConnPolicy())
+connect("LWRlSim.GravityTorque_OUTPORT",                    "core_ve_body_status_concate.status_lArm_gt_INPORT", ConnPolicy())
+connect("LWRlSim.CartesianWrench_OUTPORT",                  "core_ve_body_status_concate.status_lArm_w_INPORT", ConnPolicy())
+connect("LWRlSim.MassMatrix_OUTPORT",                       "core_ve_body_status_concate.status_lArm_mmx_INPORT", ConnPolicy())
+
+connect("LeftHand.q_OUTPORT",                               "core_ve_body_status_concate.status_lHand_q_INPORT", ConnPolicy())
+connect("LeftHand.status_OUTPORT",                          "core_ve_body_status_concate.status_lHand_s_INPORT", ConnPolicy())
+
+connect("TorsoSim.t_MotorPosition_OUTPORT",                 "core_ve_body_status_concate.status_tMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "core_ve_body_status_concate.status_tMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_position_OUTPORT",         "core_ve_body_status_concate.status_hpMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "core_ve_body_status_concate.status_hpMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "core_ve_body_status_concate.status_htMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "core_ve_body_status_concate.status_htMotor_dq_INPORT", ConnPolicy())
+connect("RightHandTactile.BHPressureState_OUTPORT",         "core_ve_body_status_concate.status_rHand_p_INPORT", ConnPolicy())
+#connect("lli_lo_test.status_lHand_f_OUTPORT",             "core_ve_body_status_concate.status_lHand_f_INPORT", ConnPolicy())
 # TODO LeftHandOptoforce.force_0_OUTPORT
 
-connect("RightFtSensor.rawWrench_OUTPORT",                  "status_concate.status_rFt_rw_INPORT", ConnPolicy())
-connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "status_concate.status_rFt_ffw_INPORT", ConnPolicy())
-connect("RightFtSensor.slowFilteredWrench_OUTPORT",         "status_concate.status_rFt_sfw_INPORT", ConnPolicy())
-connect("LeftFtSensor.rawWrench_OUTPORT",                   "status_concate.status_lFt_rw_INPORT", ConnPolicy())
-connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "status_concate.status_lFt_ffw_INPORT", ConnPolicy())
-connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "status_concate.status_lFt_sfw_INPORT", ConnPolicy())
+connect("RightFtSensor.rawWrench_OUTPORT",                  "core_ve_body_status_concate.status_rFt_rw_INPORT", ConnPolicy())
+connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "core_ve_body_status_concate.status_rFt_ffw_INPORT", ConnPolicy())
+connect("RightFtSensor.slowFilteredWrench_OUTPORT",         "core_ve_body_status_concate.status_rFt_sfw_INPORT", ConnPolicy())
+connect("LeftFtSensor.rawWrench_OUTPORT",                   "core_ve_body_status_concate.status_lFt_rw_INPORT", ConnPolicy())
+connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "core_ve_body_status_concate.status_lFt_ffw_INPORT", ConnPolicy())
+connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "core_ve_body_status_concate.status_lFt_sfw_INPORT", ConnPolicy())
 
 
-connect("lli_lo_rx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
+#
+# status concate for master_component and other components
+#
+connect("LWRrSim.JointPosition_OUTPORT",                    "core_re_body_status_concate.status_rArm_q_INPORT", ConnPolicy())
+connect("LWRrSim.JointVelocity_OUTPORT",                    "core_re_body_status_concate.status_rArm_dq_INPORT", ConnPolicy())
+connect("LWRrSim.JointTorque_OUTPORT",                      "core_re_body_status_concate.status_rArm_t_INPORT", ConnPolicy())
+connect("LWRrSim.GravityTorque_OUTPORT",                    "core_re_body_status_concate.status_rArm_gt_INPORT", ConnPolicy())
+connect("LWRrSim.CartesianWrench_OUTPORT",                  "core_re_body_status_concate.status_rArm_w_INPORT", ConnPolicy())
+connect("LWRrSim.MassMatrix_OUTPORT",                       "core_re_body_status_concate.status_rArm_mmx_INPORT", ConnPolicy())
+connect("LWRrSim.FRIState_OUTPORT",                         "core_re_body_status_concate.status_rArmFriIntf_INPORT", ConnPolicy())
+connect("LWRrSim.RobotState_OUTPORT",                       "core_re_body_status_concate.status_rArmFriRobot_INPORT", ConnPolicy())
+
+connect("RightHand.q_OUTPORT",                              "core_re_body_status_concate.status_rHand_q_INPORT", ConnPolicy())
+connect("RightHand.status_OUTPORT",                         "core_re_body_status_concate.status_rHand_s_INPORT", ConnPolicy())
+
+connect("LWRlSim.JointPosition_OUTPORT",                    "core_re_body_status_concate.status_lArm_q_INPORT", ConnPolicy())
+connect("LWRlSim.JointVelocity_OUTPORT",                    "core_re_body_status_concate.status_lArm_dq_INPORT", ConnPolicy())
+connect("LWRlSim.JointTorque_OUTPORT",                      "core_re_body_status_concate.status_lArm_t_INPORT", ConnPolicy())
+connect("LWRlSim.GravityTorque_OUTPORT",                    "core_re_body_status_concate.status_lArm_gt_INPORT", ConnPolicy())
+connect("LWRlSim.CartesianWrench_OUTPORT",                  "core_re_body_status_concate.status_lArm_w_INPORT", ConnPolicy())
+connect("LWRlSim.MassMatrix_OUTPORT",                       "core_re_body_status_concate.status_lArm_mmx_INPORT", ConnPolicy())
+connect("LWRlSim.FRIState_OUTPORT",                         "core_re_body_status_concate.status_lArmFriIntf_INPORT", ConnPolicy())
+connect("LWRlSim.RobotState_OUTPORT",                       "core_re_body_status_concate.status_lArmFriRobot_INPORT", ConnPolicy())
+
+connect("LeftHand.q_OUTPORT",                               "core_re_body_status_concate.status_lHand_q_INPORT", ConnPolicy())
+connect("LeftHand.status_OUTPORT",                          "core_re_body_status_concate.status_lHand_s_INPORT", ConnPolicy())
+
+connect("TorsoSim.t_MotorPosition_OUTPORT",                 "core_re_body_status_concate.status_tMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "core_re_body_status_concate.status_tMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_position_OUTPORT",         "core_re_body_status_concate.status_hpMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "core_re_body_status_concate.status_hpMotor_dq_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "core_re_body_status_concate.status_htMotor_q_INPORT", ConnPolicy())
+connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "core_re_body_status_concate.status_htMotor_dq_INPORT", ConnPolicy())
+connect("RightHandTactile.BHPressureState_OUTPORT",         "core_re_body_status_concate.status_rHand_p_INPORT", ConnPolicy())
+#connect("lli_lo_test.status_lHand_f_OUTPORT",             "core_re_body_status_concate.status_lHand_f_INPORT", ConnPolicy())
+# TODO LeftHandOptoforce.force_0_OUTPORT
+
+connect("RightFtSensor.rawWrench_OUTPORT",                  "core_re_body_status_concate.status_rFt_rw_INPORT", ConnPolicy())
+connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "core_re_body_status_concate.status_rFt_ffw_INPORT", ConnPolicy())
+connect("RightFtSensor.slowFilteredWrench_OUTPORT",         "core_re_body_status_concate.status_rFt_sfw_INPORT", ConnPolicy())
+connect("LeftFtSensor.rawWrench_OUTPORT",                   "core_re_body_status_concate.status_lFt_rw_INPORT", ConnPolicy())
+connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "core_re_body_status_concate.status_lFt_ffw_INPORT", ConnPolicy())
+connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "core_re_body_status_concate.status_lFt_sfw_INPORT", ConnPolicy())
+
+connect("core_cs_command_rx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
 
 #
 # controller manager: scheme
@@ -248,8 +297,9 @@ addPeer("scheme", "LeftFtSensor");
 addPeer("scheme", "RightFtSensor");
 addPeer("scheme", "LWRrSim");
 addPeer("scheme", "LWRlSim");
-addPeer("scheme", "lli_lo_tx");
-addPeer("scheme", "status_concate");
+addPeer("scheme", "core_ve_body_status_tx");
+addPeer("scheme", "core_ve_body_status_concate");
+addPeer("scheme", "core_re_body_status_concate");
 addPeer("scheme", "bypass");
 addPeer("scheme", "safe");
 
@@ -262,8 +312,9 @@ scheme.addBlock("LeftFtSensor");
 scheme.addBlock("RightFtSensor");
 scheme.addBlock("LWRrSim");
 scheme.addBlock("LWRlSim");
-scheme.addBlock("lli_lo_tx");
-scheme.addBlock("status_concate");
+scheme.addBlock("core_ve_body_status_tx");
+scheme.addBlock("core_ve_body_status_concate");
+scheme.addBlock("core_re_body_status_concate");
 scheme.addBlock("bypass");
 scheme.addBlock("safe");
 
@@ -277,12 +328,14 @@ scheme.latchConnections("TorsoSim", "safe", true);
 loadComponent("master_component","VelmaLowLevelMaster");
 setActivity("master_component", 0, 6, ORO_SCHED_RT);
 addPeer("master_component", "scheme");
-connect("lli_lo_rx.msg_OUTPORT", "master_component.command_INPORT", ConnPolicy())
+connect("core_cs_command_rx.msg_OUTPORT", "master_component.command_INPORT", ConnPolicy())
 master_component.loadService("rosparam")
 master_component.rosparam.getAll()
 master_component.configure();
 
-connect("master_component.status_test_OUTPORT",    "status_concate.status_test_INPORT", ConnPolicy())
+connect("master_component.status_test_OUTPORT",    "core_ve_body_status_concate.status_test_INPORT", ConnPolicy())
+
+connect("core_re_body_status_concate.msg_OUTPORT", "master_component.status_INPORT", ConnPolicy())
 
 #
 # receiver
@@ -290,7 +343,7 @@ connect("master_component.status_test_OUTPORT",    "status_concate.status_test_I
 var bool triggerOnStart = false
 set master_component.TriggerOnStart = triggerOnStart
 set TorsoSim.TriggerOnStart = triggerOnStart
-set lli_lo_rx.TriggerOnStart = triggerOnStart
+set core_cs_command_rx.TriggerOnStart = triggerOnStart
 set RightHandTactile.TriggerOnStart = triggerOnStart
 set RightHand.TriggerOnStart = triggerOnStart
 set LeftHand.TriggerOnStart = triggerOnStart
@@ -299,21 +352,22 @@ set LeftFtSensor.TriggerOnStart = triggerOnStart
 set RightFtSensor.TriggerOnStart = triggerOnStart
 set LWRrSim.TriggerOnStart = triggerOnStart
 set LWRlSim.TriggerOnStart = triggerOnStart
-set lli_lo_tx.TriggerOnStart = triggerOnStart
-set status_concate.TriggerOnStart = triggerOnStart
+set core_ve_body_status_tx.TriggerOnStart = triggerOnStart
+set core_ve_body_status_concate.TriggerOnStart = triggerOnStart
+set core_re_body_status_concate.TriggerOnStart = triggerOnStart
 set scheme.TriggerOnStart = triggerOnStart
 set safe.TriggerOnStart = triggerOnStart
 set bypass.TriggerOnStart = triggerOnStart
 
-# add slave tasks to lli_lo_rx
-addPeer("lli_lo_rx", "master_component");
-addPeer("lli_lo_rx", "scheme");
+# add slave tasks to core_cs_command_rx
+addPeer("core_cs_command_rx", "master_component");
+addPeer("core_cs_command_rx", "scheme");
 
 # set slave tasks execution order (before configure)
-lli_lo_rx.pushBackPeerExecution("master_component");
-lli_lo_rx.pushBackPeerExecution("scheme");
+core_cs_command_rx.pushBackPeerExecution("master_component");
+core_cs_command_rx.pushBackPeerExecution("scheme");
 
-lli_lo_rx.configure();
+core_cs_command_rx.configure();
 
 
 #
@@ -323,9 +377,9 @@ loadComponent("diag","DiagnosticComponent");
 setActivity("diag", 0.01, 0, ORO_SCHED_OTHER);
 diag.loadService("sim_clock_activity");
 
-addPeer("diag", "lli_lo_rx");
-addPeer("diag", "lli_lo_tx");
-addPeer("diag", "status_concate");
+addPeer("diag", "core_cs_command_rx");
+addPeer("diag", "core_ve_body_status_tx");
+addPeer("diag", "core_ve_body_status_concate");
 addPeer("diag", "master_component");
 addPeer("diag", "TorsoSim");
 addPeer("diag", "RightHandTactile");
@@ -347,8 +401,9 @@ diag.configure();
 #
 # start components
 #
-status_concate.start();
-lli_lo_tx.start();
+core_ve_body_status_concate.start();
+core_re_body_status_concate.start();
+core_ve_body_status_tx.start();
 
 scheme.start();
 master_component.start();
@@ -363,7 +418,7 @@ LeftHandOptoforce.start();
 LeftFtSensor.start();
 RightFtSensor.start();
 
-lli_lo_rx.start();
+core_cs_command_rx.start();
 
 diag.start();
 
