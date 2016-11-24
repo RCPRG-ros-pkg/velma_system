@@ -28,17 +28,15 @@
 #ifndef VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 #define VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
-#include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
+#include "velma_core_cs_ve_body_msgs/Command.h"
+#include "velma_core_ve_body_re_body_msgs/Status.h"
 
-using namespace velma_core_cs_ve_body_msgs;
-
-bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf);
-bool isLwrInCmdState(const VelmaRealEffectorArmFriIntf& friIntf);
+bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
+bool isLwrInCmdState(const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
 bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
-bool isCmdValid(const VelmaLowLevelCommand& cmd);
-bool isStatusValid(const VelmaRealEffectorStatus &st);
+bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd);
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st);
 
 #endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 

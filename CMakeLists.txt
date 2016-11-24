@@ -9,6 +9,7 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   velma_core_cs_ve_body_msgs
   velma_core_cs_ve_body_interface
+  velma_core_ve_body_re_body_interface
   eigen_conversions
   common_interfaces
   common_behavior

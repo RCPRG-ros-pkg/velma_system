@@ -27,19 +27,17 @@
 
 #include "common_behavior/abstract_behavior.h"
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
-#include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
+#include "velma_core_cs_ve_body_msgs/Command.h"
+#include "velma_core_ve_body_re_body_msgs/Status.h"
 
 #include "common_predicates.h"
 
-using namespace velma_core_cs_ve_body_msgs;
-
 namespace velma_core_ve_body_types {
 
-class BehaviorSafe : public BehaviorBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
+class BehaviorSafe : public BehaviorBase<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command> {
 public:
-    typedef VelmaRealEffectorStatus TYPE_BUF_LO;
-    typedef VelmaLowLevelCommand TYPE_BUF_HI;
+    typedef velma_core_ve_body_re_body_msgs::Status TYPE_BUF_LO;
+    typedef velma_core_cs_ve_body_msgs::Command TYPE_BUF_HI;
 
     BehaviorSafe() :
         BehaviorBase("behavior_velma_core_ve_body_safe")
@@ -86,5 +84,5 @@ public:
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_BEHAVIOR( VelmaRealEffectorStatus, VelmaLowLevelCommand, velma_core_ve_body_types::BehaviorSafe );
+REGISTER_BEHAVIOR( velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command, velma_core_ve_body_types::BehaviorSafe );
 

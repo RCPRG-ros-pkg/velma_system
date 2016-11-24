@@ -30,7 +30,7 @@
 
 using namespace velma_core_cs_ve_body_msgs;
 
-bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf) {
+bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
@@ -42,7 +42,7 @@ bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffect
     return true;
 }
 
-bool isLwrInCmdState(const VelmaRealEffectorArmFriIntf& friIntf) {
+bool isLwrInCmdState(const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) {
     return friIntf.state == FRI_STATE_CMD;
 }
 
@@ -58,37 +58,37 @@ bool isInLim(double d, double lo_lim, double hi_lim) {
 // command validation
 //
 
-bool isCommandValidTorso(const VelmaLowLevelCommandMotor &cmd) {
+bool isCommandValidTorso(const velma_core_ve_body_re_body_msgs::CommandMotor &cmd) {
 // TODO
     return true;
 }
 
-bool isCommandValidHeadPan(const VelmaLowLevelCommandMotor &cmd) {
+bool isCommandValidHeadPan(const velma_core_ve_body_re_body_msgs::CommandMotor &cmd) {
 // TODO
     return true;
 }
 
-bool isCommandValidHeadTilt(const VelmaLowLevelCommandMotor &cmd) {
+bool isCommandValidHeadTilt(const velma_core_ve_body_re_body_msgs::CommandMotor &cmd) {
 // TODO
     return true;
 }
 
-bool isCommandValid(const VelmaLowLevelCommandHand &cmd) {
+bool isCommandValid(const velma_core_ve_body_re_body_msgs::CommandHand &cmd) {
 // TODO
     return true;
 }
 
-bool isCommandValidTact(const VelmaLowLevelCommandSimple &cmd) {
+bool isCommandValidTact(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd) {
 // TODO
     return true;
 }
 
-bool isCommandValidSc(const VelmaLowLevelCommandSimple &cmd) {
+bool isCommandValidSc(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd) {
 // TODO
     return true;
 }
 
-bool isCmdValid(const VelmaLowLevelCommandArm& cmd) {
+bool isCmdValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
     double arm_t_limits[7] = {100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0};
     for (int i = 0; i < cmd.t.size(); ++i) {
         if (!isInLim(cmd.t[i], -arm_t_limits[i], arm_t_limits[i])) {
@@ -98,7 +98,7 @@ bool isCmdValid(const VelmaLowLevelCommandArm& cmd) {
     return true;
 }
 
-bool isCmdValid(const VelmaLowLevelCommand& cmd) {
+bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd) {
 
     return cmd.rTact_valid
         && cmd.tMotor_valid
@@ -124,7 +124,7 @@ bool isCmdValid(const VelmaLowLevelCommand& cmd) {
 // status validation
 //
 
-bool isStatusValid(const VelmaLowLevelStatusArm &st) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st) {
     double arm_q_limits_lo[7] = {-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96};
     double arm_q_limits_hi[7] = {2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96};
 
@@ -146,22 +146,22 @@ bool isStatusValid(const VelmaLowLevelStatusArm &st) {
     return true;
 }
 
-bool isStatusValid(const VelmaLowLevelStatusHand &st) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusHand &st) {
 // TODO
     return true;
 }
 
-bool isStatusValid(const VelmaLowLevelStatusMotor &st) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusMotor &st) {
 // TODO
     return true;
 }
 
-bool isStatusValid(const VelmaLowLevelStatusFT &st) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusFT &st) {
 // TODO
     return true;
 }
 
-bool isStatusValid(const VelmaRealEffectorStatus &st) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st) {
 // TODO:
 // barrett_hand_controller_msgs/BHPressureState rHand_p
 // geometry_msgs/WrenchStamped[3] lHand_f

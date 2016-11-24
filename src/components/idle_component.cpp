@@ -32,8 +32,8 @@
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
-#include "velma_core_cs_ve_body_interface/velma_lli_command_ports.h"
+#include "velma_core_cs_ve_body_msgs/Command.h"
+#include "velma_core_cs_ve_body_interface/command_ports.h"
 
 using namespace velma_core_cs_ve_body_msgs;
 using namespace RTT;
@@ -54,10 +54,10 @@ public:
 
 private:
 
-    VelmaLowLevelCommand cmd_;
-    RTT::InputPort<VelmaLowLevelCommand > port_cmd_in_;
+    Command cmd_;
+    RTT::InputPort<Command > port_cmd_in_;
 
-    velma_lli_types::VelmaCommand_Ports<RTT::OutputPort > cmd_ports_out_;
+    velma_core_cs_ve_body_interface::VelmaCommand_Ports<RTT::OutputPort > cmd_ports_out_;
 
     int diag_;
 };

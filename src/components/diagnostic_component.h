@@ -38,7 +38,7 @@
 
 #include <diagnostic_msgs/DiagnosticArray.h>
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelStatus.h"
+#include "velma_core_cs_ve_body_msgs/Status.h"
 
 using namespace velma_core_cs_ve_body_msgs;
 
@@ -65,8 +65,8 @@ private:
     diagnostic_msgs::DiagnosticArray diag_out_;
     RTT::OutputPort<diagnostic_msgs::DiagnosticArray > port_diag_out_;
 
-    VelmaLowLevelStatusSC status_sc_in_;
-    RTT::InputPort<VelmaLowLevelStatusSC> port_status_sc_in_;
+    StatusSC status_sc_in_;
+    RTT::InputPort<StatusSC> port_status_sc_in_;
 
     std::vector<TaskContext* > peers_;
     std::vector<Diag > diag_vec_;

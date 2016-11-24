@@ -32,12 +32,12 @@
 #include <rtt/base/PortInterface.hpp>
 #include <kuka_lwr_fri/friComm.h>
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
+#include "velma_core_cs_ve_body_msgs/Command.h"
 
 #include "eigen_conversions/eigen_msg.h"
 
-#include "velma_core_cs_ve_body_interface/velma_lli_real_effector_commands.h"
-#include "velma_core_cs_ve_body_interface/velma_lli_real_effector_status.h"
+#include "velma_core_ve_body_re_body_interface/command_ports.h"
+#include "velma_core_ve_body_re_body_interface/status_ports.h"
 
 #include <math.h>
 
@@ -91,7 +91,7 @@ public:
     std::string getDiag();
 
 private:
-    bool isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf) const;
+    bool isLwrOk(const StatusArmFriRobot& friRobot, const StatusArmFriIntf& friIntf) const;
 
     const int arm_joints_count_;
 
@@ -102,8 +102,6 @@ private:
 
     bool isNaN(double d) const;
     bool isInLim(double d, double lo_lim, double hi_lim) const;
-
-    std::string cmdToStr(const VelmaRealEffectorCommand &cmd);
 
     // ROS parameters
 	std::vector<double> l_arm_damping_factors_;
@@ -116,19 +114,19 @@ private:
     std::vector<double> arm_t_limits_;
 
     // port data
-    VelmaRealEffectorCommand cmd_out_;
-    velma_lli_types::RE_VelmaCommand_Ports<RTT::OutputPort > cmd_ports_out_;
+    velma_core_ve_body_re_body_msgs::Command cmd_out_;
+    velma_core_ve_body_re_body_interface::VelmaCommand_Ports<RTT::OutputPort > cmd_ports_out_;
 
-    VelmaRealEffectorStatus status_in_;
-    velma_lli_types::RE_VelmaStatus_Ports<RTT::InputPort > status_ports_in_;
+    Status status_in_;
+    velma_core_ve_body_re_body_interface::VelmaStatus_Ports<RTT::InputPort > status_ports_in_;
 
-//    VelmaLowLevelCommand cmd_in_;
-//    RTT::InputPort<VelmaLowLevelCommand> port_command_in_;
+//    Command cmd_in_;
+//    RTT::InputPort<Command> port_command_in_;
 
     RTT::OutputPort<int >   diag_out_;
 
-//    VelmaLowLevelStatusSC sc_;
-//    RTT::OutputPort<VelmaLowLevelStatusSC> port_sc_out_;
+//    StatusSC sc_;
+//    RTT::OutputPort<StatusSC> port_sc_out_;
 
     // additional HW control ports
 //    RTT::InputPort<tFriIntfState>       port_rArm_fri_state_in_;
@@ -145,8 +143,8 @@ private:
     tFriRobotState      rArm_robot_state_;
     tFriIntfState       lArm_fri_state_;
     tFriRobotState      lArm_robot_state_;
-    std_msgs::Int32     rArm_KRL_CMD_;             // FRIx.KRL_CMD
-    std_msgs::Int32     lArm_KRL_CMD_;             // FRIx.KRL_CMD
+//    std_msgs::Int32     rArm_KRL_CMD_;             // FRIx.KRL_CMD
+//    std_msgs::Int32     lArm_KRL_CMD_;             // FRIx.KRL_CMD
 
     interface_ports::PortRawData<Eigen::Matrix<double,7,1>, boost::array<double, 7ul> > arm_dq_;
     interface_ports::PortRawData<Eigen::Matrix<double,7,1>, boost::array<double, 7ul> > arm_t_cmd_;
@@ -339,7 +337,7 @@ void VelmaLowSafeComponent::calculateTorsoDampingTorque(double motor_velocity, d
     motor_current_command = motor_torque_command / torso_gear / torso_motor_constant;
 }
 
-bool VelmaLowSafeComponent::isLwrOk(const VelmaRealEffectorArmFriRobot& friRobot, const VelmaRealEffectorArmFriIntf& friIntf) const {
+bool VelmaLowSafeComponent::isLwrOk(const StatusArmFriRobot& friRobot, const StatusArmFriIntf& friIntf) const {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
@@ -455,13 +453,13 @@ void VelmaLowSafeComponent::updateHook() {
     readCmdData_ = (port_command_in_.read(cmd_in_) == NewData);
     cmdValid_ = false;
     if (!readCmdData_) {
-        setFault(status_sc_out_, VelmaLowLevelStatusSC::FAULT_COMM_UP, 0, 0);
+        setFault(status_sc_out_, StatusSC::FAULT_COMM_UP, 0, 0);
     }
     else if (!isCommandValid(cmd_in_, id_faulty_module, id_faulty_submodule)) {
-        setFault(status_sc_out_, VelmaLowLevelStatusSC::FAULT_NAN_COMMAND, id_faulty_module, id_faulty_submodule);
+        setFault(status_sc_out_, StatusSC::FAULT_NAN_COMMAND, id_faulty_module, id_faulty_submodule);
     }
-    else if (VelmaLowLevelStatusSC::STATE_HW_DOWN != state_ && cmd_in_.test != packet_counter_) {
-        setFault(status_sc_out_, VelmaLowLevelStatusSC::FAULT_COMM_PACKET_LOST, 0, 0);
+    else if (StatusSC::STATE_HW_DOWN != state_ && cmd_in_.test != packet_counter_) {
+        setFault(status_sc_out_, StatusSC::FAULT_COMM_PACKET_LOST, 0, 0);
     }
     else {
         cmdValid_ = true;
@@ -549,7 +547,7 @@ void VelmaLowSafeComponent::updateHook() {
     cmd_ports_out_.convertFromROS(cmd_out_);
 /*
     // TODO
-        if (VelmaLowLevelStatusSC::STATE_HW_ENABLED == state_ && cmd_in_.sc.valid && cmd_in_.sc.cmd == 1) {
+        if (StatusSC::STATE_HW_ENABLED == state_ && cmd_in_.sc.valid && cmd_in_.sc.cmd == 1) {
             //
             // write FRI commands
             //

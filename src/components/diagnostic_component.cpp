@@ -58,21 +58,21 @@ static std::string getTaskStatusChar(RTT::TaskContext* t)
 
 static std::string faultTypeToString(int fault_type) {
     switch (fault_type) {
-    case VelmaLowLevelStatusSC::FAULT_NAN_COMMAND:
+    case StatusSC::FAULT_NAN_COMMAND:
         return "FAULT_NAN_COMMAND";
-    case VelmaLowLevelStatusSC::FAULT_RANGE_COMMAND:
+    case StatusSC::FAULT_RANGE_COMMAND:
         return "FAULT_RANGE_COMMAND";
-    case VelmaLowLevelStatusSC::FAULT_NAN_STATUS:
+    case StatusSC::FAULT_NAN_STATUS:
         return "FAULT_NAN_STATUS";
-    case VelmaLowLevelStatusSC::FAULT_RANGE_STATUS:
+    case StatusSC::FAULT_RANGE_STATUS:
         return "FAULT_RANGE_STATUS";
-    case VelmaLowLevelStatusSC::FAULT_COMM_HW:
+    case StatusSC::FAULT_COMM_HW:
         return "FAULT_COMM_HW";
-    case VelmaLowLevelStatusSC::FAULT_COMM_UP:
+    case StatusSC::FAULT_COMM_UP:
         return "FAULT_COMM_UP";
-    case VelmaLowLevelStatusSC::FAULT_COMM_PACKET_LOST:
+    case StatusSC::FAULT_COMM_PACKET_LOST:
         return "FAULT_COMM_PACKET_LOST";
-    case VelmaLowLevelStatusSC::FAULT_HW_STATE:
+    case StatusSC::FAULT_HW_STATE:
         return "FAULT_HW_STATE";
     }
     return "FAULT_UNKNOWN";
@@ -80,27 +80,27 @@ static std::string faultTypeToString(int fault_type) {
 
 static std::string moduleIdToString(int module_id) {
     switch (module_id) {
-    case VelmaLowLevelStatusSC::MODULE_R_ARM:
+    case StatusSC::MODULE_R_ARM:
         return "MODULE_R_ARM";
-    case VelmaLowLevelStatusSC::MODULE_L_ARM:
+    case StatusSC::MODULE_L_ARM:
         return "MODULE_L_ARM";
-    case VelmaLowLevelStatusSC::MODULE_R_HAND:
+    case StatusSC::MODULE_R_HAND:
         return "MODULE_R_HAND";
-    case VelmaLowLevelStatusSC::MODULE_L_HAND:
+    case StatusSC::MODULE_L_HAND:
         return "MODULE_L_HAND";
-    case VelmaLowLevelStatusSC::MODULE_R_FT:
+    case StatusSC::MODULE_R_FT:
         return "MODULE_R_FT";
-    case VelmaLowLevelStatusSC::MODULE_L_FT:
+    case StatusSC::MODULE_L_FT:
         return "MODULE_L_FT";
-    case VelmaLowLevelStatusSC::MODULE_T_MOTOR:
+    case StatusSC::MODULE_T_MOTOR:
         return "MODULE_T_MOTOR";
-    case VelmaLowLevelStatusSC::MODULE_HP_MOTOR:
+    case StatusSC::MODULE_HP_MOTOR:
         return "MODULE_HP_MOTOR";
-    case VelmaLowLevelStatusSC::MODULE_HT_MOTOR:
+    case StatusSC::MODULE_HT_MOTOR:
         return "MODULE_HT_MOTOR";
-    case VelmaLowLevelStatusSC::MODULE_R_TACTILE:
+    case StatusSC::MODULE_R_TACTILE:
         return "MODULE_R_TACTILE";
-    case VelmaLowLevelStatusSC::MODULE_L_OPTOFORCE:
+    case StatusSC::MODULE_L_OPTOFORCE:
         return "MODULE_L_OPTOFORCE";
     }
     return "MODULE_UNKNOWN";

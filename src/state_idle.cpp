@@ -27,17 +27,15 @@
 
 #include "common_behavior/abstract_state.h"
 
-#include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
-#include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
-
-using namespace velma_core_cs_ve_body_msgs;
+#include "velma_core_cs_ve_body_msgs/Command.h"
+#include "velma_core_ve_body_re_body_msgs/Status.h"
 
 namespace velma_core_ve_body_types {
 
-class StateIdle : public StateBase<VelmaRealEffectorStatus, VelmaLowLevelCommand> {
+class StateIdle : public StateBase<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command> {
 public:
-    typedef VelmaRealEffectorStatus TYPE_BUF_LO;
-    typedef VelmaLowLevelCommand TYPE_BUF_HI;
+    typedef velma_core_ve_body_re_body_msgs::Status TYPE_BUF_LO;
+    typedef velma_core_cs_ve_body_msgs::Command TYPE_BUF_HI;
 
     StateIdle() :
         StateBase("state_velma_core_ve_body_idle", "behavior_velma_core_ve_body_idle")
@@ -61,5 +59,5 @@ public:
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_STATE( VelmaRealEffectorStatus, VelmaLowLevelCommand, velma_core_ve_body_types::StateIdle );
+REGISTER_STATE( velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command, velma_core_ve_body_types::StateIdle );
 
