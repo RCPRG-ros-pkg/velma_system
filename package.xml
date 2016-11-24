@@ -14,7 +14,6 @@
   <build_depend>ocl</build_depend>
   <build_depend>rtt_ros</build_depend>
   <build_depend>rtt_rosclock</build_depend>
-  <build_depend>behavior_manager_msgs</build_depend>
   <build_depend>velma_core_cs_task_cs_msgs</build_depend>
   <build_depend>velma_core_cs_task_cs_interface</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
@@ -28,6 +27,9 @@
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_task_cs_msgs</run_depend>
+  <run_depend>velma_core_cs_task_cs_interface</run_depend>
+  <run_depend>velma_core_cs_ve_body_msgs</run_depend>
+  <run_depend>velma_core_cs_ve_body_interface</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>

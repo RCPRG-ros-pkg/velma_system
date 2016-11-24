@@ -34,7 +34,7 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 
 #catkin_package(
 #  INCLUDE_DIRS include
-#  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm behavior_manager_msgs velma_core_cs_task_cs_interface_msgs
+#  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs
 #)
 
 include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
@@ -55,7 +55,7 @@ target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 orocos_generate_package(
   INCLUDE_DIRS include
 #  LIBRARIES velma_core_cs
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm behavior_manager_msgs velma_core_cs_task_cs_interface_msgs
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs
 )
 
 #orocos_install_headers(

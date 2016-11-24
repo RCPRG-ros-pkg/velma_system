@@ -29,9 +29,6 @@ ros.import("velma_core_cs_ve_body_interface");
 ros.import("rtt_velma_core_cs_task_cs_msgs");
 ros.import("velma_core_cs_task_cs_interface");
 
-#ros.import("rtt_behavior_manager_msgs");
-#ros.import("behavior_manager");
-
 var bool disableROS = true;
 
 // dot graph generation
