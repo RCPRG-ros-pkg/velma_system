@@ -25,8 +25,8 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef VELMA_LOW_LEVEL_COMMON_PREDICATES_H__
-#define VELMA_LOW_LEVEL_COMMON_PREDICATES_H__
+#ifndef VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
+#define VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 
 #include "velma_core_cs_ve_body_msgs/VelmaLowLevelCommand.h"
 #include "velma_core_cs_ve_body_msgs/VelmaRealEffectorStatus.h"
@@ -40,5 +40,5 @@ bool isInLim(double d, double lo_lim, double hi_lim);
 bool isCmdValid(const VelmaLowLevelCommand& cmd);
 bool isStatusValid(const VelmaRealEffectorStatus &st);
 
-#endif  // VELMA_LOW_LEVEL_COMMON_PREDICATES_H__
+#endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 
