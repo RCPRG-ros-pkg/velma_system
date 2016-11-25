@@ -10,9 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_cs_task_cs_msgs
   velma_core_cs_task_cs_interface
   eigen_conversions
-  common_interfaces
-  common_behavior
-  kuka_lwr_fri
+  rtt_actionlib
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -40,6 +38,7 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 
 orocos_component(velma_task_cs_ros_interface
     src/velma_task_cs_ros_interface.cpp
+    src/components/cartesian_trajectory_action.cpp
 )
 
 target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
@@ -49,7 +48,7 @@ target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROC
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
   INCLUDE_DIRS include
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs rtt_actionlib
 )
 
 #orocos_install_headers(

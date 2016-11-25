@@ -1,12 +1,29 @@
-// Copyright 2014 WUT
 /*
- * cartesian_trajectory_action.cpp
- *
- *  Created on: 5 mar 2014
- *      Author: konradb3
- */
-
-#include "cartesian_trajectory_action.h"
+ Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+ All rights reserved.
+ 
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions are met:
+     * Redistributions of source code must retain the above copyright
+       notice, this list of conditions and the following disclaimer.
+     * Redistributions in binary form must reproduce the above copyright
+       notice, this list of conditions and the following disclaimer in the
+       documentation and/or other materials provided with the distribution.
+     * Neither the name of the Warsaw University of Technology nor the
+       names of its contributors may be used to endorse or promote products
+       derived from this software without specific prior written permission.
+ 
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ DISCLAIMED. IN NO EVENT SHALL <COPYright HOLDER> BE LIABLE FOR ANY
+ DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+ (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
 
 #include <string>
 
@@ -14,10 +31,14 @@
 
 #include "rtt/TaskContext.hpp"
 #include "rtt/Port.hpp"
-#include "cartesian_trajectory_msgs/CartesianTrajectory.h"
+
+#include "velma_core_cs_task_cs_msgs/CommandCartImp.h"
+#include "velma_core_cs_task_cs_msgs/StatusCartImp.h"
+
+//#include "cartesian_trajectory_msgs/CartesianTrajectory.h"
 #include "cartesian_trajectory_msgs/CartesianTrajectoryAction.h"
 #include "cartesian_trajectory_msgs/CartesianTrajectoryGoal.h"
-#include "geometry_msgs/Wrench.h"
+//#include "geometry_msgs/Wrench.h"
 
 #include "rtt_actionlib/rtt_actionlib.h"
 #include "rtt_actionlib/rtt_action_server.h"
@@ -25,7 +46,7 @@
 #include "rtt_rosclock/rtt_rosclock.h"
 #include "eigen_conversions/eigen_msg.h"
 
-using ::cartesian_trajectory_msgs::CartesianTrajectory;
+using cartesian_trajectory_msgs::CartesianTrajectory;
 using cartesian_trajectory_msgs::CartesianTrajectoryConstPtr;
 
 class CartesianTrajectoryAction: public RTT::TaskContext {
@@ -47,6 +68,13 @@ class CartesianTrajectoryAction: public RTT::TaskContext {
   bool checkTolerance(Eigen::Affine3d err, cartesian_trajectory_msgs::CartesianTolerance tol);
   bool checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol);
 
+  // interface ports for core_cs
+  velma_core_cs_task_cs_msgs::StatusCartImp status_in_;
+  RTT::InputPort<velma_core_cs_task_cs_msgs::StatusCartImp > port_status_in_;
+
+  velma_core_cs_task_cs_msgs::CommandCartImp command_out_;
+  RTT::OutputPort<velma_core_cs_task_cs_msgs::CommandCartImp > port_command_out_;
+
   RTT::OutputPort<cartesian_trajectory_msgs::CartesianTrajectoryConstPtr> port_cartesian_trajectory_command_;
   RTT::InputPort<cartesian_trajectory_msgs::CartesianTrajectory> port_cartesian_trajectory_;
   RTT::InputPort<geometry_msgs::Pose> port_cartesian_position_;
@@ -58,17 +86,24 @@ class CartesianTrajectoryAction: public RTT::TaskContext {
 
 CartesianTrajectoryAction::CartesianTrajectoryAction(const std::string& name) :
     RTT::TaskContext(name),
-    port_cartesian_trajectory_command_("CartesianTrajectoryCommand_OUTPORT", false),
+    port_cartesian_trajectory_command_("CartesianTrajectoryCommand_OUTPORT", true),
     port_cartesian_trajectory_("trajectory_INPORT"),
     port_cartesian_position_("CartesianPosition_INPORT"),
     port_cartesian_position_command_("CartesianPositionCommand_INPORT"),
-    port_cartesian_wrench_("CartesianWrench_INPORT") {
+    port_cartesian_wrench_("CartesianWrench_INPORT"),
+    port_status_in_("status_INPORT"),
+    port_command_out_("command_OUTPORT")
+{
+
 
   this->ports()->addPort(port_cartesian_trajectory_command_);
   this->ports()->addPort(port_cartesian_trajectory_);
   this->ports()->addPort(port_cartesian_position_);
   this->ports()->addPort(port_cartesian_position_command_);
   this->ports()->addPort(port_cartesian_wrench_);
+
+  this->ports()->addPort(port_status_in_);
+  this->ports()->addPort(port_command_out_);
 
   as_.addPorts(this->provides());
 
@@ -90,7 +125,7 @@ bool CartesianTrajectoryAction::startHook() {
 }
 
 void CartesianTrajectoryAction::updateHook() {
-  cartesian_trajectory_msgs::CartesianTrajectory trj;
+  CartesianTrajectory trj;
   if (port_cartesian_trajectory_.read(trj) == RTT::NewData) {
     std::cout << "New trajectory point" << std::endl;
     CartesianTrajectory* trj_ptr =  new CartesianTrajectory;
@@ -207,26 +242,47 @@ bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, 
 }
 
 void CartesianTrajectoryAction::goalCB(GoalHandle gh) {
-  // cancel active goal
-  if (active_goal_.isValid() && (active_goal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
-    active_goal_.setCanceled();
-  }
+    // cancel active goal
+    if (active_goal_.isValid() && (active_goal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
+        active_goal_.setCanceled();
+    }
 
-  Goal g = gh.getGoal();
+    Goal g = gh.getGoal();
+
+// TODO: use CommandCartImpTrjPose
+/*
+    if (g->trajectory.points.size() > command_out_.pose.size()) {
+        cartesian_trajectory_msgs::CartesianTrajectoryResult res;
+//        res.error_code = TODO;
+        active_goal_.setRejected(res);
+    }
+
+    for (int i = 0; i < g->trajectory.points.size(); ++i) {
+        command_out_.pose[i] = g->trajectory.points[i];
+    }
+
+    command_out_.count_pose = g->trajectory.points.size();
+
+    port_command_out_.write(command_out_);
+
+    gh.setAccepted();
+    active_goal_ = gh;
 
   CartesianTrajectory* trj_ptr =  new CartesianTrajectory;
   *trj_ptr = g->trajectory;
   CartesianTrajectoryConstPtr trj_cptr = CartesianTrajectoryConstPtr(trj_ptr);
   port_cartesian_trajectory_command_.write(trj_cptr);
+*/
 
-  gh.setAccepted();
-  active_goal_ = gh;
 }
 
 void CartesianTrajectoryAction::cancelCB(GoalHandle gh) {
-  if (active_goal_ == gh) {
-    port_cartesian_trajectory_command_.write(CartesianTrajectoryConstPtr());
-    active_goal_.setCanceled();
-  }
+    if (active_goal_ == gh) {
+// TODO
+//        command_out_.count_trj_pose = 0;
+//        port_command_out_.write(command_out_);
+
+        active_goal_.setCanceled();
+    }
 }
 
