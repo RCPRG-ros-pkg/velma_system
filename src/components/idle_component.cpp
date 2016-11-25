@@ -33,9 +33,9 @@
 #include <rtt/Logger.hpp>
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_cs_ve_body_interface/command_ports.h"
+#include "velma_core_cs_ve_body_msgs/StatusSC.h"
+#include "velma_core_ve_body_re_body_msgs/Command.h"
 
-using namespace velma_core_cs_ve_body_msgs;
 using namespace RTT;
 
 class VelmaLowIdleComponent: public RTT::TaskContext {
@@ -54,10 +54,14 @@ public:
 
 private:
 
-    Command cmd_;
-    RTT::InputPort<Command > port_cmd_in_;
+    velma_core_cs_ve_body_msgs::Command cmd_in_;
+    RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
 
-    velma_core_cs_ve_body_interface::VelmaCommand_Ports<RTT::OutputPort > cmd_ports_out_;
+    velma_core_ve_body_re_body_msgs::Command cmd_out_;
+    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+
+    velma_core_cs_ve_body_msgs::StatusSC sc_out_;
+    RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
     int diag_;
 };
@@ -65,9 +69,11 @@ private:
 VelmaLowIdleComponent::VelmaLowIdleComponent(const std::string &name) :
     TaskContext(name, PreOperational),
     port_cmd_in_("command_INPORT"),
-    cmd_ports_out_(*this)
+    port_cmd_out_("command_OUTPORT")
 {
     this->ports()->addPort(port_cmd_in_);
+    this->ports()->addPort(port_cmd_out_);
+    this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
     this->addOperation("getDiag", &VelmaLowIdleComponent::getDiag, this, RTT::ClientThread);
 }
@@ -95,7 +101,7 @@ void VelmaLowIdleComponent::stopHook() {
 }
 
 void VelmaLowIdleComponent::updateHook() {
-    if (port_cmd_in_.read(cmd_) != RTT::NewData) {
+    if (port_cmd_in_.read(cmd_in_) != RTT::NewData) {
         Logger::In in("VelmaLowIdleComponent::updateHook");
         Logger::log() << Logger::Error << "could not read data on port "
             << port_cmd_in_.getName() << Logger::endl;
@@ -106,8 +112,41 @@ void VelmaLowIdleComponent::updateHook() {
 
     diag_ = 0;
 
-    cmd_ports_out_.convertFromROS(cmd_);
-    cmd_ports_out_.writePorts();
+    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
+
+    cmd_out_.rTact = cmd_in_.rTact;
+    cmd_out_.rTact_valid = cmd_in_.rTact_valid;
+
+    cmd_out_.tMotor = cmd_in_.tMotor;
+    cmd_out_.tMotor_valid = cmd_in_.tMotor_valid;
+
+    cmd_out_.hpMotor = cmd_in_.hpMotor;
+    cmd_out_.hpMotor_valid = cmd_in_.hpMotor_valid;
+
+    cmd_out_.htMotor = cmd_in_.htMotor;
+    cmd_out_.htMotor_valid = cmd_in_.htMotor_valid;
+
+    cmd_out_.lArm = cmd_in_.lArm;
+    cmd_out_.lArm_valid = cmd_in_.lArm_valid;
+
+    cmd_out_.rArm = cmd_in_.rArm;
+    cmd_out_.rArm_valid = cmd_in_.rArm_valid;
+
+    cmd_out_.lHand = cmd_in_.lHand;
+    cmd_out_.lHand_valid = cmd_in_.lHand_valid;
+
+    cmd_out_.rHand = cmd_in_.rHand;
+    cmd_out_.rHand_valid = cmd_in_.rHand_valid;
+
+    port_cmd_out_.write(cmd_out_);
+
+    // no error
+    sc_out_.safe_behavior = false;
+    sc_out_.error = false;
+    sc_out_.fault_type = 0;
+    sc_out_.faulty_module_id = 0;
+
+    port_sc_out_.write(sc_out_);
 }
 
 ORO_LIST_COMPONENT_TYPE(VelmaLowIdleComponent)

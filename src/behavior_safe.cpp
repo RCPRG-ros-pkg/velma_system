@@ -58,13 +58,6 @@ public:
                 const TYPE_BUF_HI& buf_hi,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-    //    for (int i = 0; i < components.size(); ++i) {
-    //        getTaskState
-    //        if (components[i]->getName() == "safe" && components[i]->getTaskState() == RTT::base::TaskCore::Running) {
-    //            return false;
-    //        }
-    //    }
-
         bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
         bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
         bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
