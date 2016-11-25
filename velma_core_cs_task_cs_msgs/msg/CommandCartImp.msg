@@ -1,7 +1,8 @@
-cartesian_trajectory_msgs/CartesianImpedanceTrajectoryPoint[50] trj_imp
-uint32 count_trj_imp
+CommandCartImpTrjImp imp
+bool imp_valid
 
-cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj_pose
-uint32 count_trj_pose
+CommandCartImpTrjPose pose
+bool pose_valid
 
-# TODO: add tolerances
+# TODO: check if this msg is complete
+

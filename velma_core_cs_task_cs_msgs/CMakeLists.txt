@@ -8,9 +8,12 @@ find_package(catkin REQUIRED
 add_message_files(FILES
   Command.msg
   CommandCartImp.msg
+  CommandCartImpTrjImp.msg
+  CommandCartImpTrjPose.msg
   CommandJntImp.msg
   VelmaJointTrajectoryPoint.msg
   Status.msg
+  StatusCartImp.msg
 )
   
 
