@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   common_interfaces
   common_behavior
-  kuka_lwr_fri
+#  kuka_lwr_fri
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -43,8 +43,11 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
     src/components/velma_core_cs_master_component.cpp
-    src/state_idle.cpp
-    src/behavior_idle.cpp
+    src/state_safe.cpp
+    src/behavior_safe.cpp
+    src/common_predicates.cpp
+    src/behavior_cart_imp.cpp
+    src/state_cart_imp.cpp
 )
 
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})

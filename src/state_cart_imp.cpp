@@ -30,15 +30,17 @@
 #include "velma_core_cs_task_cs_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
 
+#include "common_predicates.h"
+
 namespace velma_core_cs_types {
 
-class StateIdle : public StateBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
+class StateCartImp : public StateBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
 public:
     typedef velma_core_cs_ve_body_msgs::Status TYPE_BUF_LO;
     typedef velma_core_cs_task_cs_msgs::Command TYPE_BUF_HI;
 
-    StateIdle() :
-        StateBase("state_velma_core_cs_idle", "behavior_velma_core_cs_idle")
+    StateCartImp() :
+        StateBase("state_velma_core_cs_cart_imp", "behavior_velma_core_cs_cart_imp")
     {
     }
 
@@ -49,8 +51,27 @@ public:
                 const std::string& prev_state_name,
                 bool in_error) const
     {
-        if (prev_state_name == "state_velma_core_cs_idle") {
+        if (prev_state_name == "state_velma_core_cs_cart_imp") {
+            // the behavior cannot be restarted
             return false;
+        }
+
+        // received exactly one command for this behavior
+        bool this_behavior_command = (oneCommandValid(buf_hi) && buf_hi.cart_valid);
+        if (!this_behavior_command) {
+            return false;
+        }
+
+        // TODO: check if command is valid in terms of data
+
+        // TODO: check state of VE
+        if (buf_lo.sc.error) {
+            return false;
+        }
+
+        if (buf_lo.sc.safe_behavior) {
+            // TODO: manage exiting safe_behavior in ve_body
+            return true;
         }
 
         return true;
@@ -59,5 +80,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_STATE( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::StateIdle );
+REGISTER_STATE( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::StateCartImp );
 

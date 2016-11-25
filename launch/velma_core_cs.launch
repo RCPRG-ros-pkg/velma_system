@@ -23,8 +23,8 @@
   <group ns="velma_high_level">
     <rosparam>
       master_component:
-        state_names: [state_velma_core_cs_idle]
-        initial_state_name: state_velma_core_cs_idle
+        state_names: [state_velma_core_cs_safe, state_velma_core_cs_cart_imp]
+        initial_state_name: state_velma_core_cs_safe
     </rosparam>
 
     <include file="$(find velma_core_cs)/launch/velma_common_params.launch" />

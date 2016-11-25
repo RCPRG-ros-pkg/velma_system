@@ -30,18 +30,24 @@
 #include "velma_core_cs_task_cs_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
 
+#include "common_predicates.h"
+
 namespace velma_core_cs_types {
 
-class BehaviorIdle : public BehaviorBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
+class BehaviorCartImp : public BehaviorBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
 public:
     typedef velma_core_cs_ve_body_msgs::Status TYPE_BUF_LO;
     typedef velma_core_cs_task_cs_msgs::Command TYPE_BUF_HI;
 
-    BehaviorIdle() :
-        BehaviorBase("behavior_velma_core_cs_idle")
+    BehaviorCartImp() :
+        BehaviorBase("behavior_velma_core_cs_cart_imp")
     {
-// TODO
-//        addRunningComponent(TODO);
+        addRunningComponent("CImp");
+        addRunningComponent("JntLimit");
+        addRunningComponent("PoseIntLeft");
+        addRunningComponent("PoseIntRight");
+
+        // running: [CImp, JntLimit, PoseIntLeft, PoseIntRight, lli_hi_tx, Mass]
     }
 
     bool checkErrorCondition(
@@ -49,6 +55,15 @@ public:
                 const TYPE_BUF_HI& buf_hi,
                 const std::vector<RTT::TaskContext*> &components) const
     {
+        // check status of current component graph that makes up the transition function
+        if (!allComponentsOk(components, getRunningComponents())) {
+            return true;
+        }
+
+        // TODO: check VE state
+
+        // TODO: check this subsystem state, eg. robot workspace, singularities
+
         return false;
     }
 
@@ -57,12 +72,17 @@ public:
                 const TYPE_BUF_HI& buf_hi,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-// TODO
+        // received exactly one command for another behavior
+        bool another_behavior_command = (oneCommandValid(buf_hi) && !buf_hi.cart_valid);
+        if (another_behavior_command) {
+            return true;
+        }
+
         return false;
     }
 };
 
 };  // namespace velma_core_cs_types
 
-REGISTER_BEHAVIOR( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::BehaviorIdle );
+REGISTER_BEHAVIOR( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::BehaviorCartImp );
 
