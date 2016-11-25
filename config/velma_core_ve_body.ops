@@ -153,46 +153,35 @@ loadComponent("core_re_body_status_concate","VelmaCoreVeBodyReBodyStatusConcate"
 setActivity("core_re_body_status_concate", 0, 6, ORO_SCHED_RT);
 core_re_body_status_concate.configure();
 
+loadComponent("core_re_body_command_split","VelmaCoreVeBodyReBodyCommandSplit")
+setActivity("core_re_body_command_split", 0, 6, ORO_SCHED_RT);
+core_re_body_command_split.configure();
+
 #
 # command
 #
-connect("safe.cmd_rArm_t_OUTPORT",         "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy())
-#connect("safe.cmd_rArm_cmd_OUTPORT",       "LWRrSim.KRL_CMD_INPORT", ConnPolicy())
+connect("core_re_body_status_concate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
+connect("safe.cmd_OUTPORT", "core_re_body_command_split.msg_INPORT", ConnPolicy());
+connect("safe.sc_OUTPORT", "core_ve_body_status_concate.status_sc_INPORT", ConnPolicy());
 
-connect("safe.cmd_lArm_t_OUTPORT",         "LWRlSim.JointTorqueCommand_INPORT", ConnPolicy())
-#connect("safe.cmd_lArm_cmd_OUTPORT",       "LWRlSim.KRL_CMD_INPORT", ConnPolicy())
+# TODO: connect all ports of core_re_body_command_split
+connect("core_re_body_command_split.cmd_rArm_t_OUTPORT",            "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy());
+connect("core_re_body_command_split.cmd_rArmFri_OUTPORT",           "LWRrSim.KRL_CMD_INPORT", ConnPolicy());
 
-connect("safe.cmd_tMotor_i_OUTPORT",           "TorsoSim.t_MotorCurrentCommand_INPORT", ConnPolicy())
-connect("safe.cmd_hpMotor_i_OUTPORT",          "TorsoSim.head_pan_motor_current_command_INPORT", ConnPolicy())
-connect("safe.cmd_htMotor_i_OUTPORT",          "TorsoSim.head_tilt_motor_current_command_INPORT", ConnPolicy())
-connect("safe.cmd_hpMotor_q_OUTPORT",          "TorsoSim.head_pan_motor_position_command_INPORT", ConnPolicy())
-connect("safe.cmd_htMotor_q_OUTPORT",          "TorsoSim.head_tilt_motor_position_command_INPORT", ConnPolicy())
-connect("safe.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
-connect("safe.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_lArm_t_OUTPORT",            "LWRlSim.JointTorqueCommand_INPORT", ConnPolicy());
+connect("core_re_body_command_split.cmd_lArmFri_OUTPORT",           "LWRlSim.KRL_CMD_INPORT", ConnPolicy());
 
-#
-# status for safe component
-#
-connect("LWRrSim.JointPosition_OUTPORT",                    "safe.status_rArm_q_INPORT", ConnPolicy())
-connect("LWRrSim.JointVelocity_OUTPORT",                    "safe.status_rArm_dq_INPORT", ConnPolicy())
-connect("LWRrSim.JointTorque_OUTPORT",                      "safe.status_rArm_t_INPORT", ConnPolicy())
-connect("LWRrSim.GravityTorque_OUTPORT",                    "safe.status_rArm_gt_INPORT", ConnPolicy())
-connect("LWRrSim.CartesianWrench_OUTPORT",                  "safe.status_rArm_w_INPORT", ConnPolicy())
-connect("LWRrSim.MassMatrix_OUTPORT",                       "safe.status_rArm_mmx_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_tMotor_i_OUTPORT",           "TorsoSim.t_MotorCurrentCommand_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_hpMotor_i_OUTPORT",          "TorsoSim.head_pan_motor_current_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_htMotor_i_OUTPORT",          "TorsoSim.head_tilt_motor_current_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_hpMotor_q_OUTPORT",          "TorsoSim.head_pan_motor_position_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_htMotor_q_OUTPORT",          "TorsoSim.head_tilt_motor_position_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
+connect("core_re_body_command_split.cmd_htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
-connect("LWRlSim.JointPosition_OUTPORT",                    "safe.status_lArm_q_INPORT", ConnPolicy())
-connect("LWRlSim.JointVelocity_OUTPORT",                    "safe.status_lArm_dq_INPORT", ConnPolicy())
-connect("LWRlSim.JointTorque_OUTPORT",                      "safe.status_lArm_t_INPORT", ConnPolicy())
-connect("LWRlSim.GravityTorque_OUTPORT",                    "safe.status_lArm_gt_INPORT", ConnPolicy())
-connect("LWRlSim.CartesianWrench_OUTPORT",                  "safe.status_lArm_w_INPORT", ConnPolicy())
-connect("LWRlSim.MassMatrix_OUTPORT",                       "safe.status_lArm_mmx_INPORT", ConnPolicy())
-
-connect("TorsoSim.t_MotorPosition_OUTPORT",                 "safe.status_tMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.t_MotorVelocity_OUTPORT",                 "safe.status_tMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_position_OUTPORT",         "safe.status_hpMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "safe.status_hpMotor_dq_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "safe.status_htMotor_q_INPORT", ConnPolicy())
-connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "safe.status_htMotor_dq_INPORT", ConnPolicy())
+connect("core_cs_command_rx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
+connect("bypass.command_OUTPORT", "core_re_body_command_split.msg_INPORT", ConnPolicy())
+connect("bypass.sc_OUTPORT", "core_ve_body_status_concate.status_sc_INPORT", ConnPolicy());
 
 #
 # status concate for core_ve_body_status_tx
@@ -279,7 +268,6 @@ connect("LeftFtSensor.rawWrench_OUTPORT",                   "core_re_body_status
 connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "core_re_body_status_concate.status_lFt_ffw_INPORT", ConnPolicy())
 connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "core_re_body_status_concate.status_lFt_sfw_INPORT", ConnPolicy())
 
-connect("core_cs_command_rx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
 
 #
 # controller manager: scheme
@@ -300,6 +288,7 @@ addPeer("scheme", "LWRlSim");
 addPeer("scheme", "core_ve_body_status_tx");
 addPeer("scheme", "core_ve_body_status_concate");
 addPeer("scheme", "core_re_body_status_concate");
+addPeer("scheme", "core_re_body_command_split");
 addPeer("scheme", "bypass");
 addPeer("scheme", "safe");
 
@@ -315,12 +304,13 @@ scheme.addBlock("LWRlSim");
 scheme.addBlock("core_ve_body_status_tx");
 scheme.addBlock("core_ve_body_status_concate");
 scheme.addBlock("core_re_body_status_concate");
+scheme.addBlock("core_re_body_command_split");
 scheme.addBlock("bypass");
 scheme.addBlock("safe");
 
-scheme.latchConnections("LWRrSim", "safe", true);
-scheme.latchConnections("LWRlSim", "safe", true);
-scheme.latchConnections("TorsoSim", "safe", true);
+scheme.latchConnections("core_re_body_status_concate", "safe", true);
+#scheme.latchConnections("LWRlSim", "safe", true);
+#scheme.latchConnections("TorsoSim", "safe", true);
 
 #
 # master component
@@ -355,6 +345,7 @@ set LWRlSim.TriggerOnStart = triggerOnStart
 set core_ve_body_status_tx.TriggerOnStart = triggerOnStart
 set core_ve_body_status_concate.TriggerOnStart = triggerOnStart
 set core_re_body_status_concate.TriggerOnStart = triggerOnStart
+set core_re_body_command_split.TriggerOnStart = triggerOnStart
 set scheme.TriggerOnStart = triggerOnStart
 set safe.TriggerOnStart = triggerOnStart
 set bypass.TriggerOnStart = triggerOnStart
@@ -403,6 +394,7 @@ diag.configure();
 #
 core_ve_body_status_concate.start();
 core_re_body_status_concate.start();
+core_re_body_command_split.start();
 core_ve_body_status_tx.start();
 
 scheme.start();
