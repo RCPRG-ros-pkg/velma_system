@@ -37,14 +37,6 @@ var bool disableROS = true;
 
 
 #
-# the low-level interface
-#
-loadComponent("core_ve_body_status_rx","VelmaCoreCsVeBodyStatusRx")
-setActivity("core_ve_body_status_rx", 0, 10, ORO_SCHED_RT);
-core_ve_body_status_rx.loadService("rosparam");
-core_ve_body_status_rx.rosparam.getAll();
-
-#
 # Controller manager
 #
 loadComponent("scheme", "conman::Scheme");
@@ -57,52 +49,70 @@ scheme.configure();
 loadComponent("master_component","VelmaCoreCsMaster");
 setActivity("master_component", 0, 6, ORO_SCHED_RT);
 addPeer("master_component", "scheme");
-
-# TODO: connect commands from higher level
-#connect(TODO, "master_component.command_INPORT", ConnPolicy())
-
-connect("core_ve_body_status_rx.msg_OUTPORT", "master_component.status_INPORT", ConnPolicy())
-
 master_component.loadService("rosparam")
 master_component.rosparam.getAll()
 
-# add slave tasks to core_ve_body_status_rx
-addPeer("core_ve_body_status_rx", "master_component");
-addPeer("core_ve_body_status_rx", "scheme");
+#
+# Interfaces to the lower level
+#
+
+# status of the lower level
+loadComponent("lo_status_rx","VelmaCoreCsVeBodyStatusRx")
+setActivity("lo_status_rx", 0, 10, ORO_SCHED_RT);
+lo_status_rx.loadService("rosparam");
+lo_status_rx.rosparam.getAll();
+
+connect("lo_status_rx.msg_OUTPORT", "master_component.status_INPORT", ConnPolicy())
+
+# add slave tasks to lo_status_rx
+addPeer("lo_status_rx", "master_component");
+addPeer("lo_status_rx", "scheme");
 
 # set slave tasks execution order (before configure)
-core_ve_body_status_rx.pushBackPeerExecution("master_component");
-core_ve_body_status_rx.pushBackPeerExecution("scheme");
+lo_status_rx.pushBackPeerExecution("master_component");
+lo_status_rx.pushBackPeerExecution("scheme");
 
-core_ve_body_status_rx.configure();
+lo_status_rx.configure();
+
+loadComponent("lo_status_split","VelmaCoreCsVeBodyStatusSplit")
+setActivity("lo_status_split", 0, 6, ORO_SCHED_RT);
+lo_status_split.configure();
+connect("lo_status_rx.msg_OUTPORT", "lo_status_split.msg_INPORT", ConnPolicy())
+
+# commands for the lower level
+loadComponent("lo_command_tx","VelmaCoreCsVeBodyCommandTx")
+setActivity("lo_command_tx", 0, 1, ORO_SCHED_RT);
+lo_command_tx.loadService("rosparam");
+lo_command_tx.rosparam.getAll();
+lo_command_tx.configure();
+
+loadComponent("lo_command_concate","VelmaCoreCsVeBodyCommandConcate")
+setActivity("lo_command_concate", 0, 6, ORO_SCHED_RT);
+lo_command_concate.configure();
+connect("lo_command_concate.msg_OUTPORT", "lo_command_tx.msg_INPORT", ConnPolicy())
 
 
-loadComponent("status_split","VelmaCoreCsVeBodyStatusSplit")
-setActivity("status_split", 0, 6, ORO_SCHED_RT);
-status_split.configure();
-connect("core_ve_body_status_rx.msg_OUTPORT", "status_split.msg_INPORT", ConnPolicy())
+#
+# Interfaces to the higher level
+#
 
-loadComponent("core_ve_body_command_tx","VelmaCoreCsVeBodyCommandTx")
-setActivity("core_ve_body_command_tx", 0, 1, ORO_SCHED_RT);
-core_ve_body_command_tx.loadService("rosparam");
-core_ve_body_command_tx.rosparam.getAll();
-core_ve_body_command_tx.configure();
-
-
-loadComponent("command_concate","VelmaCoreCsVeBodyCommandConcate")
-setActivity("command_concate", 0, 6, ORO_SCHED_RT);
-command_concate.configure();
-connect("command_concate.msg_OUTPORT", "core_ve_body_command_tx.msg_INPORT", ConnPolicy())
+# TODO:
+#VelmaCoreCsTaskCsCommandRx
+#VelmaCoreCsVeBodyCommandSplit
+#VelmaCoreCsTaskCsStatusTx
+#VelmaCoreCsVeBodyStatusConcate
+# TODO: connect commands from higher level
+#connect(TODO, "master_component.command_INPORT", ConnPolicy())
 
 
 # command
-#connect("lli_hi_test.cmd_rHand_tactileCmd_OUTPORT",   "command_concate.cmd_rHand_tactileCmd_INPORT", ConnPolicy())
+#connect("lli_hi_test.cmd_rHand_tactileCmd_OUTPORT",   "lo_command_concate.cmd_rHand_tactileCmd_INPORT", ConnPolicy())
 
 # status
-#connect("status_split.status_rHand_p_OUTPORT",             "lli_hi_test.status_rHand_p_INPORT", ConnPolicy())
-#connect("status_split.status_lHand_f_OUTPORT",             "lli_hi_test.status_lHand_f_INPORT", ConnPolicy())
-#connect("status_split.status_rFt_ffw_OUTPORT",             "lli_hi_test.status_rFt_ffw_INPORT", ConnPolicy())
-#connect("status_split.status_lFt_ffw_OUTPORT",             "lli_hi_test.status_lFt_ffw_INPORT", ConnPolicy())
+#connect("lo_status_split.status_rHand_p_OUTPORT",             "lli_hi_test.status_rHand_p_INPORT", ConnPolicy())
+#connect("lo_status_split.status_lHand_f_OUTPORT",             "lli_hi_test.status_lHand_f_INPORT", ConnPolicy())
+#connect("lo_status_split.status_rFt_ffw_OUTPORT",             "lli_hi_test.status_rFt_ffw_INPORT", ConnPolicy())
+#connect("lo_status_split.status_lFt_ffw_OUTPORT",             "lli_hi_test.status_lFt_ffw_INPORT", ConnPolicy())
 
 ## Load a BarrettHand move action
 
@@ -190,11 +200,11 @@ setActivityOnCPU("TorquePubLeft", 0.01, 1, ORO_SCHED_RT, 0)
 #VG.configure();
 
 ## load cartesian trajectory action
-loadComponent("CartTrjActionRight", "CartesianTrajectoryAction");
-setActivityOnCPU("CartTrjActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+#loadComponent("CartTrjActionRight", "CartesianTrajectoryAction");
+#setActivityOnCPU("CartTrjActionRight", 0.01, 1, ORO_SCHED_RT, 0);
 
-loadComponent("CartTrjActionLeft", "CartesianTrajectoryAction");
-setActivityOnCPU("CartTrjActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
+#loadComponent("CartTrjActionLeft", "CartesianTrajectoryAction");
+#setActivityOnCPU("CartTrjActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
 
 ## load camera trigger
 
@@ -208,25 +218,25 @@ TGR.configure();
 
 ## move hand action
 
-connect("rightHandMoveAction.q_OUTPORT",    "command_concate.cmd_rHand_q_INPORT", ConnPolicy());
-connect("rightHandMoveAction.v_OUTPORT",    "command_concate.cmd_rHand_dq_INPORT", ConnPolicy());
-connect("rightHandMoveAction.t_OUTPORT",    "command_concate.cmd_rHand_max_i_INPORT", ConnPolicy());
-#connect("rightHandMoveAction.mp_OUTPORT",   "command_concate.cmd_rHand_max_p_INPORT", ConnPolicy()); # TODO
-#connect("rightHandMoveAction.hold_OUTPORT", "command_concate.cmd_rHand_hold_INPORT", ConnPolicy());  # TODO
-connect("status_split.status_rHand_s_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
+connect("rightHandMoveAction.q_OUTPORT",    "lo_command_concate.cmd_rHand_q_INPORT", ConnPolicy());
+connect("rightHandMoveAction.v_OUTPORT",    "lo_command_concate.cmd_rHand_dq_INPORT", ConnPolicy());
+connect("rightHandMoveAction.t_OUTPORT",    "lo_command_concate.cmd_rHand_max_i_INPORT", ConnPolicy());
+#connect("rightHandMoveAction.mp_OUTPORT",   "lo_command_concate.cmd_rHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("rightHandMoveAction.hold_OUTPORT", "lo_command_concate.cmd_rHand_hold_INPORT", ConnPolicy());  # TODO
+connect("lo_status_split.status_rHand_s_OUTPORT", "rightHandMoveAction.status_INPORT", ConnPolicy());
 
-connect("leftHandMoveAction.q_OUTPORT",     "command_concate.cmd_lHand_q_INPORT", ConnPolicy());
-connect("leftHandMoveAction.v_OUTPORT",     "command_concate.cmd_lHand_dq_INPORT", ConnPolicy());
-connect("leftHandMoveAction.t_OUTPORT",     "command_concate.cmd_lHand_max_i_INPORT", ConnPolicy());
-#connect("leftHandMoveAction.mp_OUTPORT",    "command_concate.cmd_lHand_max_p_INPORT", ConnPolicy()); # TODO
-#connect("leftHandMoveAction.hold_OUTPORT",  "command_concate.cmd_lHand_hold_INPORT", ConnPolicy());  # TODO
-connect("status_split.status_lHand_s_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
+connect("leftHandMoveAction.q_OUTPORT",     "lo_command_concate.cmd_lHand_q_INPORT", ConnPolicy());
+connect("leftHandMoveAction.v_OUTPORT",     "lo_command_concate.cmd_lHand_dq_INPORT", ConnPolicy());
+connect("leftHandMoveAction.t_OUTPORT",     "lo_command_concate.cmd_lHand_max_i_INPORT", ConnPolicy());
+#connect("leftHandMoveAction.mp_OUTPORT",    "lo_command_concate.cmd_lHand_max_p_INPORT", ConnPolicy()); # TODO
+#connect("leftHandMoveAction.hold_OUTPORT",  "lo_command_concate.cmd_lHand_hold_INPORT", ConnPolicy());  # TODO
+connect("lo_status_split.status_lHand_s_OUTPORT", "leftHandMoveAction.status_INPORT", ConnPolicy());
 
 ## torso transmision
 
-connect("status_split.status_tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("status_split.status_tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
-connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "command_concate.cmd_tMotor_i_INPORT", ConnPolicy())
+connect("lo_status_split.status_tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lo_status_split.status_tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "lo_command_concate.cmd_tMotor_i_INPORT", ConnPolicy())
 
 
 ## camera trigger
@@ -236,71 +246,71 @@ connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "command_concate.cmd_tMo
 
 ## head command limiters
 
-connect("status_split.status_hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadPanVelocityLimiter.Position_OUTPORT",   "command_concate.cmd_hpMotor_q_INPORT", ConnPolicy());
+connect("lo_status_split.status_hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadPanVelocityLimiter.Position_OUTPORT",   "lo_command_concate.cmd_hpMotor_q_INPORT", ConnPolicy());
 
-connect("status_split.status_htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "command_concate.cmd_htMotor_q_INPORT", ConnPolicy());
+connect("lo_status_split.status_htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "lo_command_concate.cmd_htMotor_q_INPORT", ConnPolicy());
 
 ## head transmisions
 
-connect("status_split.status_hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("status_split.status_hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("lo_status_split.status_hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lo_status_split.status_hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "command_concate.cmd_hpMotor_i_INPORT", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "command_concate.cmd_hpMotor_dq_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "lo_command_concate.cmd_hpMotor_i_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "lo_command_concate.cmd_hpMotor_dq_INPORT", ConnPolicy())
 
-connect("status_split.status_htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("status_split.status_htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("lo_status_split.status_htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("lo_status_split.status_htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "command_concate.cmd_htMotor_i_INPORT", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "command_concate.cmd_htMotor_dq_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "lo_command_concate.cmd_htMotor_i_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "lo_command_concate.cmd_htMotor_dq_INPORT", ConnPolicy())
 
 ## vector concatenations and splits
 
-connect("status_split.status_rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
-connect("status_split.status_lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
+connect("lo_status_split.status_rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
+connect("lo_status_split.status_lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
 
-connect("status_split.status_rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
-connect("status_split.status_lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
+connect("lo_status_split.status_rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
+connect("lo_status_split.status_lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
 
-connect("status_split.status_rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
-connect("status_split.status_lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
+connect("lo_status_split.status_rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
+connect("lo_status_split.status_lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
 
-connect("status_split.status_rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
-connect("status_split.status_lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
+connect("lo_status_split.status_rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
+connect("lo_status_split.status_lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit1_7_7_0");
-connect("Ts.Out1", "command_concate.cmd_rArm_t_INPORT", ConnPolicy());
-connect("Ts.Out2", "command_concate.cmd_lArm_t_INPORT", ConnPolicy());
+connect("Ts.Out1", "lo_command_concate.cmd_rArm_t_INPORT", ConnPolicy());
+connect("Ts.Out2", "lo_command_concate.cmd_lArm_t_INPORT", ConnPolicy());
 
 ## wrench decimators
 
-connect("status_split.status_rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
-connect("status_split.status_lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
+connect("lo_status_split.status_rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
+connect("lo_status_split.status_lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
 
 ## mass matrix component
 
-connect("status_split.status_lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
-connect("status_split.status_rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
+connect("lo_status_split.status_lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
+connect("lo_status_split.status_rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
 
 ## torque publishers
 
-connect("status_split.status_rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
-connect("status_split.status_rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
+connect("lo_status_split.status_rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
+connect("lo_status_split.status_rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
 
-connect("status_split.status_lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
-connect("status_split.status_lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
+connect("lo_status_split.status_lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
+connect("lo_status_split.status_lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
 
 ## gravity component
 
-#connect("status_split.status_lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
-#connect("status_split.status_rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
+#connect("lo_status_split.status_lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
+#connect("lo_status_split.status_rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
 
 ## cartesian trajectory action
 
-connect("status_split.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
-connect("status_split.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_INPORT", ConnPolicy());
+#connect("lo_status_split.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
+#connect("lo_status_split.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrench_INPORT", ConnPolicy());
 
 ##
 ## start interface components
@@ -310,8 +320,8 @@ connect("status_split.status_lArm_w_OUTPORT",  "CartTrjActionLeft.CartesianWrenc
 
 ##
 
-#stream("status_split.status_rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
-#stream("status_split.status_lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
+#stream("lo_status_split.status_rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
+#stream("lo_status_split.status_lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
 
 if (disableROS == false) then {
     stream("Dwr.Out", ros.comm.topic("/right_arm/wrench"));
@@ -421,23 +431,23 @@ connect("Mass.MassMatrix_OUTPORT", "CImp.MassMatrixInv_INPORT", ConnPolicy());
 
 connect("CImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
 
-loadComponent("PoseIntRight", "CartesianInterpolator");
+loadComponent("PoseIntRight", "CartesianInterpolatorNew");
 
 connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
 
-loadComponent("PoseIntLeft", "CartesianInterpolator");
+loadComponent("PoseIntLeft", "CartesianInterpolatorNew");
 
 connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand1_INPORT", ConnPolicy());
 
 // tool
 
-loadComponent("ToolIntRight", "CartesianInterpolator")
+loadComponent("ToolIntRight", "CartesianInterpolatorNew")
 ToolIntRight.configure();
 ToolIntRight.loadService("rosparam");
 ToolIntRight.rosparam.getAll();
 connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand0_INPORT", ConnPolicy())
 
-loadComponent("ToolIntLeft", "CartesianInterpolator")
+loadComponent("ToolIntLeft", "CartesianInterpolatorNew")
 ToolIntLeft.configure();
 ToolIntLeft.loadService("rosparam");
 ToolIntLeft.rosparam.getAll();
@@ -508,8 +518,8 @@ RightForceTransformation.rosparam.getAll();
 RightForceTransformation.configure()
 
 connect("RightForceTransformation.CurrentWristPose", "FK.RightWrist_OUTPORT", ConnPolicy())
-connect("status_split.status_rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("status_split.status_rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("lo_status_split.status_rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("lo_status_split.status_rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("RightForceTransformation.Tool", "ToolIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 if (disableROS == false) then {
@@ -523,8 +533,8 @@ LeftForceTransformation.rosparam.getAll();
 LeftForceTransformation.configure()
 
 connect("LeftForceTransformation.CurrentWristPose", "FK.LeftWrist_OUTPORT", ConnPolicy())
-connect("status_split.status_lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("status_split.status_lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("lo_status_split.status_lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("lo_status_split.status_lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("LeftForceTransformation.Tool", "ToolIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 if (disableROS == false) then {
@@ -646,9 +656,9 @@ set RightForceControl.TriggerOnStart = triggerOnStart
 set LeftForceControl.TriggerOnStart = triggerOnStart
 set RightForceTransformation.TriggerOnStart = triggerOnStart
 set LeftForceTransformation.TriggerOnStart = triggerOnStart
-set core_ve_body_command_tx.TriggerOnStart = triggerOnStart
-set command_concate.TriggerOnStart = triggerOnStart
-set status_split.TriggerOnStart = triggerOnStart
+set lo_command_tx.TriggerOnStart = triggerOnStart
+set lo_command_concate.TriggerOnStart = triggerOnStart
+set lo_status_split.TriggerOnStart = triggerOnStart
 set Mass.TriggerOnStart = triggerOnStart
 
 addPeer("scheme", "TorsoPanTransmision")
@@ -687,9 +697,9 @@ addPeer("scheme", "RightForceControl");
 addPeer("scheme", "LeftForceControl");
 addPeer("scheme", "RightForceTransformation");
 addPeer("scheme", "LeftForceTransformation");
-addPeer("scheme", "core_ve_body_command_tx");
-addPeer("scheme", "status_split");
-addPeer("scheme", "command_concate");
+addPeer("scheme", "lo_command_tx");
+addPeer("scheme", "lo_status_split");
+addPeer("scheme", "lo_command_concate");
 //addPeer("scheme", "HeadIK");
 //addPeer("scheme", "PT");
 
@@ -731,9 +741,9 @@ scheme.addBlock("RightForceControl");
 scheme.addBlock("LeftForceControl");
 scheme.addBlock("RightForceTransformation");
 scheme.addBlock("LeftForceTransformation");
-scheme.addBlock("core_ve_body_command_tx");
-scheme.addBlock("status_split");
-scheme.addBlock("command_concate");
+scheme.addBlock("lo_command_tx");
+scheme.addBlock("lo_status_split");
+scheme.addBlock("lo_command_concate");
 
 //scheme.addBlock("HeadIK");
 //scheme.addBlock("PT")
@@ -765,29 +775,35 @@ JntPub.configure()
 //-- ROS Command interface
 //------------------------------------------------------------------------------
 
-connect("CartTrjActionRight.CartesianTrajectoryCommand_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
-connect("CartTrjActionRight.CartesianPositionCommand_INPORT", "PoseIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy());
-connect("FK.RightPosition_OUTPORT", "CartTrjActionRight.CartesianPosition_INPORT", ConnPolicy())
+#TODO: add trajectory command from higher level
+#connect(TODO, "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
-if (disableROS == false) then {
-    stream("CartTrjActionRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
-}
+#connect("CartTrjActionRight.CartesianTrajectoryCommand_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+#connect("CartTrjActionRight.CartesianPositionCommand_INPORT", "PoseIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy());
+#connect("FK.RightPosition_OUTPORT", "CartTrjActionRight.CartesianPosition_INPORT", ConnPolicy())
 
-CartTrjActionRight.configure();
-CartTrjActionRight.loadService("actionlib")
-CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
+#if (disableROS == false) then {
+#    stream("CartTrjActionRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
+#}
 
-connect("CartTrjActionLeft.CartesianTrajectoryCommand_OUTPORT", "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
-connect("CartTrjActionLeft.CartesianPositionCommand_INPORT", "PoseIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy());
-connect("FK.LeftPosition_OUTPORT", "CartTrjActionLeft.CartesianPosition_INPORT", ConnPolicy())
+#CartTrjActionRight.configure();
+#CartTrjActionRight.loadService("actionlib")
+#CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
 
-if (disableROS == false) then {
-    stream("CartTrjActionLeft.trajectory", ros.comm.topic("/left_arm/trajectory"));
-}
+#TODO: add trajectory command from higher level
+#connect(TODO, "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
-CartTrjActionLeft.configure();
-CartTrjActionLeft.loadService("actionlib")
-CartTrjActionLeft.actionlib.connect("/left_arm/cartesian_trajectory")
+#connect("CartTrjActionLeft.CartesianTrajectoryCommand_OUTPORT", "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+#connect("CartTrjActionLeft.CartesianPositionCommand_INPORT", "PoseIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy());
+#connect("FK.LeftPosition_OUTPORT", "CartTrjActionLeft.CartesianPosition_INPORT", ConnPolicy())
+
+#if (disableROS == false) then {
+#    stream("CartTrjActionLeft.trajectory", ros.comm.topic("/left_arm/trajectory"));
+#}
+
+#CartTrjActionLeft.configure();
+#CartTrjActionLeft.loadService("actionlib")
+#CartTrjActionLeft.actionlib.connect("/left_arm/cartesian_trajectory")
 
 // Joint
 
@@ -862,14 +878,14 @@ CartImpActionLeft.actionlib.connect("/left_arm/cartesian_impedance")
 
 
 
-connect("status_split.status_test_OUTPORT","command_concate.cmd_test_INPORT", ConnPolicy())
+connect("lo_status_split.status_test_OUTPORT","lo_command_concate.cmd_test_INPORT", ConnPolicy())
 
 
 
 
 //------------------------------------------------------------------------------
-status_split.start();
-core_ve_body_status_rx.start();
+lo_status_split.start();
+lo_status_rx.start();
 
 if (disableROS == false) then {
     TJ.start();
@@ -898,8 +914,8 @@ if (disableROS == false) then {
     Dwl.start();
     JntPub.start();
 }
-CartTrjActionRight.start();
-CartTrjActionLeft.start();
+#CartTrjActionRight.start();
+#CartTrjActionLeft.start();
 ImpedanceIntRight.start();
 ImpedanceIntLeft.start();
 CartImpActionRight.start();
@@ -922,9 +938,9 @@ if (disableROS == false) then {
     leftHandMoveAction.start();
 }
 
-command_concate.start();
+lo_command_concate.start();
 
-core_ve_body_command_tx.start();
+lo_command_tx.start();
 
 scheme.start();
 
