@@ -1,5 +1,6 @@
-cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj_pose
-uint32 count_trj_pose
+time start
+cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj
+uint32 count
 
 # TODO: add tolerances
 
