@@ -50,7 +50,7 @@ public:
         // running: [CImp, JntLimit, PoseIntLeft, PoseIntRight, lli_hi_tx, Mass]
     }
 
-    bool checkErrorCondition(
+    virtual bool checkErrorCondition(
                 const TYPE_BUF_LO& buf_lo,
                 const TYPE_BUF_HI& buf_hi,
                 const std::vector<RTT::TaskContext*> &components) const
@@ -67,7 +67,7 @@ public:
         return false;
     }
 
-    bool checkStopCondition(
+    virtual bool checkStopCondition(
                 const TYPE_BUF_LO& buf_lo,
                 const TYPE_BUF_HI& buf_hi,
                 const std::vector<RTT::TaskContext*> &components) const
