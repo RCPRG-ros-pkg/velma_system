@@ -315,8 +315,10 @@ scheme.latchConnections("core_re_body_status_concate", "safe", true);
 #
 # master component
 #
-loadComponent("master_component","VelmaLowLevelMaster");
+loadComponent("master_component","MasterComponent");
 setActivity("master_component", 0, 6, ORO_SCHED_RT);
+#TODO: create this service
+master_component.loadService("VelmaCoreVeBodyMaster");
 addPeer("master_component", "scheme");
 connect("core_cs_command_rx.msg_OUTPORT", "master_component.command_INPORT", ConnPolicy())
 master_component.loadService("rosparam")
