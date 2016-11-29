@@ -26,45 +26,39 @@
 */
 
 #include "common_behavior/abstract_behavior.h"
-
-#include "velma_core_cs_task_cs_msgs/Command.h"
-#include "velma_core_cs_ve_body_msgs/Status.h"
-
+#include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
 
-class BehaviorSafe : public BehaviorBase<velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command> {
+class BehaviorSafe : public common_behavior::BehaviorBase {
 public:
-    typedef velma_core_cs_ve_body_msgs::Status TYPE_BUF_LO;
-    typedef velma_core_cs_task_cs_msgs::Command TYPE_BUF_HI;
-
     BehaviorSafe() :
-        BehaviorBase("behavior_velma_core_cs_safe")
+        common_behavior::BehaviorBase("behavior_velma_core_cs_safe")
     {
 // TODO
 //        addRunningComponent(TODO);
     }
 
     bool checkErrorCondition(
-                const TYPE_BUF_LO& buf_lo,
-                const TYPE_BUF_HI& buf_hi,
+                const common_behavior::InputData& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
+        const InputData& in = static_cast<const InputData& >(in_data);
         return false;
     }
 
     bool checkStopCondition(
-                const TYPE_BUF_LO& buf_lo,
-                const TYPE_BUF_HI& buf_hi,
+                const common_behavior::InputData& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
+        const InputData& in = static_cast<const InputData& >(in_data);
 
         // the error situation in ve_body have to be ended
-        if (buf_lo.sc.error == false) {
+        if (in.status_.sc.error == false) {
 
             // and a new command from task_cs have to be valid
-            if (oneCommandValid(buf_hi)) {
+            if (oneCommandValid(in.cmd_)) {
                 return true;
             }
             return true;
@@ -76,5 +70,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_BEHAVIOR( velma_core_cs_ve_body_msgs::Status, velma_core_cs_task_cs_msgs::Command, velma_core_cs_types::BehaviorSafe );
+REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorSafe );
 

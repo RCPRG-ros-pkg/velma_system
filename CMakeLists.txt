@@ -42,7 +42,7 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
-    src/components/velma_core_cs_master_component.cpp
+#    src/components/velma_core_cs_master_component.cpp
     src/state_safe.cpp
     src/behavior_safe.cpp
     src/common_predicates.cpp
