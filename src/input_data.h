@@ -25,34 +25,23 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_state.h"
-#include "input_data.h"
+#ifndef VELMA_CORE_VE_BODY_INPUT_DATA_H__
+#define VELMA_CORE_VE_BODY_INPUT_DATA_H__
+
+#include "common_behavior/input_data.h"
+
+#include "velma_core_cs_ve_body_msgs/Command.h"
+#include "velma_core_ve_body_re_body_msgs/Status.h"
 
 namespace velma_core_ve_body_types {
 
-class StateIdle : public common_behavior::StateBase {
+class InputData : public common_behavior::InputData {
 public:
-    StateIdle() :
-        common_behavior::StateBase("state_velma_core_ve_body_idle", "behavior_velma_core_ve_body_idle")
-    {
-    }
-
-    bool checkInitialCondition(
-                const common_behavior::InputData& in_data,
-                const std::vector<RTT::TaskContext*> &components,
-                const std::string& prev_state_name,
-                bool in_error) const
-    {
-        const InputData& in = static_cast<const InputData& >(in_data);
-        if (prev_state_name == "state_velma_core_ve_body_idle") {
-            return false;
-        }
-
-        return true;
-    }
+    velma_core_cs_ve_body_msgs::Command cmd_;
+    velma_core_ve_body_re_body_msgs::Status status_;
 };
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_STATE( velma_core_ve_body_types::StateIdle );
+#endif  // VELMA_CORE_VE_BODY_INPUT_DATA_H__
 

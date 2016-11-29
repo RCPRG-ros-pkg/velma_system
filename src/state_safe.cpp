@@ -26,29 +26,24 @@
 */
 
 #include "common_behavior/abstract_state.h"
-
-#include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_ve_body_re_body_msgs/Status.h"
+#include "input_data.h"
 
 namespace velma_core_ve_body_types {
 
-class StateSafe : public StateBase<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command> {
+class StateSafe : public common_behavior::StateBase {
 public:
-    typedef velma_core_ve_body_re_body_msgs::Status TYPE_BUF_LO;
-    typedef velma_core_cs_ve_body_msgs::Command TYPE_BUF_HI;
-
     StateSafe() :
-        StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
+        common_behavior::StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
     {
     }
 
     bool checkInitialCondition(
-                const TYPE_BUF_LO& buf_lo,
-                const TYPE_BUF_HI& buf_hi,
+                const common_behavior::InputData& in_data,
                 const std::vector<RTT::TaskContext*> &components,
                 const std::string& prev_state_name,
                 bool in_error) const
     {
+        const InputData& in = static_cast<const InputData& >(in_data);
         if (prev_state_name == "state_velma_core_ve_body_safe") {
             return false;
         }
@@ -59,5 +54,5 @@ public:
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_STATE( velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command, velma_core_ve_body_types::StateSafe );
+REGISTER_STATE( velma_core_ve_body_types::StateSafe );
 

@@ -26,47 +26,41 @@
 */
 
 #include "common_behavior/abstract_behavior.h"
-
-#include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_ve_body_re_body_msgs/Status.h"
-
+#include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
 
-class BehaviorSafe : public BehaviorBase<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command> {
+class BehaviorSafe : public common_behavior::BehaviorBase {
 public:
-    typedef velma_core_ve_body_re_body_msgs::Status TYPE_BUF_LO;
-    typedef velma_core_cs_ve_body_msgs::Command TYPE_BUF_HI;
-
     BehaviorSafe() :
-        BehaviorBase("behavior_velma_core_ve_body_safe")
+        common_behavior::BehaviorBase("behavior_velma_core_ve_body_safe")
     {
         addRunningComponent("safe");
     }
 
     bool checkErrorCondition(
-                const TYPE_BUF_LO& buf_lo,
-                const TYPE_BUF_HI& buf_hi,
+                const common_behavior::InputData& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
+        const InputData& in = static_cast<const InputData& >(in_data);
         return false;
     }
 
     bool checkStopCondition(
-                const TYPE_BUF_LO& buf_lo,
-                const TYPE_BUF_HI& buf_hi,
+                const common_behavior::InputData& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        bool rLwrOk = isLwrOk(buf_lo.rArmFriRobot, buf_lo.rArmFriIntf);
-        bool lLwrOk = isLwrOk(buf_lo.lArmFriRobot, buf_lo.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(buf_lo.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(buf_lo.lArmFriIntf);
+        const InputData& in = static_cast<const InputData& >(in_data);
+        bool rLwrOk = isLwrOk(in.status_.rArmFriRobot, in.status_.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in.status_.lArmFriRobot, in.status_.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in.status_.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in.status_.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-        bool resetCmd = (buf_hi.sc.valid && buf_hi.sc.cmd == 1);
+        bool resetCmd = (in.cmd_.sc.valid && in.cmd_.sc.cmd == 1);
 
-        if (hwOk && resetCmd && isCmdValid(buf_hi) && isStatusValid(buf_lo))
+        if (hwOk && resetCmd && isCmdValid(in.cmd_) && isStatusValid(in.status_))
         {
             return true;
         }
@@ -77,5 +71,5 @@ public:
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_BEHAVIOR( velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command, velma_core_ve_body_types::BehaviorSafe );
+REGISTER_BEHAVIOR( velma_core_ve_body_types::BehaviorSafe );
 

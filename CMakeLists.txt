@@ -46,8 +46,8 @@ orocos_component(velma_core_ve_body
     src/state_safe.cpp
     src/common_predicates.cpp
     src/velma_core_ve_body.cpp
+    src/velma_core_ve_body_master.cpp
     src/components/diagnostic_component.cpp
-    src/components/velma_core_ve_body_component.cpp
     src/components/idle_component.cpp
     src/components/safe_component.cpp
 )
