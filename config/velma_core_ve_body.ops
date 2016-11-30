@@ -24,6 +24,7 @@ ros.import("conman_ros");
 ros.import("rtt_control_msgs");
 ros.import("lwr_fri");
 ros.import("controller_common");
+ros.import("common_behavior");
 ros.import("velma_controller");
 ros.import("rtt_cartesian_trajectory_msgs");
 ros.import("rtt_std_msgs");
@@ -320,10 +321,11 @@ setActivity("master_component", 0, 6, ORO_SCHED_RT);
 #TODO: create this service
 master_component.loadService("VelmaCoreVeBodyMaster");
 addPeer("master_component", "scheme");
-connect("core_cs_command_rx.msg_OUTPORT", "master_component.command_INPORT", ConnPolicy())
 master_component.loadService("rosparam")
 master_component.rosparam.getAll()
 master_component.configure();
+
+connect("core_cs_command_rx.msg_OUTPORT", "master_component.command_INPORT", ConnPolicy())
 
 connect("master_component.status_test_OUTPORT",    "core_ve_body_status_concate.status_test_INPORT", ConnPolicy())
 
