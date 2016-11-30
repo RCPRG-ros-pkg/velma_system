@@ -327,18 +327,7 @@ bool VelmaLowSafeComponent::isLwrOk(const velma_core_ve_body_re_body_msgs::Statu
 }
 
 void VelmaLowSafeComponent::updateHook() {
-//    int diag = 0;
-
-    cmd_out_.rTact_valid = false;
-    cmd_out_.tMotor_valid = false;
-    cmd_out_.hpMotor_valid = false;
-    cmd_out_.htMotor_valid = false;
-    cmd_out_.lArm_valid = false;
-    cmd_out_.rArm_valid = false;
-    cmd_out_.lArmFri_valid = false;
-    cmd_out_.rArmFri_valid = false;
-    cmd_out_.lHand_valid = false;
-    cmd_out_.rHand_valid = false;
+    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
 
     //
     // read HW status

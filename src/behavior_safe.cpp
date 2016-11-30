@@ -25,42 +25,40 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_behavior.h"
+#include "abstract_behavior.h"
 #include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
 
-class BehaviorSafe : public common_behavior::BehaviorBase {
+class BehaviorSafe : public BehaviorBase {
 public:
     BehaviorSafe() :
-        common_behavior::BehaviorBase("behavior_velma_core_ve_body_safe")
+        BehaviorBase("behavior_velma_core_ve_body_safe")
     {
         addRunningComponent("safe");
     }
 
-    bool checkErrorCondition(
-                const common_behavior::InputData& in_data,
+    virtual bool checkErrorCondition(
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         return false;
     }
 
-    bool checkStopCondition(
-                const common_behavior::InputData& in_data,
+    virtual bool checkStopCondition(
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
-        bool rLwrOk = isLwrOk(in.status_.rArmFriRobot, in.status_.rArmFriIntf);
-        bool lLwrOk = isLwrOk(in.status_.lArmFriRobot, in.status_.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(in.status_.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(in.status_.lArmFriIntf);
+        bool rLwrOk = isLwrOk(in_data->status_.rArmFriRobot, in_data->status_.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in_data->status_.lArmFriRobot, in_data->status_.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in_data->status_.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in_data->status_.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-        bool resetCmd = (in.cmd_.sc.valid && in.cmd_.sc.cmd == 1);
+        bool resetCmd = (in_data->cmd_.sc.valid && in_data->cmd_.sc.cmd == 1);
 
-        if (hwOk && resetCmd && isCmdValid(in.cmd_) && isStatusValid(in.status_))
+        if (hwOk && resetCmd && isCmdValid(in_data->cmd_) && isStatusValid(in_data->status_))
         {
             return true;
         }

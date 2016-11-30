@@ -25,25 +25,24 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_state.h"
+#include "abstract_state.h"
 #include "input_data.h"
 
 namespace velma_core_ve_body_types {
 
-class StateSafe : public common_behavior::StateBase {
+class StateSafe : public StateBase {
 public:
     StateSafe() :
-        common_behavior::StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
+        StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
     {
     }
 
-    bool checkInitialCondition(
-                const common_behavior::InputData& in_data,
+    virtual bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components,
                 const std::string& prev_state_name,
                 bool in_error) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         if (prev_state_name == "state_velma_core_ve_body_safe") {
             return false;
         }

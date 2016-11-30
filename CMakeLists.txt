@@ -46,13 +46,16 @@ orocos_component(velma_core_ve_body
     src/state_safe.cpp
     src/common_predicates.cpp
     src/velma_core_ve_body.cpp
-    src/velma_core_ve_body_master.cpp
     src/components/diagnostic_component.cpp
     src/components/idle_component.cpp
     src/components/safe_component.cpp
 )
-
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
+
+orocos_service(VelmaCoreVeBodyMaster
+    src/velma_core_ve_body_master.cpp
+)
+target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})
 
 ### Orocos Package Exports and Install Targets ###
 

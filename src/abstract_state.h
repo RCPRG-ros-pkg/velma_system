@@ -25,33 +25,38 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_state.h"
+#ifndef __VELMA_CORE_VE_BODY_ABSTRACT_STATE_H__
+#define __VELMA_CORE_VE_BODY_ABSTRACT_STATE_H__
+
+#include "common_behavior/abstract_state.h"
 #include "input_data.h"
 
 namespace velma_core_ve_body_types {
 
-class StateIdle : public StateBase {
+class StateBase : public common_behavior::StateBase {
 public:
-    StateIdle() :
-        StateBase("state_velma_core_ve_body_idle", "behavior_velma_core_ve_body_idle")
-    {
+
+    virtual bool checkInitialCondition(
+            const boost::shared_ptr<common_behavior::InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components,
+            const std::string& prev_state_name,
+            bool in_error) const {
+        return false;
     }
 
     virtual bool checkInitialCondition(
-                const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components,
-                const std::string& prev_state_name,
-                bool in_error) const
-    {
-        if (prev_state_name == "state_velma_core_ve_body_idle") {
-            return false;
-        }
+            const boost::shared_ptr<InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components,
+            const std::string& prev_state_name,
+            bool in_error) const = 0;
 
-        return true;
-    }
+protected:
+    StateBase(const std::string& state_name, const std::string& behavior_name) :
+        common_behavior::StateBase(state_name, behavior_name)
+    { }
 };
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_STATE( velma_core_ve_body_types::StateIdle );
+#endif  // __VELMA_CORE_VE_BODY_ABSTRACT_STATE_H__
 

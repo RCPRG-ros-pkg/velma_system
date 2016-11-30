@@ -25,33 +25,44 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_state.h"
+#ifndef __VELMA_CORE_VE_BODY_ABSTRACT_BEHAVIOR_H__
+#define __VELMA_CORE_VE_BODY_ABSTRACT_BEHAVIOR_H__
+
+#include "common_behavior/abstract_behavior.h"
 #include "input_data.h"
 
 namespace velma_core_ve_body_types {
 
-class StateIdle : public StateBase {
+class BehaviorBase : public common_behavior::BehaviorBase {
 public:
-    StateIdle() :
-        StateBase("state_velma_core_ve_body_idle", "behavior_velma_core_ve_body_idle")
-    {
+
+    virtual bool checkErrorCondition(
+            const boost::shared_ptr<common_behavior::InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components) const {
+        return false;
     }
 
-    virtual bool checkInitialCondition(
-                const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components,
-                const std::string& prev_state_name,
-                bool in_error) const
-    {
-        if (prev_state_name == "state_velma_core_ve_body_idle") {
-            return false;
-        }
-
-        return true;
+    virtual bool checkStopCondition(
+            const boost::shared_ptr<common_behavior::InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components) const {
+        return false;
     }
+
+    virtual bool checkErrorCondition(
+            const boost::shared_ptr<InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components) const = 0;
+
+    virtual bool checkStopCondition(
+            const boost::shared_ptr<InputData >& in_data,
+            const std::vector<RTT::TaskContext*> &components) const = 0;
+
+protected:
+    BehaviorBase(const std::string& name) :
+        common_behavior::BehaviorBase(name)
+    { }
 };
 
 };  // namespace velma_core_ve_body_types
 
-REGISTER_STATE( velma_core_ve_body_types::StateIdle );
+#endif  // __VELMA_CORE_VE_BODY_ABSTRACT_BEHAVIOR_H__
 
