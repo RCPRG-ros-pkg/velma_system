@@ -25,33 +25,32 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_state.h"
+#include "abstract_state.h"
 #include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
 
-class StateCartImp : public common_behavior::StateBase {
+class StateCartImp : public StateBase {
 public:
     StateCartImp() :
-        common_behavior::StateBase("state_velma_core_cs_cart_imp", "behavior_velma_core_cs_cart_imp")
+        StateBase("state_velma_core_cs_cart_imp", "behavior_velma_core_cs_cart_imp")
     {
     }
 
     bool checkInitialCondition(
-                const common_behavior::InputData& in_data,
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components,
                 const std::string& prev_state_name,
                 bool in_error) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         if (prev_state_name == "state_velma_core_cs_cart_imp") {
             // the behavior cannot be restarted
             return false;
         }
 
         // received exactly one command for this behavior
-        bool this_behavior_command = (oneCommandValid(in.cmd_) && in.cmd_.cart_valid);
+        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && in_data->cmd_.cart_valid);
         if (!this_behavior_command) {
             return false;
         }
@@ -59,11 +58,11 @@ public:
         // TODO: check if command is valid in terms of data
 
         // TODO: check state of VE
-        if (in.status_.sc.error) {
+        if (in_data->status_.sc.error) {
             return false;
         }
 
-        if (in.status_.sc.safe_behavior) {
+        if (in_data->status_.sc.safe_behavior) {
             // TODO: manage exiting safe_behavior in ve_body
             return true;
         }

@@ -25,40 +25,37 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_behavior.h"
+#include "abstract_behavior.h"
 #include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
 
-class BehaviorSafe : public common_behavior::BehaviorBase {
+class BehaviorSafe : public BehaviorBase {
 public:
     BehaviorSafe() :
-        common_behavior::BehaviorBase("behavior_velma_core_cs_safe")
+        BehaviorBase("behavior_velma_core_cs_safe")
     {
 // TODO
 //        addRunningComponent(TODO);
     }
 
     bool checkErrorCondition(
-                const common_behavior::InputData& in_data,
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         return false;
     }
 
     bool checkStopCondition(
-                const common_behavior::InputData& in_data,
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
-
         // the error situation in ve_body have to be ended
-        if (in.status_.sc.error == false) {
+        if (in_data->status_.sc.error == false) {
 
             // and a new command from task_cs have to be valid
-            if (oneCommandValid(in.cmd_)) {
+            if (oneCommandValid(in_data->cmd_)) {
                 return true;
             }
             return true;

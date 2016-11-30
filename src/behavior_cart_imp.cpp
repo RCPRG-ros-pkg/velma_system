@@ -25,16 +25,16 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_behavior.h"
+#include "abstract_behavior.h"
 #include "input_data.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
 
-class BehaviorCartImp : public common_behavior::BehaviorBase {
+class BehaviorCartImp : public BehaviorBase {
 public:
     BehaviorCartImp() :
-        common_behavior::BehaviorBase("behavior_velma_core_cs_cart_imp")
+        BehaviorBase("behavior_velma_core_cs_cart_imp")
     {
         addRunningComponent("CImp");
         addRunningComponent("JntLimit");
@@ -45,10 +45,9 @@ public:
     }
 
     virtual bool checkErrorCondition(
-                const common_behavior::InputData& in_data,
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         // check status of current component graph that makes up the transition function
         if (!allComponentsOk(components, getRunningComponents())) {
             return true;
@@ -62,12 +61,11 @@ public:
     }
 
     virtual bool checkStopCondition(
-                const common_behavior::InputData& in_data,
+                const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        const InputData& in = static_cast<const InputData& >(in_data);
         // received exactly one command for another behavior
-        bool another_behavior_command = (oneCommandValid(in.cmd_) && !in.cmd_.cart_valid);
+        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !in_data->cmd_.cart_valid);
         if (another_behavior_command) {
             return true;
         }
