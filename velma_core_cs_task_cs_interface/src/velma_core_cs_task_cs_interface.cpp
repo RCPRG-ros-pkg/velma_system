@@ -25,41 +25,15 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <rtt/Component.hpp>
-
-#include "velma_core_cs_task_cs_interface/port_data.h"
 #include "velma_core_cs_task_cs_msgs/Command.h"
 #include "velma_core_cs_task_cs_msgs/Status.h"
 
-#include "common_interfaces/interface_tx.h"
-#include "common_interfaces/interface_rx.h"
+#include "velma_core_cs_task_cs_interface/port_data.h"
+#include "common_interfaces/interfaces.h"
 
-#include "common_interfaces/message_split.h"
-#include "common_interfaces/message_concate.h"
+using namespace velma_core_cs_task_cs_msgs;
 
-typedef InterfaceTx<velma_core_cs_task_cs_msgs::Status > VelmaCoreCsTaskCsStatusTx;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsStatusTx)
-
-typedef InterfaceRx<velma_core_cs_task_cs_msgs::Status > VelmaCoreCsTaskCsStatusRx;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsStatusRx)
-
-typedef InterfaceTx<velma_core_cs_task_cs_msgs::Command > VelmaCoreCsTaskCsCommandTx;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsCommandTx)
-
-typedef InterfaceRx<velma_core_cs_task_cs_msgs::Command > VelmaCoreCsTaskCsCommandRx;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsCommandRx)
-
-typedef MessageSplit<velma_core_cs_task_cs_msgs::Command_Ports > VelmaCoreCsTaskCsCommandSplit;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsCommandSplit)
-
-typedef MessageConcate<velma_core_cs_task_cs_msgs::Status_Ports > VelmaCoreCsTaskCsStatusConcate;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsStatusConcate)
-
-typedef MessageSplit<velma_core_cs_task_cs_msgs::Status_Ports > VelmaCoreCsTaskCsStatusSplit;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsStatusSplit)
-
-typedef MessageConcate<velma_core_cs_task_cs_msgs::Command_Ports > VelmaCoreCsTaskCsCommandConcate;
-ORO_LIST_COMPONENT_TYPE(VelmaCoreCsTaskCsCommandConcate)
+ORO_LIST_INTERFACE_COMPONENTS(Command, Status, VelmaCoreCsTaskCs)
 
 ORO_CREATE_COMPONENT_LIBRARY()
 
