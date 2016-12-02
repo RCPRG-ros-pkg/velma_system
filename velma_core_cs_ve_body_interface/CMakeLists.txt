@@ -38,8 +38,6 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 
 orocos_component(velma_core_cs_ve_body_interface
     src/velma_core_cs_ve_body_interface.cpp
-#    src/status_ports.cpp
-#    src/command_ports.cpp
 )
 
 target_link_libraries(velma_core_cs_ve_body_interface
