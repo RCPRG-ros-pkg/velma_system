@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_cs_task_cs_interface
   eigen_conversions
   rtt_actionlib
+  common_interfaces
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
