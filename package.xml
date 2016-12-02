@@ -16,6 +16,7 @@
   <build_depend>rtt_rosclock</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
   <build_depend>velma_core_cs_ve_body_interface</build_depend>
+  <build_depend>velma_core_ve_body_re_body_msgs</build_depend>
   <build_depend>velma_core_ve_body_re_body_interface</build_depend>
   <build_depend>common_interfaces</build_depend>
   <build_depend>common_behavior</build_depend>
@@ -27,6 +28,8 @@
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
   <run_depend>velma_core_cs_ve_body_interface</run_depend>
+  <run_depend>velma_core_ve_body_re_body_msgs</run_depend>
+  <run_depend>velma_core_ve_body_re_body_interface</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>
@@ -36,6 +39,8 @@
     <rtt_ros>
       <!-- Plugin deps are loaded automatically by the rtt_ros import service -->
       <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>velma_core_cs_ve_body_interface</plugin_depend>
+      <plugin_depend>velma_core_ve_body_re_body_interface</plugin_depend>
     </rtt_ros>
   </export>
 </package>
