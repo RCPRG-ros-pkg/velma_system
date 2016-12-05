@@ -42,15 +42,18 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
-#    src/components/velma_core_cs_master_component.cpp
     src/state_safe.cpp
     src/behavior_safe.cpp
     src/common_predicates.cpp
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
 )
-
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
+
+orocos_service(VelmaCoreCsMaster
+    src/velma_core_cs_master.cpp
+)
+target_link_libraries(VelmaCoreCsMaster ${catkin_LIBRARIES})
 
 ### Orocos Package Exports and Install Targets ###
 
