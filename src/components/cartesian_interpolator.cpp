@@ -11,6 +11,7 @@
 #include "Eigen/Dense"
 #include "Eigen/Geometry"
 
+#include "rtt/Component.hpp"
 #include "rtt/TaskContext.hpp"
 #include "rtt/Port.hpp"
 #include "rtt_rosclock/rtt_rosclock.h"
@@ -176,4 +177,6 @@ double CartesianInterpolatorNew::interpolate(double p0, double p1, double t0,
                                           double t1, double t) {
   return (p0 + (p1 - p0) * (t - t0) / (t1 - t0));
 }
+
+ORO_LIST_COMPONENT_TYPE(CartesianInterpolatorNew)
 
