@@ -39,7 +39,9 @@ public:
     explicit VelmaCoreVeBodyMaster(RTT::TaskContext* owner) :
         common_behavior::MasterService(owner),
         port_cmd_in_("command_INPORT"),
-        port_status_in_("status_INPORT")
+        port_status_in_("status_INPORT"),
+        initial_state_("state_velma_core_ve_body_safe"),
+        states_({"state_velma_core_ve_body_idle", "state_velma_core_ve_body_safe"})
     {
         owner->addPort(port_cmd_in_);
         owner->addPort(port_status_in_);
@@ -48,6 +50,9 @@ public:
     virtual ~VelmaCoreVeBodyMaster() {
     }
 
+//
+// OROCOS ports operations
+//
     virtual void readPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
         boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
         port_cmd_in_.read(in->cmd_);
@@ -61,9 +66,10 @@ public:
         return boost::static_pointer_cast<common_behavior::InputData >( ptr );
     }
 
+//
+// subsystem buffers
+//
 /*
-class InputBufferInfo {
-public:
     // determines if shm ipc interface should be created
     bool enable_ipc_;
 
@@ -83,21 +89,24 @@ public:
 
     // the name of the corresponding port in the master component
     std::string master_component_port_name_;
-};
+
+    // determines if master component should be updated when Rx component is updated
+    bool update_master_;
+
+    // list of additional peers that should be updated when Rx component is updated
+    std::vector<std::string > update_peer_list_;
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(false, "", false, false, "VelmaCoreVeBodyReBody", port_status_in_.getName()));
+        info.push_back(common_behavior::InputBufferInfo(false, "", false, false, "VelmaCoreVeBodyReBodyStatus", port_status_in_.getName()));//, false, std::vector<std::string >()));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", false, false, "VelmaCoreCsVeBody", port_cmd_in_.getName()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", false, false, "VelmaCoreCsVeBodyCommand", port_cmd_in_.getName()));//, false, std::vector<std::string >()));
     }
 
 /*
-class OutputBufferInfo {
-public:
     // determines if shm ipc interface should be created
     bool enable_ipc_;
 
@@ -107,24 +116,37 @@ public:
     // the prefix used to generate interface classes with macro
     // ORO_LIST_INTERFACE_COMPONENTS
     std::string interface_prefix_;
-};
 */
     virtual void getLowerOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(false, "", "VelmaCoreVeBodyReBody"));
+        info.push_back(common_behavior::OutputBufferInfo(false, "", "VelmaCoreVeBodyReBodyCommand"));
     }
 
     virtual void getUpperOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "VelmaCoreCsVeBodyStatus", "VelmaCoreCsVeBody"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "VelmaCoreCsVeBodyStatus", "VelmaCoreCsVeBodyStatus"));
+    }
+
+    //
+    // FSM parameters
+    //
+    virtual const std::vector<std::string >& getStates() const {
+        return states_;
+    }
+
+    virtual const std::string& getInitialState() const {
+        return initial_state_;
     }
 
 private:
     RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
     RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
+
+    const std::vector<std::string > states_;
+    const std::string initial_state_;
 };
 
 };  // namespace velma_core_ve_body_types
 
-ORO_SERVICE_NAMED_PLUGIN(velma_core_ve_body_types::VelmaCoreVeBodyMaster, "VelmaCoreVeBodyMaster");
+ORO_SERVICE_NAMED_PLUGIN(velma_core_ve_body_types::VelmaCoreVeBodyMaster, "velma_core_ve_body_master");
 
