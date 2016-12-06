@@ -15,7 +15,6 @@
   <build_depend>rtt_ros</build_depend>
   <build_depend>rtt_rosclock</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
-  <build_depend>velma_core_cs_ve_body_interface</build_depend>
   <build_depend>velma_core_ve_body_re_body_msgs</build_depend>
   <build_depend>velma_core_ve_body_re_body_interface</build_depend>
   <build_depend>common_interfaces</build_depend>
