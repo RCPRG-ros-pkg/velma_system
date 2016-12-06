@@ -219,65 +219,14 @@ connect("LeftFtSensor.fastFilteredWrench_OUTPORT",          "VelmaCoreVeBodyReBo
 connect("LeftFtSensor.slowFilteredWrench_OUTPORT",          "VelmaCoreVeBodyReBodyStatusConcate.lFt_sfw_INPORT", ConnPolicy())
 
 
-#scheme.latchConnections("core_re_body_status_concate", "safe", true);
+TorsoSim.start();
+LWRrSim.start();
+LWRlSim.start();
+RightHandTactile.start();
+LeftHandOptoforce.start();
+RightHand.start();
+LeftHand.start();
+LeftFtSensor.start();
+RightFtSensor.start();
 
-#
-# receiver
-#
-
-# add slave tasks to VelmaCoreCsVeBodyCommandRx
-addPeer("VelmaCoreCsVeBodyCommandRx", "master_component");
-addPeer("VelmaCoreCsVeBodyCommandRx", "scheme");
-
-# set slave tasks execution order (before configure)
-VelmaCoreCsVeBodyCommandRx.pushBackPeerExecution("master_component");
-VelmaCoreCsVeBodyCommandRx.pushBackPeerExecution("scheme");
-
-VelmaCoreCsVeBodyCommandRx.configure();
-
-
-#
-# diagnostics component
-#
-loadComponent("diag","DiagnosticComponent");
-setActivity("diag", 0.01, 0, ORO_SCHED_OTHER);
-diag.loadService("sim_clock_activity");
-
-addPeer("diag", "VelmaCoreCsVeBodyCommandRx");
-addPeer("diag", "VelmaCoreCsVeBodyStatusTx");
-addPeer("diag", "VelmaCoreCsVeBodyStatusConcate");
-addPeer("diag", "master_component");
-addPeer("diag", "TorsoSim");
-addPeer("diag", "RightHandTactile");
-addPeer("diag", "RightHand");
-addPeer("diag", "LeftHand");
-addPeer("diag", "LeftHandOptoforce");
-addPeer("diag", "LeftFtSensor");
-addPeer("diag", "RightFtSensor");
-addPeer("diag", "LWRrSim");
-addPeer("diag", "LWRlSim");
-addPeer("diag", "safe");
-addPeer("diag", "bypass");
-
-stream("diag.diag_OUTPORT", ros.comm.topic("/velma_core_ve_body/diag"))
-
-diag.configure();
-
-
-#
-# start components
-#
-#TorsoSim.start();
-#LWRrSim.start();
-#LWRlSim.start();
-#RightHandTactile.start();
-#RightHand.start();
-#LeftHand.start();
-#LeftHandOptoforce.start();
-#LeftFtSensor.start();
-#RightFtSensor.start();
-#diag.start();
-
-#break;  # the while loop
-#}
 
