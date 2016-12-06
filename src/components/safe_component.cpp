@@ -116,11 +116,22 @@ private:
 
     // port data
     velma_core_ve_body_re_body_msgs::Command cmd_out_;
-    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+//    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+    velma_core_ve_body_re_body_msgs::Command_Ports<RTT::OutputPort > ports_cmd_out_;
+
+//    velma_core_ve_body_re_body_msgs::Status status_in_;
+//    RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
 
     velma_core_ve_body_re_body_msgs::Status status_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
+    velma_core_ve_body_re_body_msgs::Status_Ports<RTT::InputPort > ports_status_in_;
 
+/*
+    velma_core_ve_body_re_body_msgs::StatusArm status_rArm_
+    velma_core_ve_body_re_body_msgs::StatusArm_Ports<RTT::InputPort > status_lArm_in_;
+
+    velma_core_ve_body_re_body_msgs::StatusMotor status_tMotor_
+    velma_core_ve_body_re_body_msgs::StatusMotor_Ports<RTT::InputPort > status_tMotor_in_;
+*/
 //    Command cmd_in_;
 //    RTT::InputPort<Command> port_command_in_;
 
@@ -156,13 +167,15 @@ VelmaLowSafeComponent::VelmaLowSafeComponent(const std::string &name) :
     TaskContext(name, PreOperational),
     arm_joints_count_(7),
     diag_(0),
-    torso_damping_factor_(-1)  // initialize with invalid value, should be later set to >= 0
+    torso_damping_factor_(-1),  // initialize with invalid value, should be later set to >= 0
+    ports_status_in_(*this),
+    ports_cmd_out_(*this)
 {
 //    this->ports()->addPort("command_INPORT", port_command_in_);
 //    this->ports()->addPort("status_test_OUTPORT", port_status_test_out_);
 
-    this->ports()->addPort("status_INPORT", port_status_in_);
-    this->ports()->addPort("cmd_OUTPORT", port_cmd_out_);
+//    this->ports()->addPort("status_INPORT", port_status_in_);
+//    this->ports()->addPort("cmd_OUTPORT", port_cmd_out_);
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
     addProperty("l_arm_damping_factors", l_arm_damping_factors_);
@@ -335,9 +348,14 @@ void VelmaLowSafeComponent::updateHook() {
     bool rArm_valid_prev = status_in_.rArm_valid;
     bool lArm_valid_prev = status_in_.lArm_valid;
 
+    ports_status_in_.readPorts();
+    ports_status_in_.convertToROS(status_in_);
+
+/*
     if (port_status_in_.read(status_in_) != RTT::NewData) {
         status_in_ = velma_core_ve_body_re_body_msgs::Status();
     }
+*/
 
     // as FRI components are not synchronized, their communication status should
     // be checked in two last cycles
@@ -436,7 +454,24 @@ void VelmaLowSafeComponent::updateHook() {
     //
     // write HW commands to available devices
     //
+/*
+            cmd_out_.rArmFri.data
+            cmd_out_.lArmFri.data
+        cmd_out_.rArm.t
+        cmd_out_.lArm.t
+        cmd_out_.tMotor.i
 
+        status_in_.rArm.dq
+        status_in_.lArm.dq
+        status_in_.tMotor.dq
+        status_in_.hpMotor.q
+        status_in_.htMotor.q
+        status_in_.rArmFriRobot
+        status_in_.rArmFriIntf.state
+
+        status_in_.lArmFriRobot
+        status_in_.lArmFriIntf.state
+*/
     // generate safe outputs for all operational devices
     if (rArm_valid) {
         calculateArmDampingTorque(status_in_.rArm.dq, r_arm_damping_factors_, cmd_out_.rArm.t);
@@ -503,7 +538,9 @@ void VelmaLowSafeComponent::updateHook() {
     //
     // write commands
     //
-    port_cmd_out_.write(cmd_out_);
+//    port_cmd_out_.write(cmd_out_);
+    ports_cmd_out_.convertFromROS(cmd_out_);
+    ports_cmd_out_.writePorts();
 
     //
     // write diagnostics information for this subsystem

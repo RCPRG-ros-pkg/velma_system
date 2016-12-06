@@ -26,6 +26,7 @@
 */
 
 #include <rtt/plugin/ServicePlugin.hpp>
+#include <rtt/extras/PeriodicActivity.hpp>
 
 #include "common_behavior/master_service.h"
 #include "velma_core_cs_ve_body_msgs/Command.h"
@@ -41,10 +42,13 @@ public:
         port_cmd_in_("command_INPORT"),
         port_status_in_("status_INPORT"),
         initial_state_("state_velma_core_ve_body_safe"),
-        states_({"state_velma_core_ve_body_idle", "state_velma_core_ve_body_safe"})
+        states_({"state_velma_core_ve_body_idle", "state_velma_core_ve_body_safe"}),
+        latched_connections_({std::make_pair(std::string("VelmaCoreVeBodyReBodyStatusConcate"), std::string("safe"))})
     {
         owner->addPort(port_cmd_in_);
         owner->addPort(port_status_in_);
+//        owner->setActivity( new RTT::extras::PeriodicActivity(ORO_SCHED_RT, 5, 0.001));
+        owner->setPeriod(0.001);
     }
 
     virtual ~VelmaCoreVeBodyMaster() {
@@ -138,12 +142,17 @@ public:
         return initial_state_;
     }
 
+    virtual const std::vector<std::pair<std::string, std::string > >& getLatchedConnections() const {
+        return latched_connections_;
+    }
+
 private:
     RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
     RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
 
     const std::vector<std::string > states_;
     const std::string initial_state_;
+    const std::vector<std::pair<std::string, std::string > > latched_connections_;
 };
 
 };  // namespace velma_core_ve_body_types
