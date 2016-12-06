@@ -14,7 +14,6 @@
   <build_depend>ocl</build_depend>
   <build_depend>rtt_ros</build_depend>
   <build_depend>rtt_rosclock</build_depend>
-  <build_depend>diagnostic_msgs</build_depend>
   <build_depend>velma_core_cs_task_cs_msgs</build_depend>
   <build_depend>common_interfaces</build_depend>
   <build_depend>kuka_lwr_fri</build_depend>
@@ -22,7 +21,6 @@
   <run_depend>rtt</run_depend>
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
-  <run_depend>diagnostic_msgs</run_depend>
   <run_depend>common_interfaces</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
