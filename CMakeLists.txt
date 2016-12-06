@@ -10,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_cs_task_cs_msgs
   velma_core_cs_task_cs_interface
   velma_core_cs_ve_body_msgs
-  velma_core_cs_ve_body_interface
   eigen_conversions
   common_interfaces
   common_behavior
