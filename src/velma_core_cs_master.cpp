@@ -46,6 +46,7 @@ public:
     {
         owner->addPort(port_cmd_in_);
         owner->addPort(port_status_in_);
+        owner->setPeriod(0.001);
     }
 
     virtual ~VelmaCoreCsMaster() {
@@ -139,12 +140,17 @@ public:
         return initial_state_;
     }
 
+    virtual const std::vector<std::pair<std::string, std::string > >& getLatchedConnections() const {
+        return latched_connections_;
+    }
+
 private:
     RTT::InputPort<velma_core_cs_task_cs_msgs::Command > port_cmd_in_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
 
     const std::vector<std::string > states_;
     const std::string initial_state_;
+    const std::vector<std::pair<std::string, std::string > > latched_connections_;
 };
 
 };  // namespace velma_core_cs_types
