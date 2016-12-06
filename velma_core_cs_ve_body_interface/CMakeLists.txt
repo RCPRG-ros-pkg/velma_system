@@ -5,8 +5,8 @@ project(velma_core_cs_ve_body_interface)
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
-  diagnostic_msgs
   velma_core_ve_body_re_body_msgs
+  velma_core_ve_body_re_body_interface
   velma_core_cs_ve_body_msgs
   barrett_hand_controller_msgs
   eigen_conversions
@@ -51,7 +51,6 @@ target_link_libraries(velma_core_cs_ve_body_interface
 
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
-  INCLUDE_DIRS include
   LIBRARIES velma_core_cs_ve_body_interface
   CATKIN_DEPENDS rtt_ros geometry_msgs std_msgs message_runtime rtt_roscomm common_interfaces
 )

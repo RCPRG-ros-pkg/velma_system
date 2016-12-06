@@ -28,7 +28,6 @@
 #include "velma_core_cs_ve_body_msgs/Status.h"
 #include "velma_core_cs_ve_body_msgs/Command.h"
 
-#include "velma_core_cs_ve_body_interface/port_data.h"
 #include "common_interfaces/interfaces.h"
 
 using namespace velma_core_cs_ve_body_msgs;
