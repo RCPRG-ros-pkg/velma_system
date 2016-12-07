@@ -55,12 +55,10 @@ public:
 private:
 
     velma_core_cs_ve_body_msgs::Command cmd_in_;
-    velma_core_cs_ve_body_msgs::Command_Ports<RTT::InputPort > ports_cmd_in_;
-//    RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
+    RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
 
     velma_core_ve_body_re_body_msgs::Command cmd_out_;
-    velma_core_ve_body_re_body_msgs::Command_Ports<RTT::OutputPort > ports_cmd_out_;
-//    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
 
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
@@ -71,13 +69,11 @@ private:
 
 VelmaLowIdleComponent::VelmaLowIdleComponent(const std::string &name) :
     TaskContext(name, PreOperational),
-//    port_cmd_in_("command_INPORT"),
-    ports_cmd_in_(*this),
-    ports_cmd_out_(*this)
-//    port_cmd_out_("command_OUTPORT")
+    port_cmd_in_("command_INPORT"),
+    port_cmd_out_("command_OUTPORT")
 {
-//    this->ports()->addPort(port_cmd_in_);
-//    this->ports()->addPort(port_cmd_out_);
+    this->ports()->addPort(port_cmd_in_);
+    this->ports()->addPort(port_cmd_out_);
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
     this->addOperation("getDiag", &VelmaLowIdleComponent::getDiag, this, RTT::ClientThread);
@@ -107,9 +103,6 @@ void VelmaLowIdleComponent::stopHook() {
 
 void VelmaLowIdleComponent::updateHook() {
 
-    ports_cmd_in_.readPorts();
-    ports_cmd_in_.convertToROS(cmd_in_);
-/*
     if (port_cmd_in_.read(cmd_in_) != RTT::NewData) {
         Logger::In in("VelmaLowIdleComponent::updateHook");
         Logger::log() << Logger::Error << "could not read data on port "
@@ -118,7 +111,6 @@ void VelmaLowIdleComponent::updateHook() {
         diag_ = 1;
         return;
     }
-*/
 
     diag_ = 0;
 
@@ -148,9 +140,7 @@ void VelmaLowIdleComponent::updateHook() {
     cmd_out_.rHand = cmd_in_.rHand;
     cmd_out_.rHand_valid = cmd_in_.rHand_valid;
 
-//    port_cmd_out_.write(cmd_out_);
-    ports_cmd_out_.convertFromROS(cmd_out_);
-    ports_cmd_out_.writePorts();
+    port_cmd_out_.write(cmd_out_);
 
     // no error
     sc_out_.safe_behavior = false;

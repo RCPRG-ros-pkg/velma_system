@@ -37,7 +37,6 @@ public:
         BehaviorBase("behavior_velma_core_ve_body_safe")
     {
         addRunningComponent("safe");
-        addRunningComponent("TorsoSim");
     }
 
     virtual bool checkErrorCondition(
