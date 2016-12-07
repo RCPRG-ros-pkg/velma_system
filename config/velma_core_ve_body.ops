@@ -98,14 +98,14 @@ RightFtSensor.configure()
 
 
 loadComponent("bypass","VelmaLowIdleComponent")
-setActivity("bypass", 0, 5, ORO_SCHED_RT);
-bypass.configure()
+#setActivity("bypass", 0, 5, ORO_SCHED_RT);
+#bypass.configure()
 
 loadComponent("safe","VelmaLowSafeComponent");
-setActivity("safe", 0, 5, ORO_SCHED_RT);
-safe.loadService("rosparam");
-safe.rosparam.getAll();
-safe.configure();
+#setActivity("safe", 0, 5, ORO_SCHED_RT);
+#safe.loadService("rosparam");
+#safe.rosparam.getAll();
+#safe.configure();
 
 #
 # command
