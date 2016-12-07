@@ -111,7 +111,7 @@ safe.configure();
 # command
 #
 connect("VelmaCoreVeBodyReBodyStatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
-connect("safe.cmd_OUTPORT", "VelmaCoreVeBodyReBodyCommandSplit.msg_INPORT", ConnPolicy());
+connect("safe.cmd_OUTPORT", "VelmaCoreVeBodyReBodyCommandConcate.msg_INPORT", ConnPolicy());
 connect("safe.sc_OUTPORT", "VelmaCoreCsVeBodyStatusConcate.sc_INPORT", ConnPolicy());
 
 # TODO: connect all ports of VelmaCoreVeBodyReBodyCommandSplit
@@ -130,7 +130,7 @@ connect("VelmaCoreVeBodyReBodyCommandSplit.hpMotor_dq_OUTPORT",         "TorsoSi
 connect("VelmaCoreVeBodyReBodyCommandSplit.htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
 connect("VelmaCoreCsVeBodyCommandRx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
-connect("bypass.command_OUTPORT", "VelmaCoreVeBodyReBodyCommandSplit.msg_INPORT", ConnPolicy())
+connect("bypass.command_OUTPORT", "VelmaCoreVeBodyReBodyCommandConcate.msg_INPORT", ConnPolicy())
 connect("bypass.sc_OUTPORT", "VelmaCoreCsVeBodyStatusConcate.sc_INPORT", ConnPolicy());
 
 #
