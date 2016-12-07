@@ -47,7 +47,6 @@ public:
     {
         owner->addPort(port_cmd_in_);
         owner->addPort(port_status_in_);
-//        owner->setActivity( new RTT::extras::PeriodicActivity(ORO_SCHED_RT, 5, 0.001));
         owner->setPeriod(0.001);
     }
 
@@ -102,12 +101,12 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(false, "", false, false, "VelmaCoreVeBodyReBodyStatus", port_status_in_.getName()));//, false, std::vector<std::string >()));
+        info.push_back(common_behavior::InputBufferInfo(false, "", false, false, "VelmaCoreVeBodyReBodyStatus", port_status_in_.getName()));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", false, false, "VelmaCoreCsVeBodyCommand", port_cmd_in_.getName()));//, false, std::vector<std::string >()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", false, false, "VelmaCoreCsVeBodyCommand", port_cmd_in_.getName()));
     }
 
 /*
