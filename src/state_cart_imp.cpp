@@ -44,6 +44,8 @@ public:
                 const std::string& prev_state_name,
                 bool in_error) const
     {
+        return true;    // TODO
+
         if (prev_state_name == "state_velma_core_cs_cart_imp") {
             // the behavior cannot be restarted
             return false;

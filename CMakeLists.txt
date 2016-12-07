@@ -10,6 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_cs_task_cs_msgs
   velma_core_cs_task_cs_interface
   velma_core_cs_ve_body_msgs
+  velma_core_ve_body_re_body_interface
+  kuka_lwr_fri
   eigen_conversions
   common_interfaces
   common_behavior
@@ -45,6 +47,7 @@ orocos_component(velma_core_cs
     src/common_predicates.cpp
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
+    src/components/safe_component.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 

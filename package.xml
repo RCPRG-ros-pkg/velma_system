@@ -17,6 +17,8 @@
   <build_depend>velma_core_cs_task_cs_msgs</build_depend>
   <build_depend>velma_core_cs_task_cs_interface</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
+  <build_depend>velma_core_ve_body_re_body_interface</build_depend>
+  <build_depend>kuka_lwr_fri</build_depend>
   <build_depend>common_interfaces</build_depend>
   <build_depend>common_behavior</build_depend>
   <build_depend>eigen_conversions</build_depend>

@@ -41,12 +41,12 @@ public:
         port_cmd_in_("command_INPORT"),
         port_status_in_("status_INPORT"),
         initial_state_("state_velma_core_cs_safe"),
-        states_({"state_velma_core_cs_safe", "state_velma_core_cs_cart_imp"})
-        
+        states_({"state_velma_core_cs_safe", "state_velma_core_cs_cart_imp"}),
+        latched_connections_( std::vector<std::pair<std::string, std::string > >() )
     {
         owner->addPort(port_cmd_in_);
-        owner->addPort(port_status_in_);
-        owner->setPeriod(0.001);
+        owner->addEventPort(port_status_in_);
+//        owner->setPeriod(0.001);
     }
 
     virtual ~VelmaCoreCsMaster() {
@@ -100,12 +100,12 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyStatus", true, false, "VelmaCoreCsVeBodyStatus", port_status_in_.getName()));//, false, std::vector<std::string >()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyStatus", true, false, "VelmaCoreCsVeBodyStatus", port_status_in_.getName()));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsCommand", false, false, "VelmaCoreCsTaskCsCommand", port_cmd_in_.getName()));//, false, std::vector<std::string >()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsCommand", false, false, "VelmaCoreCsTaskCsCommand", port_cmd_in_.getName()));
     }
 
 /*

@@ -501,38 +501,41 @@ JntPub.configure()
 connect("VelmaCoreCsVeBodyStatusSplit.test_OUTPORT","VelmaCoreCsVeBodyCommandConcate.test_INPORT", ConnPolicy())
 
 
+loadComponent("safe", "velma_core_cs_types::SafeComponent");
+
 
 
 //------------------------------------------------------------------------------
 
-#TJ.start();
+TJ.start();
 
-#TorsoPanTransmision.start();
-#TorsoPanTransmisionInv.start();
-#HeadPanTransmision.start();
-#HeadPanTransmisionInv.start();
-#HeadTiltTransmision.start();
-#HeadTiltTransmisionInv.start();
-#HeadPanVelocityLimiter.start();
-#HeadTiltVelocityLimiter.start();
-#HeadPosSplit.start();
-#HeadPosAggregate.start();
-#TorsoTrqSplit.start();
-#TorsoPosAggregate.start();
-#TorsoVelAggregate.start();
-#Jc.start();
-#Jvc.start();
-#JcAll.start();
-#JvcAll.start();
-#Ts.start();
+TorsoPanTransmision.start();
+TorsoPanTransmisionInv.start();
+HeadPanTransmision.start();
+HeadPanTransmisionInv.start();
+HeadTiltTransmision.start();
+HeadTiltTransmisionInv.start();
+HeadPanVelocityLimiter.start();
+HeadTiltVelocityLimiter.start();
+HeadPosSplit.start();
+HeadPosAggregate.start();
+TorsoTrqSplit.start();
+TorsoPosAggregate.start();
+TorsoVelAggregate.start();
+Jc.start();
+Jvc.start();
+JcAll.start();
+JvcAll.start();
+Ts.start();
 #Dwr.start();
 #Dwl.start();
-#JntPub.start();
-#ImpedanceIntRight.start();
-#ImpedanceIntLeft.start();
-#ToolIntRight.start();
-#ToolIntLeft.start();
+JntPub.start();
+ImpedanceIntRight.start();
+ImpedanceIntLeft.start();
+ToolIntRight.start();
+ToolIntLeft.start();
 #TGR.start();
+#FK.start();
 
 #TfPub.start();
 #TorquePubRight.start();
