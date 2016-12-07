@@ -36,8 +36,7 @@ public:
     BehaviorSafe() :
         BehaviorBase("behavior_velma_core_cs_safe")
     {
-// TODO
-//        addRunningComponent(TODO);
+        addRunningComponent("safe");
     }
 
     bool checkErrorCondition(

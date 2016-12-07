@@ -502,6 +502,8 @@ connect("VelmaCoreCsVeBodyStatusSplit.test_OUTPORT","VelmaCoreCsVeBodyCommandCon
 
 
 loadComponent("safe", "velma_core_cs_types::SafeComponent");
+connect("safe.cmd_OUTPORT","VelmaCoreCsVeBodyCommandConcate.msg_INPORT", ConnPolicy())
+connect("VelmaCoreCsVeBodyStatusRx.msg_OUTPORT","safe.status_INPORT", ConnPolicy())
 
 
 
