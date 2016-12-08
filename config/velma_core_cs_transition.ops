@@ -506,7 +506,6 @@ connect("safe.cmd_OUTPORT","VelmaCoreCsVeBodyCommandConcate.msg_INPORT", ConnPol
 connect("VelmaCoreCsVeBodyStatusRx.msg_OUTPORT","safe.status_INPORT", ConnPolicy())
 
 
-
 //------------------------------------------------------------------------------
 
 TJ.start();

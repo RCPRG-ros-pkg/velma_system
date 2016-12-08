@@ -111,6 +111,8 @@ void SafeComponent::updateHook() {
     // set all commands to zero
     cmd_out_ = velma_core_cs_ve_body_msgs::Command();
 
+    cmd_out_.test = status_in_.test;
+
     // zero torque for hands
     cmd_out_.rArm_valid = true;
     cmd_out_.lArm_valid = true;

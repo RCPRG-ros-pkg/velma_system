@@ -47,7 +47,7 @@ orocos_component(velma_core_cs
     src/common_predicates.cpp
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
-    src/components/safe_component.cpp
+    src/components/safe.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
