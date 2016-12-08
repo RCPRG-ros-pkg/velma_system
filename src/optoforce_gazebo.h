@@ -85,7 +85,7 @@ public:
 
     // ROS parameters
     std::string device_name_;
-    int n_sensors_;
+    const int n_sensors_;
     std::vector<std::string > frame_id_vec_;
 
     int32_t median_filter_samples_, median_filter_max_samples_;
@@ -100,10 +100,12 @@ public:
     std::vector<gazebo::physics::JointPtr> joints_;
 
     // OROCOS ports
-    std::vector< RTT::OutputPort<geometry_msgs::WrenchStamped >* > port_force_out_;
+    boost::array<geometry_msgs::Wrench, 3 > force_out_;
+    RTT::OutputPort<boost::array<geometry_msgs::Wrench, 3 > > port_force_out_;
+//    std::vector< RTT::OutputPort<geometry_msgs::WrenchStamped >* > port_force_out_;
 
     // port variables
-    std::vector< geometry_msgs::WrenchStamped > force_out_;
+//    std::vector< geometry_msgs::WrenchStamped > force_out_;
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;

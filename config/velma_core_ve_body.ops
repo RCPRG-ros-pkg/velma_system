@@ -1,4 +1,4 @@
-ros.import("rtt_rosclock");
+#ros.import("rtt_rosclock");
 ros.import("rtt_barrett_hand_controller_msgs");
 ros.import("rtt_geometry_msgs");
 ros.import("rtt_velma_core_cs_ve_body_msgs");
@@ -33,22 +33,22 @@ if (!TorsoSim.configure()) then {
 }
 
 #setActivityOnCPU("LWRrSim", 0.001, 6, ORO_SCHED_RT, 3)
-setActivity("LWRrSim", 0.001, 6, ORO_SCHED_RT)
-LWRrSim.loadService("sim_clock_activity")
+#setActivity("LWRrSim", 0.001, 6, ORO_SCHED_RT)
+setActivity("LWRrSim", 0, 6, ORO_SCHED_RT)
+#LWRrSim.loadService("sim_clock_activity")
 LWRrSim.loadService("rosparam")
 LWRrSim.rosparam.getAll()
 LWRrSim.configure()
 
 #setActivityOnCPU("LWRlSim", 0.001, 6, ORO_SCHED_RT, 3)
-setActivity("LWRlSim", 0.001, 6, ORO_SCHED_RT)
-LWRlSim.loadService("sim_clock_activity")
+#setActivity("LWRlSim", 0.001, 6, ORO_SCHED_RT)
+setActivity("LWRlSim", 0, 6, ORO_SCHED_RT)
+#LWRlSim.loadService("sim_clock_activity")
 LWRlSim.loadService("rosparam")
 LWRlSim.rosparam.getAll()
 LWRlSim.configure()
 
-#setActivityOnCPU("RightHandTactile", 0.025, 6, ORO_SCHED_RT, 3)
 setActivity("RightHandTactile", 0, 6, ORO_SCHED_RT)
-#RightHandTactile.loadService("sim_clock_activity")
 RightHandTactile.loadService("rosparam")
 RightHandTactile.rosparam.getAll()
 RightHandTactile.configure()
@@ -97,19 +97,26 @@ RightFtSensor.configure()
 
 
 
-loadComponent("bypass","VelmaLowIdleComponent")
+loadComponent("bypass","velma_core_ve_body_types::BypassComponent")
 #setActivity("bypass", 0, 5, ORO_SCHED_RT);
 #bypass.configure()
 
-loadComponent("safe","VelmaLowSafeComponent");
+loadComponent("safe","velma_core_ve_body_types::SafeComponent");
 #setActivity("safe", 0, 5, ORO_SCHED_RT);
 #safe.loadService("rosparam");
 #safe.rosparam.getAll();
 #safe.configure();
 
+loadComponent("packet_counter", "velma_core_ve_body_types::PacketCounterComponent");
+packet_counter.configure();
+
 #
 # command
 #
+stream("VelmaCoreVeBodyReBodyStatusConcate.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/VelmaCoreVeBodyReBodyStatus"))
+
+stream("VelmaCoreCsVeBodyCommandRx.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/VelmaCoreCsVeBodyCommand"))
+
 connect("VelmaCoreVeBodyReBodyStatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
 connect("safe.cmd_OUTPORT", "VelmaCoreVeBodyReBodyCommandConcate.msg_INPORT", ConnPolicy());
 connect("safe.sc_OUTPORT", "VelmaCoreCsVeBodyStatusConcate.sc_INPORT", ConnPolicy());
@@ -136,6 +143,8 @@ connect("bypass.sc_OUTPORT", "VelmaCoreCsVeBodyStatusConcate.sc_INPORT", ConnPol
 #
 # status concate for VelmaCoreCsVeBody
 #
+connect("packet_counter.packet_counter_OUTPORT",            "VelmaCoreCsVeBodyStatusConcate.test_INPORT", ConnPolicy())
+
 connect("LWRrSim.JointPosition_OUTPORT",                    "VelmaCoreCsVeBodyStatusConcate.rArm_q_INPORT", ConnPolicy())
 connect("LWRrSim.JointVelocity_OUTPORT",                    "VelmaCoreCsVeBodyStatusConcate.rArm_dq_INPORT", ConnPolicy())
 connect("LWRrSim.JointTorque_OUTPORT",                      "VelmaCoreCsVeBodyStatusConcate.rArm_t_INPORT", ConnPolicy())
@@ -163,8 +172,7 @@ connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "VelmaCoreCsVeBodySt
 connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "VelmaCoreCsVeBodyStatusConcate.htMotor_q_INPORT", ConnPolicy())
 connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "VelmaCoreCsVeBodyStatusConcate.htMotor_dq_INPORT", ConnPolicy())
 connect("RightHandTactile.BHPressureState_OUTPORT",         "VelmaCoreCsVeBodyStatusConcate.rHand_p_INPORT", ConnPolicy())
-#connect("lli_lo_test.status_lHand_f_OUTPORT",             "VelmaCoreCsVeBodyStatusConcate.lHand_f_INPORT", ConnPolicy())
-# TODO LeftHandOptoforce.force_0_OUTPORT
+connect("LeftHandOptoforce.force_OUTPORT",                  "VelmaCoreCsVeBodyStatusConcate.lHand_f_INPORT", ConnPolicy())
 
 connect("RightFtSensor.rawWrench_OUTPORT",                  "VelmaCoreCsVeBodyStatusConcate.rFt_rw_INPORT", ConnPolicy())
 connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "VelmaCoreCsVeBodyStatusConcate.rFt_ffw_INPORT", ConnPolicy())
@@ -208,8 +216,7 @@ connect("TorsoSim.head_pan_motor_velocity_OUTPORT",         "VelmaCoreVeBodyReBo
 connect("TorsoSim.head_tilt_motor_position_OUTPORT",        "VelmaCoreVeBodyReBodyStatusConcate.htMotor_q_INPORT", ConnPolicy())
 connect("TorsoSim.head_tilt_motor_velocity_OUTPORT",        "VelmaCoreVeBodyReBodyStatusConcate.htMotor_dq_INPORT", ConnPolicy())
 connect("RightHandTactile.BHPressureState_OUTPORT",         "VelmaCoreVeBodyReBodyStatusConcate.rHand_p_INPORT", ConnPolicy())
-#connect("lli_lo_test.status_lHand_f_OUTPORT",             "VelmaCoreVeBodyReBodyStatusConcate.lHand_f_INPORT", ConnPolicy())
-# TODO LeftHandOptoforce.force_0_OUTPORT
+connect("LeftHandOptoforce.force_OUTPORT",                  "VelmaCoreVeBodyReBodyStatusConcate.lHand_f_INPORT", ConnPolicy())
 
 connect("RightFtSensor.rawWrench_OUTPORT",                  "VelmaCoreVeBodyReBodyStatusConcate.rFt_rw_INPORT", ConnPolicy())
 connect("RightFtSensor.fastFilteredWrench_OUTPORT",         "VelmaCoreVeBodyReBodyStatusConcate.rFt_ffw_INPORT", ConnPolicy())
@@ -228,5 +235,5 @@ RightHand.start();
 LeftHand.start();
 LeftFtSensor.start();
 RightFtSensor.start();
-
+packet_counter.start();
 

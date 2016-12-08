@@ -34,8 +34,9 @@ using namespace RTT;
     OptoforceGazebo::OptoforceGazebo(std::string const& name) : 
         TaskContext(name),
         model_(NULL),
-        n_sensors_(0),
-        data_valid_(false)
+        n_sensors_(3),
+        data_valid_(false),
+        port_force_out_("force_OUTPORT")
     {
         nh_ = new ros::NodeHandle();
 
@@ -44,8 +45,9 @@ using namespace RTT;
         this->provides("gazebo")->addOperation("update",&OptoforceGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
         this->addProperty("device_name", device_name_);
-        this->addProperty("n_sensors", n_sensors_);
         this->addProperty("frame_id_vec", frame_id_vec_);
+
+        this->ports()->addPort(port_force_out_);
     }
 
     OptoforceGazebo::~OptoforceGazebo() {
@@ -121,9 +123,15 @@ using namespace RTT;
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
 
-        if (!data_valid_) {
-            return;
-        }
+        // TODO
+        force_out_[0] = geometry_msgs::Wrench();
+        force_out_[1] = geometry_msgs::Wrench();
+        force_out_[2] = geometry_msgs::Wrench();
+        port_force_out_.write(force_out_);
+
+//        if (!data_valid_) {
+//            return;
+//        }
 /*
         for (int i = 0; i < n_sensors_; i++) {
             port_force_out_[i]->write(force_out_[i]);
@@ -177,13 +185,13 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     for (int i = 0; i < n_sensors_; i++) {
-        force_out_[i].header.frame_id = frame_id_vec_[i];
-        force_out_[i].header.stamp = rtt_rosclock::host_now();
+//        force_out_[i].header.frame_id = frame_id_vec_[i];
+//        force_out_[i].header.stamp = rtt_rosclock::host_now();
         gazebo::physics::JointWrench wr = joints_[i]->GetForceTorque(0u);
-        force_out_[i].wrench.force.x = wr.body2Force.x;
-        force_out_[i].wrench.force.y = wr.body2Force.y;
-        force_out_[i].wrench.force.z = wr.body2Force.z;
-        force_out_[i].wrench.torque.x = force_out_[i].wrench.torque.y = force_out_[i].wrench.torque.z = 0.0;
+        force_out_[i].force.x = wr.body2Force.x;
+        force_out_[i].force.y = wr.body2Force.y;
+        force_out_[i].force.z = wr.body2Force.z;
+        force_out_[i].torque.x = force_out_[i].torque.y = force_out_[i].torque.z = 0.0;
     }
 
     jc_->Update();

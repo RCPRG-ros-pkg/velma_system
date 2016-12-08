@@ -115,7 +115,7 @@ using namespace RTT;
                 for (int cidx = 0; cidx < col_count; cidx++) {
                     const std::string &col_name = (*it)->GetCollisions()[cidx]->GetName();
                     if (col_name == collision_names[i]) {
-//                        link_names_.push_back( link_name );
+                        link_names_.push_back( link_name );
 //                        vec_T_C_L_.push_back( dart_sk_->getBodyNode(link_name)->getCollisionShape(cidx)->getLocalTransform().inverse() );
                         found = true;
                         break;
@@ -133,7 +133,8 @@ using namespace RTT;
     void BarrettTactileGazebo::updateHook() {
         // Synchronize with gazeboUpdate()
         RTT::os::MutexLock lock(gazebo_mutex_);
-
+// TODO
+/*
         if (!data_valid_) {
             return;
         }
@@ -151,7 +152,7 @@ using namespace RTT;
                 }
             }
         }
-
+*/
         port_max_pressure_out_.write(max_pressure_out_);
         port_tactile_out_.write(tactile_out_);
         port_tactile_info_out_.write(pressure_info_);
