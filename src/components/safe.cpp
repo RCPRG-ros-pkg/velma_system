@@ -75,11 +75,13 @@ static bool getBit(int bitfield, int bit_num) {
     return ((bitfield & (1 << bit_num)) != 0)?true:false;
 }
 
-class VelmaLowSafeComponent: public RTT::TaskContext {
+namespace velma_core_ve_body_types {
+
+class SafeComponent: public RTT::TaskContext {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    explicit VelmaLowSafeComponent(const std::string &name);
+    explicit SafeComponent(const std::string &name);
 
     bool configureHook();
 
@@ -149,7 +151,7 @@ private:
 
 };
 
-VelmaLowSafeComponent::VelmaLowSafeComponent(const std::string &name) :
+SafeComponent::SafeComponent(const std::string &name) :
     TaskContext(name, PreOperational),
     arm_joints_count_(7),
     diag_(0),
@@ -171,10 +173,10 @@ VelmaLowSafeComponent::VelmaLowSafeComponent(const std::string &name) :
     addProperty("arm_dq_limits", arm_dq_limits_);
     addProperty("arm_t_limits", arm_t_limits_);
 
-    this->addOperation("getDiag", &VelmaLowSafeComponent::getDiag, this, RTT::ClientThread);
+    this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
 }
 
-std::string VelmaLowSafeComponent::getDiag() {
+std::string SafeComponent::getDiag() {
 // this method may not be RT-safe
     int diag = diag_;
     std::string result;
@@ -216,8 +218,8 @@ std::string VelmaLowSafeComponent::getDiag() {
     return result;
 }
 
-bool VelmaLowSafeComponent::configureHook() {
-    Logger::In in("VelmaLowSafeComponent::configureHook");
+bool SafeComponent::configureHook() {
+    Logger::In in("SafeComponent::configureHook");
 
     if (l_arm_damping_factors_.size() != arm_joints_count_) {
         Logger::log() << Logger::Error <<
@@ -286,14 +288,14 @@ bool VelmaLowSafeComponent::configureHook() {
     return true;
 }
 
-bool VelmaLowSafeComponent::startHook() {
+bool SafeComponent::startHook() {
     return true;
 }
 
-void VelmaLowSafeComponent::stopHook() {
+void SafeComponent::stopHook() {
 }
 
-void VelmaLowSafeComponent::calculateArmDampingTorque(const boost::array<double, 7> &joint_velocity,
+void SafeComponent::calculateArmDampingTorque(const boost::array<double, 7> &joint_velocity,
     const std::vector<double> &damping_factors, boost::array<double, 7> &joint_torque_command)
 {
     for (int i = 0; i < arm_joints_count_; ++i) {
@@ -301,7 +303,7 @@ void VelmaLowSafeComponent::calculateArmDampingTorque(const boost::array<double,
     }
 }
 
-void VelmaLowSafeComponent::calculateTorsoDampingTorque(double motor_velocity, double &motor_current_command)
+void SafeComponent::calculateTorsoDampingTorque(double motor_velocity, double &motor_current_command)
 {
     const double torso_gear = 158.0;
     const double torso_trans_mult = 20000.0 * torso_gear / (M_PI * 2.0);
@@ -311,19 +313,19 @@ void VelmaLowSafeComponent::calculateTorsoDampingTorque(double motor_velocity, d
     motor_current_command = motor_torque_command / torso_gear / torso_motor_constant;
 }
 
-bool VelmaLowSafeComponent::isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const {
+bool SafeComponent::isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
         || friRobot.control != FRI_CTRL_JNT_IMP          // error
-        || friIntf.state <= FRI_QUALITY_UNACCEPTABLE)    // error
+        || friIntf.quality <= FRI_QUALITY_UNACCEPTABLE)    // error
     {
         return false;
     }
     return true;
 }
 
-void VelmaLowSafeComponent::updateHook() {
+void SafeComponent::updateHook() {
     cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
 
     //
@@ -577,5 +579,7 @@ void VelmaLowSafeComponent::updateHook() {
     port_sc_out_.write(sc_out_);
 }
 
-ORO_LIST_COMPONENT_TYPE(VelmaLowSafeComponent)
+}   // velma_core_ve_body_types
+
+ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::SafeComponent)
 

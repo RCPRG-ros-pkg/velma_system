@@ -36,12 +36,12 @@ namespace velma_core_ve_body_types {
 class StateBase : public common_behavior::StateBase {
 public:
 
-    virtual bool checkInitialCondition(
+    bool checkInitialCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
             const std::vector<RTT::TaskContext*> &components,
             const std::string& prev_state_name,
             bool in_error) const {
-        return false;
+        return checkInitialCondition(boost::static_pointer_cast<InputData >(in_data), components, prev_state_name, in_error);
     }
 
     virtual bool checkInitialCondition(

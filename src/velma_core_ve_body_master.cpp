@@ -40,10 +40,7 @@ public:
     explicit VelmaCoreVeBodyMaster(RTT::TaskContext* owner) :
         common_behavior::MasterService(owner),
         port_cmd_in_("command_INPORT"),
-        port_status_in_("status_INPORT"),
-        initial_state_("state_velma_core_ve_body_safe"),
-        states_({"state_velma_core_ve_body_idle", "state_velma_core_ve_body_safe"}),
-        latched_connections_({std::make_pair(std::string("VelmaCoreVeBodyReBodyStatusConcate"), std::string("safe"))})
+        port_status_in_("status_INPORT")
     {
         owner->addPort(port_cmd_in_);
         owner->addPort(port_status_in_);
@@ -56,13 +53,28 @@ public:
 //
 // OROCOS ports operations
 //
-    virtual void readPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
+    virtual void initBuffers(boost::shared_ptr<common_behavior::InputData >& in_data) const {
         boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
-        port_cmd_in_.read(in->cmd_);
-        port_status_in_.read(in->status_);
+        in->cmd_ = velma_core_cs_ve_body_msgs::Command();
+        in->status_ = velma_core_ve_body_re_body_msgs::Status();
     }
 
-    virtual boost::shared_ptr<common_behavior::InputData > getDataSample() {
+    virtual bool readStatusPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
+        boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
+        bool result = true;
+        result = (port_status_in_.read(in->status_) == RTT::NewData) && result;
+        return result;
+    }
+
+    virtual bool readCommandPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
+        boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
+        in->cmd_ = velma_core_cs_ve_body_msgs::Command();
+        bool result = true;
+        result = (port_cmd_in_.read(in->cmd_) == RTT::NewData) && result;
+        return result;
+    }
+
+    virtual boost::shared_ptr<common_behavior::InputData > getDataSample() const {
         boost::shared_ptr<InputData > ptr(new InputData());
         ptr->cmd_ = velma_core_cs_ve_body_msgs::Command();
         ptr->status_ = velma_core_ve_body_re_body_msgs::Status();
@@ -106,7 +118,7 @@ public:
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", false, false, "VelmaCoreCsVeBodyCommand", port_cmd_in_.getName()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyCommand", true, false, "VelmaCoreCsVeBodyCommand", port_cmd_in_.getName()));
     }
 
 /*
@@ -133,25 +145,25 @@ public:
     //
     // FSM parameters
     //
-    virtual const std::vector<std::string >& getStates() const {
-        return states_;
+    virtual std::vector<std::string > getStates() const {
+        return std::vector<std::string >({"state_velma_core_ve_body_idle", "state_velma_core_ve_body_safe"});
     }
 
-    virtual const std::string& getInitialState() const {
-        return initial_state_;
+    virtual std::string getInitialState() const {
+        return "state_velma_core_ve_body_safe";
     }
 
-    virtual const std::vector<std::pair<std::string, std::string > >& getLatchedConnections() const {
-        return latched_connections_;
+    virtual std::vector<std::pair<std::string, std::string > > getLatchedConnections() const {
+        return std::vector<std::pair<std::string, std::string > > ({std::make_pair(std::string("VelmaCoreVeBodyReBodyStatusConcate"), std::string("safe"))});
+    }
+
+    virtual int getInputDataWaitCycles() const {
+        return 1000;
     }
 
 private:
     RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
     RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
-
-    const std::vector<std::string > states_;
-    const std::string initial_state_;
-    const std::vector<std::pair<std::string, std::string > > latched_connections_;
 };
 
 };  // namespace velma_core_ve_body_types

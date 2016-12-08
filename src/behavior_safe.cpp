@@ -39,14 +39,14 @@ public:
         addRunningComponent("safe");
     }
 
-    virtual bool checkErrorCondition(
+    bool checkErrorCondition(
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
         return false;
     }
 
-    virtual bool checkStopCondition(
+    bool checkStopCondition(
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
@@ -56,7 +56,7 @@ public:
         bool lLwrCmd = isLwrInCmdState(in_data->status_.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-        bool resetCmd = (in_data->cmd_.sc.valid && in_data->cmd_.sc.cmd == 1);
+        bool resetCmd = (in_data->cmd_.sc_valid && in_data->cmd_.sc.cmd == 1);
 
         if (hwOk && resetCmd && isCmdValid(in_data->cmd_) && isStatusValid(in_data->status_))
         {

@@ -38,9 +38,11 @@
 
 using namespace RTT;
 
-class VelmaLowIdleComponent: public RTT::TaskContext {
+namespace velma_core_ve_body_types {
+
+class BypassComponent: public RTT::TaskContext {
 public:
-    explicit VelmaLowIdleComponent(const std::string &name);
+    explicit BypassComponent(const std::string &name);
 
     bool configureHook();
 
@@ -67,7 +69,7 @@ private:
     int diag_;
 };
 
-VelmaLowIdleComponent::VelmaLowIdleComponent(const std::string &name) :
+BypassComponent::BypassComponent(const std::string &name) :
     TaskContext(name, PreOperational),
     port_cmd_in_("command_INPORT"),
     port_cmd_out_("command_OUTPORT")
@@ -76,10 +78,10 @@ VelmaLowIdleComponent::VelmaLowIdleComponent(const std::string &name) :
     this->ports()->addPort(port_cmd_out_);
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
-    this->addOperation("getDiag", &VelmaLowIdleComponent::getDiag, this, RTT::ClientThread);
+    this->addOperation("getDiag", &BypassComponent::getDiag, this, RTT::ClientThread);
 }
 
-std::string VelmaLowIdleComponent::getDiag() {
+std::string BypassComponent::getDiag() {
 // this method may not be RT-safe
     int diag = diag_;
 
@@ -89,27 +91,26 @@ std::string VelmaLowIdleComponent::getDiag() {
     return "";
 }
 
-bool VelmaLowIdleComponent::configureHook() {
-    Logger::In in("VelmaLowIdleComponent::configureHook");
+bool BypassComponent::configureHook() {
     return true;
 }
 
-bool VelmaLowIdleComponent::startHook() {
+bool BypassComponent::startHook() {
     return true;
 }
 
-void VelmaLowIdleComponent::stopHook() {
+void BypassComponent::stopHook() {
 }
 
-void VelmaLowIdleComponent::updateHook() {
+void BypassComponent::updateHook() {
 
     if (port_cmd_in_.read(cmd_in_) != RTT::NewData) {
-        Logger::In in("VelmaLowIdleComponent::updateHook");
+        Logger::In in("BypassComponent::updateHook");
         Logger::log() << Logger::Error << "could not read data on port "
             << port_cmd_in_.getName() << Logger::endl;
-        error();
+//        error();
         diag_ = 1;
-        return;
+//        return;
     }
 
     diag_ = 0;
@@ -151,5 +152,7 @@ void VelmaLowIdleComponent::updateHook() {
     port_sc_out_.write(sc_out_);
 }
 
-ORO_LIST_COMPONENT_TYPE(VelmaLowIdleComponent)
+}   //namespace velma_core_ve_body_types
+
+ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::BypassComponent)
 

@@ -25,15 +25,68 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <string>
+
+#include "rtt/RTT.hpp"
 #include <rtt/Component.hpp>
 
-#include <common_behavior/master_component.h>
+using namespace RTT;
 
-#include "velma_core_cs_ve_body_msgs/Command.h"
+namespace velma_core_ve_body_types {
 
-#include "velma_core_ve_body_re_body_msgs/Status.h"
+class PacketCounterComponent: public RTT::TaskContext {
+public:
+    explicit PacketCounterComponent(const std::string &name);
 
-typedef MasterComponent<velma_core_ve_body_re_body_msgs::Status, velma_core_cs_ve_body_msgs::Command > VelmaLowLevelMaster;
+    bool configureHook();
 
-ORO_LIST_COMPONENT_TYPE(VelmaLowLevelMaster)
+    bool startHook();
+
+    void stopHook();
+
+    void updateHook();
+
+    std::string getDiag();
+
+private:
+
+    uint32_t packet_counter_;
+    RTT::OutputPort<uint32_t > port_packet_counter_out_;
+};
+
+PacketCounterComponent::PacketCounterComponent(const std::string &name) :
+    TaskContext(name, PreOperational),
+    port_packet_counter_out_("packet_counter_OUTPORT"),
+    packet_counter_(1)
+{
+    this->ports()->addPort(port_packet_counter_out_);
+    this->addOperation("getDiag", &PacketCounterComponent::getDiag, this, RTT::ClientThread);
+}
+
+std::string PacketCounterComponent::getDiag() {
+// this method may not be RT-safe
+    std::stringstream ss;
+    ss << packet_counter_;
+    return ss.str();
+}
+
+bool PacketCounterComponent::configureHook() {
+    return true;
+}
+
+bool PacketCounterComponent::startHook() {
+    return true;
+}
+
+void PacketCounterComponent::stopHook() {
+}
+
+void PacketCounterComponent::updateHook() {
+    ++packet_counter_;
+    port_packet_counter_out_.write(packet_counter_);
+}
+
+}   // namespace velma_core_ve_body_types
+
+ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::PacketCounterComponent)
 

@@ -35,7 +35,7 @@ bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot,
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
         || friRobot.control != FRI_CTRL_JNT_IMP          // error
-        || friIntf.state <= FRI_QUALITY_UNACCEPTABLE)    // error
+        || friIntf.quality <= FRI_QUALITY_UNACCEPTABLE)    // error
     {
         return false;
     }
@@ -100,22 +100,15 @@ bool isCmdValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
 
 bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd) {
 
-    return cmd.rTact_valid
-        && cmd.tMotor_valid
+    return cmd.tMotor_valid
         && cmd.hpMotor_valid
         && cmd.htMotor_valid
         && cmd.lArm_valid
         && cmd.rArm_valid
-        && cmd.lHand_valid
-        && cmd.rHand_valid
-        && cmd.sc_valid
         && isCmdValid(cmd.rArm) && isCmdValid(cmd.lArm)
-        && isCommandValid(cmd.rHand) && isCommandValid(cmd.lHand)
         && isCommandValidTorso(cmd.tMotor)
         && isCommandValidHeadPan(cmd.hpMotor)
-        && isCommandValidHeadTilt(cmd.htMotor)
-        && isCommandValidTact(cmd.rTact)
-        && isCommandValidSc(cmd.sc);
+        && isCommandValidHeadTilt(cmd.htMotor);
 }
 
 

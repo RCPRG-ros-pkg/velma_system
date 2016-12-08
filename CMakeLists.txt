@@ -45,8 +45,9 @@ orocos_component(velma_core_ve_body
     src/state_safe.cpp
     src/common_predicates.cpp
     src/velma_core_ve_body.cpp
-    src/components/idle_component.cpp
-    src/components/safe_component.cpp
+    src/components/bypass.cpp
+    src/components/safe.cpp
+    src/components/packet_counter.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
