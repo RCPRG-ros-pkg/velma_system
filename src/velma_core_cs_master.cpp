@@ -38,12 +38,16 @@ class VelmaCoreCsMaster : public common_behavior::MasterService {
 public:
     explicit VelmaCoreCsMaster(RTT::TaskContext* owner) :
         common_behavior::MasterService(owner),
-        port_cmd_in_("command_INPORT"),
-        port_status_in_("status_INPORT")
+        port_cmd_in_("VelmaCoreCsTaskCsCommand_INPORT"),
+        port_cmd_out_("VelmaCoreCsTaskCsCommand_OUTPORT"),
+        port_status_in_("VelmaCoreCsVeBodyStatus_INPORT"),
+        port_status_out_("VelmaCoreCsVeBodyStatus_OUTPORT")
     {
         owner->addPort(port_cmd_in_);
         owner->addEventPort(port_status_in_);
-//        owner->setPeriod(0.001);
+
+        owner->addPort(port_cmd_out_);
+        owner->addPort(port_status_out_);
     }
 
     virtual ~VelmaCoreCsMaster() {
@@ -61,16 +65,30 @@ public:
 
     virtual bool readStatusPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
         boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
-        bool result = true;
-        result = (port_status_in_.read(in->status_) == RTT::NewData) && result;
-        return result;
+        if (port_status_in_.read(in->status_) == RTT::NewData) {
+            return true;
+        }
+        in->status_ = velma_core_cs_ve_body_msgs::Status();
+        return false;
+    }
+
+    virtual void writeStatusPorts(boost::shared_ptr<common_behavior::InputData>& in_data) {
+        boost::shared_ptr<InputData> in = boost::static_pointer_cast<InputData >(in_data);
+        port_status_out_.write(in->status_);
     }
 
     virtual bool readCommandPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
         boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
-        bool result = true;
-        result = (port_cmd_in_.read(in->cmd_) == RTT::NewData) && result;
-        return result;
+        if (port_cmd_in_.read(in->cmd_) == RTT::NewData) {
+            return true;
+        }
+        in->cmd_ = velma_core_cs_task_cs_msgs::Command();
+        return false;
+    }
+
+    virtual void writeCommandPorts(boost::shared_ptr<common_behavior::InputData>& in_data) {
+        boost::shared_ptr<InputData> in = boost::static_pointer_cast<InputData >(in_data);
+        port_cmd_out_.write(in->cmd_);
     }
 
     virtual boost::shared_ptr<common_behavior::InputData > getDataSample() const {
@@ -93,31 +111,18 @@ public:
     // determines if the buffer component is triggered by new data
     bool event_port_;
 
-    // determines if the buffer component should trigger its slaves
-    // even if there is no new data on channel
-    bool always_update_peers_;
-
     // the prefix used to generate interface classes with macro
     // ORO_LIST_INTERFACE_COMPONENTS
     std::string interface_prefix_;
-
-    // the name of the corresponding port in the master component
-    std::string master_component_port_name_;
-
-    // determines if master component should be updated when Rx component is updated
-    bool update_master_;
-
-    // list of additional peers that should be updated when Rx component is updated
-    std::vector<std::string > update_peer_list_;
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyStatus", true, false, "VelmaCoreCsVeBodyStatus", port_status_in_.getName()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyStatus", true, "VelmaCoreCsVeBodyStatus"));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsCommand", false, false, "VelmaCoreCsTaskCsCommand", port_cmd_in_.getName()));
+        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsCommand", false, "VelmaCoreCsTaskCsCommand"));
     }
 
 /*
@@ -162,7 +167,9 @@ public:
 
 private:
     RTT::InputPort<velma_core_cs_task_cs_msgs::Command > port_cmd_in_;
+    RTT::OutputPort<velma_core_cs_task_cs_msgs::Command > port_cmd_out_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
+    RTT::OutputPort<velma_core_cs_ve_body_msgs::Status > port_status_out_;
 };
 
 };  // namespace velma_core_cs_types
