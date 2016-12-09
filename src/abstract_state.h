@@ -41,7 +41,7 @@ public:
             const std::vector<RTT::TaskContext*> &components,
             const std::string& prev_state_name,
             bool in_error) const {
-        return false;
+        return checkInitialCondition(boost::static_pointer_cast<InputData >(in_data), components, prev_state_name, in_error);
     }
 
     virtual bool checkInitialCondition(

@@ -40,6 +40,7 @@ public:
         addRunningComponent("JntLimit");
         addRunningComponent("PoseIntLeft");
         addRunningComponent("PoseIntRight");
+//        addRunningComponent("FK");
 
         // running: [CImp, JntLimit, PoseIntLeft, PoseIntRight, lli_hi_tx, Mass]
     }

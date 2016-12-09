@@ -279,6 +279,8 @@ loadComponent("PoseIntRight", "CartesianInterpolatorNew");
 
 connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
 
+connect("VelmaCoreCsTaskCsCommandSplit.cart_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+
 loadComponent("PoseIntLeft", "CartesianInterpolatorNew");
 
 connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand1_INPORT", ConnPolicy());
@@ -536,7 +538,7 @@ ImpedanceIntLeft.start();
 ToolIntRight.start();
 ToolIntLeft.start();
 #TGR.start();
-#FK.start();
+FK.start();
 
 #TfPub.start();
 #TorquePubRight.start();

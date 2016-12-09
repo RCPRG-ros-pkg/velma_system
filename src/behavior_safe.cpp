@@ -57,10 +57,9 @@ public:
             if (oneCommandValid(in_data->cmd_)) {
                 return true;
             }
-            return true;
         }
-// TODO
-        return true;
+
+        return false;
     }
 };
 

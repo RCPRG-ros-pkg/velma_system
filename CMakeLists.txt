@@ -48,6 +48,7 @@ orocos_component(velma_core_cs
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
     src/components/safe.cpp
+    src/components/cartesian_interpolator.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 

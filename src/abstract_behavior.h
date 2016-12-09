@@ -39,13 +39,13 @@ public:
     virtual bool checkErrorCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
             const std::vector<RTT::TaskContext*> &components) const {
-        return false;
+        return checkErrorCondition(boost::static_pointer_cast<InputData >(in_data), components);
     }
 
     virtual bool checkStopCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
             const std::vector<RTT::TaskContext*> &components) const {
-        return false;
+        return checkStopCondition(boost::static_pointer_cast<InputData >(in_data), components);
     }
 
     virtual bool checkErrorCondition(
