@@ -115,7 +115,7 @@ packet_counter.configure();
 #
 stream("VelmaCoreVeBodyReBodyStatusConcate.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/VelmaCoreVeBodyReBodyStatus"))
 
-stream("VelmaCoreCsVeBodyCommandRx.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/VelmaCoreCsVeBodyCommand"))
+stream("master_component.VelmaCoreCsVeBodyCommand_OUTPORT", ros.comm.topic("/velma_core_ve_body/VelmaCoreCsVeBodyCommand"))
 
 connect("VelmaCoreVeBodyReBodyStatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
 connect("safe.cmd_OUTPORT", "VelmaCoreVeBodyReBodyCommandConcate.msg_INPORT", ConnPolicy());
@@ -136,7 +136,7 @@ connect("VelmaCoreVeBodyReBodyCommandSplit.htMotor_q_OUTPORT",          "TorsoSi
 connect("VelmaCoreVeBodyReBodyCommandSplit.hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
 connect("VelmaCoreVeBodyReBodyCommandSplit.htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
-connect("VelmaCoreCsVeBodyCommandRx.msg_OUTPORT", "bypass.command_INPORT", ConnPolicy())
+connect("master_component.VelmaCoreCsVeBodyCommand_OUTPORT", "bypass.command_INPORT", ConnPolicy())
 connect("bypass.command_OUTPORT", "VelmaCoreVeBodyReBodyCommandConcate.msg_INPORT", ConnPolicy())
 connect("bypass.sc_OUTPORT", "VelmaCoreCsVeBodyStatusConcate.sc_INPORT", ConnPolicy());
 
