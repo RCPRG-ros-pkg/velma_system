@@ -108,9 +108,9 @@ void BypassComponent::updateHook() {
         Logger::In in("BypassComponent::updateHook");
         Logger::log() << Logger::Error << "could not read data on port "
             << port_cmd_in_.getName() << Logger::endl;
-//        error();
+        error();
         diag_ = 1;
-//        return;
+        return;
     }
 
     diag_ = 0;
