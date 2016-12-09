@@ -12,11 +12,11 @@
   <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>
 
   <node
-    name="velma_high_level"
-    pkg="rtt_ros" type="$(arg DEPLOYER_NAME)"
-    args="--DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.ops --" output="screen">
-    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
-    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
+    name="velma_task_cs_ros_interface"
+    pkg="subsystem_deployer" type="$(arg DEPLOYER_NAME)"
+    args="--DeployerName velma_task_cs_ros_interface -l $(arg LOG_LEVEL) -s $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.ops -m velma_task_cs_ros_interface --" output="screen">
+<!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
+    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
 <!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
   </node>
 

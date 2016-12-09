@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   rtt_actionlib
   common_interfaces
+  common_behavior
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -40,10 +41,15 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 orocos_component(velma_task_cs_ros_interface
     src/velma_task_cs_ros_interface.cpp
     src/components/cartesian_trajectory_action.cpp
-    src/components/cartesian_interpolator.cpp
+    src/behavior_normal.cpp
+    src/state_normal.cpp
 )
-
 target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
+
+orocos_service(VelmaCoreVeBodyMaster
+    src/master_service.cpp
+)
+target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})
 
 ### Orocos Package Exports and Install Targets ###
 

@@ -18,6 +18,8 @@
   <build_depend>velma_core_cs_task_cs_interface</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>rtt_actionlib</build_depend>
+  <build_depend>common_interfaces</build_depend>
+  <build_depend>common_behavior</build_depend>
 
   <run_depend>rtt</run_depend>
   <run_depend>ocl</run_depend>
@@ -34,6 +36,7 @@
     <rtt_ros>
       <!-- Plugin deps are loaded automatically by the rtt_ros import service -->
       <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>velma_core_cs_task_cs_interface</plugin_depend>
     </rtt_ros>
   </export>
 </package>

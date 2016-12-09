@@ -29,6 +29,7 @@
 
 #include "Eigen/Dense"
 
+#include "rtt/Component.hpp"
 #include "rtt/TaskContext.hpp"
 #include "rtt/Port.hpp"
 
@@ -60,6 +61,8 @@ class CartesianTrajectoryActionNew: public RTT::TaskContext {
 
   bool startHook();
   void updateHook();
+
+    bool testTrj();
 
  private:
   void goalCB(GoalHandle gh);
@@ -288,4 +291,6 @@ void CartesianTrajectoryActionNew::cancelCB(GoalHandle gh) {
         active_goal_.setCanceled();
     }
 }
+
+ORO_LIST_COMPONENT_TYPE(CartesianTrajectoryActionNew)
 
