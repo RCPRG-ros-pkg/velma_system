@@ -1,10 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_velma_core_cs_ve_body_msgs)
 
-find_package(catkin REQUIRED COMPONENTS rtt_roscomm velma_core_cs_ve_body_msgs velma_core_ve_body_re_body_msgs velma_core_ve_body_re_body_interface common_interfaces eigen_conversions kuka_lwr_fri)
-
-find_package(Eigen3 REQUIRED)
-include_directories(${Eigen3_INCLUDE_DIR})
+find_package(catkin REQUIRED COMPONENTS rtt_roscomm velma_core_cs_ve_body_msgs velma_core_ve_body_re_body_msgs common_interfaces)
 
 ros_generate_rtt_typekit(velma_core_cs_ve_body_msgs)
 

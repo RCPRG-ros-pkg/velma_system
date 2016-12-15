@@ -24,9 +24,10 @@
   <buildtool_depend>catkin</buildtool_depend>
 
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
-  <build_depend>velma_core_ve_body_re_body_interface</build_depend>
-  <build_depend>kuka_lwr_fri</build_depend>
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
+
+  <build_depend>velma_core_ve_body_re_body_msgs</build_depend>
+  <run_depend>velma_core_ve_body_re_body_msgs</run_depend>
 
   <build_depend>rtt_roscomm</build_depend>
   <run_depend>rtt_roscomm</run_depend>
