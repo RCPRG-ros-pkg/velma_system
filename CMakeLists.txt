@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   velma_core_cs_ve_body_msgs
-  velma_core_ve_body_re_body_interface
+  velma_core_ve_body_re_body_msgs
   eigen_conversions
   common_interfaces
   common_behavior
@@ -52,7 +52,7 @@ orocos_component(velma_core_ve_body
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
 orocos_service(VelmaCoreVeBodyMaster
-    src/velma_core_ve_body_master.cpp
+    src/master_service.cpp
 )
 target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})
 
