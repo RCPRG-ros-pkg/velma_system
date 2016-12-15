@@ -18,6 +18,7 @@ ros.import("rtt_cartesian_trajectory_msgs");
 ros.import("rtt_std_msgs");
 ros.import("rtt_tf");
 ros.import("velma_sim_gazebo");
+ros.import("velma_data_conversions");
 
 //------------------------------------------------------------------------------
 //-- Simulation interface
@@ -118,10 +119,13 @@ stream("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", ros.comm.top
 stream("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_cs_ve_body_msgs_Command"))
 
 connect("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
-connect("safe.cmd_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate.msg_INPORT", ConnPolicy());
+connect("safe.cmd_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate._INPORT", ConnPolicy());
 connect("safe.sc_OUTPORT", "velma_core_cs_ve_body_msgs_StatusConcate.sc_INPORT", ConnPolicy());
 
 # TODO: connect all ports of velma_core_ve_body_re_body_msgs_CommandSplit
+#loadComponent("DataConversionToEigenVector4_rArm_t", "DataConversionToEigenVector4");
+#packet_counter.configure();
+
 connect("velma_core_ve_body_re_body_msgs_CommandSplit.rArm_t_OUTPORT",            "LWRrSim.JointTorqueCommand_INPORT", ConnPolicy());
 connect("velma_core_ve_body_re_body_msgs_CommandSplit.rArmFri_OUTPORT",           "LWRrSim.KRL_CMD_INPORT", ConnPolicy());
 
@@ -137,7 +141,7 @@ connect("velma_core_ve_body_re_body_msgs_CommandSplit.hpMotor_dq_OUTPORT",      
 connect("velma_core_ve_body_re_body_msgs_CommandSplit.htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
 connect("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", "bypass.command_INPORT", ConnPolicy())
-connect("bypass.command_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate.msg_INPORT", ConnPolicy())
+connect("bypass.command_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate._INPORT", ConnPolicy())
 connect("bypass.sc_OUTPORT", "velma_core_cs_ve_body_msgs_StatusConcate.sc_INPORT", ConnPolicy());
 
 #
