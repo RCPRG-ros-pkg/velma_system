@@ -42,7 +42,7 @@ CartTrjActionRight.configure();
 CartTrjActionRight.loadService("actionlib")
 CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
 
-connect("CartTrjActionRight.command_OUTPORT", "VelmaCoreCsTaskCsCommandConcate.cart_pose_INPORT", ConnPolicy())
+connect("CartTrjActionRight.cart_pose_command_OUTPORT", "VelmaCoreCsTaskCsCommandConcate.cart_pose_INPORT", ConnPolicy())
 
 
 CartTrjActionRight.start();

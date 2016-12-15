@@ -15,7 +15,6 @@
   <build_depend>rtt_ros</build_depend>
   <build_depend>rtt_rosclock</build_depend>
   <build_depend>velma_core_cs_task_cs_msgs</build_depend>
-  <build_depend>velma_core_cs_task_cs_interface</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>rtt_actionlib</build_depend>
   <build_depend>common_interfaces</build_depend>
@@ -25,7 +24,6 @@
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_task_cs_msgs</run_depend>
-  <run_depend>velma_core_cs_task_cs_interface</run_depend>
   <run_depend>rtt_actionlib</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
@@ -36,7 +34,7 @@
     <rtt_ros>
       <!-- Plugin deps are loaded automatically by the rtt_ros import service -->
       <plugin_depend>rtt_std_msgs</plugin_depend>
-      <plugin_depend>velma_core_cs_task_cs_interface</plugin_depend>
+      <plugin_depend>rtt_velma_core_cs_task_cs_subsystem_ports</plugin_depend>
     </rtt_ros>
   </export>
 </package>

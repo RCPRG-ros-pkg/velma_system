@@ -85,6 +85,8 @@ class CartesianTrajectoryActionNew: public RTT::TaskContext {
   RTT::InputPort<geometry_msgs::Wrench> port_cartesian_wrench_;
   rtt_actionlib::RTTActionServer<cartesian_trajectory_msgs::CartesianTrajectoryAction> as_;
   GoalHandle active_goal_;
+
+  int test_counter_;
 };
 
 CartesianTrajectoryActionNew::CartesianTrajectoryActionNew(const std::string& name) :
@@ -94,8 +96,8 @@ CartesianTrajectoryActionNew::CartesianTrajectoryActionNew(const std::string& na
     port_cartesian_position_("CartesianPosition_INPORT"),
     port_cartesian_position_command_("CartesianPositionCommand_INPORT"),
     port_cartesian_wrench_("CartesianWrench_INPORT"),
-    port_status_in_("status_INPORT"),
-    port_command_out_("command_OUTPORT")
+    port_status_in_("cart_pose_status_INPORT"),
+    port_command_out_("cart_pose_command_OUTPORT")
 {
 
 
@@ -105,10 +107,11 @@ CartesianTrajectoryActionNew::CartesianTrajectoryActionNew(const std::string& na
   this->ports()->addPort(port_cartesian_position_command_);
   this->ports()->addPort(port_cartesian_wrench_);
 
+  as_.addPorts(this->provides());
+
   this->ports()->addPort(port_status_in_);
   this->ports()->addPort(port_command_out_);
 
-  as_.addPorts(this->provides());
 
   as_.registerGoalCallback(boost::bind(&CartesianTrajectoryActionNew::goalCB, this, _1));
   as_.registerCancelCallback(boost::bind(&CartesianTrajectoryActionNew::cancelCB, this, _1));
@@ -123,6 +126,7 @@ bool CartesianTrajectoryActionNew::startHook() {
   } else {
     return false;
   }
+  test_counter_ = 0;
 
   return true;
 }
@@ -148,19 +152,32 @@ void CartesianTrajectoryActionNew::updateHook() {
     ros::Time now = rtt_rosclock::host_now();
 
 // TODO: read port_status_in_ and provide feedback
+    port_status_in_.read(status_in_);
+
+    feedback.desired = status_in_.cmd;
+    feedback.actual = status_in_.msr;
 //    port_cartesian_position_.read(feedback.actual);
 //    port_cartesian_position_command_.read(feedback.desired);
 
-//    tf::poseMsgToEigen(feedback.actual, actual);
-//    tf::poseMsgToEigen(feedback.desired, desired);
+    tf::poseMsgToEigen(feedback.actual, actual);
+    tf::poseMsgToEigen(feedback.desired, desired);
 
-//    error = actual.inverse() * desired;
+    error = actual.inverse() * desired;
 
-//    tf::poseEigenToMsg(error, feedback.error);
+    tf::poseEigenToMsg(error, feedback.error);
+
     feedback.header.stamp = now;
     active_goal_.publishFeedback(feedback);
 
     Goal g = active_goal_.getGoal();
+
+    if (test_counter_ > 200) {
+        active_goal_.setSucceeded();
+    }
+    else {
+        test_counter_++;
+    }
+
 /*
 // TODO: check tolerances in core_cs
     if (!checkTolerance(error, g->path_tolerance)) {
@@ -169,17 +186,20 @@ void CartesianTrajectoryActionNew::updateHook() {
       res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::PATH_TOLERANCE_VIOLATED;
       active_goal_.setAborted(res);
     }
-
+*/
     geometry_msgs::Wrench ft;
-    port_cartesian_wrench_.read(ft);
+    ft = status_in_.force;
+    //port_cartesian_wrench_.read(ft);
 
+/*
+// TODO: check tolerances in core_cs
     if (!checkWrenchTolerance(ft, g->wrench_constraint)) {
       port_cartesian_trajectory_command_.write(CartesianTrajectoryConstPtr());
       cartesian_trajectory_msgs::CartesianTrajectoryResult res;
       res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::PATH_TOLERANCE_VIOLATED;
       active_goal_.setAborted(res);
     }
-
+*/
 
     // TODO(konradb3): check goal constraint.
     size_t last_point = g->trajectory.points.size() - 1;
@@ -187,7 +207,6 @@ void CartesianTrajectoryActionNew::updateHook() {
     if ((g->trajectory.header.stamp + g->trajectory.points[last_point].time_from_start) < now) {
       active_goal_.setSucceeded();
     }
-*/
   }
 }
 /*
@@ -276,6 +295,7 @@ void CartesianTrajectoryActionNew::goalCB(GoalHandle gh) {
     gh.setAccepted();
     active_goal_ = gh;
 
+    test_counter_ = 0;
 //  CartesianTrajectory* trj_ptr =  new CartesianTrajectory;
 //  *trj_ptr = g->trajectory;
 //  CartesianTrajectoryConstPtr trj_cptr = CartesianTrajectoryConstPtr(trj_ptr);

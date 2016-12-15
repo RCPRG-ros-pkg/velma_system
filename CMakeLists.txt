@@ -8,7 +8,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   velma_core_cs_task_cs_msgs
-  velma_core_cs_task_cs_interface
   eigen_conversions
   rtt_actionlib
   common_interfaces
@@ -56,7 +55,7 @@ target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
   INCLUDE_DIRS include
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs rtt_actionlib
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm rtt_actionlib
 )
 
 #orocos_install_headers(

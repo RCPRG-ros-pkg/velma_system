@@ -37,8 +37,8 @@ class MasterService : public common_behavior::MasterService {
 public:
     explicit MasterService(RTT::TaskContext* owner) :
         common_behavior::MasterService(owner),
-        port_status_in_("VelmaCoreCsTaskCsStatus_INPORT"),
-        port_status_out_("VelmaCoreCsTaskCsStatus_OUTPORT")
+        port_status_in_("velma_core_cs_task_cs_msgs_Status_INPORT"),
+        port_status_out_("velma_core_cs_task_cs_msgs_Status_OUTPORT")
     {
         owner->addPort(port_status_in_);
         owner->addPort(port_status_out_);
@@ -104,7 +104,7 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsStatus", true, "VelmaCoreCsTaskCsStatus"));
+        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_task_cs_msgs::Status", true, "velma_core_cs_task_cs_msgs::Status"));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
@@ -124,7 +124,7 @@ public:
 */
     virtual void getLowerOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "VelmaCoreCsTaskCsCommand", "VelmaCoreCsTaskCsCommand"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs::Command", "velma_core_cs_task_cs_msgs::Command"));
     }
 
     virtual void getUpperOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {

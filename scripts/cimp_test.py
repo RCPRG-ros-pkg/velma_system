@@ -23,10 +23,13 @@ if __name__ == "__main__":
     rospy.init_node('cimp_test', anonymous=True)
 
     prefix = "right"
+    rospy.sleep(1)
 
     action_trajectory_client = actionlib.SimpleActionClient("/" + prefix + "_arm/cartesian_trajectory", CartesianTrajectoryAction)
     print "cimp_test script: waiting for /%s_arm/cartesian_trajectory action..."%(prefix)
     action_trajectory_client.wait_for_server()
+
+    print "connected to the action server"
 
     T_B_Td = PyKDL.Frame()
     pose = pm.toMsg(T_B_Td)
