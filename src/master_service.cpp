@@ -38,10 +38,10 @@ class VelmaCoreCsMaster : public common_behavior::MasterService {
 public:
     explicit VelmaCoreCsMaster(RTT::TaskContext* owner) :
         common_behavior::MasterService(owner),
-        port_cmd_in_("VelmaCoreCsTaskCsCommand_INPORT"),
-        port_cmd_out_("VelmaCoreCsTaskCsCommand_OUTPORT"),
-        port_status_in_("VelmaCoreCsVeBodyStatus_INPORT"),
-        port_status_out_("VelmaCoreCsVeBodyStatus_OUTPORT")
+        port_cmd_in_("velma_core_cs_task_cs_msgs_Command_INPORT"),
+        port_cmd_out_("velma_core_cs_task_cs_msgs_Command_OUTPORT"),
+        port_status_in_("velma_core_cs_ve_body_msgs_Status_INPORT"),
+        port_status_out_("velma_core_cs_ve_body_msgs_Status_OUTPORT")
     {
         owner->addPort(port_cmd_in_);
         owner->addEventPort(port_status_in_);
@@ -117,12 +117,12 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsVeBodyStatus", true, "VelmaCoreCsVeBodyStatus"));
+        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_ve_body_msgs::Status", true, "velma_core_cs_ve_body_msgs::Status"));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "VelmaCoreCsTaskCsCommand", false, "VelmaCoreCsTaskCsCommand"));
+        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_task_cs_msgs::Command", false, "velma_core_cs_task_cs_msgs::Command"));
     }
 
 /*
@@ -138,12 +138,12 @@ public:
 */
     virtual void getLowerOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "VelmaCoreCsVeBodyCommand", "VelmaCoreCsVeBodyCommand"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_ve_body_msgs::Command", "velma_core_cs_ve_body_msgs::Command"));
     }
 
     virtual void getUpperOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "VelmaCoreCsTaskCsStatus", "VelmaCoreCsTaskCsStatus"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs::Status", "velma_core_cs_task_cs_msgs::Status"));
     }
 
     //

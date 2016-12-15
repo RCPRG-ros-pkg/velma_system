@@ -8,9 +8,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   velma_core_cs_task_cs_msgs
-  velma_core_cs_task_cs_interface
   velma_core_cs_ve_body_msgs
-  velma_core_ve_body_re_body_interface
   kuka_lwr_fri
   eigen_conversions
   common_interfaces
@@ -53,7 +51,7 @@ orocos_component(velma_core_cs
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
 orocos_service(VelmaCoreCsMaster
-    src/velma_core_cs_master.cpp
+    src/master_service.cpp
 )
 target_link_libraries(VelmaCoreCsMaster ${catkin_LIBRARIES})
 
