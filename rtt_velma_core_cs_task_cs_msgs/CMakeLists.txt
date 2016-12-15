@@ -3,9 +3,6 @@ project(rtt_velma_core_cs_task_cs_msgs)
 
 find_package(catkin REQUIRED COMPONENTS rtt_roscomm common_interfaces velma_core_cs_task_cs_msgs)
 
-find_package(Eigen3 REQUIRED)
-include_directories(${Eigen3_INCLUDE_DIR})
-
 ros_generate_rtt_typekit(velma_core_cs_task_cs_msgs)
 
 orocos_generate_package(

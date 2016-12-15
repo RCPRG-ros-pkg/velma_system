@@ -1,7 +1,7 @@
-cartesian_trajectory_msgs/CartesianImpedanceTrajectoryPoint[50] trj_imp
-uint32 count_trj_imp
+geometry_msgs/Pose cmd
 
-cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj_pose
-uint32 count_trj_pose
+geometry_msgs/Pose msr
 
-# TODO: add tolerances
+geometry_msgs/Wrench force
+
+

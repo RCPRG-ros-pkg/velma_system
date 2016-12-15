@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 2.8.6)
 project(velma_core_cs_task_cs_msgs)
 
 find_package(catkin REQUIRED
-  COMPONENTS std_msgs geometry_msgs common_interfaces message_generation_subsystem_buffers actionlib_msgs cartesian_trajectory_msgs)
+  COMPONENTS std_msgs geometry_msgs common_interfaces message_generation actionlib_msgs cartesian_trajectory_msgs)
 
 add_message_files(FILES
   Command.msg
