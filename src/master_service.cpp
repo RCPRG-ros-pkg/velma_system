@@ -104,7 +104,7 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_task_cs_msgs::Status", true, "velma_core_cs_task_cs_msgs::Status"));
+        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_task_cs_msgs_Status", true, "velma_core_cs_task_cs_msgs_Status"));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
@@ -124,7 +124,7 @@ public:
 */
     virtual void getLowerOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs::Command", "velma_core_cs_task_cs_msgs::Command"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs_Command", "velma_core_cs_task_cs_msgs_Command"));
     }
 
     virtual void getUpperOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {

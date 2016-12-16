@@ -42,13 +42,9 @@ CartTrjActionRight.configure();
 CartTrjActionRight.loadService("actionlib")
 CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
 
-connect("CartTrjActionRight.cart_pose_command_OUTPORT", "VelmaCoreCsTaskCsCommandConcate.cart_pose_INPORT", ConnPolicy())
+connect("CartTrjActionRight.cart_pose_command_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.cart_pose_INPORT", ConnPolicy())
 
+stream("CartTrjActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartTrjActionRight/cart_pose_command_OUTPORT"));
 
 CartTrjActionRight.start();
-
-#loadComponent("VelmaCoreCsTaskCsCommandConcate", "VelmaCoreCsTaskCsCommandConcate");
-#VelmaCoreCsTaskCsCommandConcate
-
-#loadComponent("VelmaCoreCsTaskCsCommandTx", "VelmaCoreCsTaskCsCommandTx");
 
