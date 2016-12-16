@@ -39,6 +39,7 @@
     <rtt_ros>
       <!-- Plugin deps are loaded automatically by the rtt_ros import service -->
       <plugin_depend>rtt_std_msgs</plugin_depend>
+      <plugin_depend>velma_data_conversions</plugin_depend>
       <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
       <plugin_depend>rtt_velma_core_ve_body_re_body_subsystem_ports</plugin_depend>
     </rtt_ros>
