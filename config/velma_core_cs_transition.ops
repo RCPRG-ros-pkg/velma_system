@@ -100,9 +100,9 @@ TGR.configure();
 
 ## torso transmision
 
-connect("VelmaCoreCsVeBodyStatusSplit.tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
-connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "VelmaCoreCsVeBodyCommandConcate.tMotor_i_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.tMotor_q_OUTPORT",    "TorsoPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.tMotor_dq_OUTPORT",   "TorsoPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.tMotor_i_INPORT", ConnPolicy())
 
 
 ## camera trigger
@@ -112,66 +112,66 @@ connect("TorsoPanTransmisionInv.MotorCurrent_OUTPORT",  "VelmaCoreCsVeBodyComman
 
 ## head command limiters
 
-connect("VelmaCoreCsVeBodyStatusSplit.hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadPanVelocityLimiter.Position_OUTPORT",   "VelmaCoreCsVeBodyCommandConcate.hpMotor_q_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_q_OUTPORT",   "HeadPanVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadPanVelocityLimiter.Position_OUTPORT",   "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_q_INPORT", ConnPolicy());
 
-connect("VelmaCoreCsVeBodyStatusSplit.htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
-connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "VelmaCoreCsVeBodyCommandConcate.htMotor_q_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.htMotor_q_OUTPORT",   "HeadTiltVelocityLimiter.PositionMsr_INPORT", ConnPolicy());
+connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_q_INPORT", ConnPolicy());
 
 ## head transmisions
 
-connect("VelmaCoreCsVeBodyStatusSplit.hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "VelmaCoreCsVeBodyCommandConcate.hpMotor_i_INPORT", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "VelmaCoreCsVeBodyCommandConcate.hpMotor_dq_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT", ConnPolicy())
+connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT", ConnPolicy())
 
-connect("VelmaCoreCsVeBodyStatusSplit.htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "VelmaCoreCsVeBodyCommandConcate.htMotor_i_INPORT", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "VelmaCoreCsVeBodyCommandConcate.htMotor_dq_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT", ConnPolicy())
+connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT", ConnPolicy())
 
 ## vector concatenations and splits
 
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_q_OUTPORT",  "Jc.In1", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_q_OUTPORT",  "Jc.In2", ConnPolicy());
 
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
 
-connect("VelmaCoreCsVeBodyStatusSplit.rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
 
-connect("VelmaCoreCsVeBodyStatusSplit.rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit1_7_7_0");
-connect("Ts.Out1", "VelmaCoreCsVeBodyCommandConcate.rArm_t_INPORT", ConnPolicy());
-connect("Ts.Out2", "VelmaCoreCsVeBodyCommandConcate.lArm_t_INPORT", ConnPolicy());
+connect("Ts.Out1", "velma_core_cs_ve_body_msgs_CommandConcate.rArm_t_INPORT", ConnPolicy());
+connect("Ts.Out2", "velma_core_cs_ve_body_msgs_CommandConcate.lArm_t_INPORT", ConnPolicy());
 
 ## wrench decimators
 
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_w_OUTPORT",  "Dwr.In", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_w_OUTPORT",  "Dwl.In", ConnPolicy());
 
 ## mass matrix component
 
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_mmx_OUTPORT" , "Mass.MassMatrixLeft_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_mmx_OUTPORT" , "Mass.MassMatrixRight_INPORT", ConnPolicy());
 
 ## torque publishers
 
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
 
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
 
 ## gravity component
 
-#connect("VelmaCoreCsVeBodyStatusSplit.lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
-#connect("VelmaCoreCsVeBodyStatusSplit.rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT", "VG.GravTrqLeft", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT", "VG.GravTrqRight", ConnPolicy());
 
 
 ##
@@ -182,8 +182,8 @@ connect("VelmaCoreCsVeBodyStatusSplit.lArm_gt_OUTPORT", "TorquePubLeft.InGravity
 
 ##
 
-#stream("VelmaCoreCsVeBodyStatusSplit.rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
-#stream("VelmaCoreCsVeBodyStatusSplit.lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
+#stream("velma_core_cs_ve_body_msgs_StatusSplit.rArm_w_OUTPORT", ros.comm.topic("/right_arm/wrench"));
+#stream("velma_core_cs_ve_body_msgs_StatusSplit.lArm_w_OUTPORT", ros.comm.topic("/left_arm/wrench"));
 
 #stream("Dwr.Out", ros.comm.topic("/right_arm/wrench"));
 #stream("Dwl.Out", ros.comm.topic("/left_arm/wrench"));
@@ -279,7 +279,7 @@ loadComponent("PoseIntRight", "CartesianInterpolatorNew");
 
 connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
 
-connect("VelmaCoreCsTaskCsCommandSplit.cart_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
 loadComponent("PoseIntLeft", "CartesianInterpolatorNew");
 
@@ -358,8 +358,8 @@ RightForceTransformation.rosparam.getAll();
 RightForceTransformation.configure()
 
 connect("RightForceTransformation.CurrentWristPose", "FK.RightWrist_OUTPORT", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rFt_sfw_OUTPORT", "RightForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.rFt_rw_OUTPORT",  "RightForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("RightForceTransformation.Tool", "ToolIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 #stream("RightForceTransformation.ToolGravityParam", ros.comm.topic("/right_arm/tg_param"))
@@ -371,8 +371,8 @@ LeftForceTransformation.rosparam.getAll();
 LeftForceTransformation.configure()
 
 connect("LeftForceTransformation.CurrentWristPose", "FK.LeftWrist_OUTPORT", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
-connect("VelmaCoreCsVeBodyStatusSplit.lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lFt_sfw_OUTPORT", "LeftForceTransformation.CurrentSensorSlowFilteredWrench", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.lFt_rw_OUTPORT",  "LeftForceTransformation.CurrentSensorFastFilteredWrench", ConnPolicy())
 connect("LeftForceTransformation.Tool", "ToolIntLeft.CartesianPositionCommand_OUTPORT", ConnPolicy())
 
 #stream("LeftForceTransformation.ToolGravityParam", ros.comm.topic("/left_arm/tg_param"))
@@ -500,12 +500,12 @@ connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
 JntPub.configure()
 
 
-connect("VelmaCoreCsVeBodyStatusSplit.test_OUTPORT","VelmaCoreCsVeBodyCommandConcate.test_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.test_INPORT", ConnPolicy())
 
 
 loadComponent("safe", "velma_core_cs_types::SafeComponent");
-connect("safe.cmd_OUTPORT","VelmaCoreCsVeBodyCommandConcate.msg_INPORT", ConnPolicy())
-connect("master_component.VelmaCoreCsVeBodyStatus_OUTPORT","safe.status_INPORT", ConnPolicy());
+connect("safe.cmd_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate._INPORT", ConnPolicy())
+connect("master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT","safe.status_INPORT", ConnPolicy());
 
 
 //------------------------------------------------------------------------------
