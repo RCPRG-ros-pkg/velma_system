@@ -9,6 +9,8 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   eigen_conversions
   common_interfaces
+  velma_core_ve_body_re_body_msgs
+  kuka_lwr_fri
 )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -28,6 +30,8 @@ orocos_component(velma_data_conversions
   src/components/eigen_vector_4.cpp
   src/components/eigen_vector_7.cpp
   src/components/eigen_vector_8.cpp
+  src/components/eigen_matrix77.cpp
+  src/components/fri.cpp
   src/velma_data_conversions.cpp
 )
 target_link_libraries(velma_data_conversions ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})

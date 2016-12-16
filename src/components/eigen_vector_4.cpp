@@ -25,7 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
 #include "eigen_vector.h"
+#include "common_interfaces/data_conversion.h"
 #include "rtt/Component.hpp"
 
 REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, CommandHand, q, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),

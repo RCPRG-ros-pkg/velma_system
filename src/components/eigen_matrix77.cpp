@@ -25,28 +25,31 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef VELMA_DATA_CONVERSIONS_EIGEN_VECTOR_H_
-#define VELMA_DATA_CONVERSIONS_EIGEN_VECTOR_H_
-
-#include <string>
+#include "common_interfaces/data_conversion.h"
 #include "Eigen/Dense"
 #include <boost/array.hpp>
+#include "rtt/Component.hpp"
 
-template <size_t DIM>
-void convert(   const Eigen::Matrix<double, DIM, 1 >& data_oro,
-                boost::array<double, DIM >& data_ros) {
-    for (size_t i = 0; i < DIM; ++i) {
-        data_ros[i] = data_oro(i);
+void convert(   const Eigen::Matrix<double, 7, 7 >& data_oro,
+                boost::array<double, 28 >& data_ros) {
+
+    for (int i = 0, idx = 0; i < 7; ++i) {
+        for (int j = i; j < 7; ++j) {
+            data_ros[idx++] = data_oro(i,j);
+        }
     }
 }
 
-template <size_t DIM>
-void convert(   const boost::array<double, DIM >& data_ros,
-                Eigen::Matrix<double, DIM, 1 >& data_oro) {
-    for (size_t i = 0; i < DIM; ++i) {
-        data_oro(i) = data_ros[i];
+void convert(   const boost::array<double, 28 >& data_ros,
+                Eigen::Matrix<double, 7, 7 >& data_oro) {
+
+    for (int i = 0, idx = 0; i < 7; ++i) {
+        for (int j = i; j < 7; ++j) {
+            data_oro(i,j) = data_oro(j,i) = data_ros[idx++];
+        }
     }
 }
 
-#endif  // VELMA_DATA_CONVERSIONS_EIGEN_VECTOR_H_
+REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, StatusArm, mmx, (boost::array<double, 28 >), (Eigen::Matrix<double, 7, 7 >),
+{ ::convert(ros, oro); }, { ::convert(oro, ros); } )
 

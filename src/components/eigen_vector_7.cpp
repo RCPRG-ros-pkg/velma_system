@@ -26,7 +26,23 @@
 */
 
 #include "eigen_vector.h"
+#include "common_interfaces/data_conversion.h"
 #include "rtt/Component.hpp"
+
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandArm, t, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
+{ ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
+
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, q, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
+{ ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
+
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, dq, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
+{ ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
+
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, t, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
+{ ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
+
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, gt, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
+{ ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
 
 REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, CommandArm, t, (boost::array<double, 7 >), (Eigen::Matrix<double, 7, 1 >),
 { ::convert<7>(ros, oro); }, { ::convert<7>(oro, ros); } )
