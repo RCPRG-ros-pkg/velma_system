@@ -18,7 +18,6 @@ ros.import("rtt_cartesian_trajectory_msgs");
 ros.import("rtt_std_msgs");
 ros.import("rtt_tf");
 ros.import("velma_sim_gazebo");
-ros.import("velma_data_conversions");
 
 //------------------------------------------------------------------------------
 //-- Simulation interface
