@@ -105,9 +105,6 @@ public:
     // determines if shm ipc interface should be created
     bool enable_ipc_;
 
-    // ipc channel name
-    std::string ipc_channel_name_;
-
     // determines if the buffer component is triggered by new data
     bool event_port_;
 
@@ -117,20 +114,17 @@ public:
 */
     virtual void getLowerInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_ve_body_msgs_Status", true, "velma_core_cs_ve_body_msgs_Status"));
+        info.push_back(common_behavior::InputBufferInfo(true, true, "velma_core_cs_ve_body_msgs_Status"));
     }
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, "velma_core_cs_task_cs_msgs_Command", false, "velma_core_cs_task_cs_msgs_Command"));
+        info.push_back(common_behavior::InputBufferInfo(true, false, "velma_core_cs_task_cs_msgs_Command"));
     }
 
 /*
     // determines if shm ipc interface should be created
     bool enable_ipc_;
-
-    // ipc channel name
-    std::string ipc_channel_name_;
 
     // the prefix used to generate interface classes with macro
     // ORO_LIST_INTERFACE_COMPONENTS
@@ -138,12 +132,12 @@ public:
 */
     virtual void getLowerOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_ve_body_msgs_Command", "velma_core_cs_ve_body_msgs_Command"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_ve_body_msgs_Command"));
     }
 
     virtual void getUpperOutputBuffers(std::vector<common_behavior::OutputBufferInfo >& info) const {
         info = std::vector<common_behavior::OutputBufferInfo >();
-        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs_Status", "velma_core_cs_task_cs_msgs_Status"));
+        info.push_back(common_behavior::OutputBufferInfo(true, "velma_core_cs_task_cs_msgs_Status"));
     }
 
     //
