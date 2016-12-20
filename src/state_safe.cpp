@@ -33,7 +33,7 @@ namespace velma_core_cs_types {
 class StateSafe : public StateBase {
 public:
     StateSafe() :
-        StateBase("state_velma_core_cs_safe", "behavior_velma_core_cs_safe")
+        StateBase("state_velma_core_cs_safe", "safe", "behavior_velma_core_cs_safe")
     {
     }
 

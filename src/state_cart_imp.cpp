@@ -34,7 +34,7 @@ namespace velma_core_cs_types {
 class StateCartImp : public StateBase {
 public:
     StateCartImp() :
-        StateBase("state_velma_core_cs_cart_imp", "behavior_velma_core_cs_cart_imp")
+        StateBase("state_velma_core_cs_cart_imp", "cart_imp", "behavior_velma_core_cs_cart_imp")
     {
     }
 

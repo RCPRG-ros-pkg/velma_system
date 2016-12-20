@@ -34,7 +34,7 @@ namespace velma_core_cs_types {
 class BehaviorCartImp : public BehaviorBase {
 public:
     BehaviorCartImp() :
-        BehaviorBase("behavior_velma_core_cs_cart_imp")
+        BehaviorBase("behavior_velma_core_cs_cart_imp", "cart_imp")
     {
         addRunningComponent("CImp");
         addRunningComponent("JntLimit");
