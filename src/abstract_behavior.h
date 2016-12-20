@@ -57,8 +57,8 @@ public:
             const std::vector<RTT::TaskContext*> &components) const = 0;
 
 protected:
-    BehaviorBase(const std::string& name) :
-        common_behavior::BehaviorBase(name)
+    BehaviorBase(const std::string& name, const std::string& short_name)
+        : common_behavior::BehaviorBase(name, short_name)
     { }
 };
 

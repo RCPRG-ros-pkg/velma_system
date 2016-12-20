@@ -34,7 +34,7 @@ namespace velma_core_ve_body_types {
 class BehaviorSafe : public BehaviorBase {
 public:
     BehaviorSafe() :
-        BehaviorBase("behavior_velma_core_ve_body_safe")
+        BehaviorBase("behavior_velma_core_ve_body_safe", "safe")
     {
         addRunningComponent("safe");
     }

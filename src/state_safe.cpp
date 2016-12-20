@@ -33,7 +33,7 @@ namespace velma_core_ve_body_types {
 class StateSafe : public StateBase {
 public:
     StateSafe() :
-        StateBase("state_velma_core_ve_body_safe", "behavior_velma_core_ve_body_safe")
+        StateBase("state_velma_core_ve_body_safe", "safe", "behavior_velma_core_ve_body_safe")
     {
     }
 

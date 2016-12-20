@@ -33,7 +33,7 @@ namespace velma_core_ve_body_types {
 class StateIdle : public StateBase {
 public:
     StateIdle() :
-        StateBase("state_velma_core_ve_body_idle", "behavior_velma_core_ve_body_idle")
+        StateBase("state_velma_core_ve_body_idle", "idle", "behavior_velma_core_ve_body_idle")
     {
     }
 

@@ -34,7 +34,7 @@ namespace velma_core_ve_body_types {
 class BehaviorIdle : public BehaviorBase {
 public:
     BehaviorIdle() :
-        BehaviorBase("behavior_velma_core_ve_body_idle")
+        BehaviorBase("behavior_velma_core_ve_body_idle", "idle")
     {
         addRunningComponent("bypass");
     }

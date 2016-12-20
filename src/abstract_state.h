@@ -51,8 +51,8 @@ public:
             bool in_error) const = 0;
 
 protected:
-    StateBase(const std::string& state_name, const std::string& behavior_name) :
-        common_behavior::StateBase(state_name, behavior_name)
+    StateBase(const std::string& state_name, const std::string& short_state_name, const std::string& behavior_name) :
+        common_behavior::StateBase(state_name, short_state_name, behavior_name)
     { }
 };
 
