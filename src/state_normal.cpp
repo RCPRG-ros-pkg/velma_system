@@ -33,7 +33,7 @@ namespace velma_task_cs_ros_interface_types {
 class StateNormal : public StateBase {
 public:
     StateNormal() :
-        StateBase("state_velma_task_cs_ros_interface_normal", "behavior_velma_task_cs_ros_interface_normal")
+        StateBase("state_velma_task_cs_ros_interface_normal", "normal", "behavior_velma_task_cs_ros_interface_normal")
     {
     }
 

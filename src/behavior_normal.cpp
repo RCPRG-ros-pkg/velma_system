@@ -33,7 +33,7 @@ namespace velma_task_cs_ros_interface_types {
 class BehaviorNormal : public BehaviorBase {
 public:
     BehaviorNormal() :
-        BehaviorBase("behavior_velma_task_cs_ros_interface_normal")
+        BehaviorBase("behavior_velma_task_cs_ros_interface_normal", "normal")
     {
 //        addRunningComponent("safe");      // TODO
     }
