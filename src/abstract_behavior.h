@@ -35,26 +35,36 @@ namespace velma_core_ve_body_types {
 
 class BehaviorBase : public common_behavior::BehaviorBase {
 public:
+    enum {R_LWR_bit=0, L_LWR_bit=1, R_LWR_CMD_bit=2, L_LWR_CMD_bit=3, STATUS_bit=4, COMMAND_bit=5};
 
-    bool checkErrorCondition(
+    void checkErrorCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const {
-        return checkErrorCondition(boost::static_pointer_cast<InputData >(in_data), components);
+            const std::vector<RTT::TaskContext*> &components,
+            boost::shared_ptr<AbstractConditionCause > result) const {
+
+        checkErrorCondition(boost::static_pointer_cast<InputData >(in_data),
+                            components,
+                            boost::static_pointer_cast<common_behavior::ConditionCause<6 > >(result) );
     }
 
-    bool checkStopCondition(
+    void checkStopCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const {
-        return checkStopCondition(boost::static_pointer_cast<InputData >(in_data), components);
+            const std::vector<RTT::TaskContext*> &components,
+            boost::shared_ptr<AbstractConditionCause > result) const {
+        checkStopCondition( boost::static_pointer_cast<InputData >(in_data),
+                            components,
+                            boost::static_pointer_cast<common_behavior::ConditionCause<6 > >(result) );
     }
 
-    virtual bool checkErrorCondition(
+    virtual void checkErrorCondition(
             const boost::shared_ptr<InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const = 0;
+            const std::vector<RTT::TaskContext*> &components,
+            boost::shared_ptr<common_behavior::ConditionCause<6 > > result) const = 0;
 
-    virtual bool checkStopCondition(
+    virtual void checkStopCondition(
             const boost::shared_ptr<InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const = 0;
+            const std::vector<RTT::TaskContext*> &components,
+            boost::shared_ptr<common_behavior::ConditionCause<6 > > result) const = 0;
 
 protected:
     BehaviorBase(const std::string& name, const std::string& short_name)

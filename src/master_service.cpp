@@ -175,6 +175,35 @@ public:
         return 1000;
     }
 
+    // this method may not be RT-safe
+    virtual std::string getErrorReasonStr(boost::shared_ptr<AbstractConditionCause > error_reason) const {
+        boost::shared_ptr<const common_behavior::ConditionCause<6 > >* r = boost::dynamic_pointer_cast<const common_behavior::ConditionCause<6 > >(error_reason);
+        std::string result;
+        if (r->getBit(BehaviorBase::R_LWR_bit)) {
+            result += "R_LWR ";
+        }
+        if (r->getBit(BehaviorBase::R_LWR_bit)) {
+            result += "R_LWR ";
+        }
+        if (r->getBit(BehaviorBase::R_LWR_CMD_bit)) {
+            result += "R_LWR_CMD ";
+        }
+        if (r->getBit(BehaviorBase::L_LWR_CMD_bit)) {
+            result += "L_LWR_CMD ";
+        }
+        if (r->getBit(BehaviorBase::STATUS_bit)) {
+            result += "STATUS ";
+        }
+        if (r->getBit(BehaviorBase::COMMAND_bit)) {
+            result += "COMMAND ";
+        }
+    }
+
+    virtual boost::shared_ptr<common_behavior::AbstractConditionCause > getErrorReasonSample() const {
+        boost::shared_ptr<common_behavior::ConditionCause<6 > > ptr(new common_behavior::ConditionCause<6 >());
+        return boost::dynamic_pointer_cast<common_behavior::AbstractConditionCause >( ptr );
+    }
+
 private:
     RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
