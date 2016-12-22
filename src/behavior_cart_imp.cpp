@@ -47,10 +47,14 @@ public:
 
     virtual bool checkErrorCondition(
                 const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components) const
+                const std::vector<RTT::TaskContext*> &components,
+                ErrorCausePtr result) const
     {
         // check status of current component graph that makes up the transition function
         if (!allComponentsOk(components, getRunningComponents())) {
+            if (result) {
+                result->setBit(COMPONENT_bit, true);
+            }
             return true;
         }
 

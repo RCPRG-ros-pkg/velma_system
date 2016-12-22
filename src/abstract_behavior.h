@@ -33,13 +33,21 @@
 
 namespace velma_core_cs_types {
 
+typedef common_behavior::ConditionCause<1 > ErrorCause;
+typedef boost::shared_ptr<ErrorCause > ErrorCausePtr;
+typedef boost::shared_ptr<const ErrorCause > ErrorCauseConstPtr;
+
 class BehaviorBase : public common_behavior::BehaviorBase {
 public:
+    enum {COMPONENT_bit=0};
 
     virtual bool checkErrorCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const {
-        return checkErrorCondition(boost::static_pointer_cast<InputData >(in_data), components);
+            const std::vector<RTT::TaskContext*> &components,
+            common_behavior::AbstractConditionCausePtr result = common_behavior::AbstractConditionCausePtr()) const {
+        return checkErrorCondition( boost::static_pointer_cast<InputData >(in_data),
+                                    components,
+                                    boost::dynamic_pointer_cast<ErrorCause >(result) );
     }
 
     virtual bool checkStopCondition(
@@ -50,7 +58,8 @@ public:
 
     virtual bool checkErrorCondition(
             const boost::shared_ptr<InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const = 0;
+            const std::vector<RTT::TaskContext*> &components,
+            ErrorCausePtr result) const = 0;
 
     virtual bool checkStopCondition(
             const boost::shared_ptr<InputData >& in_data,

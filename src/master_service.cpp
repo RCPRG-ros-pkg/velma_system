@@ -31,6 +31,7 @@
 #include "velma_core_cs_task_cs_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
 #include "input_data.h"
+#include "abstract_behavior.h"
 
 namespace velma_core_cs_types {
 
@@ -157,6 +158,25 @@ public:
 
     virtual int getInputDataWaitCycles() const {
         return 0;
+    }
+
+    //
+    // error condition info
+    //
+    // this method is not RT-safe
+    virtual std::string getErrorReasonStr(common_behavior::AbstractConditionCauseConstPtr error_reason) const {
+        ErrorCauseConstPtr r = boost::dynamic_pointer_cast<const ErrorCause >(error_reason);
+        std::string result;
+        if (r->getBit(BehaviorBase::COMPONENT_bit)) {
+            result += "COMPONENT ";
+        }
+        return result;
+    }
+
+    // this method is not RT-safe
+    virtual common_behavior::AbstractConditionCausePtr getErrorReasonSample() const {
+        ErrorCausePtr ptr(new ErrorCause());
+        return boost::dynamic_pointer_cast<common_behavior::AbstractConditionCause >( ptr );
     }
 
 private:
