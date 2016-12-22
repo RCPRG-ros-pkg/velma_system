@@ -144,6 +144,26 @@ public:
         return 0;
     }
 
+    //
+    // error condition info
+    //
+    // this method is not RT-safe
+    virtual std::string getErrorReasonStr(common_behavior::AbstractConditionCauseConstPtr error_reason) const {
+/*        ErrorCauseConstPtr r = boost::dynamic_pointer_cast<const ErrorCause >(error_reason);
+        std::string result;
+        if (r->getBit(BehaviorBase::COMPONENT_bit)) {
+            result += "COMPONENT ";
+        }
+        return result;
+*/
+    }
+
+    // this method is not RT-safe
+    virtual common_behavior::AbstractConditionCausePtr getErrorReasonSample() const {
+        //ErrorCausePtr ptr(new ErrorCause());
+        return NULL;//boost::dynamic_pointer_cast<common_behavior::AbstractConditionCause >( ptr );
+    }
+
 private:
     RTT::InputPort<velma_core_cs_task_cs_msgs::Status > port_status_in_;
     RTT::OutputPort<velma_core_cs_task_cs_msgs::Status > port_status_out_;

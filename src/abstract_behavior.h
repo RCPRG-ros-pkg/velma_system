@@ -38,7 +38,8 @@ public:
 
     virtual bool checkErrorCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,
-            const std::vector<RTT::TaskContext*> &components) const {
+            const std::vector<RTT::TaskContext*> &components,
+            common_behavior::AbstractConditionCausePtr result = common_behavior::AbstractConditionCausePtr()) const {
         return checkErrorCondition(boost::static_pointer_cast<InputData >(in_data), components);
     }
 
