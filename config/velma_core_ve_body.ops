@@ -113,9 +113,9 @@ packet_counter.configure();
 #
 # command
 #
-stream("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_ve_body_re_body_msgs_Status"))
+#stream("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_ve_body_re_body_msgs_Status"))
 
-stream("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_cs_ve_body_msgs_Command"))
+#stream("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_cs_ve_body_msgs_Command"))
 
 connect("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
 connect("safe.cmd_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate._INPORT", ConnPolicy());
