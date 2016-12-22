@@ -111,6 +111,10 @@ void LWRGazebo::setInitialPosition(const std::vector<double > &init_q) {
 // Update the controller
 void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+    if (!mm_) {
+        return;
+    }
+
     // mass matrix
     mm_->updatePoses(model);
     const Eigen::MatrixXd &mm = mm_->getMassMatrix();
