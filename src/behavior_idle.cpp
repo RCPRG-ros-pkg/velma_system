@@ -43,11 +43,9 @@ public:
 
     virtual bool checkErrorCondition(
                 const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components) const
+                const std::vector<RTT::TaskContext*> &components,
+                ErrorCausePtr result) const
     {
-        error_reason_.clear();
-
-        bool result = true;
         bool rLwrOk = isLwrOk(in_data->status_.rArmFriRobot, in_data->status_.rArmFriIntf);
         bool lLwrOk = isLwrOk(in_data->status_.lArmFriRobot, in_data->status_.lArmFriIntf);
         bool rLwrCmd = isLwrInCmdState(in_data->status_.rArmFriIntf);
@@ -56,18 +54,19 @@ public:
         bool statusOk = isStatusValid(in_data->status_);
         bool cmdOk = isCmdValid(in_data->cmd_);
 
-        error_reason_.setBit(R_LWR_bit, !rLwrOk);
-        error_reason_.setBit(L_LWR_bit, !lLwrOk);
-        error_reason_.setBit(R_LWR_CMD_bit, !rLwrCmd);
-        error_reason_.setBit(L_LWR_CMD_bit, !lLwrCmd);
-        error_reason_.setBit(STATUS_bit, !statusOk);
-        error_reason_.setBit(COMMAND_bit, !cmdOk);
+        if (result) {
+            result->setBit(R_LWR_bit, !rLwrOk);
+            result->setBit(L_LWR_bit, !lLwrOk);
+            result->setBit(R_LWR_CMD_bit, !rLwrCmd);
+            result->setBit(L_LWR_CMD_bit, !lLwrCmd);
+            result->setBit(STATUS_bit, !statusOk);
+            result->setBit(COMMAND_bit, !cmdOk);
+        }
 
         if (hwOk && cmdOk && statusOk)
         {
             return false;
         }
-
         return true;
     }
 

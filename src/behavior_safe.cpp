@@ -41,7 +41,8 @@ public:
 
     bool checkErrorCondition(
                 const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components) const
+                const std::vector<RTT::TaskContext*> &components,
+                ErrorCausePtr result) const
     {
         return false;
     }
@@ -62,7 +63,6 @@ public:
         {
             return true;
         }
-
         return false;
     }
 };

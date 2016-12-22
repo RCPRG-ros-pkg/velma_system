@@ -34,6 +34,7 @@
 #include "velma_core_cs_ve_body_msgs/Command.h"
 #include "velma_core_ve_body_re_body_msgs/Status.h"
 #include "input_data.h"
+#include "abstract_behavior.h"
 
 namespace velma_core_ve_body_types {
 
@@ -175,15 +176,18 @@ public:
         return 1000;
     }
 
-    // this method may not be RT-safe
-    virtual std::string getErrorReasonStr(boost::shared_ptr<AbstractConditionCause > error_reason) const {
-        boost::shared_ptr<const common_behavior::ConditionCause<6 > >* r = boost::dynamic_pointer_cast<const common_behavior::ConditionCause<6 > >(error_reason);
+    //
+    // error condition info
+    //
+    // this method is not RT-safe
+    virtual std::string getErrorReasonStr(common_behavior::AbstractConditionCauseConstPtr error_reason) const {
+        ErrorCauseConstPtr r = boost::dynamic_pointer_cast<const ErrorCause >(error_reason);
         std::string result;
         if (r->getBit(BehaviorBase::R_LWR_bit)) {
             result += "R_LWR ";
         }
-        if (r->getBit(BehaviorBase::R_LWR_bit)) {
-            result += "R_LWR ";
+        if (r->getBit(BehaviorBase::L_LWR_bit)) {
+            result += "L_LWR ";
         }
         if (r->getBit(BehaviorBase::R_LWR_CMD_bit)) {
             result += "R_LWR_CMD ";
@@ -197,10 +201,12 @@ public:
         if (r->getBit(BehaviorBase::COMMAND_bit)) {
             result += "COMMAND ";
         }
+        return result;// + "aaa";
     }
 
-    virtual boost::shared_ptr<common_behavior::AbstractConditionCause > getErrorReasonSample() const {
-        boost::shared_ptr<common_behavior::ConditionCause<6 > > ptr(new common_behavior::ConditionCause<6 >());
+    // this method is not RT-safe
+    virtual common_behavior::AbstractConditionCausePtr getErrorReasonSample() const {
+        ErrorCausePtr ptr(new ErrorCause());
         return boost::dynamic_pointer_cast<common_behavior::AbstractConditionCause >( ptr );
     }
 
