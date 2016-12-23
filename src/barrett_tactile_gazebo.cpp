@@ -32,12 +32,15 @@
 
 using namespace RTT;
 
-    BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name) : 
-        TaskContext(name),
-        median_filter_samples_(1),
-        median_filter_max_samples_(8),
-        model_(NULL),
-        data_valid_(false)
+    BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name)
+        : TaskContext(name)
+        , median_filter_samples_(1)
+        , median_filter_max_samples_(8)
+        , model_(NULL)
+        , data_valid_(false)
+        , port_tactile_out_("BHPressureState_OUTPORT", false)
+        , port_tactile_info_out_("tactile_info_OUTPORT", false)
+        , port_max_pressure_out_("max_measured_pressure_OUTPORT", false)
     {
         nh_ = new ros::NodeHandle();
 
@@ -54,11 +57,11 @@ using namespace RTT;
         ts_[2]->setGeometry("finger3_tip_info", finger_sensor_center, finger_sensor_halfside1, finger_sensor_halfside2, 0.001);
         ts_[3]->setGeometry("palm_info", palm_sensor_center, palm_sensor_halfside1, palm_sensor_halfside2, 0.001);
 
-        this->ports()->addPort("BHPressureState_OUTPORT", port_tactile_out_);
+        this->ports()->addPort(port_tactile_out_);
         this->ports()->addPort("calibrate_tactile_sensors_INPORT", port_calibrate_in_);
         this->ports()->addPort("set_median_filter_INPORT", port_filter_in_);
-        this->ports()->addPort("tactile_info_OUTPORT", port_tactile_info_out_);
-        this->ports()->addPort("max_measured_pressure_OUTPORT", port_max_pressure_out_);
+        this->ports()->addPort(port_tactile_info_out_);
+        this->ports()->addPort(port_max_pressure_out_);
         max_pressure_out_.setZero();
 
 		this->addProperty("prefix", prefix_);

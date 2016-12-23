@@ -27,9 +27,17 @@
 
 #include "lwr_gazebo.h"
 
-    LWRGazebo::LWRGazebo(std::string const& name) : 
-        TaskContext(name),
-        data_valid_(false)
+    LWRGazebo::LWRGazebo(std::string const& name)
+        : TaskContext(name)
+        , data_valid_(false)
+        , port_CartesianWrench_out_("CartesianWrench_OUTPORT", false)
+        , port_RobotState_out_("RobotState_OUTPORT", false)
+        , port_FRIState_out_("FRIState_OUTPORT", false)
+        , port_JointVelocity_out_("JointVelocity_OUTPORT", false)
+        , port_MassMatrix_out_("MassMatrix_OUTPORT", false)
+        , port_JointTorque_out_("JointTorque_OUTPORT", false)
+        , port_GravityTorque_out_("GravityTorque_OUTPORT", false)
+        , port_JointPosition_out_("JointPosition_OUTPORT", false)
     {
 
         nh_ = new ros::NodeHandle();
@@ -53,14 +61,14 @@
         // right KUKA FRI ports
         this->ports()->addPort("JointTorqueCommand_INPORT",         port_JointTorqueCommand_in_).doc("");
         this->ports()->addPort("KRL_CMD_INPORT",                    port_KRL_CMD_in_).doc("");
-        this->ports()->addPort("CartesianWrench_OUTPORT",           port_CartesianWrench_out_).doc("");
-        this->ports()->addPort("RobotState_OUTPORT",                port_RobotState_out_).doc("");
-        this->ports()->addPort("FRIState_OUTPORT",                  port_FRIState_out_).doc("");
-        this->ports()->addPort("JointVelocity_OUTPORT",             port_JointVelocity_out_).doc("");
-        this->ports()->addPort("MassMatrix_OUTPORT",                port_MassMatrix_out_).doc("");
-        this->ports()->addPort("JointTorque_OUTPORT",               port_JointTorque_out_).doc("");
-        this->ports()->addPort("GravityTorque_OUTPORT",             port_GravityTorque_out_);
-        this->ports()->addPort("JointPosition_OUTPORT",             port_JointPosition_out_).doc("");
+        this->ports()->addPort(port_CartesianWrench_out_);
+        this->ports()->addPort(port_RobotState_out_);
+        this->ports()->addPort(port_FRIState_out_);
+        this->ports()->addPort(port_JointVelocity_out_);
+        this->ports()->addPort(port_MassMatrix_out_);
+        this->ports()->addPort(port_JointTorque_out_);
+        this->ports()->addPort(port_GravityTorque_out_);
+        this->ports()->addPort(port_JointPosition_out_);
         JointTorqueCommand_in_.setZero();
 
         command_mode_ = false;

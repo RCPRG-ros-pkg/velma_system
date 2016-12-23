@@ -98,8 +98,6 @@ RightFtSensor.configure()
 
 
 loadComponent("bypass","velma_core_ve_body_types::BypassComponent")
-#setActivity("bypass", 0, 5, ORO_SCHED_RT);
-#bypass.configure()
 
 loadComponent("safe","velma_core_ve_body_types::SafeComponent");
 #setActivity("safe", 0, 5, ORO_SCHED_RT);
@@ -114,7 +112,6 @@ packet_counter.configure();
 # command
 #
 #stream("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_ve_body_re_body_msgs_Status"))
-
 #stream("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", ros.comm.topic("/velma_core_ve_body/velma_core_cs_ve_body_msgs_Command"))
 
 connect("velma_core_ve_body_re_body_msgs_StatusConcate.msg_OUTPORT", "safe.status_INPORT", ConnPolicy());
@@ -139,7 +136,7 @@ connect("velma_core_ve_body_re_body_msgs_CommandSplit.htMotor_q_OUTPORT",       
 connect("velma_core_ve_body_re_body_msgs_CommandSplit.hpMotor_dq_OUTPORT",         "TorsoSim.head_pan_motor_velocity_command_INPORT", ConnPolicy())
 connect("velma_core_ve_body_re_body_msgs_CommandSplit.htMotor_dq_OUTPORT",         "TorsoSim.head_tilt_motor_velocity_command_INPORT", ConnPolicy())
 
-connect("master_component.velma_core_cs_ve_body_msgs_Command_OUTPORT", "bypass.command_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_body_msgs_CommandSplit._OUTPORT", "bypass.command_INPORT", ConnPolicy())
 connect("bypass.command_OUTPORT", "velma_core_ve_body_re_body_msgs_CommandConcate._INPORT", ConnPolicy())
 connect("bypass.sc_OUTPORT", "velma_core_cs_ve_body_msgs_StatusConcate.sc_INPORT", ConnPolicy());
 

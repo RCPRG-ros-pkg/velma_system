@@ -27,13 +27,16 @@
 
 #include "ft_sensor_gazebo.h"
 
-FtSensorGazebo::FtSensorGazebo(std::string const& name) :
-    TaskContext(name),
-    slow_buffer_size_(2),
-    fast_buffer_size_(100),
-    slow_buffer_index_(0),
-    fast_buffer_index_(0),
-    data_valid_(false)
+FtSensorGazebo::FtSensorGazebo(std::string const& name)
+    : TaskContext(name)
+    , slow_buffer_size_(2)
+    , fast_buffer_size_(100)
+    , slow_buffer_index_(0)
+    , fast_buffer_index_(0)
+    , data_valid_(false)
+    , port_raw_wrench_out_("rawWrench_OUTPORT", false)
+    , port_fast_filtered_wrench_out_("fastFilteredWrench_OUTPORT", false)
+    , port_slow_filtered_wrench_out_("slowFilteredWrench_OUTPORT", false)
 {
     nh_ = new ros::NodeHandle();
 
@@ -46,9 +49,9 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name) :
     this->provides("gazebo")->addOperation("update",&FtSensorGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
     // right KUKA FRI ports
-    this->ports()->addPort("rawWrench_OUTPORT", port_raw_wrench_out_).doc("");
-    this->ports()->addPort("fastFilteredWrench_OUTPORT", port_fast_filtered_wrench_out_).doc("");
-    this->ports()->addPort("slowFilteredWrench_OUTPORT", port_slow_filtered_wrench_out_).doc("");
+    this->ports()->addPort(port_raw_wrench_out_);
+    this->ports()->addPort(port_fast_filtered_wrench_out_);
+    this->ports()->addPort(port_slow_filtered_wrench_out_);
 
     slow_buffer_.resize(slow_buffer_size_);
     fast_buffer_.resize(fast_buffer_size_);

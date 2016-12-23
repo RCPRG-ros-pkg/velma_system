@@ -27,13 +27,19 @@
 
 #include "torso_gazebo.h"
 
-    TorsoGazebo::TorsoGazebo(std::string const& name) : 
-        TaskContext(name),
-        data_valid_(false),
-        q_(1),
-        dq_(1),
-        qh_(2),
-        dqh_(2)
+    TorsoGazebo::TorsoGazebo(std::string const& name)
+        : TaskContext(name)
+        , data_valid_(false)
+        , q_(1)
+        , dq_(1)
+        , qh_(2)
+        , dqh_(2)
+        , port_t_MotorPosition_out_("t_MotorPosition_OUTPORT", false)
+        , port_t_MotorVelocity_out_("t_MotorVelocity_OUTPORT", false)
+        , port_hp_q_out_("head_pan_motor_position_OUTPORT", false)
+        , port_hp_v_out_("head_pan_motor_velocity_OUTPORT", false)
+        , port_ht_q_out_("head_tilt_motor_position_OUTPORT", false)
+        , port_ht_v_out_("head_tilt_motor_velocity_OUTPORT", false)
     {
 
         nh_ = new ros::NodeHandle();
@@ -43,23 +49,23 @@
         this->provides("gazebo")->addOperation("update",&TorsoGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
         // torso ports
-        this->ports()->addPort("t_MotorCurrentCommand_INPORT",        port_t_MotorCurrentCommand_in_).doc("");
-        this->ports()->addPort("t_MotorPosition_OUTPORT",             port_t_MotorPosition_out_).doc("");
-        this->ports()->addPort("t_MotorVelocity_OUTPORT",             port_t_MotorVelocity_out_).doc("");
+        this->ports()->addPort("t_MotorCurrentCommand_INPORT",        port_t_MotorCurrentCommand_in_);
+        this->ports()->addPort(port_t_MotorPosition_out_);
+        this->ports()->addPort(port_t_MotorVelocity_out_);
         t_MotorCurrentCommand_in_ = 0.0;
 
         // head ports
-        this->ports()->addPort("head_pan_motor_position_command_INPORT",        port_hp_q_in_).doc("");
-        this->ports()->addPort("head_pan_motor_velocity_command_INPORT",        port_hp_v_in_).doc("");
-        this->ports()->addPort("head_pan_motor_current_command_INPORT",         port_hp_c_in_).doc("");
-        this->ports()->addPort("head_pan_motor_position_OUTPORT",               port_hp_q_out_).doc("");
-        this->ports()->addPort("head_pan_motor_velocity_OUTPORT",               port_hp_v_out_).doc("");
+        this->ports()->addPort("head_pan_motor_position_command_INPORT",        port_hp_q_in_);
+        this->ports()->addPort("head_pan_motor_velocity_command_INPORT",        port_hp_v_in_);
+        this->ports()->addPort("head_pan_motor_current_command_INPORT",         port_hp_c_in_);
+        this->ports()->addPort(port_hp_q_out_);
+        this->ports()->addPort(port_hp_v_out_);
         hp_q_in_ = hp_v_in_ = hp_c_in_ = hp_q_out_ = hp_v_out_ = 0.0;
-        this->ports()->addPort("head_tilt_motor_position_command_INPORT",       port_ht_q_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_velocity_command_INPORT",       port_ht_v_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_current_command_INPORT",        port_ht_c_in_).doc("");
-        this->ports()->addPort("head_tilt_motor_position_OUTPORT",              port_ht_q_out_).doc("");
-        this->ports()->addPort("head_tilt_motor_velocity_OUTPORT",              port_ht_v_out_).doc("");
+        this->ports()->addPort("head_tilt_motor_position_command_INPORT",       port_ht_q_in_);
+        this->ports()->addPort("head_tilt_motor_velocity_command_INPORT",       port_ht_v_in_);
+        this->ports()->addPort("head_tilt_motor_current_command_INPORT",        port_ht_c_in_);
+        this->ports()->addPort(port_ht_q_out_);
+        this->ports()->addPort(port_ht_v_out_);
         ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
     }
 

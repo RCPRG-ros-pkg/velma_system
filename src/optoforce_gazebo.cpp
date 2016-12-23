@@ -36,7 +36,7 @@ using namespace RTT;
         model_(NULL),
         n_sensors_(3),
         data_valid_(false),
-        port_force_out_("force_OUTPORT")
+        port_force_out_("force_OUTPORT", false)
     {
         nh_ = new ros::NodeHandle();
 

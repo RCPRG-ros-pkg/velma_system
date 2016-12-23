@@ -27,10 +27,13 @@
 
 #include "barrett_hand_gazebo.h"
 
-    BarrettHandGazebo::BarrettHandGazebo(std::string const& name) : 
-        TaskContext(name),
-        too_big_force_counter_(3, 0),
-        data_valid_(false)
+    BarrettHandGazebo::BarrettHandGazebo(std::string const& name)
+        : TaskContext(name)
+        , too_big_force_counter_(3, 0)
+        , data_valid_(false)
+        , port_q_out_("q_OUTPORT", false)
+        , port_t_out_("t_OUTPORT", false)
+        , port_status_out_("status_OUTPORT", false)
     {
 
         nh_ = new ros::NodeHandle();
@@ -46,9 +49,9 @@
         this->ports()->addPort("t_INPORT",      port_t_in_);
         this->ports()->addPort("mp_INPORT",     port_mp_in_);
         this->ports()->addPort("hold_INPORT",   port_hold_in_);
-        this->ports()->addPort("q_OUTPORT",     port_q_out_);
-        this->ports()->addPort("t_OUTPORT",     port_t_out_);
-        this->ports()->addPort("status_OUTPORT",    port_status_out_);
+        this->ports()->addPort(port_q_out_);
+        this->ports()->addPort(port_t_out_);
+        this->ports()->addPort(port_status_out_);
         //this->ports()->addPort("BHTemp",        port_temp_out_);
         this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
         this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
