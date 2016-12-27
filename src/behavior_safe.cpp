@@ -51,6 +51,10 @@ public:
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
+        if (!allComponentsOk(components)) {
+            return false;
+        }
+
         // the error situation in ve_body have to be ended
         if (in_data->status_.sc.error == false) {
 

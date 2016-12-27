@@ -29,7 +29,7 @@
 
 unsigned int getValidCommandsCount(const velma_core_cs_task_cs_msgs::Command& cmd) {
     unsigned int valid_count = 0;
-    valid_count += cmd.cart_valid ? 1 : 0;
+    valid_count += (cmd.cart_valid && (cmd.cart.imp_valid || cmd.cart.pose_valid)) ? 1 : 0;
     valid_count += cmd.jnt_valid ? 1 : 0;
     return valid_count;
 }

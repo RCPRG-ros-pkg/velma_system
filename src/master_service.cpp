@@ -120,7 +120,7 @@ public:
 
     virtual void getUpperInputBuffers(std::vector<common_behavior::InputBufferInfo >& info) const {
         info = std::vector<common_behavior::InputBufferInfo >();
-        info.push_back(common_behavior::InputBufferInfo(true, false, "velma_core_cs_task_cs_msgs_Command"));
+        info.push_back(common_behavior::InputBufferInfo(true, true, "velma_core_cs_task_cs_msgs_Command"));
     }
 
 /*

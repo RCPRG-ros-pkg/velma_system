@@ -119,13 +119,16 @@ void SafeComponent::updateHook() {
 
     // zero torque for torso
     cmd_out_.tMotor_valid = true;
+    cmd_out_.tMotor.i_valid = true;
 
     // keep current position of neck
     cmd_out_.hpMotor.q = status_in_.hpMotor.q;
     cmd_out_.hpMotor_valid = status_in_.hpMotor_valid;
+    cmd_out_.hpMotor.q_valid = status_in_.hpMotor_valid;
 
     cmd_out_.htMotor.q = status_in_.htMotor.q;
     cmd_out_.htMotor_valid = status_in_.htMotor_valid;
+    cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
 
     if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
         cmd_out_.sc.cmd = 1;

@@ -484,23 +484,26 @@ JntImp.configure();
 //-- ROS Diagnostics
 //------------------------------------------------------------------------------
 
-loadComponent("JntPub", "JointStatePublisher33");
-setActivityOnCPU("JntPub", 0.002, 2, ORO_SCHED_RT, 0);
-JntPub.loadService("rosparam");
-JntPub.rosparam.getAll();
+//loadComponent("JntPub", "JointStatePublisher33");
+//setActivityOnCPU("JntPub", 0.002, 2, ORO_SCHED_RT, 0);
+//JntPub.loadService("rosparam");
+//JntPub.rosparam.getAll();
 
-connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
-connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
-connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
+//connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
+//connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
+//connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
 //connect("CImp.JointTorqueCommand_OUTPORT", "JntPub.JointEffort", ConnPolicy());
 
-#stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
-#stream("JntPub.joint_state", ros.comm.topic("/joint_states2"));
+//stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
+//stream("JntPub.joint_state", ros.comm.topic("/joint_states2"));
 
-JntPub.configure()
+//JntPub.configure()
 
 
 connect("velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.test_INPORT", ConnPolicy())
+
+connect("JcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.q_INPORT", ConnPolicy());
+connect("JvcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.dq_INPORT", ConnPolicy());
 
 
 loadComponent("safe", "velma_core_cs_types::SafeComponent");
@@ -532,13 +535,14 @@ JvcAll.start();
 Ts.start();
 #Dwr.start();
 #Dwl.start();
-JntPub.start();
+//JntPub.start();
 ImpedanceIntRight.start();
 ImpedanceIntLeft.start();
 ToolIntRight.start();
 ToolIntLeft.start();
 #TGR.start();
 FK.start();
+Mass.start();
 
 #TfPub.start();
 #TorquePubRight.start();
