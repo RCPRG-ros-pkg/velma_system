@@ -183,25 +183,24 @@ public:
     virtual std::string getErrorReasonStr(common_behavior::AbstractConditionCauseConstPtr error_reason) const {
         ErrorCauseConstPtr r = boost::dynamic_pointer_cast<const ErrorCause >(error_reason);
         std::string result;
-        if (r->getBit(BehaviorBase::R_LWR_bit)) {
-            result += "R_LWR ";
-        }
-        if (r->getBit(BehaviorBase::L_LWR_bit)) {
-            result += "L_LWR ";
-        }
-        if (r->getBit(BehaviorBase::R_LWR_CMD_bit)) {
-            result += "R_LWR_CMD ";
-        }
-        if (r->getBit(BehaviorBase::L_LWR_CMD_bit)) {
-            result += "L_LWR_CMD ";
-        }
-        if (r->getBit(BehaviorBase::STATUS_bit)) {
-            result += "STATUS ";
-        }
-        if (r->getBit(BehaviorBase::COMMAND_bit)) {
-            result += "COMMAND ";
-        }
-        return result;// + "aaa";
+        result += (r->getBit(R_LWR_bit)?"R_LWR ":"");
+        result += (r->getBit(L_LWR_bit)?"L_LWR ":"");
+        result += (r->getBit(R_LWR_CMD_bit)?"R_LWR_CMD ":"");
+        result += (r->getBit(L_LWR_CMD_bit)?"L_LWR_CMD ":"");
+        result += (r->getBit(STATUS_bit)?"STATUS ":"");
+        result += (r->getBit(COMMAND_bit)?"CMD ":"");
+        result += (r->getBit(CMD_T_MOTOR_INVALID_bit)?"CMD_T_MOTOR_INV ":"");
+        result += (r->getBit(CMD_HP_MOTOR_INVALID_bit)?"CMD_HP_MOTOR_INV ":"");
+        result += (r->getBit(CMD_HT_MOTOR_INVALID_bit)?"CMD_HT_MOTOR_INV ":"");
+        result += (r->getBit(CMD_L_ARM_INVALID_bit)?"CMD_L_ARM_INV ":"");
+        result += (r->getBit(CMD_R_ARM_INVALID_bit)?"CMD_R_ARM_INV ":"");
+        result += (r->getBit(CMD_R_ARM_NAN_bit)?"CMD_R_ARM_NAN ":"");
+        result += (r->getBit(CMD_L_ARM_NAN_bit)?"CMD_L_ARM_NAN ":"");
+        result += (r->getBit(CMD_R_ARM_LIM_bit)?"CMD_R_ARM_LIM ":"");
+        result += (r->getBit(CMD_L_ARM_LIM_bit)?"CMD_L_ARM_LIM ":"");
+        result += (r->getBit(CMD_T_MOTOR_T_NAN_bit)?"CMD_T_MOTOR_T_NAN ":"");
+
+        return result;
     }
 
     // this method is not RT-safe

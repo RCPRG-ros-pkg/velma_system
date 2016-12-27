@@ -33,13 +33,32 @@
 
 namespace velma_core_ve_body_types {
 
-typedef common_behavior::ConditionCause<6 > ErrorCause;
+enum {
+    R_LWR_bit,
+    L_LWR_bit,
+    R_LWR_CMD_bit,
+    L_LWR_CMD_bit,
+    STATUS_bit,
+    COMMAND_bit,
+    CMD_T_MOTOR_INVALID_bit,
+    CMD_HP_MOTOR_INVALID_bit,
+    CMD_HT_MOTOR_INVALID_bit,
+    CMD_L_ARM_INVALID_bit,
+    CMD_R_ARM_INVALID_bit,
+    CMD_R_ARM_NAN_bit,
+    CMD_L_ARM_NAN_bit,
+    CMD_R_ARM_LIM_bit,
+    CMD_L_ARM_LIM_bit,
+    CMD_T_MOTOR_T_NAN_bit,
+    ERROR_ENUM_SIZE,
+};
+
+typedef common_behavior::ConditionCause<ERROR_ENUM_SIZE > ErrorCause;
 typedef boost::shared_ptr<ErrorCause > ErrorCausePtr;
 typedef boost::shared_ptr<const ErrorCause > ErrorCauseConstPtr;
 
 class BehaviorBase : public common_behavior::BehaviorBase {
 public:
-    enum {R_LWR_bit=0, L_LWR_bit=1, R_LWR_CMD_bit=2, L_LWR_CMD_bit=3, STATUS_bit=4, COMMAND_bit=5};
 
     bool checkErrorCondition(
             const boost::shared_ptr<common_behavior::InputData >& in_data,

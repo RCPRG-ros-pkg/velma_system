@@ -52,7 +52,7 @@ public:
         bool lLwrCmd = isLwrInCmdState(in_data->status_.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
         bool statusOk = isStatusValid(in_data->status_);
-        bool cmdOk = isCmdValid(in_data->cmd_);
+        bool cmdOk = isCmdValid(in_data->cmd_, result);
 
         if (result) {
             result->setBit(R_LWR_bit, !rLwrOk);
@@ -60,7 +60,7 @@ public:
             result->setBit(R_LWR_CMD_bit, !rLwrCmd);
             result->setBit(L_LWR_CMD_bit, !lLwrCmd);
             result->setBit(STATUS_bit, !statusOk);
-            result->setBit(COMMAND_bit, !cmdOk);
+//            result->setBit(COMMAND_bit, !cmdOk);
         }
 
         if (hwOk && cmdOk && statusOk)

@@ -28,7 +28,7 @@
 #include "common_predicates.h"
 #include <kuka_lwr_fri/friComm.h>
 
-using namespace velma_core_cs_ve_body_msgs;
+using namespace velma_core_ve_body_types;
 
 bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) {
     if (friRobot.power != 0x7F                           // error
@@ -57,7 +57,7 @@ bool isInLim(double d, double lo_lim, double hi_lim) {
 //
 // command validation
 //
-
+/*
 bool isCommandValidTorso(const velma_core_ve_body_re_body_msgs::CommandMotor &cmd) {
 // TODO
     return true;
@@ -110,7 +110,66 @@ bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd) {
         && isCommandValidHeadPan(cmd.hpMotor)
         && isCommandValidHeadTilt(cmd.htMotor);
 }
+*/
+bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, ErrorCausePtr err) {
+    if (err) {
+        err->setBit(CMD_T_MOTOR_INVALID_bit, !cmd.tMotor_valid);
+        err->setBit(CMD_T_MOTOR_INVALID_bit, !cmd.tMotor.i_valid);
+//        err->setBit(CMD_HP_MOTOR_INVALID_bit, !cmd.hpMotor_valid);
+//        err->setBit(CMD_HT_MOTOR_INVALID_bit, !cmd.htMotor_valid);
+        err->setBit(CMD_L_ARM_INVALID_bit, !cmd.lArm_valid);
+        err->setBit(CMD_R_ARM_INVALID_bit, !cmd.rArm_valid);
+    }
 
+    if (!cmd.tMotor_valid || !cmd.hpMotor_valid || !cmd.htMotor_valid || !cmd.lArm_valid || !cmd.rArm_valid) {
+        return false;
+    }
+
+    double arm_t_limits[7] = {100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0};
+
+    if (err) {
+        for (int i = 0; i < cmd.rArm.t.size(); ++i) {
+            if (isNaN(cmd.rArm.t[i])) {
+                err->setBit(CMD_R_ARM_NAN_bit, true);
+            }
+            else if (!isInLim(cmd.rArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
+                err->setBit(CMD_R_ARM_LIM_bit, true);
+            }
+        }
+
+        for (int i = 0; i < cmd.lArm.t.size(); ++i) {
+            if (isNaN(cmd.lArm.t[i])) {
+                err->setBit(CMD_L_ARM_NAN_bit, true);
+            }
+            else if (!isInLim(cmd.lArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
+                err->setBit(CMD_L_ARM_LIM_bit, true);
+            }
+        }
+        err->setBit(CMD_T_MOTOR_T_NAN_bit, isNaN(cmd.tMotor.i));
+        if (err->orValue()) {
+            return false;
+        }
+    }
+    else {
+        for (int i = 0; i < cmd.rArm.t.size(); ++i) {
+            if (!isInLim(cmd.rArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < cmd.lArm.t.size(); ++i) {
+            if (!isInLim(cmd.lArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
+                return false;
+            }
+        }
+    }
+// TODO: error checks for torso: torque limits
+
+// TODO: error checks for head
+//
+
+    return true;
+}
 
 
 //
