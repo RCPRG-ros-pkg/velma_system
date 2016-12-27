@@ -46,5 +46,21 @@ connect("CartTrjActionRight.cart_pose_command_OUTPORT", "velma_core_cs_task_cs_m
 
 stream("CartTrjActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartTrjActionRight/cart_pose_command_OUTPORT"));
 
+stream("velma_core_cs_task_cs_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/velma_core_cs_task_cs_msgs_CommandConcate/msg_OUTPORT"));
+
+
+loadComponent("JntPub", "JointStatePublisher33");
+JntPub.loadService("rosparam");
+JntPub.rosparam.getAll();
+
+connect("velma_core_cs_task_cs_msgs_StatusSplit.q_OUTPORT", "JntPub.JointPosition", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT", "JntPub.JointVelocity", ConnPolicy());
+//connect("TODO", "JntPub.JointEffort", ConnPolicy());
+
+stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
+
+JntPub.configure()
+
 CartTrjActionRight.start();
+JntPub.start();
 

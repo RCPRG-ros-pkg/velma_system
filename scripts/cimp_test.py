@@ -18,12 +18,25 @@ import PyKDL
 from cartesian_trajectory_msgs.msg import *
 import actionlib
 
+from velma_common.velma_interface import *
+
 if __name__ == "__main__":
 
     rospy.init_node('cimp_test', anonymous=True)
 
     prefix = "right"
+
     rospy.sleep(1)
+
+
+    velma = VelmaInterface()
+
+    velma.waitForInit()
+    print "init ok"
+
+    exit(0)
+
+    listener = tf.TransformListener();
 
     action_trajectory_client = actionlib.SimpleActionClient("/" + prefix + "_arm/cartesian_trajectory", CartesianTrajectoryAction)
     print "cimp_test script: waiting for /%s_arm/cartesian_trajectory action..."%(prefix)

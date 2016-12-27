@@ -291,7 +291,7 @@ void CartesianTrajectoryActionNew::goalCB(GoalHandle gh) {
     command_out_.count = g->trajectory.points.size();
 
     port_command_out_.write(command_out_);
-
+std::cout << "CartesianTrajectoryActionNew: sending trajectory" << std::endl;
     gh.setAccepted();
     active_goal_ = gh;
 
