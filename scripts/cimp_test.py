@@ -29,7 +29,8 @@ if __name__ == "__main__":
     rospy.sleep(1)
 
 
-    velma = VelmaInterface()
+    velma = VelmaInterface("/velma_task_cs_ros_interface")
+    print "waiting for init..."
 
     velma.waitForInit()
     print "init ok"
