@@ -100,10 +100,6 @@ RightFtSensor.configure()
 loadComponent("bypass","velma_core_ve_body_types::BypassComponent")
 
 loadComponent("safe","velma_core_ve_body_types::SafeComponent");
-#setActivity("safe", 0, 5, ORO_SCHED_RT);
-#safe.loadService("rosparam");
-#safe.rosparam.getAll();
-#safe.configure();
 
 loadComponent("packet_counter", "velma_core_ve_body_types::PacketCounterComponent");
 packet_counter.configure();

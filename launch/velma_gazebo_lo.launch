@@ -84,17 +84,6 @@
         arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
         arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
         arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
-      safety_controller:
-        l_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
-        r_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
-        torso_damping_factor: 20
-        arm_q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
-        arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-        arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
-        arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
-      rJntImp:
-        number_of_joints: 7
-        initial_stiffness: [200.0, 200.0, 200.0, 200.0, 200.0, 200.0, 200.0]
       RightHand:
         prefix: right
       LeftHand:
@@ -113,18 +102,9 @@
         joint_name: leftFtSensorJoint
         transform_xyz: [0, 0, 0]
         transform_rpy: [0, 0, 0]
-      core_cs_command_rx:
-        channel_name: lli_cmd
-        event_port: false
-        always_update_peers: true
-      core_ve_body_status_tx:
-        channel_name: lli_status
-      master_component:
-        state_names: [state_velma_core_ve_body_idle, state_velma_core_ve_body_safe]
-        initial_state_name: state_velma_core_ve_body_safe
     </rosparam>
 
-    <include file="$(find velma_controller)/launch/velma_common_params.launch" />
+<!--    <include file="$(find velma_controller)/launch/velma_common_params.launch" />-->
   </group>
 
 </launch>
