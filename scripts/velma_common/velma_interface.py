@@ -290,6 +290,8 @@ Class used as Velma robot Interface.
 
         self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
+        print "self.all_joint_names", self.all_joint_names
+
         self.js_pos = {}
         self.js_pos_history = []
         for i in range(200):
@@ -322,34 +324,35 @@ Class used as Velma robot Interface.
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction),
-            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction) }
+#            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
+            }
 
         # joint trajectory for right arm
-        self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
+#        self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         # cartesian tool trajectory for arms in the wrist frames
-        self.action_tool_client = {
-            'right':actionlib.SimpleActionClient("/right_arm/tool_trajectory", CartesianTrajectoryAction),
-            'left':actionlib.SimpleActionClient("/left_arm/tool_trajectory", CartesianTrajectoryAction) }
-        self.action_tool_client["right"].wait_for_server()
-        self.action_tool_client["left"].wait_for_server()
+#        self.action_tool_client = {
+#            'right':actionlib.SimpleActionClient("/right_arm/tool_trajectory", CartesianTrajectoryAction),
+#            'left':actionlib.SimpleActionClient("/left_arm/tool_trajectory", CartesianTrajectoryAction) }
+#        self.action_tool_client["right"].wait_for_server()
+#        self.action_tool_client["left"].wait_for_server()
 
         # cartesian impedance trajectory for right arm
-        self.action_impedance_client = {
-            'right':actionlib.SimpleActionClient("/right_arm/cartesian_impedance", CartesianImpedanceAction),
-            'left':actionlib.SimpleActionClient("/left_arm/cartesian_impedance", CartesianImpedanceAction) }
-        self.action_impedance_client["right"].wait_for_server()
-        self.action_impedance_client["left"].wait_for_server()
+#        self.action_impedance_client = {
+#            'right':actionlib.SimpleActionClient("/right_arm/cartesian_impedance", CartesianImpedanceAction),
+#            'left':actionlib.SimpleActionClient("/left_arm/cartesian_impedance", CartesianImpedanceAction) }
+#        self.action_impedance_client["right"].wait_for_server()
+#        self.action_impedance_client["left"].wait_for_server()
 
-        self.action_move_hand_client = {
-            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
-            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
-        self.action_move_hand_client["right"].wait_for_server()
-        self.action_move_hand_client["left"].wait_for_server()
+#        self.action_move_hand_client = {
+#            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
+#            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
+#        self.action_move_hand_client["right"].wait_for_server()
+#        self.action_move_hand_client["left"].wait_for_server()
 
 
-        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
-        self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
+#        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
+#        self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
 
         self.br = tf.TransformBroadcaster()
 
@@ -378,7 +381,7 @@ Class used as Velma robot Interface.
             sub = rospy.Subscriber(topic[0], topic[1], partial( self.topicCallback, topic = topic[0] ))
             self.subscribed_topics[topic[0]].append(sub)
 
-        self.initConmanInterface()
+#        self.initConmanInterface()
 
     def topicCallback(self, data, topic):
         self.subscribed_topics[topic][0].acquire()
