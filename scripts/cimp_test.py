@@ -35,6 +35,11 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
+    T_B_Trd = velma.getTf("B", "Wr")
+    
+    velma.moveEffectorRight(T_B_Trd, 2.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+
     exit(0)
 
     listener = tf.TransformListener();

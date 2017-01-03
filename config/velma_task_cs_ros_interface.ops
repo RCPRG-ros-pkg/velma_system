@@ -23,28 +23,30 @@ ros.import("rtt_force_control_msgs");
 ros.import("rtt_velma_core_cs_task_cs_msgs");
 
 ## load cartesian trajectory action
-loadComponent("CartTrjActionRight", "CartesianTrajectoryActionNew");
-setActivityOnCPU("CartTrjActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+loadComponent("CartImpActionRight", "CartImpAction");
+setActivityOnCPU("CartImpActionRight", 0.01, 1, ORO_SCHED_RT, 0);
 
-#connect("status_split.status_rArm_w_OUTPORT",  "CartTrjActionRight.CartesianWrench_INPORT", ConnPolicy());
+#connect("status_split.status_rArm_w_OUTPORT",  "CartImpActionRight.CartesianWrench_INPORT", ConnPolicy());
 
 //------------------------------------------------------------------------------
 //-- ROS Command interface
 //------------------------------------------------------------------------------
 
-#connect("CartTrjActionRight.CartesianTrajectoryCommand_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
-#connect("CartTrjActionRight.CartesianPositionCommand_INPORT", "PoseIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy());
-#connect("FK.RightPosition_OUTPORT", "CartTrjActionRight.CartesianPosition_INPORT", ConnPolicy())
+#connect("CartImpActionRight.CartesianTrajectoryCommand_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+#connect("CartImpActionRight.CartesianPositionCommand_INPORT", "PoseIntRight.CartesianPositionCommand_OUTPORT", ConnPolicy());
+#connect("FK.RightPosition_OUTPORT", "CartImpActionRight.CartesianPosition_INPORT", ConnPolicy())
 
-#stream("CartTrjActionRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
+#stream("CartImpActionRight.trajectory", ros.comm.topic("/right_arm/trajectory"));
 
-CartTrjActionRight.configure();
-CartTrjActionRight.loadService("actionlib")
-CartTrjActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
+CartImpActionRight.configure();
+CartImpActionRight.loadService("actionlib")
+CartImpActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
 
-connect("CartTrjActionRight.cart_pose_command_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.cart_pose_INPORT", ConnPolicy())
+connect("CartImpActionRight.cart_pose_command_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.cart_pose_INPORT", ConnPolicy())
+connect("CartImpActionRight.cart_tool_command_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.cart_tool_INPORT", ConnPolicy())
+connect("CartImpActionRight.cart_imp_command_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.cart_imp_INPORT", ConnPolicy())
 
-stream("CartTrjActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartTrjActionRight/cart_pose_command_OUTPORT"));
+stream("CartImpActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartImpActionRight/cart_pose_command_OUTPORT"));
 
 stream("velma_core_cs_task_cs_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/velma_core_cs_task_cs_msgs_CommandConcate/msg_OUTPORT"));
 
@@ -61,6 +63,6 @@ stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
 
 JntPub.configure()
 
-CartTrjActionRight.start();
+CartImpActionRight.start();
 JntPub.start();
 
