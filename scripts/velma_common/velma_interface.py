@@ -323,7 +323,7 @@ Class used as Velma robot Interface.
 
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
-            'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartesianTrajectoryAction),
+            'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartImpAction),
 #            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
             }
 
@@ -422,21 +422,21 @@ Class used as Velma robot Interface.
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        behaviour = self.getControllerBehaviour()
-        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
-            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-            return False
+#        behaviour = self.getControllerBehaviour()
+#        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
+#            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
+#            return False
 
         self.joint_traj_active = False
         wrist_pose = pm.toMsg(T_B_Td)
 #        self.br.sendTransform([wrist_pose.position.x, wrist_pose.position.y, wrist_pose.position.z], [wrist_pose.orientation.x, wrist_pose.orientation.y, wrist_pose.orientation.z, wrist_pose.orientation.w], rospy.Time.now(), "dest", "torso_base")
 
-        action_trajectory_goal = CartesianTrajectoryGoal()
+        action_trajectory_goal = CartImpGoal()
         if stamp != None:
-            action_trajectory_goal.trajectory.header.stamp = stamp
+            action_trajectory_goal.pose_trj.header.stamp = stamp
         else:
-            action_trajectory_goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        action_trajectory_goal.trajectory.points.append(CartesianTrajectoryPoint(
+            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
         rospy.Duration(t),
         wrist_pose,
         Twist()))
@@ -455,21 +455,21 @@ Class used as Velma robot Interface.
         return self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
     def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
-        behaviour = self.getControllerBehaviour()
-        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
-            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
-            return False
+#        behaviour = self.getControllerBehaviour()
+#        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
+#            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
+#            return False
 
-        action_trajectory_goal = CartesianTrajectoryGoal()
+        action_trajectory_goal = CartImpGoal()
         if stamp != None:
-            action_trajectory_goal.trajectory.header.stamp = stamp
+            action_trajectory_goal.pose_trj.header.stamp = stamp
         else:
-            action_trajectory_goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
 
         i = 0
         for T_B_Td in list_T_B_Td:
             wrist_pose = pm.toMsg(T_B_Td)
-            action_trajectory_goal.trajectory.points.append(CartesianTrajectoryPoint(
+            action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
             rospy.Duration(times[i]),
             wrist_pose,
             Twist()))
@@ -486,11 +486,11 @@ Class used as Velma robot Interface.
         self.moveEffectorTraj("right", list_T_B_Trd, times, max_wrench, start_time=start_time, stamp=stamp)
 
     cartesian_trajectory_result_names = {
-        CartesianTrajectoryResult.SUCCESSFUL:'SUCCESSFUL',
-        CartesianTrajectoryResult.INVALID_GOAL:'INVALID_GOAL',
-        CartesianTrajectoryResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
-        CartesianTrajectoryResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
-        CartesianTrajectoryResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED', }
+        CartImpResult.SUCCESSFUL:'SUCCESSFUL',
+        CartImpResult.INVALID_GOAL:'INVALID_GOAL',
+        CartImpResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
+        CartImpResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
+        CartImpResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED', }
 
     def waitForEffector(self, prefix, timeout_s=None):
         if timeout_s == None:
@@ -524,12 +524,12 @@ Class used as Velma robot Interface.
     def moveTool(self, prefix, T_W_T, t, stamp=None):
         ros_T_W_T = pm.toMsg(T_W_T)
 
-        action_tool_goal = CartesianTrajectoryGoal()
+        action_tool_goal = CartImpGoal()
         if stamp != None:
-            action_tool_goal.trajectory.header.stamp = stamp
+            action_tool_goal.tool_trj.header.stamp = stamp
         else:
-            action_tool_goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(0.01)
-        action_tool_goal.trajectory.points.append(CartesianTrajectoryPoint(
+            action_tool_goal.tool_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.01)
+        action_tool_goal.tool_trj.points.append(CartesianTrajectoryPoint(
         rospy.Duration(t),
         ros_T_W_T,
         Twist()))
@@ -557,10 +557,10 @@ Class used as Velma robot Interface.
     def moveImpedance(self, prefix, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
         action_impedance_goal = CartesianImpedanceGoal()
         if stamp != None:
-            action_impedance_goal.trajectory.header.stamp = stamp
+            action_impedance_goal.imp_trj.header.stamp = stamp
         else:
-            action_impedance_goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
-        action_impedance_goal.trajectory.points.append(CartesianImpedanceTrajectoryPoint(
+            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
+        action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
         rospy.Duration(t),
         CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
         self.action_impedance_client[prefix].send_goal(action_impedance_goal)
@@ -574,12 +574,12 @@ Class used as Velma robot Interface.
     def moveImpedanceTraj(self, prefix, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
         action_impedance_goal = CartesianImpedanceGoal()
         if stamp != None:
-            action_impedance_goal.trajectory.header.stamp = stamp
+            action_impedance_goal.imp_trj.header.stamp = stamp
         else:
-            action_impedance_goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
+            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
         i = 0
         for k in k_n:
-            action_impedance_goal.trajectory.points.append(CartesianImpedanceTrajectoryPoint(
+            action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
             rospy.Duration(t_n[i]),
             CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
         self.action_impedance_client[prefix].send_goal(action_impedance_goal)
