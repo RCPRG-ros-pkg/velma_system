@@ -276,14 +276,12 @@ connect("Mass.MassMatrix_OUTPORT", "CImp.MassMatrixInv_INPORT", ConnPolicy());
 connect("CImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
 
 loadComponent("PoseIntRight", "CartesianInterpolatorNew");
-
 connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
-
-connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_r_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
 loadComponent("PoseIntLeft", "CartesianInterpolatorNew");
-
 connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand1_INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_pose_OUTPORT", "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
 // tool
 
@@ -292,12 +290,14 @@ ToolIntRight.configure();
 ToolIntRight.loadService("rosparam");
 ToolIntRight.rosparam.getAll();
 connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand0_INPORT", ConnPolicy())
+connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_r_tool_OUTPORT", "ToolIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
 loadComponent("ToolIntLeft", "CartesianInterpolatorNew")
 ToolIntLeft.configure();
 ToolIntLeft.loadService("rosparam");
 ToolIntLeft.rosparam.getAll();
 connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand1_INPORT", ConnPolicy())
+connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_tool_OUTPORT", "ToolIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
 
 #loadComponent("TfPub", "TfPublisher")
 #setActivityOnCPU("TfPub", 0.01, 1, ORO_SCHED_RT, 0)
@@ -323,9 +323,14 @@ TorquePubLeft.configure();
 
 loadComponent("ImpedanceIntRight", "CartesianImpedanceInterpolator");
 connect("ImpedanceIntRight.CartesianImpedanceCommand_OUTPORT", "CImp.CartImpedanceCommand0_INPORT", ConnPolicy());
+#TODO
+#connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_r_imp_OUTPORT", "ImpedanceIntRight.TODO", ConnPolicy());
+
 
 loadComponent("ImpedanceIntLeft", "CartesianImpedanceInterpolator");
 connect("ImpedanceIntLeft.CartesianImpedanceCommand_OUTPORT", "CImp.CartImpedanceCommand1_INPORT", ConnPolicy());
+#TODO
+#connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_imp_OUTPORT", "ImpedanceIntLeft.TODO", ConnPolicy());
 
 loadComponent("JntImp", "JointImpedance15")
 JntImp.loadService("rosparam");

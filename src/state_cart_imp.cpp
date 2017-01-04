@@ -52,7 +52,7 @@ public:
         }
 
         // received exactly one command for this behavior
-        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && in_data->cmd_.cart_valid);
+        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && (in_data->cmd_.cart_r_valid || in_data->cmd_.cart_l_valid));
         if (!this_behavior_command) {
             return false;
         }

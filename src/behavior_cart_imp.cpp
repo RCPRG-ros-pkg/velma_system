@@ -70,7 +70,7 @@ public:
                 const std::vector<RTT::TaskContext*> &components) const
     {
         // received exactly one command for another behavior
-        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !in_data->cmd_.cart_valid);
+        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !in_data->cmd_.cart_r_valid && !in_data->cmd_.cart_l_valid);
         if (another_behavior_command) {
             return true;
         }
