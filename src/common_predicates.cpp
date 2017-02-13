@@ -89,7 +89,7 @@ bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std
     return true;
 }
 
-bool errorCondition(
+//bool errorCondition(
 //using namespace velma_core_cs_ve_body_msgs;
 
 /*

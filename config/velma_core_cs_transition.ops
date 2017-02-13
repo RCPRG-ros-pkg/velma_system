@@ -162,11 +162,11 @@ connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_mmx_OUTPORT" , "Mass.MassMa
 
 ## torque publishers
 
-connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
-connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_t_OUTPORT",  "TorquePubRight.InJointTorque", ConnPolicy())
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT", "TorquePubRight.InGravityTorque", ConnPolicy())
 
-connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
-connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_t_OUTPORT",  "TorquePubLeft.InJointTorque", ConnPolicy())
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT", "TorquePubLeft.InGravityTorque", ConnPolicy())
 
 ## gravity component
 
@@ -466,6 +466,13 @@ HeadTrajectoryGeneratorJoint.rosparam.getAll();
 connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
 connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","HeadPosSplit.InputPort", ConnPolicy());
 
+loadComponent("safe", "velma_core_cs_types::SafeComponent");
+connect("safe.cmd_sc_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.sc_INPORT", ConnPolicy())
+connect("master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT","safe.status_INPORT", ConnPolicy());
+connect("Jc.Out","safe.JointPosition_INPORT", ConnPolicy());
+connect("safe.JointPositionCommand_OUTPORT","JntImp.JointPositionCommand_INPORT", ConnPolicy());
+connect("safe.JointStiffnessCommand_OUTPORT","JntImp.JointStiffnessCommand_INPORT", ConnPolicy());
+
 // CONFIGURE
 Jc.configure();
 Jvc.configure();
@@ -513,10 +520,6 @@ connect("velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT","velma_core_cs_ve_
 connect("JcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.q_INPORT", ConnPolicy());
 connect("JvcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.dq_INPORT", ConnPolicy());
 
-
-loadComponent("safe", "velma_core_cs_types::SafeComponent");
-connect("safe.cmd_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate._INPORT", ConnPolicy())
-connect("master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT","safe.status_INPORT", ConnPolicy());
 
 
 //------------------------------------------------------------------------------

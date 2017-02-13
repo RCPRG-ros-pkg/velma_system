@@ -37,6 +37,7 @@ public:
         BehaviorBase("behavior_velma_core_cs_safe", "safe")
     {
         addRunningComponent("safe");
+        addRunningComponent("JntImp");
     }
 
     bool checkErrorCondition(

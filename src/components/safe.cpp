@@ -46,6 +46,8 @@ using namespace RTT;
 
 namespace velma_core_cs_types {
 
+const int NUMBER_OF_JOINTS = 15;
+
 class SafeComponent: public RTT::TaskContext {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -64,19 +66,44 @@ public:
 
 private:
 
+    typedef Eigen::Matrix<double, NUMBER_OF_JOINTS, 1>  VectorNd;
+
     // OROCOS ports
-    velma_core_cs_ve_body_msgs::Command cmd_out_;
-    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
+//    velma_core_cs_ve_body_msgs::Command cmd_out_;
+//    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
+
+    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
+    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
+
+    RTT::OutputPort<VectorNd> port_internal_space_position_command_out_;
+    RTT::InputPort<VectorNd> port_internal_space_position_measurement_in_;
+
+    VectorNd joint_stiffness_command_;
+    RTT::OutputPort<VectorNd> port_joint_stiffness_command_;
+
+    VectorNd internal_space_position_;
+
+    bool first_step_;
 };
 
-SafeComponent::SafeComponent(const std::string &name) :
-    TaskContext(name, PreOperational)
+SafeComponent::SafeComponent(const std::string &name)
+    : TaskContext(name, PreOperational)
+    , port_internal_space_position_command_out_("JointPositionCommand_OUTPORT")
+    , port_internal_space_position_measurement_in_("JointPosition_INPORT")
+    , port_joint_stiffness_command_("JointStiffnessCommand_OUTPORT")
+    , port_status_in_("status_INPORT")
+    , port_cmd_sc_out_("cmd_sc_OUTPORT")
+    , first_step_(true)
 {
-    this->ports()->addPort("status_INPORT", port_status_in_);
-    this->ports()->addPort("cmd_OUTPORT", port_cmd_out_);
+
+    this->ports()->addPort(port_internal_space_position_command_out_);
+    this->ports()->addPort(port_internal_space_position_measurement_in_);
+    this->ports()->addPort(port_joint_stiffness_command_);
+    this->ports()->addPort(port_status_in_);
+    this->ports()->addPort(port_cmd_sc_out_);
 
     // TODO
     //this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
@@ -90,10 +117,15 @@ std::string SafeComponent::getDiag() {
 bool SafeComponent::configureHook() {
     Logger::In in("SafeComponent::configureHook");
 
+    for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
+        joint_stiffness_command_(i) = 5.0;
+    }
+
     return true;
 }
 
 bool SafeComponent::startHook() {
+    first_step_ = true;
     return true;
 }
 
@@ -108,6 +140,7 @@ void SafeComponent::updateHook() {
         status_in_ = velma_core_cs_ve_body_msgs::Status();
     }
 
+/*
     // set all commands to zero
     cmd_out_ = velma_core_cs_ve_body_msgs::Command();
 
@@ -129,17 +162,43 @@ void SafeComponent::updateHook() {
     cmd_out_.htMotor.q = status_in_.htMotor.q;
     cmd_out_.htMotor_valid = status_in_.htMotor_valid;
     cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
-
+*/
     if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
-        cmd_out_.sc.cmd = 1;
-        cmd_out_.sc.valid = true;   // TODO: this is not needed
-        cmd_out_.sc_valid = true;
+        cmd_sc_out_.cmd = 1;
+        cmd_sc_out_.valid = true;   // TODO: this is not needed
+        first_step_ = true;
     }
+
+    // read current configuration
+    if (first_step_) {
+        Logger::In in("SafeComponent::updateHook");
+        first_step_ = false;
+        if (port_internal_space_position_measurement_in_.read(internal_space_position_) != RTT::NewData) {
+            // the safety component cannot be started - there is a serious problem with subsystem structure
+            error();
+            return;
+        }
+
+        Eigen::Matrix<double, 7, 1> rArm, lArm;
+        for (int i = 0; i < 7; ++i) {
+            rArm(i) = status_in_.rArm.q[i];
+            lArm(i) = status_in_.lArm.q[i];
+        }
+        log(RTT::Error) << "first step " << internal_space_position_.transpose()
+            << " t: " << status_in_.tMotor.q
+            << " r: " << rArm.transpose()
+            << " l: " << lArm.transpose() << Logger::endl;
+    }
+
+//    internal_space_position_.setZero();
+    port_internal_space_position_command_out_.write(internal_space_position_);
+    port_joint_stiffness_command_.write(joint_stiffness_command_);
 
     //
     // write commands
     //
-    port_cmd_out_.write(cmd_out_);
+    port_cmd_sc_out_.write(cmd_sc_out_);
+
 }
 
 }   // namespace velma_core_cs_types

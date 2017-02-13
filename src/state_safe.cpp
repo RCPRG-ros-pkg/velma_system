@@ -47,6 +47,10 @@ public:
             return false;
         }
 
+        if (!in_error) {
+            return false;
+        }
+
         // TODO
 
         return true;

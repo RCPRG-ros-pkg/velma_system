@@ -49,6 +49,10 @@ public:
             return false;
         }
 
+        if (in_error) {
+            return false;
+        }
+
         // received exactly one command for this behavior
         bool this_behavior_command = (oneCommandValid(in_data->cmd_) && jntImpCommandValid(in_data->cmd_));
         if (!this_behavior_command) {
@@ -64,7 +68,7 @@ public:
 
         if (in_data->status_.sc.safe_behavior) {
             // TODO: manage exiting safe_behavior in ve_body
-            return true;
+            return false;
         }
 
         return true;
