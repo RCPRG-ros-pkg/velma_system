@@ -410,6 +410,8 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
 //      trajectory_msgs::JointTrajectoryConstPtr trj_cptr =
 //          trajectory_msgs::JointTrajectoryConstPtr(trj_ptr);
 
+std::cout << "VelmaInternalSpaceSplineTrajectoryAction: sending trajectory" << std::endl;
+
       //trajectory_ptr_port_.write(trj_cptr);
       port_jnt_command_out_.write(jnt_command_out_);
 
