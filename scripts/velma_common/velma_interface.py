@@ -254,17 +254,17 @@ Class used as Velma robot Interface.
 
         return False
 
-    def switchToJntImp(self):
-        return self.switchToBehavoiur(self.BEHAVOIUR_JNT_IMP)
+#    def switchToJntImp(self):
+#        return self.switchToBehavoiur(self.BEHAVOIUR_JNT_IMP)
 
-    def switchToCartImp(self):
-        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP)
+#    def switchToCartImp(self):
+#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP)
 
-    def switchToCartImpFT(self):
-        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP_FT)
+#    def switchToCartImpFT(self):
+#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP_FT)
 
-    def switchToCartFcl(self):
-        return self.switchToBehavoiur(self.BEHAVOIUR_CART_FCL)
+#    def switchToCartFcl(self):
+#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_FCL)
 
     def isInCartImp(self):
         return self.getControllerBehaviour() == self.BEHAVOIUR_CART_IMP
@@ -280,13 +280,13 @@ Class used as Velma robot Interface.
         self.listener = tf.TransformListener();
 
         # read the joint information from the ROS parameter server
-        self.body_joint_names = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/joint_names")
-        self.body_joint_lower_limits = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/lower_limits")
-        self.body_joint_upper_limits = rospy.get_param(namespace+"/SplineTrajectoryActionJoint/upper_limits")
+        self.body_joint_names = rospy.get_param(namespace+"/JntImpAction/joint_names")
+        self.body_joint_lower_limits = rospy.get_param(namespace+"/JntImpAction/lower_limits")
+        self.body_joint_upper_limits = rospy.get_param(namespace+"/JntImpAction/upper_limits")
 
-        self.head_joint_names = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/joint_names")
-        self.head_joint_lower_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/lower_limits")
-        self.head_joint_upper_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/upper_limits")
+#        self.head_joint_names = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/joint_names")
+#        self.head_joint_lower_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/lower_limits")
+#        self.head_joint_upper_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/upper_limits")
 
         self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
@@ -328,7 +328,7 @@ Class used as Velma robot Interface.
             }
 
         # joint trajectory for right arm
-#        self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
+        self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         # cartesian tool trajectory for arms in the wrist frames
 #        self.action_tool_client = {
@@ -604,10 +604,10 @@ Class used as Velma robot Interface.
         return self.waitForImpedance("right")
 
     def moveJoint(self, q_dest, joint_names, time, start_time=0.2):
-        behaviour = self.getControllerBehaviour()
-        if behaviour != self.BEHAVOIUR_JNT_IMP:
-            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-            return False
+#        behaviour = self.getControllerBehaviour()
+#        if behaviour != self.BEHAVOIUR_JNT_IMP:
+#            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
+#            return False
 
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
@@ -634,10 +634,10 @@ Class used as Velma robot Interface.
         self.action_joint_traj_client.send_goal(goal)
 
     def moveJointTraj(self, traj, joint_names, start_time=0.2):
-        behaviour = self.getControllerBehaviour()
-        if behaviour != self.BEHAVOIUR_JNT_IMP:
-            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-            return False
+#        behaviour = self.getControllerBehaviour()
+#        if behaviour != self.BEHAVOIUR_JNT_IMP:
+#            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
+#            return False
 
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
