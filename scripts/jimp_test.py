@@ -22,7 +22,7 @@ from velma_common.velma_interface import *
 
 if __name__ == "__main__":
 
-    rospy.init_node('cimp_test', anonymous=True)
+    rospy.init_node('jimp_test', anonymous=True)
 
     prefix = "right"
 
@@ -35,8 +35,13 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
-    T_B_Trd = velma.getTf("B", "Wr")
-    
-    velma.moveEffectorRight(T_B_Trd, 2.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
-    velma.waitForEffectorRight()
+    js = velma.getLastJointState()
+    joint_names = []
+    q_dest = []
+    for joint_name in js[1]:
+        joint_names.append(joint_name)
+        q_dest.append(js[1][joint_name])
+
+    velma.moveJoint(q_dest, joint_names, 5.0, start_time=0.5)
+    velma.waitForJoint()
 

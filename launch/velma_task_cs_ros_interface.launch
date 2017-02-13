@@ -22,32 +22,28 @@
 
   <group ns="velma_task_cs_ros_interface">
     <rosparam>
-      rightHandMoveAction:
-        prefix: right
-      leftHandMoveAction:
-        prefix: left
-      SplineTrajectoryActionJoint:
+      JntImpAction:
         joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
         lower_limits: [-2.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
         upper_limits: [2.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-      HeadSplineTrajectoryActionJoint:
-        joint_names: [head_pan_joint, head_tilt_joint]
-        lower_limits: [-1.57, -1]
-        upper_limits: [1.57, 1]
       JntPub:
         joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint, head_pan_joint, head_tilt_joint, right_HandFingerOneKnuckleOneJoint, right_HandFingerOneKnuckleTwoJoint, right_HandFingerOneKnuckleThreeJoint, right_HandFingerTwoKnuckleOneJoint, right_HandFingerTwoKnuckleTwoJoint, right_HandFingerTwoKnuckleThreeJoint, right_HandFingerThreeKnuckleTwoJoint, right_HandFingerThreeKnuckleThreeJoint, left_HandFingerOneKnuckleOneJoint, left_HandFingerOneKnuckleTwoJoint, left_HandFingerOneKnuckleThreeJoint, left_HandFingerTwoKnuckleOneJoint, left_HandFingerTwoKnuckleTwoJoint, left_HandFingerTwoKnuckleThreeJoint, left_HandFingerThreeKnuckleTwoJoint, left_HandFingerThreeKnuckleThreeJoint ]
         constant_names: [leftFtSensorJoint, rightFtSensorJoint]
         constant_positions: [0, 0]
+    </rosparam>
+<!--
+      rightHandMoveAction:
+        prefix: right
+      leftHandMoveAction:
+        prefix: left
+      HeadSplineTrajectoryActionJoint:
+        joint_names: [head_pan_joint, head_tilt_joint]
+        lower_limits: [-1.57, -1]
+        upper_limits: [1.57, 1]
       TfPub:
         frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
         child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
-      core_cs_command_tx:
-        channel_name: core_cs_task_cs_command
-      core_cs_status_rx:
-        channel_name: core_cs_task_cs_status
-        event_port: false
-        always_update_peers: false
-    </rosparam>
+-->
   </group>
 
 </launch>

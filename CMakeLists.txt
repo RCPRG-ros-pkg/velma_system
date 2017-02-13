@@ -41,6 +41,7 @@ orocos_component(velma_task_cs_ros_interface
     src/velma_task_cs_ros_interface.cpp
     src/components/cartesian_trajectory_action.cpp
     src/components/cart_imp_action.cpp
+    src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/behavior_normal.cpp
     src/state_normal.cpp
 )

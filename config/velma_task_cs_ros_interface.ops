@@ -28,7 +28,7 @@ ros.import("rtt_velma_core_cs_task_cs_msgs");
 
 ## load cartesian trajectory action
 loadComponent("CartImpActionRight", "CartImpAction");
-setActivityOnCPU("CartImpActionRight", 0.01, 1, ORO_SCHED_RT, 0);
+#setActivityOnCPU("CartImpActionRight", 0.01, 1, ORO_SCHED_RT, 0);
 CartImpActionRight.configure();
 CartImpActionRight.loadService("actionlib")
 CartImpActionRight.actionlib.connect("/right_arm/cartesian_trajectory")
@@ -38,7 +38,7 @@ connect("CartImpActionRight.cart_imp_command_OUTPORT", "velma_core_cs_task_cs_ms
 stream("CartImpActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartImpActionRight/cart_pose_command_OUTPORT"));
 
 loadComponent("CartImpActionLeft", "CartImpAction");
-setActivityOnCPU("CartImpActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
+#setActivityOnCPU("CartImpActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
 CartImpActionLeft.configure();
 CartImpActionLeft.loadService("actionlib")
 CartImpActionLeft.actionlib.connect("/left_arm/cartesian_trajectory")
@@ -49,6 +49,19 @@ stream("CartImpActionLeft.cart_pose_command_OUTPORT", ros.comm.topic("/velma_tas
 
 
 #stream("velma_core_cs_task_cs_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/velma_core_cs_task_cs_msgs_CommandConcate/msg_OUTPORT"));
+
+
+
+
+loadComponent("JntImpAction", "VelmaInternalSpaceSplineTrajectoryAction");
+JntImpAction.loadService("rosparam");
+JntImpAction.rosparam.getAll();
+JntImpAction.configure();
+JntImpAction.loadService("actionlib")
+JntImpAction.actionlib.connect("/spline_trajectory_action_joint")
+connect("JntImpAction.jnt_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.jnt_INPORT", ConnPolicy())
+
+
 
 
 loadComponent("JntPub", "JointStatePublisher33");
@@ -64,5 +77,7 @@ stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
 JntPub.configure()
 
 CartImpActionRight.start();
+CartImpActionLeft.start();
+JntImpAction.start();
 JntPub.start();
 
