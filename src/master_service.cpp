@@ -145,7 +145,10 @@ public:
     // FSM parameters
     //
     virtual std::vector<std::string > getStates() const {
-        return std::vector<std::string >({"state_velma_core_cs_safe", "state_velma_core_cs_cart_imp"});
+        return std::vector<std::string >({
+            "state_velma_core_cs_safe",
+            "state_velma_core_cs_cart_imp",
+            "state_velma_core_cs_jnt_imp"});
     }
 
     virtual std::string getInitialState() const {

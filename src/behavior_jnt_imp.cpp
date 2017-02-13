@@ -25,28 +25,56 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef VELMA_CORE_CS_COMMON_PREDICATES_H__
-#define VELMA_CORE_CS_COMMON_PREDICATES_H__
+#include "abstract_behavior.h"
+#include "input_data.h"
+#include "common_predicates.h"
 
-#include "velma_core_cs_task_cs_msgs/Command.h"
-#include "velma_core_cs_ve_body_msgs/Status.h"
+namespace velma_core_cs_types {
 
-#include "rtt/RTT.hpp"
+class BehaviorJntImp : public BehaviorBase {
+public:
+    BehaviorJntImp() :
+        BehaviorBase("behavior_velma_core_cs_jnt_imp", "jnt_imp")
+    {
+        addRunningComponent("TrajectoryGeneratorJoint");
+        addRunningComponent("JntImp");
+    }
 
-bool cartImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool jntImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
+    virtual bool checkErrorCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                ErrorCausePtr result) const
+    {
+        // check status of current component graph that makes up the transition function
+        if (!allComponentsOk(components, getRunningComponents())) {
+            if (result) {
+                result->setBit(COMPONENT_bit, true);
+            }
+            return true;
+        }
 
-bool zeroCommandsValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool oneCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool moreThanOneCommandsValid(const velma_core_cs_task_cs_msgs::Command& cmd);
+        // TODO: check VE state
 
-bool allComponentsOk(const std::vector<RTT::TaskContext*> &components);
-bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std::vector<std::string >& running_components_names);
+        // TODO: check this subsystem state, eg. robot workspace, singularities
 
-//bool isNaN(double d);
-//bool isInLim(double d, double lo_lim, double hi_lim);
-//bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd);
-//bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st);
+        return false;
+    }
 
-#endif  // VELMA_CORE_CS_COMMON_PREDICATES_H__
+    virtual bool checkStopCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components) const
+    {
+        // received exactly one command for another behavior
+        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !jntImpCommandValid(in_data->cmd_));
+        if (another_behavior_command) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
+};  // namespace velma_core_cs_types
+
+REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorJntImp );
 

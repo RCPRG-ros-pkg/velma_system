@@ -27,11 +27,19 @@
 
 #include "common_predicates.h"
 
+bool cartImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd) {
+    return  cmd.cart_r.imp_valid || cmd.cart_r.pose_valid || cmd.cart_r.tool_valid ||
+            cmd.cart_l.imp_valid || cmd.cart_l.pose_valid || cmd.cart_l.tool_valid;
+}
+
+bool jntImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd) {
+    return  cmd.jnt_valid;
+}
+
 unsigned int getValidCommandsCount(const velma_core_cs_task_cs_msgs::Command& cmd) {
     unsigned int valid_count = 0;
-    valid_count += (cmd.cart_r_valid && (cmd.cart_r.imp_valid || cmd.cart_r.pose_valid || cmd.cart_r.tool_valid)) ? 1 : 0;
-    valid_count += (cmd.cart_l_valid && (cmd.cart_l.imp_valid || cmd.cart_l.pose_valid || cmd.cart_l.tool_valid)) ? 1 : 0;
-    valid_count += cmd.jnt_valid ? 1 : 0;
+    valid_count += (cartImpCommandValid(cmd) ? 1 : 0);
+    valid_count += (jntImpCommandValid(cmd) ? 1 : 0);
     return valid_count;
 }
 
@@ -81,6 +89,7 @@ bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std
     return true;
 }
 
+bool errorCondition(
 //using namespace velma_core_cs_ve_body_msgs;
 
 /*

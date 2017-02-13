@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   common_interfaces
   common_behavior
+  controller_common
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -45,8 +46,11 @@ orocos_component(velma_core_cs
     src/common_predicates.cpp
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
+    src/behavior_jnt_imp.cpp
+    src/state_jnt_imp.cpp
     src/components/safe.cpp
     src/components/cartesian_interpolator.cpp
+    src/components/InternalSpaceSplineTrajectoryGenerator.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 

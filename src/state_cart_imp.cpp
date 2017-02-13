@@ -44,15 +44,13 @@ public:
                 const std::string& prev_state_name,
                 bool in_error) const
     {
-        return true;    // TODO
-
         if (prev_state_name == "state_velma_core_cs_cart_imp") {
             // the behavior cannot be restarted
             return false;
         }
 
         // received exactly one command for this behavior
-        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && (in_data->cmd_.cart_r_valid || in_data->cmd_.cart_l_valid));
+        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && cartImpCommandValid(in_data->cmd_));
         if (!this_behavior_command) {
             return false;
         }

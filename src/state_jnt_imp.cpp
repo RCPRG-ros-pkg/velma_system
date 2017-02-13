@@ -25,28 +25,53 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#ifndef VELMA_CORE_CS_COMMON_PREDICATES_H__
-#define VELMA_CORE_CS_COMMON_PREDICATES_H__
+#include "abstract_state.h"
+#include "input_data.h"
+#include "common_predicates.h"
 
-#include "velma_core_cs_task_cs_msgs/Command.h"
-#include "velma_core_cs_ve_body_msgs/Status.h"
+namespace velma_core_cs_types {
 
-#include "rtt/RTT.hpp"
+class StateJntImp : public StateBase {
+public:
+    StateJntImp() :
+        StateBase("state_velma_core_cs_jnt_imp", "jnt_imp", "behavior_velma_core_cs_jnt_imp")
+    {
+    }
 
-bool cartImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool jntImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
+    bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_cs_jnt_imp") {
+            // the behavior cannot be restarted
+            return false;
+        }
 
-bool zeroCommandsValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool oneCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd);
-bool moreThanOneCommandsValid(const velma_core_cs_task_cs_msgs::Command& cmd);
+        // received exactly one command for this behavior
+        bool this_behavior_command = (oneCommandValid(in_data->cmd_) && jntImpCommandValid(in_data->cmd_));
+        if (!this_behavior_command) {
+            return false;
+        }
 
-bool allComponentsOk(const std::vector<RTT::TaskContext*> &components);
-bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std::vector<std::string >& running_components_names);
+        // TODO: check if command is valid in terms of data
 
-//bool isNaN(double d);
-//bool isInLim(double d, double lo_lim, double hi_lim);
-//bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd);
-//bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st);
+        // TODO: check state of VE
+        if (in_data->status_.sc.error) {
+            return false;
+        }
 
-#endif  // VELMA_CORE_CS_COMMON_PREDICATES_H__
+        if (in_data->status_.sc.safe_behavior) {
+            // TODO: manage exiting safe_behavior in ve_body
+            return true;
+        }
+
+        return true;
+    }
+};
+
+};  // namespace velma_core_cs_types
+
+REGISTER_STATE( velma_core_cs_types::StateJntImp );
 

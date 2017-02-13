@@ -81,11 +81,11 @@ Mass.configure();
 
 ## load torque publishers
 
-loadComponent("TorquePubRight", "TorquePublisher7")
-setActivityOnCPU("TorquePubRight", 0.01, 1, ORO_SCHED_RT, 0)
+#loadComponent("TorquePubRight", "TorquePublisher7")
+#setActivityOnCPU("TorquePubRight", 0.01, 1, ORO_SCHED_RT, 0)
 
-loadComponent("TorquePubLeft", "TorquePublisher7")
-setActivityOnCPU("TorquePubLeft", 0.01, 1, ORO_SCHED_RT, 0)
+#loadComponent("TorquePubLeft", "TorquePublisher7")
+#setActivityOnCPU("TorquePubLeft", 0.01, 1, ORO_SCHED_RT, 0)
 
 ## load gravity component
 
@@ -311,12 +311,12 @@ connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_tool_OUTPORT", "ToolIntL
 
 #stream("TfPub.OutTf", ros.comm.topic("/tf"))
 
-connect("Ts.Out1", "TorquePubRight.InJointTorqueCommand", ConnPolicy())
-TorquePubRight.configure();
+#connect("Ts.Out1", "TorquePubRight.InJointTorqueCommand", ConnPolicy())
+#TorquePubRight.configure();
 #stream("TorquePubRight.OutTorques", ros.comm.topic("/right_arm/torques"))
 
-connect("Ts.Out1", "TorquePubLeft.InJointTorqueCommand", ConnPolicy())
-TorquePubLeft.configure();
+#connect("Ts.Out1", "TorquePubLeft.InJointTorqueCommand", ConnPolicy())
+#TorquePubLeft.configure();
 #stream("TorquePubLeft.OutTorques", ros.comm.topic("/left_arm/torques"))
 
 // impedance
@@ -405,11 +405,14 @@ connect("LeftForceTransformation.OutputEndEffectorWrench", "LeftForceControl.Cur
 
 ## joint trajectory generator
 
-loadComponent("TrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerator15");
+loadComponent("TrajectoryGeneratorJoint", "VelmaInternalSpaceSplineTrajectoryGenerator");
 TrajectoryGeneratorJoint.loadService("rosparam");
 TrajectoryGeneratorJoint.rosparam.getAll();
 connect("Jc.Out","TrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
 connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","JntImp.JointPositionCommand_INPORT", ConnPolicy());
+
+connect("velma_core_cs_task_cs_msgs_CommandSplit.jnt_OUTPORT", "TrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
+
 
 loadComponent("JntLimit", "JointLimitAvoidance15");
 JntLimit.loadService("rosparam");
