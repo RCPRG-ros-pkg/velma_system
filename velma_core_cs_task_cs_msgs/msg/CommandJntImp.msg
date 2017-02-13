@@ -1,3 +1,4 @@
+time start
 VelmaJointTrajectoryPoint[50] trj
 uint32 count_trj
 
