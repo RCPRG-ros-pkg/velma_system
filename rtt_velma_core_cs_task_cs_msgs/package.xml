@@ -38,6 +38,9 @@
   <build_depend>rtt_cartesian_trajectory_msgs</build_depend>
   <run_depend>rtt_cartesian_trajectory_msgs</run_depend>
 
+  <build_depend>rtt_control_msgs</build_depend>
+  <run_depend>rtt_control_msgs</run_depend>
+
   <export>
     <rtt_ros>
       <plugin_depend>rtt_roscomm</plugin_depend>
