@@ -3,8 +3,8 @@
   <arg name="LOG_LEVEL" default="Info"/>
   <arg name="DEBUG" default="false"/>
 
-  <arg unless="$(arg DEBUG)" name="DEPLOYER_NAME" value="deployer"/>
-  <arg     if="$(arg DEBUG)" name="DEPLOYER_NAME" value="deployer-debug"/>
+  <arg unless="$(arg DEBUG)" name="LAUNCH_PREFIX" value=""/>
+  <arg     if="$(arg DEBUG)" name="LAUNCH_PREFIX" value="gdb --args "/>
 
   <!-- Orocos target (gnulinux, xenomai, etc) -->
 <!--  <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>-->
@@ -12,8 +12,9 @@
 <!--  <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>-->
 
   <node
+    launch-prefix="$(arg LAUNCH_PREFIX)"
     name="velma_core_cs"
-    pkg="subsystem_deployer" type="$(arg DEPLOYER_NAME)"
+    pkg="subsystem_deployer" type="deployer"
     args="--DeployerName velma_core_cs -l $(arg LOG_LEVEL) -s $(find velma_core_cs)/config/velma_core_cs_transition.ops -m velma_core_cs --" output="screen">
 <!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->

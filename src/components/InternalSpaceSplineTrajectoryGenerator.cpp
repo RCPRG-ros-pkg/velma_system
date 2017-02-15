@@ -50,6 +50,7 @@
 #include <exception>
 
 #include <velma_core_cs_task_cs_msgs/CommandJntImp.h>
+#include <velma_core_cs_task_cs_msgs/StatusJntImp.h>
 
 #include "controller_common/velocityprofile_spline.hpp"
 
@@ -81,20 +82,26 @@ class VelmaInternalSpaceSplineTrajectoryGenerator : public RTT::TaskContext {
 
 //  RTT::InputPort<trajectory_msgs::JointTrajectoryConstPtr> port_trajectory_in_;
 
+  VectorNd internal_space_position_measurement_in_;
   RTT::OutputPort<VectorNd> port_internal_space_position_command_out_;
   RTT::InputPort<VectorNd> port_internal_space_position_measurement_in_;
   RTT::OutputPort<bool> port_generator_active_out_;
   RTT::InputPort<bool> port_is_synchronised_in_;
 
+  int32_t generator_status_;
+  RTT::OutputPort<int32_t> port_generator_status_out_;
+
  private:
+  void resetTrajectory();
+
   bool last_point_not_set_;
-  bool trajectory_active_;
+//  bool trajectory_active_;
   std::vector<KDL::VelocityProfile_Spline> vel_profile_;
 
   trajectory_msgs::JointTrajectoryPoint trajectory_old_;
   trajectory_msgs::JointTrajectoryPoint trajectory_new_;
 
-  VectorNd des_jnt_pos_, setpoint_, old_point_;
+  VectorNd des_jnt_pos_, setpoint_, prev_setpoint_, old_point_;
 
 //  trajectory_msgs::JointTrajectoryConstPtr trajectory_;
   velma_core_cs_task_cs_msgs::CommandJntImp trajectory_;
@@ -108,20 +115,23 @@ VelmaInternalSpaceSplineTrajectoryGenerator::VelmaInternalSpaceSplineTrajectoryG
     const std::string& name)
     : RTT::TaskContext(name, PreOperational)
     , last_point_not_set_(false)
-    , trajectory_active_(false)
+//    , trajectory_active_(false)
     , trajectory_idx_(0)
+    , trajectory_(velma_core_cs_task_cs_msgs::CommandJntImp())
 //      port_trajectory_in_("trajectoryPtr_INPORT")
     , port_jnt_command_in_("jnt_INPORT")
     , port_internal_space_position_command_out_("JointPositionCommand_OUTPORT", true)
     , port_generator_active_out_("GeneratorActive_OUTPORT", true)
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
-    , port_is_synchronised_in_("IsSynchronised_INPORT") {
+    , port_is_synchronised_in_("IsSynchronised_INPORT")
+    , port_generator_status_out_("generator_status_OUTPORT") {
 //  this->ports()->addPort(port_trajectory_in_);
   this->ports()->addPort(port_jnt_command_in_);
   this->ports()->addPort(port_internal_space_position_command_out_);
   this->ports()->addPort(port_internal_space_position_measurement_in_);
   this->ports()->addPort(port_generator_active_out_);
   this->ports()->addPort(port_is_synchronised_in_);
+  this->ports()->addPort(port_generator_status_out_);
 
   return;
 }
@@ -165,7 +175,12 @@ bool VelmaInternalSpaceSplineTrajectoryGenerator::startHook() {
 
   port_generator_active_out_.write(true);
   last_point_not_set_ = false;
-  trajectory_active_ = false;
+
+  resetTrajectory();
+
+  generator_status_ = velma_core_cs_task_cs_msgs::StatusJntImp::INACTIVE;
+
+//  trajectory_active_ = false;
   return true;
 }
 
@@ -177,13 +192,13 @@ void VelmaInternalSpaceSplineTrajectoryGenerator::stopHook() {
 void VelmaInternalSpaceSplineTrajectoryGenerator::updateHook() {
   port_generator_active_out_.write(true);
 
-  trajectory_msgs::JointTrajectoryConstPtr trj_ptr_tmp;
   if (port_jnt_command_in_.read(jnt_command_in_) == RTT::NewData) {
     trajectory_ = jnt_command_in_;
     trajectory_idx_ = 0;
     old_point_ = setpoint_;
+    prev_setpoint_ = setpoint_;
     last_point_not_set_ = true;
-    trajectory_active_ = true;
+    generator_status_ = velma_core_cs_task_cs_msgs::StatusJntImp::ACTIVE;
   }
 
 /*
@@ -198,7 +213,8 @@ void VelmaInternalSpaceSplineTrajectoryGenerator::updateHook() {
 
 // TODO: now, there is no header in trajectory_
   ros::Time now = rtt_rosclock::host_now();
-  if (trajectory_active_ && (trajectory_.start < now)) {
+  if (trajectory_idx_ < trajectory_.count_trj && (trajectory_.start < now)) {
+
 //  if (trajectory_active_ && trajectory_ && (trajectory_.start < now)) {
     for (; trajectory_idx_ < trajectory_.count_trj; trajectory_idx_++) {
       ros::Time trj_time = trajectory_.start
@@ -265,6 +281,11 @@ void VelmaInternalSpaceSplineTrajectoryGenerator::updateHook() {
       }
     }
 
+    if (port_internal_space_position_measurement_in_.read(internal_space_position_measurement_in_) != RTT::NewData) {
+      error();
+      return;
+    }
+
     if (trajectory_idx_ < trajectory_.count_trj) {
       double t;
       if (trajectory_idx_ < 1) {
@@ -288,9 +309,46 @@ void VelmaInternalSpaceSplineTrajectoryGenerator::updateHook() {
       trajectory_ = velma_core_cs_task_cs_msgs::CommandJntImp();
       last_point_not_set_ = false;
     }
+
+    // check path tolerance
+    for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
+      if ( trajectory_.path_tolerance[i] > 0 && fabs(internal_space_position_measurement_in_(i)-prev_setpoint_(i)) > trajectory_.path_tolerance[i]) {
+        resetTrajectory();
+        generator_status_ = velma_core_cs_task_cs_msgs::StatusJntImp::PATH_TOLERANCE_VIOLATED;
+      }
+    }
+
+    prev_setpoint_ = setpoint_;
   }
 
+  if (trajectory_idx_ > 0 && trajectory_idx_ == trajectory_.count_trj) {
+    ros::Time goal_time = trajectory_.start + trajectory_.trj[trajectory_.count_trj - 1].time_from_start;
+    // check goal tolerance
+    if (now > goal_time + trajectory_.goal_time_tolerance) {
+      resetTrajectory();
+      generator_status_ = velma_core_cs_task_cs_msgs::StatusJntImp::GOAL_TOLERANCE_VIOLATED;
+    }
+    else if (now > goal_time - trajectory_.goal_time_tolerance) {
+      bool goal_reached = true;
+      for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
+        if ( trajectory_.goal_tolerance[i] > 0 && fabs(internal_space_position_measurement_in_(i)-prev_setpoint_(i)) > trajectory_.goal_tolerance[i]) {
+          goal_reached = false;
+        }
+      }
+      if (goal_reached) {
+        resetTrajectory();
+        generator_status_ = velma_core_cs_task_cs_msgs::StatusJntImp::SUCCESSFUL;
+      }
+    }
+  }
+  port_generator_status_out_.write(generator_status_);
+
   port_internal_space_position_command_out_.write(setpoint_);
+}
+
+void VelmaInternalSpaceSplineTrajectoryGenerator::resetTrajectory() {
+  trajectory_idx_ = 0;
+  trajectory_ = velma_core_cs_task_cs_msgs::CommandJntImp();
 }
 
 ORO_LIST_COMPONENT_TYPE(VelmaInternalSpaceSplineTrajectoryGenerator)

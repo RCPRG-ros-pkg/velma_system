@@ -410,6 +410,9 @@ TrajectoryGeneratorJoint.loadService("rosparam");
 TrajectoryGeneratorJoint.rosparam.getAll();
 connect("Jc.Out","TrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
 connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","JntImp.JointPositionCommand_INPORT", ConnPolicy());
+connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","velma_core_cs_task_cs_msgs_StatusConcate.jnt_q_desired_INPORT", ConnPolicy());
+
+connect("TrajectoryGeneratorJoint.generator_status_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.jnt_status_INPORT", ConnPolicy());
 
 connect("velma_core_cs_task_cs_msgs_CommandSplit.jnt_OUTPORT", "TrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
 
