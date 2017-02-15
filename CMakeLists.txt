@@ -30,6 +30,7 @@ orocos_component(velma_data_conversions
   src/components/eigen_vector_4.cpp
   src/components/eigen_vector_7.cpp
   src/components/eigen_vector_8.cpp
+  src/components/eigen_vector_15.cpp
   src/components/eigen_vector_33.cpp
   src/components/eigen_matrix77.cpp
   src/components/fri.cpp
