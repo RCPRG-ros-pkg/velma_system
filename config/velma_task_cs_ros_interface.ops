@@ -51,6 +51,13 @@ stream("CartImpActionLeft.cart_pose_command_OUTPORT", ros.comm.topic("/velma_tas
 #stream("velma_core_cs_task_cs_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/velma_core_cs_task_cs_msgs_CommandConcate/msg_OUTPORT"));
 
 
+loadComponent("q_splitAll", "VectorSplit15_2_8_8");
+loadComponent("dq_splitAll", "VectorSplit15_2_8_8");
+
+connect("velma_core_cs_task_cs_msgs_StatusSplit.q_OUTPORT", "q_splitAll.In", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT", "dq_splitAll.In", ConnPolicy());
+
+
 
 
 loadComponent("JntImpAction", "VelmaInternalSpaceSplineTrajectoryAction");
@@ -60,9 +67,12 @@ JntImpAction.configure();
 JntImpAction.loadService("actionlib")
 JntImpAction.actionlib.connect("/spline_trajectory_action_joint")
 connect("JntImpAction.jnt_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.jnt_INPORT", ConnPolicy())
+connect("q_splitAll.Out0", "JntImpAction.JointPosition_INPORT", ConnPolicy())
+connect("velma_core_cs_task_cs_msgs_StatusSplit.jnt_q_desired_OUTPORT", "JntImpAction.JointPositionCommand_INPORT", ConnPolicy())
+#connect("velma_core_cs_task_cs_msgs_StatusSplit.jnt_status_OUTPORT", "JntImpAction.generator_status_INPORT", ConnPolicy())
 
-
-
+q_splitAll.configure();
+dq_splitAll.configure();
 
 loadComponent("JntPub", "JointStatePublisher33");
 JntPub.loadService("rosparam");
@@ -74,8 +84,10 @@ connect("velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT", "JntPub.JointVeloci
 
 stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
 
-JntPub.configure()
+JntPub.configure();
 
+q_splitAll.start();
+dq_splitAll.start();
 CartImpActionRight.start();
 CartImpActionLeft.start();
 JntImpAction.start();

@@ -58,6 +58,7 @@
 #include <trajectory_msgs/JointTrajectory.h>
 
 #include <velma_core_cs_task_cs_msgs/CommandJntImp.h>
+#include <velma_core_cs_task_cs_msgs/StatusJntImp.h>
 
 // TODO
 const int DOFS = 15;
@@ -84,16 +85,17 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
 
 //  RTT::OutputPort<trajectory_msgs::JointTrajectoryConstPtr> trajectory_ptr_port_;
 
-  RTT::InputPort<trajectory_msgs::JointTrajectory> command_port_;
+//  RTT::InputPort<trajectory_msgs::JointTrajectory> command_port_;
 
   RTT::InputPort<Joints> port_joint_position_;
   RTT::InputPort<Joints> port_joint_position_command_;
+  RTT::InputPort<int32_t> port_generator_status_;
 
  private:
   void goalCB(GoalHandle gh);
   void cancelCB(GoalHandle gh);
 
-  void commandCB();
+//  void commandCB();
   void compleatCB();
   void bufferReadyCB();
 
@@ -120,8 +122,9 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
 
 VelmaInternalSpaceSplineTrajectoryAction::VelmaInternalSpaceSplineTrajectoryAction(
     const std::string& name)
-    : RTT::TaskContext(name, PreOperational),
-      command_port_("command") {
+    : RTT::TaskContext(name, PreOperational)
+//    , command_port_("command")
+{
   // Add action server ports to this task's root service
   as_.addPorts(this->provides());
 
@@ -133,11 +136,12 @@ VelmaInternalSpaceSplineTrajectoryAction::VelmaInternalSpaceSplineTrajectoryActi
 
   this->addPort("jnt_OUTPORT", port_jnt_command_out_);
 //  this->addPort("trajectoryPtr", trajectory_ptr_port_);
-  this->addPort("JointPosition", port_joint_position_);
-  this->addPort("JointPositionCommand", port_joint_position_command_);
-  this->addEventPort(
-      command_port_,
-      boost::bind(&VelmaInternalSpaceSplineTrajectoryAction::commandCB, this));
+  this->addPort("JointPosition_INPORT", port_joint_position_);
+  this->addPort("JointPositionCommand_INPORT", port_joint_position_command_);
+  this->addPort("generator_status_INPORT", port_generator_status_);
+//  this->addEventPort(
+//      command_port_,
+//      boost::bind(&VelmaInternalSpaceSplineTrajectoryAction::commandCB, this));
   this->addProperty("joint_names", jointNames_);
   this->addProperty("lower_limits", lowerLimits_);
   this->addProperty("upper_limits", upperLimits_);
@@ -199,47 +203,21 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
 
   port_joint_position_command_.read(desired_joint_position_);
 
-  Goal g = activeGoal_.getGoal();
+  int32_t generator_status;
+  if (port_generator_status_.read(generator_status) != RTT::NewData) {
+    generator_status = 3;
+  }
 
-  if (goal_active_ && joint_position_data) {
-    bool violated = false;
-    ros::Time now = rtt_rosclock::host_now();
+//  Goal g = activeGoal_.getGoal();
 
-    if (now > trajectory_finish_time_) {
-      violated = false;
-      for (int i = 0; i < DOFS; i++) {
-        for (int j = 0; j < g->goal_tolerance.size(); j++) {
-          if (g->goal_tolerance[j].name == g->trajectory.joint_names[i]) {
-            // Jeśli istnieje ograniczenie to sprawdzam pozycję
-            if (joint_position_[remapTable_[i]] + g->goal_tolerance[j].position
-                < g->trajectory.points[g->trajectory.points.size() - 1]
-                    .positions[i]
-                || joint_position_[remapTable_[i]]
-                    - g->goal_tolerance[j].position
-                    > g->trajectory.points[g->trajectory.points.size() - 1]
-                        .positions[i]) {
-              violated = true;
-              RTT::Logger::log(RTT::Logger::Debug) << g->goal_tolerance[j].name
-                  << " violated with position "
-                  << joint_position_[remapTable_[i]] << RTT::endlog();
-            }
-          }
-        }
-      }
-
-      if (violated && now > trajectory_finish_time_ + g->goal_time_tolerance) {
-        res.error_code =
-            control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
-        activeGoal_.setAborted(res, "");
-        goal_active_ = false;
-      } else if (!violated) {
-        res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-        activeGoal_.setSucceeded(res, "");
-        goal_active_ = false;
-      }
-    } else {
-      // Wysyłanie feedback
-
+  if (goal_active_) {
+    if (generator_status == 3) {
+      // do nothing
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::INACTIVE) {
+      // do nothing
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::ACTIVE) {
       for (int i = 0; i < DOFS; i++) {
         feedback_.actual.positions[i] = joint_position_[i];
         feedback_.desired.positions[i] = desired_joint_position_[i];
@@ -250,21 +228,90 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
       feedback_.header.stamp = rtt_rosclock::host_now();
 
       activeGoal_.publishFeedback(feedback_);
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::SUCCESSFUL) {
+      res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+      activeGoal_.setSucceeded(res, "");
+      goal_active_ = false;
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::PATH_TOLERANCE_VIOLATED) {
+      res.error_code = control_msgs::FollowJointTrajectoryResult::PATH_TOLERANCE_VIOLATED;
+      activeGoal_.setAborted(res);
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::GOAL_TOLERANCE_VIOLATED) {
+      res.error_code = control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
+      activeGoal_.setAborted(res, "");
+      goal_active_ = false;
+    }
+  }
 
-      // Sprawdzanie PATH_TOLRANCE_VIOLATED
-      violated = false;
-      for (int i = 0; i < g->path_tolerance.size(); i++) {
-        for (int j = 0; j < jointNames_.size(); j++) {
-          if (jointNames_[j] == g->path_tolerance[i].name) {
-            if (fabs(joint_position_[j] - desired_joint_position_[j])
-                > g->path_tolerance[i].position) {
-              violated = true;
-              RTT::Logger::log(RTT::Logger::Error) << "Path tolerance violated"
-                  << RTT::endlog();
-            }
-          }
-        }
-      }
+/*
+  if (goal_active_ && joint_position_data) {
+//    bool violated = false;
+    ros::Time now = rtt_rosclock::host_now();
+
+//generator_status
+    if (now > trajectory_finish_time_) {
+//      violated = false;
+//      for (int i = 0; i < DOFS; i++) {
+//        for (int j = 0; j < g->goal_tolerance.size(); j++) {
+//          if (g->goal_tolerance[j].name == g->trajectory.joint_names[i]) {
+//            // Jeśli istnieje ograniczenie to sprawdzam pozycję
+//            if (joint_position_[remapTable_[i]] + g->goal_tolerance[j].position
+//                < g->trajectory.points[g->trajectory.points.size() - 1]
+//                    .positions[i]
+//                || joint_position_[remapTable_[i]]
+//                    - g->goal_tolerance[j].position
+//                    > g->trajectory.points[g->trajectory.points.size() - 1]
+//                        .positions[i]) {
+//              violated = true;
+//              RTT::Logger::log(RTT::Logger::Debug) << g->goal_tolerance[j].name
+//                  << " violated with position "
+//                  << joint_position_[remapTable_[i]] << RTT::endlog();
+//            }
+//          }
+//        }
+//      }
+
+//      if (violated && now > trajectory_finish_time_ + g->goal_time_tolerance) {
+//        res.error_code =
+//            control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
+//        activeGoal_.setAborted(res, "");
+//        goal_active_ = false;
+//      } else if (!violated) {
+//        res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
+//        activeGoal_.setSucceeded(res, "");
+//        goal_active_ = false;
+//      }
+    } else {
+      // Wysyłanie feedback
+
+//      for (int i = 0; i < DOFS; i++) {
+//        feedback_.actual.positions[i] = joint_position_[i];
+//        feedback_.desired.positions[i] = desired_joint_position_[i];
+//        feedback_.error.positions[i] = joint_position_[i]
+//            - desired_joint_position_[i];
+//      }
+
+//      feedback_.header.stamp = rtt_rosclock::host_now();
+
+//      activeGoal_.publishFeedback(feedback_);
+
+//      // Sprawdzanie PATH_TOLRANCE_VIOLATED
+//      violated = false;
+//      for (int i = 0; i < g->path_tolerance.size(); i++) {
+//        for (int j = 0; j < jointNames_.size(); j++) {
+//          if (jointNames_[j] == g->path_tolerance[i].name) {
+//            if (fabs(joint_position_[j] - desired_joint_position_[j])
+//                > g->path_tolerance[i].position) {
+//              violated = true;
+//              RTT::Logger::log(RTT::Logger::Error) << "Path tolerance violated"
+//                  << RTT::endlog();
+//            }
+//          }
+//        }
+//      }
+
 //TODO
 //      if (violated) {
 //        trajectory_ptr_port_.write(trajectory_msgs::JointTrajectoryConstPtr());
@@ -274,6 +321,7 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
 //      }
     }
   }
+*/
 }
 
 void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
@@ -381,6 +429,19 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
 //          .time_from_start;
     }
 
+    // prepare tolerances data
+    jnt_command_out_.goal_time_tolerance = g->goal_time_tolerance;
+    if (g->path_tolerance.size() == g->trajectory.joint_names.size()) {
+      for (int i = 0; i < DOFS; i++) {
+        jnt_command_out_.path_tolerance[i] = g->path_tolerance[remapTable_[i]].position;
+      }
+    }
+    if (g->goal_tolerance.size() == g->trajectory.joint_names.size()) {
+      for (int i = 0; i < DOFS; i++) {
+        jnt_command_out_.goal_tolerance[i] = g->goal_tolerance[remapTable_[i]].position;
+      }
+    }
+
     // Sprawdzenie czasu w nagłówku OLD_HEADER_TIMESTAMP
     if (g->trajectory.header.stamp < rtt_rosclock::host_now()) {
       RTT::Logger::log(RTT::Logger::Debug) << "Old header timestamp"
@@ -430,8 +491,8 @@ void VelmaInternalSpaceSplineTrajectoryAction::cancelCB(GoalHandle gh) {
   goal_active_ = false;
 }
 
-void VelmaInternalSpaceSplineTrajectoryAction::commandCB() {
-}
+//void VelmaInternalSpaceSplineTrajectoryAction::commandCB() {
+//}
 
 ORO_LIST_COMPONENT_TYPE(VelmaInternalSpaceSplineTrajectoryAction)
 
