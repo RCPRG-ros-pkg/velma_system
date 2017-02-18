@@ -69,7 +69,7 @@ JntImpAction.actionlib.connect("/spline_trajectory_action_joint")
 connect("JntImpAction.jnt_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.jnt_INPORT", ConnPolicy())
 connect("q_splitAll.Out0", "JntImpAction.JointPosition_INPORT", ConnPolicy())
 connect("velma_core_cs_task_cs_msgs_StatusSplit.jnt_q_desired_OUTPORT", "JntImpAction.JointPositionCommand_INPORT", ConnPolicy())
-#connect("velma_core_cs_task_cs_msgs_StatusSplit.jnt_status_OUTPORT", "JntImpAction.generator_status_INPORT", ConnPolicy())
+connect("velma_core_cs_task_cs_msgs_StatusSplit.jnt_status_OUTPORT", "JntImpAction.generator_status_INPORT", ConnPolicy())
 
 q_splitAll.configure();
 dq_splitAll.configure();

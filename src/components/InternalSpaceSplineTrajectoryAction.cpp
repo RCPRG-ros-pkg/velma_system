@@ -83,10 +83,6 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
   velma_core_cs_task_cs_msgs::CommandJntImp jnt_command_out_;
   RTT::OutputPort<velma_core_cs_task_cs_msgs::CommandJntImp > port_jnt_command_out_;
 
-//  RTT::OutputPort<trajectory_msgs::JointTrajectoryConstPtr> trajectory_ptr_port_;
-
-//  RTT::InputPort<trajectory_msgs::JointTrajectory> command_port_;
-
   RTT::InputPort<Joints> port_joint_position_;
   RTT::InputPort<Joints> port_joint_position_command_;
   RTT::InputPort<int32_t> port_generator_status_;
@@ -95,7 +91,6 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
   void goalCB(GoalHandle gh);
   void cancelCB(GoalHandle gh);
 
-//  void commandCB();
   void compleatCB();
   void bufferReadyCB();
 
@@ -118,12 +113,13 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
   bool enable_;
 
   control_msgs::FollowJointTrajectoryFeedback feedback_;
+
+  int cycles_;
 };
 
 VelmaInternalSpaceSplineTrajectoryAction::VelmaInternalSpaceSplineTrajectoryAction(
     const std::string& name)
     : RTT::TaskContext(name, PreOperational)
-//    , command_port_("command")
 {
   // Add action server ports to this task's root service
   as_.addPorts(this->provides());
@@ -135,13 +131,9 @@ VelmaInternalSpaceSplineTrajectoryAction::VelmaInternalSpaceSplineTrajectoryActi
       boost::bind(&VelmaInternalSpaceSplineTrajectoryAction::cancelCB, this, _1));
 
   this->addPort("jnt_OUTPORT", port_jnt_command_out_);
-//  this->addPort("trajectoryPtr", trajectory_ptr_port_);
   this->addPort("JointPosition_INPORT", port_joint_position_);
   this->addPort("JointPositionCommand_INPORT", port_joint_position_command_);
   this->addPort("generator_status_INPORT", port_generator_status_);
-//  this->addEventPort(
-//      command_port_,
-//      boost::bind(&VelmaInternalSpaceSplineTrajectoryAction::commandCB, this));
   this->addProperty("joint_names", jointNames_);
   this->addProperty("lower_limits", lowerLimits_);
   this->addProperty("upper_limits", upperLimits_);
@@ -190,6 +182,8 @@ bool VelmaInternalSpaceSplineTrajectoryAction::startHook() {
   goal_active_ = false;
   enable_ = true;
 
+  cycles_ = 0;
+
   return true;
 }
 
@@ -208,9 +202,14 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
     generator_status = 3;
   }
 
-//  Goal g = activeGoal_.getGoal();
+  if (cycles_ < 100) {
+    ++cycles_;
+  }
 
-  if (goal_active_) {
+  RTT::Logger::log(RTT::Logger::Info) << generator_status
+    << RTT::endlog();
+
+  if (goal_active_ && cycles_ > 2) {
     if (generator_status == 3) {
       // do nothing
     }
@@ -244,90 +243,10 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
       goal_active_ = false;
     }
   }
-
-/*
-  if (goal_active_ && joint_position_data) {
-//    bool violated = false;
-    ros::Time now = rtt_rosclock::host_now();
-
-//generator_status
-    if (now > trajectory_finish_time_) {
-//      violated = false;
-//      for (int i = 0; i < DOFS; i++) {
-//        for (int j = 0; j < g->goal_tolerance.size(); j++) {
-//          if (g->goal_tolerance[j].name == g->trajectory.joint_names[i]) {
-//            // Jeśli istnieje ograniczenie to sprawdzam pozycję
-//            if (joint_position_[remapTable_[i]] + g->goal_tolerance[j].position
-//                < g->trajectory.points[g->trajectory.points.size() - 1]
-//                    .positions[i]
-//                || joint_position_[remapTable_[i]]
-//                    - g->goal_tolerance[j].position
-//                    > g->trajectory.points[g->trajectory.points.size() - 1]
-//                        .positions[i]) {
-//              violated = true;
-//              RTT::Logger::log(RTT::Logger::Debug) << g->goal_tolerance[j].name
-//                  << " violated with position "
-//                  << joint_position_[remapTable_[i]] << RTT::endlog();
-//            }
-//          }
-//        }
-//      }
-
-//      if (violated && now > trajectory_finish_time_ + g->goal_time_tolerance) {
-//        res.error_code =
-//            control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
-//        activeGoal_.setAborted(res, "");
-//        goal_active_ = false;
-//      } else if (!violated) {
-//        res.error_code = control_msgs::FollowJointTrajectoryResult::SUCCESSFUL;
-//        activeGoal_.setSucceeded(res, "");
-//        goal_active_ = false;
-//      }
-    } else {
-      // Wysyłanie feedback
-
-//      for (int i = 0; i < DOFS; i++) {
-//        feedback_.actual.positions[i] = joint_position_[i];
-//        feedback_.desired.positions[i] = desired_joint_position_[i];
-//        feedback_.error.positions[i] = joint_position_[i]
-//            - desired_joint_position_[i];
-//      }
-
-//      feedback_.header.stamp = rtt_rosclock::host_now();
-
-//      activeGoal_.publishFeedback(feedback_);
-
-//      // Sprawdzanie PATH_TOLRANCE_VIOLATED
-//      violated = false;
-//      for (int i = 0; i < g->path_tolerance.size(); i++) {
-//        for (int j = 0; j < jointNames_.size(); j++) {
-//          if (jointNames_[j] == g->path_tolerance[i].name) {
-//            if (fabs(joint_position_[j] - desired_joint_position_[j])
-//                > g->path_tolerance[i].position) {
-//              violated = true;
-//              RTT::Logger::log(RTT::Logger::Error) << "Path tolerance violated"
-//                  << RTT::endlog();
-//            }
-//          }
-//        }
-//      }
-
-//TODO
-//      if (violated) {
-//        trajectory_ptr_port_.write(trajectory_msgs::JointTrajectoryConstPtr());
-//        res.error_code =
-//            control_msgs::FollowJointTrajectoryResult::PATH_TOLERANCE_VIOLATED;
-//        activeGoal_.setAborted(res);
-//      }
-    }
-  }
-*/
 }
 
 void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
   if (!goal_active_) {
-//    trajectory_msgs::JointTrajectory* trj_ptr =
-//        new trajectory_msgs::JointTrajectory;
     Goal g = gh.getGoal();
 
     control_msgs::FollowJointTrajectoryResult res;
@@ -391,42 +310,22 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
       return;
     }
 
+    jnt_command_out_.start = g->trajectory.header.stamp;
+
     jnt_command_out_.count_trj = g->trajectory.points.size();
 
-    // Remap joints
-//    trj_ptr->header = g->trajectory.header;
-//    trj_ptr->points.resize(g->trajectory.points.size());
-
     for (unsigned int i = 0; i < g->trajectory.points.size(); i++) {
-//      trj_ptr->points[i].positions.resize(
-//          g->trajectory.points[i].positions.size());
       for (unsigned int j = 0; j < g->trajectory.points[i].positions.size();
           j++) {
         jnt_command_out_.trj[i].positions[j] = g->trajectory.points[i].positions[remapTable_[j]];
-//        trj_ptr->points[i].positions[j] =
-//            g->trajectory.points[i].positions[remapTable_[j]];
       }
 
-//      trj_ptr->points[i].velocities.resize(
-//          g->trajectory.points[i].velocities.size());
       for (unsigned int j = 0; j < g->trajectory.points[i].velocities.size();
           j++) {
         jnt_command_out_.trj[i].velocities[j] = g->trajectory.points[i].velocities[remapTable_[j]];
-//        trj_ptr->points[i].velocities[j] =
-//            g->trajectory.points[i].velocities[remapTable_[j]];
       }
 
-//      trj_ptr->points[i].accelerations.resize(
-//          g->trajectory.points[i].accelerations.size());
-//      for (unsigned int j = 0; j < g->trajectory.points[i].accelerations.size();
-//          j++) {
-//        trj_ptr->points[i].accelerations[j] = g->trajectory.points[i]
-//            .accelerations[remapTable_[j]];
-//      }
-
       jnt_command_out_.trj[i].time_from_start = g->trajectory.points[i].time_from_start;
-//      trj_ptr->points[i].time_from_start = g->trajectory.points[i]
-//          .time_from_start;
     }
 
     // prepare tolerances data
@@ -457,31 +356,12 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
 
     activeGoal_ = gh;
     goal_active_ = true;
+    cycles_ = 0;
 
-//    bool ok = true;
+    port_jnt_command_out_.write(jnt_command_out_);
 
-//    RTT::TaskContext::PeerList peers = this->getPeerList();
-//    for (size_t i = 0; i < peers.size(); i++) {
-//      RTT::Logger::log(RTT::Logger::Debug) << "Starting peer : " << peers[i]
-//          << RTT::endlog();
-//      ok = ok && this->getPeer(peers[i])->start();
-//    }
-
-//    if (ok) {
-//      trajectory_msgs::JointTrajectoryConstPtr trj_cptr =
-//          trajectory_msgs::JointTrajectoryConstPtr(trj_ptr);
-
-std::cout << "VelmaInternalSpaceSplineTrajectoryAction: sending trajectory" << std::endl;
-
-      //trajectory_ptr_port_.write(trj_cptr);
-      port_jnt_command_out_.write(jnt_command_out_);
-
-      gh.setAccepted();
-      goal_active_ = true;
-//    } else {
-//      gh.setRejected();
-//      goal_active_ = false;
-//    }
+    gh.setAccepted();
+    goal_active_ = true;
   } else {
     gh.setRejected();
   }
@@ -490,9 +370,6 @@ std::cout << "VelmaInternalSpaceSplineTrajectoryAction: sending trajectory" << s
 void VelmaInternalSpaceSplineTrajectoryAction::cancelCB(GoalHandle gh) {
   goal_active_ = false;
 }
-
-//void VelmaInternalSpaceSplineTrajectoryAction::commandCB() {
-//}
 
 ORO_LIST_COMPONENT_TYPE(VelmaInternalSpaceSplineTrajectoryAction)
 
