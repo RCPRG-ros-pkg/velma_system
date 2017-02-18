@@ -324,7 +324,7 @@ Class used as Velma robot Interface.
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartImpAction),
-#            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartesianTrajectoryAction)
+            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartImpAction)
             }
 
         # joint trajectory for right arm
