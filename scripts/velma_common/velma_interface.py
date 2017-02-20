@@ -603,7 +603,7 @@ Class used as Velma robot Interface.
     def waitForImpedanceRight(self):
         return self.waitForImpedance("right")
 
-    def moveJoint(self, q_dest, joint_names, time, start_time=0.2):
+    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
 #        behaviour = self.getControllerBehaviour()
 #        if behaviour != self.BEHAVOIUR_JNT_IMP:
 #            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
@@ -624,11 +624,10 @@ Class used as Velma robot Interface.
                 vel.append(0)
 
         goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel, [], [], rospy.Duration(time)))
-        position_tol = 5.0/180.0 * math.pi
-        velocity_tol = 5.0/180.0 * math.pi
-        acceleration_tol = 1.0/180.0 * math.pi
+        #velocity_tol = 5.0/180.0 * math.pi
+        #acceleration_tol = 1.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
-            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, 0, 0))#velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self.joint_traj_active = True
         self.action_joint_traj_client.send_goal(goal)
