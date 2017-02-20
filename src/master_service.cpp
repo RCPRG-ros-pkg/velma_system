@@ -64,6 +64,7 @@ public:
         owner->addPort(port_cmd_out_);
         owner->addPort(port_status_out_);
 
+        owner->loadService("sim_clock_activity");
         owner->setPeriod(0.001);
     }
 
