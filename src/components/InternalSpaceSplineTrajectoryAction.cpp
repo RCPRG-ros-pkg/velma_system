@@ -206,8 +206,8 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
     ++cycles_;
   }
 
-  RTT::Logger::log(RTT::Logger::Info) << generator_status
-    << RTT::endlog();
+//  RTT::Logger::log(RTT::Logger::Info) << generator_status
+//    << RTT::endlog();
 
   if (goal_active_ && cycles_ > 2) {
     if (generator_status == 3) {
@@ -236,6 +236,7 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
     else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::PATH_TOLERANCE_VIOLATED) {
       res.error_code = control_msgs::FollowJointTrajectoryResult::PATH_TOLERANCE_VIOLATED;
       activeGoal_.setAborted(res);
+      goal_active_ = false;
     }
     else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::GOAL_TOLERANCE_VIOLATED) {
       res.error_code = control_msgs::FollowJointTrajectoryResult::GOAL_TOLERANCE_VIOLATED;

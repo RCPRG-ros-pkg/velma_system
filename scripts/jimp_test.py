@@ -35,6 +35,8 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
+
+    print "moving to current position"
     js = velma.getLastJointState()
     joint_names = []
     q_dest = []
@@ -42,6 +44,22 @@ if __name__ == "__main__":
         joint_names.append(joint_name)
         q_dest.append(js[1][joint_name])
 
-    velma.moveJoint(q_dest, joint_names, 5.0, start_time=0.5)
+    velma.moveJoint(q_dest, joint_names, 5.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+    print "moving to position 0 (too fast - error)"
+    q_dest_0 = []
+    for joint_name in js[1]:
+        q_dest_0.append(0)
+
+    velma.moveJoint(q_dest_0, joint_names, 0.1, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+    print "moving to position 0 (slowly)"
+    velma.moveJoint(q_dest_0, joint_names, 20, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+    print "moving to initial position"
+    velma.moveJoint(q_dest, joint_names, 20, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 

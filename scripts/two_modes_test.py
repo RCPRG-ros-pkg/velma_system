@@ -55,41 +55,40 @@ if __name__ == "__main__":
     for joint_name in q_map:
         joint_names.append(joint_name)
 
-#    js = velma.getLastJointState()
-#    joint_names = []
-#    q_dest = []
-#    for joint_name in js[1]:
-#        joint_names.append(joint_name)
+    print "moving to position 0"
     q_dest = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5)
+    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
-#    joint_names = []
-#    q_dest = []
-#    for joint_name in js[1]:
-#        joint_names.append(joint_name)
-#        q_dest.append(js[1][joint_name])
+    rospy.sleep(2)
 
+    print "moving to initial position"
     q_dest = []
     for joint_name in joint_names:
         q_dest.append(q_map[joint_name])
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5)
+    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
+    rospy.sleep(2)
+
+    print "moving right arm in cimp mode"
     T_B_Trd = velma.getTf("B", "Wr")
     T_B_Trd = T_B_Trd * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
-    velma.moveEffectorRight(T_B_Trd, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorRight(T_B_Trd, 10.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
 
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5)
+    print "moving to initial position"
+    velma.moveJoint(q_dest, joint_names, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
+    print "moving left arm in cimp mode"
     T_B_Tld = velma.getTf("B", "Wl")
     T_B_Tld = T_B_Tld * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
-    velma.moveEffectorLeft(T_B_Trd, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorLeft(T_B_Tld, 10.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorLeft()
 
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5)
+    print "moving to initial position"
+    velma.moveJoint(q_dest, joint_names, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
 
