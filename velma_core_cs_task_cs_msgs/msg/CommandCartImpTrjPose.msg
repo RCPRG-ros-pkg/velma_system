@@ -2,7 +2,10 @@ time start
 cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj
 uint32 count
 
-# TODO: add tolerances
+cartesian_trajectory_msgs/CartesianTolerance path_tolerance
 
-# TODO: check if this msg is complete
+cartesian_trajectory_msgs/CartesianTolerance goal_tolerance
+
+duration goal_time_tolerance
+
 

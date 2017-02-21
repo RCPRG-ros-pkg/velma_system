@@ -7,5 +7,3 @@ bool pose_valid
 CommandCartImpTrjPose tool      # subsystem_buffer{type: port; data_type: CommandCartImpTrjPose; validity: tool_valid}
 bool tool_valid
 
-# TODO: check if this msg is complete
-
