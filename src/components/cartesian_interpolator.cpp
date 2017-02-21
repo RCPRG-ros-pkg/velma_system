@@ -46,8 +46,11 @@
 #include "rtt_rosclock/rtt_rosclock.h"
 
 #include "velma_core_cs_task_cs_msgs/CommandCartImp.h"
+#include <velma_core_cs_task_cs_msgs/StatusCartImp.h>
+
 #include "cartesian_trajectory_msgs/CartesianTrajectory.h"
 #include "geometry_msgs/Pose.h"
+#include "eigen_conversions/eigen_msg.h"
 
 using namespace RTT;
 
@@ -61,49 +64,64 @@ class CartesianInterpolatorNew : public RTT::TaskContext {
   virtual void updateHook();
 
  private:
+  void resetTrajectory();
+
   geometry_msgs::Pose interpolate(
       const cartesian_trajectory_msgs::CartesianTrajectoryPoint& p0,
       const cartesian_trajectory_msgs::CartesianTrajectoryPoint& p1,
       ros::Time t);
   double interpolate(double p0, double p1, double t0, double t1, double t);
+
+  bool checkTolerance(Eigen::Affine3d err, cartesian_trajectory_msgs::CartesianTolerance tol);
+  bool checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol);
+
   RTT::InputPort<velma_core_cs_task_cs_msgs::CommandCartImpTrjPose> port_trajectory_;
   RTT::InputPort<geometry_msgs::Pose> port_cartesian_position_;
 
   RTT::OutputPort<geometry_msgs::Pose> port_cartesian_command_;
-  RTT::OutputPort<bool> port_generator_active_;
+//  RTT::OutputPort<bool> port_generator_active_;
+
+  int32_t generator_status_;
+  RTT::OutputPort<int32_t> port_generator_status_out_;
 
   velma_core_cs_task_cs_msgs::CommandCartImpTrjPose trajectory_;
   geometry_msgs::Pose setpoint_;
   geometry_msgs::Pose old_point_;
 
-  size_t trajectory_ptr_;
+  size_t trajectory_idx_;
 
   bool activate_pose_init_property_;
   geometry_msgs::Pose init_setpoint_property_;
 
   bool last_point_not_set_;
   bool trajectory_active_;
+
+  bool check_tolerances_;
 };
 
 CartesianInterpolatorNew::CartesianInterpolatorNew(const std::string& name)
     : RTT::TaskContext(name),
-      trajectory_ptr_(0),
+      trajectory_idx_(0),
       activate_pose_init_property_(false),
       last_point_not_set_(false),
       trajectory_active_(false),
+      check_tolerances_(true),
       port_cartesian_position_("CartesianPosition_INPORT"),
       port_cartesian_command_("CartesianPositionCommand_OUTPORT", true),
       port_trajectory_("CartesianTrajectoryCommand_INPORT"),
-      port_generator_active_("GeneratorActiveOut_OUTPORT", true)
+//      port_generator_active_("GeneratorActiveOut_OUTPORT", true),
+      port_generator_status_out_("generator_status_OUTPORT")
 {
 
   this->ports()->addPort(port_cartesian_position_).doc("data type: geometry_msgs::Pose");
   this->ports()->addPort(port_cartesian_command_).doc("data type: geometry_msgs::Pose");
   this->ports()->addPort(port_trajectory_).doc("data type: velma_core_cs_task_cs_msgs::CommandCartImpTrjPose");
-  this->ports()->addPort(port_generator_active_).doc("data type: bool");
+//  this->ports()->addPort(port_generator_active_).doc("data type: bool");
+  this->ports()->addPort(port_generator_status_out_).doc("data type: int32");
 
   this->addProperty("activate_pose_init", activate_pose_init_property_);
   this->addProperty("init_setpoint", init_setpoint_property_);
+  this->addProperty("check_tolerances", check_tolerances_);
 }
 
 CartesianInterpolatorNew::~CartesianInterpolatorNew() {
@@ -125,50 +143,109 @@ bool CartesianInterpolatorNew::startHook() {
     }
   }
 
-  port_generator_active_.write(true);
+//  port_generator_active_.write(true);
   last_point_not_set_ = false;
   trajectory_active_ = false;
+  generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::INACTIVE;
+
   return true;
 }
 
 void CartesianInterpolatorNew::stopHook() {
-  port_generator_active_.write(false);
+//  port_generator_active_.write(false);
 }
 
 void CartesianInterpolatorNew::updateHook() {
-  port_generator_active_.write(true);
+
+//  port_generator_active_.write(true);
   if (port_trajectory_.read(trajectory_) == RTT::NewData) {
-    trajectory_ptr_ = 0;
+    trajectory_idx_ = 0;
     old_point_ = setpoint_;
     last_point_not_set_ = true;
     trajectory_active_ = true;
+    generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::ACTIVE;
   }
 
   ros::Time now = rtt_rosclock::host_now();
   if (trajectory_active_ && (trajectory_.start < now)) {
-    for (; trajectory_ptr_ < trajectory_.count; trajectory_ptr_++) {
-      ros::Time trj_time = trajectory_.start + trajectory_.trj[trajectory_ptr_].time_from_start;
+    for (; trajectory_idx_ < trajectory_.count; trajectory_idx_++) {
+      ros::Time trj_time = trajectory_.start + trajectory_.trj[trajectory_idx_].time_from_start;
       if (trj_time > now) {
         break;
       }
     }
 
-    if (trajectory_ptr_ < trajectory_.count) {
-      if (trajectory_ptr_ == 0) {
+    if (trajectory_idx_ < trajectory_.count) {
+      if (trajectory_idx_ == 0) {
         cartesian_trajectory_msgs::CartesianTrajectoryPoint p0;
         p0.time_from_start.fromSec(0.0);
         p0.pose = old_point_;
-        setpoint_ = interpolate(p0, trajectory_.trj[trajectory_ptr_], now);
+        setpoint_ = interpolate(p0, trajectory_.trj[trajectory_idx_], now);
       } else {
-        setpoint_ = interpolate(trajectory_.trj[trajectory_ptr_ - 1],
-                                trajectory_.trj[trajectory_ptr_], now);
+        setpoint_ = interpolate(trajectory_.trj[trajectory_idx_ - 1],
+                                trajectory_.trj[trajectory_idx_], now);
       }
     } else if (last_point_not_set_) {
       setpoint_ = trajectory_.trj[trajectory_.count - 1].pose;
       last_point_not_set_ = false;
     }
   }
+
+  if (check_tolerances_) {
+    geometry_msgs::Pose pose_msr;
+    if (port_cartesian_position_.read(pose_msr) != RTT::NewData) {
+      error();
+      return;
+    }
+
+    Eigen::Affine3d actual, desired, error;
+
+    tf::poseMsgToEigen(pose_msr, actual);
+    tf::poseMsgToEigen(setpoint_, desired);
+    error = actual.inverse() * desired;
+
+    if (!checkTolerance(error, trajectory_.path_tolerance)) {
+      resetTrajectory();
+      generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::PATH_TOLERANCE_VIOLATED;
+    }
+    else if (trajectory_idx_ > 0 && trajectory_idx_ == trajectory_.count) {
+          ros::Time goal_time = trajectory_.start + trajectory_.trj[trajectory_.count - 1].time_from_start;
+          // check goal tolerance
+          bool goal_reached = checkTolerance(error, trajectory_.goal_tolerance);
+
+          if (now > goal_time + trajectory_.goal_time_tolerance) {
+              if (goal_reached) {
+                  resetTrajectory();
+                  generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::SUCCESSFUL;
+              }
+              else {
+                  resetTrajectory();
+                  generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::GOAL_TOLERANCE_VIOLATED;
+              }
+          }
+          else if (now > goal_time - trajectory_.goal_time_tolerance) {
+              if (goal_reached) {
+                  resetTrajectory();
+                  generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::SUCCESSFUL;
+              }
+          }
+    }
+  }
+  else {
+    if (trajectory_idx_ > 0 && trajectory_idx_ == trajectory_.count && !last_point_not_set_) {
+      resetTrajectory();
+      generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::SUCCESSFUL;
+    }
+  }
+
+  port_generator_status_out_.write(generator_status_);
+
   port_cartesian_command_.write(setpoint_);
+}
+
+void CartesianInterpolatorNew::resetTrajectory() {
+  trajectory_idx_ = 0;
+  trajectory_ = velma_core_cs_task_cs_msgs::CommandCartImpTrjPose();
 }
 
 geometry_msgs::Pose CartesianInterpolatorNew::interpolate(
@@ -205,6 +282,65 @@ geometry_msgs::Pose CartesianInterpolatorNew::interpolate(
 double CartesianInterpolatorNew::interpolate(double p0, double p1, double t0,
                                           double t1, double t) {
   return (p0 + (p1 - p0) * (t - t0) / (t1 - t0));
+}
+
+bool CartesianInterpolatorNew::checkTolerance(Eigen::Affine3d err, cartesian_trajectory_msgs::CartesianTolerance tol) {
+  if ((tol.position.x > 0.0) && (fabs(err.translation().x()) > tol.position.x)) {
+    return false;
+  }
+
+  if ((tol.position.y > 0.0) && (fabs(err.translation().y()) > tol.position.y)) {
+    return false;
+  }
+
+  if ((tol.position.z > 0.0) && (fabs(err.translation().z()) > tol.position.z)) {
+    return false;
+  }
+
+  Eigen::AngleAxisd ax(err.rotation());
+  Eigen::Vector3d rot = ax.axis() * ax.angle();
+
+  if ((tol.rotation.x > 0.0) && (fabs(rot(0)) > tol.rotation.x)) {
+    return false;
+  }
+
+  if ((tol.rotation.y > 0.0) && (fabs(rot(1)) > tol.rotation.y)) {
+    return false;
+  }
+
+  if ((tol.rotation.z > 0.0) && (fabs(rot(2)) > tol.rotation.z)) {
+    return false;
+  }
+
+  return true;
+}
+
+bool CartesianInterpolatorNew::checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol) {
+  if ((tol.force.x > 0.0) && (fabs(msr.force.x) > tol.force.x)) {
+    return false;
+  }
+
+  if ((tol.force.y > 0.0) && (fabs(msr.force.y) > tol.force.y)) {
+    return false;
+  }
+
+  if ((tol.force.z > 0.0) && (fabs(msr.force.z) > tol.force.z)) {
+    return false;
+  }
+
+  if ((tol.torque.x > 0.0) && (fabs(msr.torque.x) > tol.torque.x)) {
+    return false;
+  }
+
+  if ((tol.torque.y > 0.0) && (fabs(msr.torque.y) > tol.torque.y)) {
+    return false;
+  }
+
+  if ((tol.torque.z > 0.0) && (fabs(msr.torque.z) > tol.torque.z)) {
+    return false;
+  }
+
+  return true;
 }
 
 ORO_LIST_COMPONENT_TYPE(CartesianInterpolatorNew)

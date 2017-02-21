@@ -278,10 +278,14 @@ connect("CImp.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy());
 loadComponent("PoseIntRight", "CartesianInterpolatorNew");
 connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand0_INPORT", ConnPolicy());
 connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_r_pose_OUTPORT", "PoseIntRight.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("PoseIntRight.generator_status_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.rCart_status_INPORT", ConnPolicy());
+connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.rCart_cmd_INPORT", ConnPolicy());
 
 loadComponent("PoseIntLeft", "CartesianInterpolatorNew");
 connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "CImp.CartPositionCommand1_INPORT", ConnPolicy());
 connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_pose_OUTPORT", "PoseIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
+connect("PoseIntLeft.generator_status_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.lCart_status_INPORT", ConnPolicy());
+connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.lCart_cmd_INPORT", ConnPolicy());
 
 // tool
 

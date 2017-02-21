@@ -121,6 +121,7 @@
             x: 0.0
             y: 0.0
             z: 0.0
+        check_tolerances: false
       ToolIntLeft:
         activate_pose_init: true
         init_setpoint:
@@ -133,6 +134,7 @@
             x: 0.0
             y: 0.0
             z: 0.0
+        check_tolerances: false
     </rosparam>
 <!--
       rightHandMoveAction:
