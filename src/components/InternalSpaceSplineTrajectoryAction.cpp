@@ -60,9 +60,6 @@
 #include <velma_core_cs_task_cs_msgs/CommandJntImp.h>
 #include <velma_core_cs_task_cs_msgs/StatusJntImp.h>
 
-// TODO
-const int DOFS = 15;
-
 class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
  private:
   typedef actionlib::ServerGoalHandle<control_msgs::FollowJointTrajectoryAction> GoalHandle;
@@ -78,7 +75,7 @@ class VelmaInternalSpaceSplineTrajectoryAction : public RTT::TaskContext {
 
  protected:
 
-  typedef Eigen::Matrix<double, DOFS, 1> Joints;
+  typedef Eigen::Matrix<double, velma_core_cs_task_cs_msgs::CommandJntImp::DOFS, 1> Joints;
 
   velma_core_cs_task_cs_msgs::CommandJntImp jnt_command_out_;
   RTT::OutputPort<velma_core_cs_task_cs_msgs::CommandJntImp > port_jnt_command_out_;
@@ -145,32 +142,32 @@ VelmaInternalSpaceSplineTrajectoryAction::~VelmaInternalSpaceSplineTrajectoryAct
 bool VelmaInternalSpaceSplineTrajectoryAction::configureHook() {
   RTT::Logger::In in("VelmaInternalSpaceSplineTrajectoryAction::configureHook");
 
-  if (jointNames_.size() != DOFS) {
+  if (jointNames_.size() != velma_core_cs_task_cs_msgs::CommandJntImp::DOFS) {
     RTT::log(RTT::Error) << "ROS param joint_names has wrong size:"
-                         << jointNames_.size() << ", expected: " << DOFS << RTT::endlog();
+                         << jointNames_.size() << ", expected: " << velma_core_cs_task_cs_msgs::CommandJntImp::DOFS << RTT::endlog();
     return false;
   }
 
-  feedback_.actual.positions.resize(DOFS);
-  feedback_.desired.positions.resize(DOFS);
-  feedback_.error.positions.resize(DOFS);
-  feedback_.joint_names.resize(DOFS);
+  feedback_.actual.positions.resize(velma_core_cs_task_cs_msgs::CommandJntImp::DOFS);
+  feedback_.desired.positions.resize(velma_core_cs_task_cs_msgs::CommandJntImp::DOFS);
+  feedback_.error.positions.resize(velma_core_cs_task_cs_msgs::CommandJntImp::DOFS);
+  feedback_.joint_names.resize(velma_core_cs_task_cs_msgs::CommandJntImp::DOFS);
 
   for (int i = 0; i < jointNames_.size(); i++) {
     feedback_.joint_names.push_back(jointNames_[i]);
   }
 
-  remapTable_.resize(DOFS);
+  remapTable_.resize(velma_core_cs_task_cs_msgs::CommandJntImp::DOFS);
 
-  if (lowerLimits_.size() != DOFS) {
+  if (lowerLimits_.size() != velma_core_cs_task_cs_msgs::CommandJntImp::DOFS) {
     RTT::log(RTT::Error) << "ROS param lower_limits has wrong size:"
-                         << lowerLimits_.size() << ", expected: " << DOFS << RTT::endlog();
+                         << lowerLimits_.size() << ", expected: " << velma_core_cs_task_cs_msgs::CommandJntImp::DOFS << RTT::endlog();
     return false;
   }
 
-  if (upperLimits_.size() != DOFS) {
+  if (upperLimits_.size() != velma_core_cs_task_cs_msgs::CommandJntImp::DOFS) {
     RTT::log(RTT::Error) << "ROS param upper_limits has wrong size:"
-                         << upperLimits_.size() << ", expected: " << DOFS << RTT::endlog();
+                         << upperLimits_.size() << ", expected: " << velma_core_cs_task_cs_msgs::CommandJntImp::DOFS << RTT::endlog();
     return false;
   }
 
@@ -188,11 +185,12 @@ bool VelmaInternalSpaceSplineTrajectoryAction::startHook() {
 }
 
 void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
-  bool joint_position_data = true;
+//  bool joint_position_data = true;
 
-  if (port_joint_position_.read(joint_position_) == RTT::NoData) {
-    joint_position_data = false;
-  }
+//  if (
+  port_joint_position_.read(joint_position_);// == RTT::NoData) {
+//    joint_position_data = false;
+//  }
   control_msgs::FollowJointTrajectoryResult res;
 
   port_joint_position_command_.read(desired_joint_position_);
@@ -206,9 +204,6 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
     ++cycles_;
   }
 
-//  RTT::Logger::log(RTT::Logger::Info) << generator_status
-//    << RTT::endlog();
-
   if (goal_active_ && cycles_ > 2) {
     if (generator_status == 3) {
       // do nothing
@@ -217,7 +212,7 @@ void VelmaInternalSpaceSplineTrajectoryAction::updateHook() {
       // do nothing
     }
     else if (generator_status == velma_core_cs_task_cs_msgs::StatusJntImp::ACTIVE) {
-      for (int i = 0; i < DOFS; i++) {
+      for (int i = 0; i < velma_core_cs_task_cs_msgs::CommandJntImp::DOFS; i++) {
         feedback_.actual.positions[i] = joint_position_[i];
         feedback_.desired.positions[i] = desired_joint_position_[i];
         feedback_.error.positions[i] = joint_position_[i]
@@ -266,7 +261,7 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
 
 
     // fill remap table
-    for (unsigned int i = 0; i < DOFS; i++) {
+    for (unsigned int i = 0; i < velma_core_cs_task_cs_msgs::CommandJntImp::DOFS; i++) {
       int jointId = -1;
       for (unsigned int j = 0; j < g->trajectory.joint_names.size(); j++) {
         if (g->trajectory.joint_names[j] == jointNames_[i]) {
@@ -288,7 +283,7 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
 
     // Sprawdzenie ograniczeń w jointach INVALID_GOAL
     bool invalid_goal = false;
-    for (unsigned int i = 0; i < DOFS; i++) {
+    for (unsigned int i = 0; i < velma_core_cs_task_cs_msgs::CommandJntImp::DOFS; i++) {
       for (int j = 0; j < g->trajectory.points.size(); j++) {
         if (g->trajectory.points[j].positions[i] > upperLimits_[remapTable_[i]]
             || g->trajectory.points[j].positions[i]
@@ -332,12 +327,12 @@ void VelmaInternalSpaceSplineTrajectoryAction::goalCB(GoalHandle gh) {
     // prepare tolerances data
     jnt_command_out_.goal_time_tolerance = g->goal_time_tolerance;
     if (g->path_tolerance.size() == g->trajectory.joint_names.size()) {
-      for (int i = 0; i < DOFS; i++) {
+      for (int i = 0; i < velma_core_cs_task_cs_msgs::CommandJntImp::DOFS; i++) {
         jnt_command_out_.path_tolerance[i] = g->path_tolerance[remapTable_[i]].position;
       }
     }
     if (g->goal_tolerance.size() == g->trajectory.joint_names.size()) {
-      for (int i = 0; i < DOFS; i++) {
+      for (int i = 0; i < velma_core_cs_task_cs_msgs::CommandJntImp::DOFS; i++) {
         jnt_command_out_.goal_tolerance[i] = g->goal_tolerance[remapTable_[i]].position;
       }
     }

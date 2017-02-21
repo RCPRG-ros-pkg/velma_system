@@ -35,8 +35,15 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
+    print "moving right arm to current pose"
     T_B_Trd = velma.getTf("B", "Wr")
-    
     velma.moveEffectorRight(T_B_Trd, 2.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+
+
+    print "moving right arm to another pose"
+    T_B_Trd = velma.getTf("B", "Wr")
+    T_B_Trd = T_B_Trd * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
+    velma.moveEffectorRight(T_B_Trd, 10.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
 

@@ -72,21 +72,34 @@ class CartesianTrajectoryActionNew: public RTT::TaskContext {
 //  bool checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol);
 
   // interface ports for core_cs
-  velma_core_cs_task_cs_msgs::StatusCartImp status_in_;
-  RTT::InputPort<velma_core_cs_task_cs_msgs::StatusCartImp > port_status_in_;
+//  geometry_msgs::Pose pose_msr_in_;
+//  RTT::InputPort<geometry_msgs::Pose > port_pose_msr_in_;
+
+//  geometry_msgs::Pose pose_cmd_in_;
+//  RTT::InputPort<geometry_msgs::Pose > port_pose_cmd_in_;
+
+//  geometry_msgs::Wrench force_in_;
+//  RTT::InputPort<geometry_msgs::Wrench > port_force_in_;
+
+//  velma_core_cs_task_cs_msgs::StatusCartImp status_in_;
+//  RTT::InputPort<velma_core_cs_task_cs_msgs::StatusCartImp > port_status_in_;
+
+  RTT::InputPort<int32_t> port_generator_status_;
 
   velma_core_cs_task_cs_msgs::CommandCartImpTrjPose command_out_;
   RTT::OutputPort<velma_core_cs_task_cs_msgs::CommandCartImpTrjPose > port_command_out_;
 
 //  RTT::OutputPort<cartesian_trajectory_msgs::CartesianTrajectoryConstPtr> port_cartesian_trajectory_command_;
-  RTT::InputPort<cartesian_trajectory_msgs::CartesianTrajectory> port_cartesian_trajectory_;
+//  RTT::InputPort<cartesian_trajectory_msgs::CartesianTrajectory> port_cartesian_trajectory_;
   RTT::InputPort<geometry_msgs::Pose> port_cartesian_position_;
   RTT::InputPort<geometry_msgs::Pose> port_cartesian_position_command_;
   RTT::InputPort<geometry_msgs::Wrench> port_cartesian_wrench_;
   rtt_actionlib::RTTActionServer<cartesian_trajectory_msgs::CartesianTrajectoryAction> as_;
-  GoalHandle active_goal_;
+  GoalHandle activeGoal_;
 
   int test_counter_;
+  bool goal_active_;
+  int cycles_;
 };
 
 CartesianTrajectoryActionNew::CartesianTrajectoryActionNew(const std::string& name) :
@@ -96,22 +109,23 @@ CartesianTrajectoryActionNew::CartesianTrajectoryActionNew(const std::string& na
     port_cartesian_position_("CartesianPosition_INPORT"),
     port_cartesian_position_command_("CartesianPositionCommand_INPORT"),
     port_cartesian_wrench_("CartesianWrench_INPORT"),
-    port_status_in_("cart_pose_status_INPORT"),
+//    port_pose_msr_in_("Position"),
+    port_generator_status_("generator_status_INPORT"),
     port_command_out_("cart_pose_command_OUTPORT")
 {
 
 
 //  this->ports()->addPort(port_cartesian_trajectory_command_);
-  this->ports()->addPort(port_cartesian_trajectory_);
+//  this->ports()->addPort(port_cartesian_trajectory_);
   this->ports()->addPort(port_cartesian_position_);
   this->ports()->addPort(port_cartesian_position_command_);
   this->ports()->addPort(port_cartesian_wrench_);
 
   as_.addPorts(this->provides());
 
-  this->ports()->addPort(port_status_in_);
+//  this->ports()->addPort(port_status_in_);
   this->ports()->addPort(port_command_out_);
-
+  this->ports()->addPort(port_generator_status_);
 
   as_.registerGoalCallback(boost::bind(&CartesianTrajectoryActionNew::goalCB, this, _1));
   as_.registerCancelCallback(boost::bind(&CartesianTrajectoryActionNew::cancelCB, this, _1));
@@ -128,10 +142,76 @@ bool CartesianTrajectoryActionNew::startHook() {
   }
   test_counter_ = 0;
 
+  goal_active_ = false;
+  cycles_ = 0;
+
   return true;
 }
 
 void CartesianTrajectoryActionNew::updateHook() {
+
+  geometry_msgs::Pose pose_msr_in;
+  port_cartesian_position_.read(pose_msr_in);
+
+  geometry_msgs::Pose pose_cmd_in;
+  port_cartesian_position_command_.read(pose_cmd_in);
+
+
+  cartesian_trajectory_msgs::CartesianTrajectoryResult res;
+
+  int32_t generator_status;
+  if (port_generator_status_.read(generator_status) != RTT::NewData) {
+    generator_status = 3;
+  }
+
+  if (cycles_ < 100) {
+    ++cycles_;
+  }
+
+  if (goal_active_ && cycles_ > 2) {
+    if (generator_status == 3) {
+      // do nothing
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusCartImp::INACTIVE) {
+      // do nothing
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusCartImp::ACTIVE) {
+
+      cartesian_trajectory_msgs::CartesianTrajectoryFeedback feedback;
+      Eigen::Affine3d actual, desired, error;
+      ros::Time now = rtt_rosclock::host_now();
+
+      feedback.desired = pose_cmd_in;
+      feedback.actual = pose_msr_in;
+
+      tf::poseMsgToEigen(feedback.actual, actual);
+      tf::poseMsgToEigen(feedback.desired, desired);
+      error = actual.inverse() * desired;
+      tf::poseEigenToMsg(error, feedback.error);
+      feedback.header.stamp = now;
+      activeGoal_.publishFeedback(feedback);
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusCartImp::SUCCESSFUL) {
+      res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::SUCCESSFUL;
+      activeGoal_.setSucceeded(res, "");
+      goal_active_ = false;
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusCartImp::PATH_TOLERANCE_VIOLATED) {
+      res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::PATH_TOLERANCE_VIOLATED;
+      activeGoal_.setAborted(res);
+      goal_active_ = false;
+    }
+    else if (generator_status == velma_core_cs_task_cs_msgs::StatusCartImp::GOAL_TOLERANCE_VIOLATED) {
+      res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::GOAL_TOLERANCE_VIOLATED;
+      activeGoal_.setAborted(res, "");
+      goal_active_ = false;
+    }
+  }
+
+
+
+#if 0
+
   CartesianTrajectory trj;
 /*
 // interface is realized through ROS action only
@@ -145,7 +225,7 @@ void CartesianTrajectoryActionNew::updateHook() {
   }
 */
 
-  if (active_goal_.isValid() && (active_goal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
+  if (activeGoal_.isValid() && (activeGoal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
     cartesian_trajectory_msgs::CartesianTrajectoryFeedback feedback;
     Eigen::Affine3d actual, desired, error;
 
@@ -167,12 +247,12 @@ void CartesianTrajectoryActionNew::updateHook() {
     tf::poseEigenToMsg(error, feedback.error);
 
     feedback.header.stamp = now;
-    active_goal_.publishFeedback(feedback);
+    activeGoal_.publishFeedback(feedback);
 
-    Goal g = active_goal_.getGoal();
+    Goal g = activeGoal_.getGoal();
 
     if (test_counter_ > 200) {
-        active_goal_.setSucceeded();
+        activeGoal_.setSucceeded();
     }
     else {
         test_counter_++;
@@ -184,7 +264,7 @@ void CartesianTrajectoryActionNew::updateHook() {
       port_cartesian_trajectory_command_.write(CartesianTrajectoryConstPtr());
       cartesian_trajectory_msgs::CartesianTrajectoryResult res;
       res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::PATH_TOLERANCE_VIOLATED;
-      active_goal_.setAborted(res);
+      activeGoal_.setAborted(res);
     }
 */
     geometry_msgs::Wrench ft;
@@ -197,7 +277,7 @@ void CartesianTrajectoryActionNew::updateHook() {
       port_cartesian_trajectory_command_.write(CartesianTrajectoryConstPtr());
       cartesian_trajectory_msgs::CartesianTrajectoryResult res;
       res.error_code = cartesian_trajectory_msgs::CartesianTrajectoryResult::PATH_TOLERANCE_VIOLATED;
-      active_goal_.setAborted(res);
+      activeGoal_.setAborted(res);
     }
 */
 
@@ -205,9 +285,10 @@ void CartesianTrajectoryActionNew::updateHook() {
     size_t last_point = g->trajectory.points.size() - 1;
 
     if ((g->trajectory.header.stamp + g->trajectory.points[last_point].time_from_start) < now) {
-      active_goal_.setSucceeded();
+      activeGoal_.setSucceeded();
     }
   }
+#endif
 }
 /*
 bool CartesianTrajectoryAction::checkTolerance(Eigen::Affine3d err, cartesian_trajectory_msgs::CartesianTolerance tol) {
@@ -271,8 +352,8 @@ bool CartesianTrajectoryAction::checkWrenchTolerance(geometry_msgs::Wrench msr, 
 */
 void CartesianTrajectoryActionNew::goalCB(GoalHandle gh) {
     // cancel active goal
-    if (active_goal_.isValid() && (active_goal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
-        active_goal_.setCanceled();
+    if (activeGoal_.isValid() && (activeGoal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
+        activeGoal_.setCanceled();
     }
 
     Goal g = gh.getGoal();
@@ -281,7 +362,7 @@ void CartesianTrajectoryActionNew::goalCB(GoalHandle gh) {
         cartesian_trajectory_msgs::CartesianTrajectoryResult res;
 // TODO:
 //        res.error_code = 
-        active_goal_.setRejected(res);
+        activeGoal_.setRejected(res);
     }
 
     for (int i = 0; i < g->trajectory.points.size(); ++i) {
@@ -290,10 +371,12 @@ void CartesianTrajectoryActionNew::goalCB(GoalHandle gh) {
 
     command_out_.count = g->trajectory.points.size();
 
+    goal_active_ = true;
+
     port_command_out_.write(command_out_);
 std::cout << "CartesianTrajectoryActionNew: sending trajectory" << std::endl;
     gh.setAccepted();
-    active_goal_ = gh;
+    activeGoal_ = gh;
 
     test_counter_ = 0;
 //  CartesianTrajectory* trj_ptr =  new CartesianTrajectory;
@@ -304,11 +387,12 @@ std::cout << "CartesianTrajectoryActionNew: sending trajectory" << std::endl;
 }
 
 void CartesianTrajectoryActionNew::cancelCB(GoalHandle gh) {
-    if (active_goal_ == gh) {
+    if (activeGoal_ == gh) {
         command_out_ = velma_core_cs_task_cs_msgs::CommandCartImpTrjPose();
         port_command_out_.write(command_out_);
 
-        active_goal_.setCanceled();
+        activeGoal_.setCanceled();
+        goal_active_ = false;
     }
 }
 
