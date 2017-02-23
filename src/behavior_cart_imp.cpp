@@ -59,6 +59,9 @@ public:
         }
 
         // TODO: check VE state
+        if (in_data->status_.sc.safe_behavior == true) {
+            return true;
+        }
 
         // TODO: check this subsystem state, eg. robot workspace, singularities
 

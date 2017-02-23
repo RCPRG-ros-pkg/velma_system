@@ -48,11 +48,11 @@ namespace velma_core_cs_types {
 
 const int NUMBER_OF_JOINTS = 15;
 
-class SafeComponent: public RTT::TaskContext {
+class IdleComponent: public RTT::TaskContext {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    explicit SafeComponent(const std::string &name);
+    explicit IdleComponent(const std::string &name);
 
     bool configureHook();
 
@@ -72,8 +72,8 @@ private:
 //    velma_core_cs_ve_body_msgs::Command cmd_out_;
 //    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
 
-//    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
-//    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
+    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
+    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
@@ -81,58 +81,60 @@ private:
     RTT::OutputPort<VectorNd> port_internal_space_position_command_out_;
     RTT::InputPort<VectorNd> port_internal_space_position_measurement_in_;
 
-    VectorNd joint_stiffness_command_;
-    RTT::OutputPort<VectorNd> port_joint_stiffness_command_;
+    VectorNd joint_torque_command_;
+    RTT::OutputPort<VectorNd> port_joint_torque_command_;
 
     VectorNd internal_space_position_;
 
     bool first_step_;
+    int counter_;
 };
 
-SafeComponent::SafeComponent(const std::string &name)
+IdleComponent::IdleComponent(const std::string &name)
     : TaskContext(name, PreOperational)
     , port_internal_space_position_command_out_("JointPositionCommand_OUTPORT")
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
-    , port_joint_stiffness_command_("JointStiffnessCommand_OUTPORT")
+    , port_joint_torque_command_("JointTorqueCommand_OUTPORT")
     , port_status_in_("status_INPORT")
-//    , port_cmd_sc_out_("cmd_sc_OUTPORT")
+    , port_cmd_sc_out_("cmd_sc_OUTPORT")
     , first_step_(true)
 {
 
     this->ports()->addPort(port_internal_space_position_command_out_);
     this->ports()->addPort(port_internal_space_position_measurement_in_);
-    this->ports()->addPort(port_joint_stiffness_command_);
+    this->ports()->addPort(port_joint_torque_command_);
     this->ports()->addPort(port_status_in_);
-//    this->ports()->addPort(port_cmd_sc_out_);
+    this->ports()->addPort(port_cmd_sc_out_);
 
     // TODO
     //this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
 }
 
-std::string SafeComponent::getDiag() {
+std::string IdleComponent::getDiag() {
 // this method may not be RT-safe
     return "TODO";
 }
 
-bool SafeComponent::configureHook() {
-    Logger::In in("SafeComponent::configureHook");
+bool IdleComponent::configureHook() {
+    Logger::In in("IdleComponent::configureHook");
 
-    for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
-        joint_stiffness_command_(i) = 5.0;
-    }
+//    for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
+//        joint_stiffness_command_(i) = 5.0;
+//    }
 
     return true;
 }
 
-bool SafeComponent::startHook() {
+bool IdleComponent::startHook() {
     first_step_ = true;
+    counter_ = 0;
     return true;
 }
 
-void SafeComponent::stopHook() {
+void IdleComponent::stopHook() {
 }
 
-void SafeComponent::updateHook() {
+void IdleComponent::updateHook() {
     //
     // read HW status
     //
@@ -163,16 +165,25 @@ void SafeComponent::updateHook() {
     cmd_out_.htMotor_valid = status_in_.htMotor_valid;
     cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
 */
-
-/*    if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
+    if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
         cmd_sc_out_.cmd = 1;
         cmd_sc_out_.valid = true;   // TODO: this is not needed
         first_step_ = true;
     }
-*/
-    // read current configuration
+
+    if (counter_ > 100) {
+        counter_ = 0;
+        std::cout << "valid: " << (status_in_.sc_valid?"t":"f")
+            << "  safe: " << (status_in_.sc.safe_behavior?"t":"f")
+            << "  error: " << (status_in_.sc.error?"t":"f") << std::endl;
+    }
+    else {
+        ++counter_;
+    }
+
+/*    // read current configuration
     if (first_step_) {
-        Logger::In in("SafeComponent::updateHook");
+        Logger::In in("IdleComponent::updateHook");
         first_step_ = false;
         if (port_internal_space_position_measurement_in_.read(internal_space_position_) != RTT::NewData) {
             // the safety component cannot be started - there is a serious problem with subsystem structure
@@ -190,19 +201,21 @@ void SafeComponent::updateHook() {
             << " r: " << rArm.transpose()
             << " l: " << lArm.transpose() << Logger::endl;
     }
-
+*/
 //    internal_space_position_.setZero();
-    port_internal_space_position_command_out_.write(internal_space_position_);
-    port_joint_stiffness_command_.write(joint_stiffness_command_);
+//    port_internal_space_position_command_out_.write(internal_space_position_);
+
+    joint_torque_command_.setZero();
+    port_joint_torque_command_.write(joint_torque_command_);
 
     //
     // write commands
     //
-//    port_cmd_sc_out_.write(cmd_sc_out_);
+    port_cmd_sc_out_.write(cmd_sc_out_);
 
 }
 
 }   // namespace velma_core_cs_types
 
-ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::SafeComponent)
+ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::IdleComponent)
 

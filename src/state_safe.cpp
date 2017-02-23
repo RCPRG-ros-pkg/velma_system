@@ -47,13 +47,15 @@ public:
             return false;
         }
 
-        if (!in_error) {
+        if (in_data->status_.sc.safe_behavior == true) {
             return false;
         }
 
-        // TODO
+        if (in_error || (prev_state_name == "state_velma_core_cs_idle")) {
+            return true;
+        }
 
-        return true;
+        return false;
     }
 };
 

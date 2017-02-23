@@ -146,13 +146,14 @@ public:
     //
     virtual std::vector<std::string > getStates() const {
         return std::vector<std::string >({
+            "state_velma_core_cs_idle",
             "state_velma_core_cs_safe",
             "state_velma_core_cs_cart_imp",
             "state_velma_core_cs_jnt_imp"});
     }
 
     virtual std::string getInitialState() const {
-        return "state_velma_core_cs_safe";
+        return "state_velma_core_cs_idle";
     }
 
     virtual std::vector<std::pair<std::string, std::string > > getLatchedConnections() const {

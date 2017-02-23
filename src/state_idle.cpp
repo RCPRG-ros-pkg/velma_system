@@ -25,51 +25,31 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
+#include "abstract_state.h"
 #include "input_data.h"
-#include "common_predicates.h"
 
 namespace velma_core_cs_types {
 
-class BehaviorJntImp : public BehaviorBase {
+class StateIdle : public StateBase {
 public:
-    BehaviorJntImp() :
-        BehaviorBase("behavior_velma_core_cs_jnt_imp", "jnt_imp")
+    StateIdle() :
+        StateBase("state_velma_core_cs_idle", "idle", "behavior_velma_core_cs_idle")
     {
-        addRunningComponent("TrajectoryGeneratorJoint");
-        addRunningComponent("JntImp");
     }
 
-    virtual bool checkErrorCondition(
+    bool checkInitialCondition(
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components,
-                ErrorCausePtr result) const
+                const std::string& prev_state_name,
+                bool in_error) const
     {
-        // check status of current component graph that makes up the transition function
-        if (!allComponentsOk(components, getRunningComponents())) {
-            if (result) {
-                result->setBit(COMPONENT_bit, true);
-            }
-            return true;
+        if (prev_state_name == "state_velma_core_cs_idle") {
+            return false;
         }
 
-        // TODO: check VE state
+        // this behavior is started only if lower subsystem is not operational
+        // and is not listening this level
         if (in_data->status_.sc.safe_behavior == true) {
-            return true;
-        }
-
-        // TODO: check this subsystem state, eg. robot workspace, singularities
-
-        return false;
-    }
-
-    virtual bool checkStopCondition(
-                const boost::shared_ptr<InputData >& in_data,
-                const std::vector<RTT::TaskContext*> &components) const
-    {
-        // received exactly one command for another behavior
-        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !jntImpCommandValid(in_data->cmd_));
-        if (another_behavior_command) {
             return true;
         }
 
@@ -79,5 +59,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorJntImp );
+REGISTER_STATE( velma_core_cs_types::StateIdle );
 

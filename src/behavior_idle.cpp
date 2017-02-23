@@ -31,45 +31,31 @@
 
 namespace velma_core_cs_types {
 
-class BehaviorJntImp : public BehaviorBase {
+class BehaviorIdle : public BehaviorBase {
 public:
-    BehaviorJntImp() :
-        BehaviorBase("behavior_velma_core_cs_jnt_imp", "jnt_imp")
+    BehaviorIdle() :
+        BehaviorBase("behavior_velma_core_cs_idle", "idle")
     {
-        addRunningComponent("TrajectoryGeneratorJoint");
-        addRunningComponent("JntImp");
+        addRunningComponent("idle");
     }
 
-    virtual bool checkErrorCondition(
+    bool checkErrorCondition(
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components,
                 ErrorCausePtr result) const
     {
-        // check status of current component graph that makes up the transition function
-        if (!allComponentsOk(components, getRunningComponents())) {
-            if (result) {
-                result->setBit(COMPONENT_bit, true);
-            }
-            return true;
-        }
-
-        // TODO: check VE state
-        if (in_data->status_.sc.safe_behavior == true) {
-            return true;
-        }
-
-        // TODO: check this subsystem state, eg. robot workspace, singularities
+        // this behavior has no error condition
 
         return false;
     }
 
-    virtual bool checkStopCondition(
+    bool checkStopCondition(
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        // received exactly one command for another behavior
-        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !jntImpCommandValid(in_data->cmd_));
-        if (another_behavior_command) {
+        // this behavior is stopped only if lower subsystem is operational (has no error condition)
+        // and started to listen this level
+        if (in_data->status_.sc.error == false && in_data->status_.sc.safe_behavior == false) {
             return true;
         }
 
@@ -79,5 +65,5 @@ public:
 
 };  // namespace velma_core_cs_types
 
-REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorJntImp );
+REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorIdle );
 

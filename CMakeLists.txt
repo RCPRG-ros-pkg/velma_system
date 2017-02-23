@@ -41,15 +41,19 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
+    src/common_predicates.cpp
+    src/state_idle.cpp
+    src/behavior_idle.cpp
     src/state_safe.cpp
     src/behavior_safe.cpp
-    src/common_predicates.cpp
     src/behavior_cart_imp.cpp
     src/state_cart_imp.cpp
     src/behavior_jnt_imp.cpp
     src/state_jnt_imp.cpp
+    src/components/idle.cpp
     src/components/safe.cpp
     src/components/cartesian_interpolator.cpp
+    src/components/cartesian_impedance_interpolator.cpp
     src/components/InternalSpaceSplineTrajectoryGenerator.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})

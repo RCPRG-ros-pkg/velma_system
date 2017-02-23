@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2010-2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology.
+ * Copyright (c) 2010-2017, Robot Control and Pattern Recognition Group, Warsaw University of Technology.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -32,26 +32,27 @@
  * CartesianInterpolator.cpp
  *
  *  Created on: 27 lut 2014
- *      Author: konradb3
+ *      Author: konradb3, dseredyn
  */
 
-#include <string>
+//#include <string>
 
-#include "Eigen/Dense"
-#include "Eigen/Geometry"
+//#include "Eigen/Dense"
+//#include "Eigen/Geometry"
 
 #include "rtt/Component.hpp"
-#include "rtt/TaskContext.hpp"
-#include "rtt/Port.hpp"
-#include "rtt_rosclock/rtt_rosclock.h"
+//#include "rtt/TaskContext.hpp"
+//#include "rtt/Port.hpp"
+//#include "rtt_rosclock/rtt_rosclock.h"
 
 #include "velma_core_cs_task_cs_msgs/CommandCartImp.h"
-#include <velma_core_cs_task_cs_msgs/StatusCartImp.h>
+//#include <velma_core_cs_task_cs_msgs/StatusCartImp.h>
 
-#include "cartesian_trajectory_msgs/CartesianTrajectory.h"
-#include "geometry_msgs/Pose.h"
-#include "eigen_conversions/eigen_msg.h"
+//#include "cartesian_trajectory_msgs/CartesianTrajectory.h"
+//#include "geometry_msgs/Pose.h"
+//#include "eigen_conversions/eigen_msg.h"
 
+/*
 using namespace RTT;
 
 class CartesianInterpolatorNew : public RTT::TaskContext {
@@ -75,16 +76,16 @@ class CartesianInterpolatorNew : public RTT::TaskContext {
   bool checkTolerance(Eigen::Affine3d err, cartesian_trajectory_msgs::CartesianTolerance tol);
   bool checkWrenchTolerance(geometry_msgs::Wrench msr, geometry_msgs::Wrench tol);
 
+  velma_core_cs_task_cs_msgs::CommandCartImpTrjPose trajectory_;
   RTT::InputPort<velma_core_cs_task_cs_msgs::CommandCartImpTrjPose> port_trajectory_;
+
   RTT::InputPort<geometry_msgs::Pose> port_cartesian_position_;
 
   RTT::OutputPort<geometry_msgs::Pose> port_cartesian_command_;
-//  RTT::OutputPort<bool> port_generator_active_;
 
   int32_t generator_status_;
   RTT::OutputPort<int32_t> port_generator_status_out_;
 
-  velma_core_cs_task_cs_msgs::CommandCartImpTrjPose trajectory_;
   geometry_msgs::Pose setpoint_;
   geometry_msgs::Pose old_point_;
 
@@ -109,14 +110,12 @@ CartesianInterpolatorNew::CartesianInterpolatorNew(const std::string& name)
       port_cartesian_position_("CartesianPosition_INPORT"),
       port_cartesian_command_("CartesianPositionCommand_OUTPORT", true),
       port_trajectory_("CartesianTrajectoryCommand_INPORT"),
-//      port_generator_active_("GeneratorActiveOut_OUTPORT", true),
       port_generator_status_out_("generator_status_OUTPORT")
 {
 
   this->ports()->addPort(port_cartesian_position_).doc("data type: geometry_msgs::Pose");
   this->ports()->addPort(port_cartesian_command_).doc("data type: geometry_msgs::Pose");
   this->ports()->addPort(port_trajectory_).doc("data type: velma_core_cs_task_cs_msgs::CommandCartImpTrjPose");
-//  this->ports()->addPort(port_generator_active_).doc("data type: bool");
   this->ports()->addPort(port_generator_status_out_).doc("data type: int32");
 
   this->addProperty("activate_pose_init", activate_pose_init_property_);
@@ -143,7 +142,6 @@ bool CartesianInterpolatorNew::startHook() {
     }
   }
 
-//  port_generator_active_.write(true);
   last_point_not_set_ = false;
   trajectory_active_ = false;
   generator_status_ = velma_core_cs_task_cs_msgs::StatusCartImp::INACTIVE;
@@ -152,12 +150,10 @@ bool CartesianInterpolatorNew::startHook() {
 }
 
 void CartesianInterpolatorNew::stopHook() {
-//  port_generator_active_.write(false);
 }
 
 void CartesianInterpolatorNew::updateHook() {
 
-//  port_generator_active_.write(true);
   if (port_trajectory_.read(trajectory_) == RTT::NewData) {
     trajectory_idx_ = 0;
     old_point_ = setpoint_;
@@ -344,4 +340,11 @@ bool CartesianInterpolatorNew::checkWrenchTolerance(geometry_msgs::Wrench msr, g
 }
 
 ORO_LIST_COMPONENT_TYPE(CartesianInterpolatorNew)
+*/
+
+#include <controller_common/cartesian_interpolator.h>
+
+typedef CartesianInterpolator<velma_core_cs_task_cs_msgs::CommandCartImpTrjPose> CartesianInterpolatorVelma;
+
+ORO_LIST_COMPONENT_TYPE(CartesianInterpolatorVelma)
 

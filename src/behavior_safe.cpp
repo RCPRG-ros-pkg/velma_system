@@ -45,6 +45,10 @@ public:
                 const std::vector<RTT::TaskContext*> &components,
                 ErrorCausePtr result) const
     {
+        if (in_data->status_.sc.safe_behavior == true) {
+            return true;
+        }
+
         return false;
     }
 
@@ -56,14 +60,14 @@ public:
             return false;
         }
 
-        // the error situation in ve_body have to be ended
-        if (in_data->status_.sc.error == false) {
+//        // the error situation in ve_body have to be ended
+//        if (in_data->status_.sc.error == false) {
 
             // and a new command from task_cs have to be valid
             if (oneCommandValid(in_data->cmd_)) {
                 return true;
             }
-        }
+//        }
 
         return false;
     }
