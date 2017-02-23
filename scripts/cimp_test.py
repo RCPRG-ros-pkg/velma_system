@@ -39,11 +39,27 @@ if __name__ == "__main__":
     T_B_Trd = velma.getTf("B", "Wr")
     velma.moveEffectorRight(T_B_Trd, 2.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
-
+    T_B_Trd_prev = T_B_Trd
 
     print "moving right arm to another pose"
     T_B_Trd = velma.getTf("B", "Wr")
-    T_B_Trd = T_B_Trd * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
-    velma.moveEffectorRight(T_B_Trd, 10.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,0.1)) * T_B_Trd
+    velma.moveEffectorRight(T_B_Trd, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
+
+    print "moving right arm to initial pose"
+    velma.moveEffectorRight(T_B_Trd_prev, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+    T_B_Trd_prev = T_B_Trd
+
+    print "moving right arm to another pose (error - too fast)"
+    T_B_Trd = velma.getTf("B", "Wr")
+    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,1.1)) * T_B_Trd
+    velma.moveEffectorRight(T_B_Trd, 0.1, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.04, 0.04, 0.04), PyKDL.Vector(0.1, 0.1, 0.1)))
+    velma.waitForEffectorRight()
+
+    print "moving right arm to initial pose"
+    velma.moveEffectorRight(T_B_Trd_prev, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+    T_B_Trd_prev = T_B_Trd
 
