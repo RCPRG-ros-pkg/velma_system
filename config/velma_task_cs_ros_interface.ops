@@ -27,7 +27,7 @@ ros.import("rtt_velma_core_cs_task_cs_msgs");
 //------------------------------------------------------------------------------
 
 ## load cartesian trajectory action
-loadComponent("CartImpActionRight", "CartImpAction");
+loadComponent("CartImpActionRight", "CartImpActionVelma");
 #setActivityOnCPU("CartImpActionRight", 0.01, 1, ORO_SCHED_RT, 0);
 CartImpActionRight.configure();
 CartImpActionRight.loadService("actionlib")
@@ -38,7 +38,7 @@ connect("CartImpActionRight.cart_imp_command_OUTPORT", "velma_core_cs_task_cs_ms
 connect("velma_core_cs_task_cs_msgs_StatusSplit.rCart_status_OUTPORT", "CartImpActionRight.generator_status_INPORT", ConnPolicy())
 stream("CartImpActionRight.cart_pose_command_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/CartImpActionRight/cart_pose_command_OUTPORT"));
 
-loadComponent("CartImpActionLeft", "CartImpAction");
+loadComponent("CartImpActionLeft", "CartImpActionVelma");
 #setActivityOnCPU("CartImpActionLeft", 0.01, 1, ORO_SCHED_RT, 0);
 CartImpActionLeft.configure();
 CartImpActionLeft.loadService("actionlib")
@@ -62,7 +62,7 @@ connect("velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT", "dq_splitAll.In", C
 
 
 
-loadComponent("JntImpAction", "VelmaInternalSpaceSplineTrajectoryAction");
+loadComponent("JntImpAction", "InternalSpaceSplineTrajectoryActionVelmaBody");
 JntImpAction.loadService("rosparam");
 JntImpAction.rosparam.getAll();
 JntImpAction.configure();

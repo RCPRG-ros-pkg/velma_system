@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_actionlib
   common_interfaces
   common_behavior
+  controller_common
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -39,7 +40,6 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 
 orocos_component(velma_task_cs_ros_interface
     src/velma_task_cs_ros_interface.cpp
-    src/components/cartesian_trajectory_action.cpp
     src/components/cart_imp_action.cpp
     src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/behavior_normal.cpp
