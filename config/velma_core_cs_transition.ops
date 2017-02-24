@@ -255,8 +255,6 @@ connect("HeadPosAggregate.OutputPort", "JcAll.In1", ConnPolicy());
 
 connect("Jvc.Out", "JvcAll.In0", ConnPolicy());
 
-#connect("Ts.Out0", "TorsoTrqSplit.InputPort", ConnPolicy());
-
 // Torso torque port spliter
 loadComponent("TorsoTrqSplit","PortDoubleSplit1")
 TorsoTrqSplit.configure()
@@ -302,26 +300,6 @@ ToolIntLeft.loadService("rosparam");
 ToolIntLeft.rosparam.getAll();
 connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "CImp.ToolPositionCommand1_INPORT", ConnPolicy())
 connect("velma_core_cs_task_cs_msgs_CommandSplit.cart_l_tool_OUTPORT", "ToolIntLeft.CartesianTrajectoryCommand_INPORT", ConnPolicy());
-
-#loadComponent("TfPub", "TfPublisher")
-#setActivityOnCPU("TfPub", 0.01, 1, ORO_SCHED_RT, 0)
-#TfPub.loadService("rosparam");
-#TfPub.rosparam.getAll();
-#TfPub.configure();
-#connect("ToolIntRight.CartesianPositionCommand_OUTPORT", "TfPub.In0", ConnPolicy())
-#connect("ToolIntLeft.CartesianPositionCommand_OUTPORT", "TfPub.In1", ConnPolicy())
-#connect("PoseIntRight.CartesianPositionCommand_OUTPORT", "TfPub.In2", ConnPolicy())
-#connect("PoseIntLeft.CartesianPositionCommand_OUTPORT", "TfPub.In3", ConnPolicy())
-
-#stream("TfPub.OutTf", ros.comm.topic("/tf"))
-
-#connect("Ts.Out1", "TorquePubRight.InJointTorqueCommand", ConnPolicy())
-#TorquePubRight.configure();
-#stream("TorquePubRight.OutTorques", ros.comm.topic("/right_arm/torques"))
-
-#connect("Ts.Out1", "TorquePubLeft.InJointTorqueCommand", ConnPolicy())
-#TorquePubLeft.configure();
-#stream("TorquePubLeft.OutTorques", ros.comm.topic("/left_arm/torques"))
 
 // impedance
 
@@ -407,7 +385,7 @@ connect("LeftForceTransformation.OutputEndEffectorWrench", "LeftForceControl.Cur
 
 ## joint trajectory generator
 
-loadComponent("TrajectoryGeneratorJoint", "VelmaInternalSpaceSplineTrajectoryGenerator");
+loadComponent("TrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGeneratorVelmaBody");
 TrajectoryGeneratorJoint.loadService("rosparam");
 TrajectoryGeneratorJoint.rosparam.getAll();
 connect("Jc.Out","TrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
@@ -415,6 +393,7 @@ connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","JntImp.JointPos
 connect("TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","velma_core_cs_task_cs_msgs_StatusConcate.jnt_q_desired_INPORT", ConnPolicy());
 
 connect("TrajectoryGeneratorJoint.generator_status_OUTPORT", "velma_core_cs_task_cs_msgs_StatusConcate.jnt_status_INPORT", ConnPolicy());
+connect("TrajectoryGeneratorJoint.stiffness_command_OUTPORT","JntImp.JointStiffnessCommand_INPORT", ConnPolicy());
 
 connect("velma_core_cs_task_cs_msgs_CommandSplit.jnt_OUTPORT", "TrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
 
@@ -432,47 +411,20 @@ connect("JntLimit.JointTorqueCommand_OUTPORT", "CImp.NullSpaceTorqueCommand_INPO
 //connect("TJ.NullSpaceTorqueCommand_OUTPORT", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
 #connect("VG.GravTrq", "JntLimit.NullSpaceTorqueCommand_INPORT", ConnPolicy());
 
-// head look-at
-
-//loadComponent("HeadIK", "HeadLookAt3D")
-//HeadIK.loadService("rosparam");
-//HeadIK.rosparam.getAll();
-//HeadIK.configure();
-
-//loadComponent("PT", "PoseTransform")
-//PT.loadService("rosparam");
-//PT.rosparam.getAll();
-//PT.configure();
-
-//connect("PT.SecondaryTargetPoint", "HeadIK.TargetPoint_INPORT", ConnPolicy());
-
-//if ((os.isenv("HEAD_JOY") == false) || (os.getenv("HEAD_JOY") == "true")) then {
-//  connect("TJ.PrimaryFrameSelector_OUTPORT", "PT.PrimaryFrameSelector", ConnPolicy());
-//  connect("TJ.HeadTargetPoint_OUTPORT", "PT.PrimaryTargetPoint", ConnPolicy());
-//  connect("FK.RightPosition_OUTPORT", "PT.PrimaryFrame1", ConnPolicy());
-//  connect("FK.LeftPosition_OUTPORT", "PT.PrimaryFrame2", ConnPolicy());
-//  stream("PT.PrimaryTargetPassThrough", ros.comm.topic("/head_lookat_pose"));
-//}
-//else {
-//    stream("HeadIK.TargetPoint_INPORT", ros.comm.topic("/head_lookat_pose"));
-//}
-
-//stream("PT.PrimaryTargetPoint", ros.comm.topic("/head_lookat_pose"));
-
-//connect("HeadPosSplit.InputPort", "HeadIK.HeadJointPositionCommand_OUTPORT", ConnPolicy());
-////connect("TorsoPosAggregate.OutputPort", "HeadIK.JointPosition_INPORT", ConnPolicy());
 
 
 
 
-loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGenerator2");
+loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGeneratorVelmaHead");
 HeadTrajectoryGeneratorJoint.loadService("rosparam");
 HeadTrajectoryGeneratorJoint.rosparam.getAll();
 connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
 connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","HeadPosSplit.InputPort", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_CommandSplit.head_OUTPORT", "TrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
+
+
 
 loadComponent("safe", "velma_core_cs_types::SafeComponent");
-#connect("safe.cmd_sc_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.sc_INPORT", ConnPolicy())
 connect("master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT","safe.status_INPORT", ConnPolicy());
 connect("Jc.Out","safe.JointPosition_INPORT", ConnPolicy());
 connect("safe.JointPositionCommand_OUTPORT","JntImp.JointPositionCommand_INPORT", ConnPolicy());
@@ -503,30 +455,6 @@ JntImp.configure();
 
 HeadPanVelocityLimiter.configure();
 HeadTiltVelocityLimiter.configure();
-
-#scheme.latchConnections("CImp", "PoseIntRight", true);
-#scheme.latchConnections("CImp", "PoseIntLeft", true);
-
-
-//------------------------------------------------------------------------------
-//-- ROS Diagnostics
-//------------------------------------------------------------------------------
-
-//loadComponent("JntPub", "JointStatePublisher33");
-//setActivityOnCPU("JntPub", 0.002, 2, ORO_SCHED_RT, 0);
-//JntPub.loadService("rosparam");
-//JntPub.rosparam.getAll();
-
-//connect("JcAll.Out", "JntPub.JointPosition", ConnPolicy());
-//connect("JvcAll.Out", "JntPub.JointVelocity", ConnPolicy());
-//connect("JvcAll.Out", "JntPub.JointEffort", ConnPolicy());
-//connect("CImp.JointTorqueCommand_OUTPORT", "JntPub.JointEffort", ConnPolicy());
-
-//stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
-//stream("JntPub.joint_state", ros.comm.topic("/joint_states2"));
-
-//JntPub.configure()
-
 
 connect("velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.test_INPORT", ConnPolicy())
 
@@ -561,9 +489,6 @@ Jvc.start();
 JcAll.start();
 JvcAll.start();
 Ts.start();
-#Dwr.start();
-#Dwl.start();
-//JntPub.start();
 ImpedanceIntRight.start();
 ImpedanceIntLeft.start();
 ToolIntRight.start();
@@ -571,8 +496,4 @@ ToolIntLeft.start();
 #TGR.start();
 FK.start();
 Mass.start();
-
-#TfPub.start();
-#TorquePubRight.start();
-#TorquePubLeft.start();
 

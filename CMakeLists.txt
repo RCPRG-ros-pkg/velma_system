@@ -54,7 +54,8 @@ orocos_component(velma_core_cs
     src/components/safe.cpp
     src/components/cartesian_interpolator.cpp
     src/components/cartesian_impedance_interpolator.cpp
-    src/components/InternalSpaceSplineTrajectoryGenerator.cpp
+    src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
+    src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 

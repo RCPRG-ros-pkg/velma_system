@@ -29,17 +29,19 @@
  */
 
 /*
- * CartesianInterpolator.cpp
+ * InternalSpaceSplineTrajectoryGenerator.h
  *
- *  Created on: 27 lut 2014
- *      Author: konradb3, dseredyn
+ * Generator for both the motor and joint spline interpolation
+ *
+ *  Created on: 22-09-2010
+ *      Author: Konrad Banachowicz, Dawid Seredynski
  */
 
 #include "rtt/Component.hpp"
-#include <controller_common/cartesian_interpolator.h>
-#include "velma_core_cs_task_cs_msgs/CommandCartImp.h"
+#include <controller_common/InternalSpaceSplineTrajectoryGenerator.h>
+#include "velma_core_cs_task_cs_msgs/CommandHead.h"
 
-typedef CartesianInterpolator<velma_core_cs_task_cs_msgs::CommandCartImpTrjPose> CartesianInterpolatorVelma;
+typedef InternalSpaceSplineTrajectoryGenerator<velma_core_cs_task_cs_msgs::CommandHead> InternalSpaceSplineTrajectoryGeneratorVelmaHead;
 
-ORO_LIST_COMPONENT_TYPE(CartesianInterpolatorVelma)
+ORO_LIST_COMPONENT_TYPE(InternalSpaceSplineTrajectoryGeneratorVelmaHead)
 
