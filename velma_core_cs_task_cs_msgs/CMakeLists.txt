@@ -11,7 +11,9 @@ add_message_files(FILES
   CommandCartImpTrjImp.msg
   CommandCartImpTrjPose.msg
   CommandJntImp.msg
+  CommandHead.msg
   VelmaJointTrajectoryPoint.msg
+  VelmaHeadTrajectoryPoint.msg
   Status.msg
   StatusCartImp.msg
   StatusJntImp.msg

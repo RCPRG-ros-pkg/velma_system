@@ -6,4 +6,6 @@ float64[15] path_tolerance
 float64[15] goal_tolerance
 duration goal_time_tolerance
 
+float64[15] stiffness
+
 uint32 DOFS=15
