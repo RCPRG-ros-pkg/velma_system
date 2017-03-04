@@ -45,10 +45,12 @@
 
 #include <rtt_rosclock/rtt_rosclock.h>
 
+#include "../common_predicates.h"
+
 #include <sys/time.h>
 
 using namespace RTT;
-
+/*
 static const int DIAG_R_ARM_INVALID = 0;
 static const int DIAG_L_ARM_INVALID = 1;
 static const int DIAG_T_MOTOR_INVALID = 2;
@@ -58,7 +60,7 @@ static const int DIAG_R_ARM_MONITOR_MODE = 5;
 static const int DIAG_L_ARM_MONITOR_MODE = 6;
 static const int DIAG_R_ARM_ERROR = 7;
 static const int DIAG_L_ARM_ERROR = 8;
-
+*/
 static int setBit(int bitfield, int bit_num, bool value) {
     if (value) {
         // set
@@ -94,7 +96,7 @@ public:
     std::string getDiag();
 
 private:
-    bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const;
+//    bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const;
 
     const int arm_joints_count_;
 
@@ -123,8 +125,6 @@ private:
     velma_core_ve_body_re_body_msgs::Status status_in_;
     RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
 
-    RTT::OutputPort<int >   diag_out_;
-
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
@@ -147,14 +147,13 @@ private:
     ros::Time wall_time_prev_;
 
     struct timeval time_prev_;
-    int diag_;
-
+    ErrorCausePtr diag_;
 };
 
 SafeComponent::SafeComponent(const std::string &name) :
     TaskContext(name, PreOperational),
     arm_joints_count_(7),
-    diag_(0),
+    diag_(new ErrorCause),
     torso_damping_factor_(-1)   // initialize with invalid value, should be later set to >= 0
 {
 //    this->ports()->addPort("command_INPORT", port_command_in_);
@@ -178,7 +177,10 @@ SafeComponent::SafeComponent(const std::string &name) :
 
 std::string SafeComponent::getDiag() {
 // this method may not be RT-safe
-    int diag = diag_;
+    std::string result = getErrorReasonStr(diag_);
+    diag_->clear();
+    return result;
+/*    int diag = diag_;
     std::string result;
     if (getBit(diag, DIAG_R_ARM_INVALID)) {
         result += "R_ARM_INVALID ";
@@ -215,7 +217,7 @@ std::string SafeComponent::getDiag() {
     if (getBit(diag, DIAG_L_ARM_ERROR)) {
         result += "L_ARM_ERROR ";
     }
-    return result;
+    return result;*/
 }
 
 bool SafeComponent::configureHook() {
@@ -312,7 +314,7 @@ void SafeComponent::calculateTorsoDampingTorque(double motor_velocity, double &m
     double motor_torque_command = -torso_damping_factor_ * joint_velocity;
     motor_current_command = motor_torque_command / torso_gear / torso_motor_constant;
 }
-
+/*
 bool SafeComponent::isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
@@ -324,7 +326,7 @@ bool SafeComponent::isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriR
     }
     return true;
 }
-
+*/
 void SafeComponent::updateHook() {
     cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
 
@@ -336,13 +338,20 @@ void SafeComponent::updateHook() {
 
     if (port_status_in_.read(status_in_) != RTT::NewData) {
         status_in_ = velma_core_ve_body_re_body_msgs::Status();
+        diag_->setBit(STATUS_bit, true);
     }
-
+    else {
+        bool statusOk = isStatusValid(status_in_, diag_);
+        diag_->setBit(STATUS_bit, !statusOk);
+    }
 
     // as FRI components are not synchronized, their communication status should
     // be checked in two last cycles
     bool rArm_valid = rArm_valid_prev || status_in_.rArm_valid;
     bool lArm_valid = lArm_valid_prev || status_in_.lArm_valid;
+
+    diag_->setBit(STATUS_R_LWR_INVALID_bit, rArm_valid);
+    diag_->setBit(STATUS_L_LWR_INVALID_bit, lArm_valid);
 
     // check FRI and LWR state
     // as FRI components may not be synchronized
@@ -498,8 +507,10 @@ void SafeComponent::updateHook() {
         }
 
         // diagnostics
-        diag_ = setBit(diag_, DIAG_R_ARM_ERROR, !lwrOk);
-        diag_ = setBit(diag_, DIAG_R_ARM_MONITOR_MODE, status_in_.rArmFriIntf.state == FRI_STATE_MON);
+        diag_->setBit(R_LWR_bit, !lwrOk);
+        diag_->setBit(R_LWR_CMD_bit, status_in_.rArmFriIntf.state == FRI_STATE_MON);
+        //diag_ = setBit(diag_, DIAG_R_ARM_ERROR, !lwrOk);
+        //diag_ = setBit(diag_, DIAG_R_ARM_MONITOR_MODE, status_in_.rArmFriIntf.state == FRI_STATE_MON);
     }
 
     cmd_out_.lArmFri_valid = false;
@@ -513,8 +524,10 @@ void SafeComponent::updateHook() {
         }
 
         // diagnostics
-        diag_ = setBit(diag_, DIAG_L_ARM_ERROR, !lwrOk);
-        diag_ = setBit(diag_, DIAG_L_ARM_MONITOR_MODE, status_in_.lArmFriIntf.state == FRI_STATE_MON);
+        diag_->setBit(L_LWR_bit, !lwrOk);
+        diag_->setBit(L_LWR_CMD_bit, status_in_.lArmFriIntf.state == FRI_STATE_MON);
+        //diag_ = setBit(diag_, DIAG_L_ARM_ERROR, !lwrOk);
+        //diag_ = setBit(diag_, DIAG_L_ARM_MONITOR_MODE, status_in_.lArmFriIntf.state == FRI_STATE_MON);
     }
 
     //
@@ -525,12 +538,12 @@ void SafeComponent::updateHook() {
     //
     // write diagnostics information for this subsystem
     //
-    diag_ = setBit(diag_, DIAG_R_ARM_INVALID, !rArm_valid);
+/*    diag_ = setBit(diag_, DIAG_R_ARM_INVALID, !rArm_valid);
     diag_ = setBit(diag_, DIAG_L_ARM_INVALID, !lArm_valid);
     diag_ = setBit(diag_, DIAG_T_MOTOR_INVALID, !tMotor_valid);
     diag_ = setBit(diag_, DIAG_HP_MOTOR_INVALID, !hpMotor_valid);
     diag_ = setBit(diag_, DIAG_HT_MOTOR_INVALID, !htMotor_valid);
-
+*/
     //
     // write diagnostics information for other subsystems
     //
@@ -539,31 +552,31 @@ void SafeComponent::updateHook() {
     sc_out_.fault_type = 0;
 
     setBit(sc_out_.fault_type, velma_core_cs_ve_body_msgs::StatusSC::FAULT_COMM_HW,
-        getBit(diag_, DIAG_R_ARM_INVALID) || getBit(diag_, DIAG_L_ARM_INVALID) ||
-        getBit(diag_, DIAG_T_MOTOR_INVALID) || getBit(diag_, DIAG_HP_MOTOR_INVALID) ||
-        getBit(diag_, DIAG_HT_MOTOR_INVALID));
+        !rArm_valid || !lArm_valid ||
+        !tMotor_valid || !hpMotor_valid ||
+        !htMotor_valid);
 
 
     setBit(sc_out_.fault_type, velma_core_cs_ve_body_msgs::StatusSC::FAULT_HW_STATE,
-        getBit(diag_, DIAG_R_ARM_ERROR) || getBit(diag_, DIAG_L_ARM_ERROR) ||
-        getBit(diag_, DIAG_R_ARM_MONITOR_MODE) || getBit(diag_, DIAG_L_ARM_MONITOR_MODE));
+        diag_->getBit(R_LWR_bit) || diag_->getBit(L_LWR_bit) ||
+        diag_->getBit(R_LWR_CMD_bit) || diag_->getBit(L_LWR_CMD_bit));
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_R_ARM,
-        getBit(diag_, DIAG_R_ARM_INVALID) || getBit(diag_, DIAG_R_ARM_ERROR) ||
-        getBit(diag_, DIAG_R_ARM_MONITOR_MODE));
+        diag_->getBit(R_LWR_bit) || diag_->getBit(R_LWR_CMD_bit) ||
+        !rArm_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_L_ARM,
-        getBit(diag_, DIAG_L_ARM_INVALID) || getBit(diag_, DIAG_L_ARM_ERROR) ||
-        getBit(diag_, DIAG_L_ARM_MONITOR_MODE));
+        diag_->getBit(L_LWR_bit) || diag_->getBit(L_LWR_CMD_bit) ||
+        !lArm_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_T_MOTOR,
-        getBit(diag_, DIAG_T_MOTOR_INVALID));
+        !tMotor_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_HP_MOTOR,
-        getBit(diag_, DIAG_HP_MOTOR_INVALID));
+        !hpMotor_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_HT_MOTOR,
-        getBit(diag_, DIAG_HT_MOTOR_INVALID));
+        !htMotor_valid);
 
     sc_out_.error = (sc_out_.fault_type != 0);
 

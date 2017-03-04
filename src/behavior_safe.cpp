@@ -59,6 +59,7 @@ public:
 
         bool resetCmd = (in_data->cmd_.sc_valid && in_data->cmd_.sc.cmd == 1);
 
+//        std::cout << (hwOk?"t":"f") << (resetCmd?"t":"f") << (isCmdValid(in_data->cmd_)?"t":"f") << (isStatusValid(in_data->status_)?"t":"f") << std::endl;
         if (hwOk && resetCmd && isCmdValid(in_data->cmd_) && isStatusValid(in_data->status_))
         {
             return true;

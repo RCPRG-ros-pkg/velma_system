@@ -35,6 +35,7 @@
 #include "velma_core_ve_body_re_body_msgs/Status.h"
 #include "input_data.h"
 #include "abstract_behavior.h"
+#include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
 
@@ -48,18 +49,29 @@ public:
         cmd_data_.Set(data);
     }
 
-    explicit VelmaCoreVeBodyMaster(RTT::TaskContext* owner) :
-        common_behavior::MasterService(owner),
-        port_cmd_in_("velma_core_cs_ve_body_msgs_Command_INPORT"),
-        port_cmd_out_("velma_core_cs_ve_body_msgs_Command_OUTPORT"),
-        port_status_in_("velma_core_ve_body_re_body_msgs_Status_INPORT"),
-        port_status_out_("velma_core_ve_body_re_body_msgs_Status_OUTPORT"),
-        cmd_data_( RTT::base::DataObjectBase::Options(2) )      // max two threads
+    void newStatusData(RTT::base::PortInterface*) {
+        velma_core_ve_body_re_body_msgs::Status data;
+        port_status_in_.read(data, false);
+        status_data_.Set(data);
+        owner_->trigger();
+//        std::cout << "newStatusData" << std::endl;
+    }
+
+    explicit VelmaCoreVeBodyMaster(RTT::TaskContext* owner)
+        : common_behavior::MasterService(owner)
+        , port_cmd_in_("velma_core_cs_ve_body_msgs_Command_INPORT")
+        , port_cmd_out_("velma_core_cs_ve_body_msgs_Command_OUTPORT")
+        , port_status_in_("velma_core_ve_body_re_body_msgs_Status_INPORT")
+        , port_status_out_("velma_core_ve_body_re_body_msgs_Status_OUTPORT")
+        , cmd_data_( RTT::base::DataObjectBase::Options(2) )      // max two threads
+        , owner_(owner)
     {
         cmd_data_.data_sample(velma_core_cs_ve_body_msgs::Command());
+        status_data_.data_sample(velma_core_ve_body_re_body_msgs::Status());
 
         owner->addEventPort(port_cmd_in_, boost::function<void(RTT::base::PortInterface*)>( boost::bind( &VelmaCoreVeBodyMaster::newCmdData, this, _1 ) ) );
-        owner->addPort(port_status_in_);
+//        owner->addPort(port_cmd_in_);
+        owner->addPort(port_status_in_);//, boost::function<void(RTT::base::PortInterface*)>( boost::bind( &VelmaCoreVeBodyMaster::newStatusData, this, _1 ) ) );
 
         owner->addPort(port_cmd_out_);
         owner->addPort(port_status_out_);
@@ -82,6 +94,14 @@ public:
 
     virtual bool readStatusPorts(boost::shared_ptr<common_behavior::InputData >& in_data) {
         boost::shared_ptr<InputData > in = boost::static_pointer_cast<InputData >(in_data);
+
+//        // this is synchronized
+//        if (status_data_.Get(in->status_) == RTT::NewData) {
+//            return true;
+//        }
+//        in->status_ = velma_core_ve_body_re_body_msgs::Status();
+//        return false;
+
         if (port_status_in_.read(in->status_, false) == RTT::NewData) {
             return true;
         }
@@ -171,6 +191,7 @@ public:
 
     virtual std::vector<std::pair<std::string, std::string > > getLatchedConnections() const {
         return std::vector<std::pair<std::string, std::string > > ({std::make_pair(std::string("velma_core_ve_body_re_body_msgs_StatusConcate"), std::string("safe"))});
+//        return std::vector<std::pair<std::string, std::string > > ();
     }
 
     virtual int getInputDataWaitCycles() const {
@@ -183,12 +204,20 @@ public:
     // this method is not RT-safe
     virtual std::string getErrorReasonStr(common_behavior::AbstractConditionCauseConstPtr error_reason) const {
         ErrorCauseConstPtr r = boost::dynamic_pointer_cast<const ErrorCause >(error_reason);
-        std::string result;
+/*        std::string result;
         result += (r->getBit(R_LWR_bit)?"R_LWR ":"");
         result += (r->getBit(L_LWR_bit)?"L_LWR ":"");
         result += (r->getBit(R_LWR_CMD_bit)?"R_LWR_CMD ":"");
         result += (r->getBit(L_LWR_CMD_bit)?"L_LWR_CMD ":"");
         result += (r->getBit(STATUS_bit)?"STATUS ":"");
+        result += (r->getBit(STATUS_R_LWR_INVALID_bit)?"ST_R_LWR_INV":"");
+        result += (r->getBit(STATUS_L_LWR_INVALID_bit)?"ST_L_LWR_INV":"");
+        result += (r->getBit(STATUS_R_FT_INVALID_bit)?"ST_R_FT_INV":"");
+        result += (r->getBit(STATUS_L_FT_INVALID_bit)?"ST_L_FT_INV":"");
+        result += (r->getBit(STATUS_T_MOTOR_INVALID_bit)?"ST_T_MOTOR_INV":"");
+        result += (r->getBit(STATUS_HP_MOTOR_INVALID_bit)?"ST_HP_MOTOR_INV":"");
+        result += (r->getBit(STATUS_HT_MOTOR_INVALID_bit)?"ST_HT_MOTOR_INV":"");
+        result += (r->getBit(LWR_NAN_LIM_bit)?"ST_LWR_NAN_LIM":"");
         result += (r->getBit(COMMAND_bit)?"CMD ":"");
         result += (r->getBit(CMD_T_MOTOR_INVALID_bit)?"CMD_T_MOTOR_INV ":"");
         result += (r->getBit(CMD_HP_MOTOR_INVALID_bit)?"CMD_HP_MOTOR_INV ":"");
@@ -202,6 +231,8 @@ public:
         result += (r->getBit(CMD_T_MOTOR_T_NAN_bit)?"CMD_T_MOTOR_T_NAN ":"");
 
         return result;
+*/
+        return ::getErrorReasonStr(r);
     }
 
     // this method is not RT-safe
@@ -216,7 +247,10 @@ private:
     RTT::base::DataObjectLockFree<velma_core_cs_ve_body_msgs::Command > cmd_data_;
 
     RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
+    RTT::base::DataObjectLockFree<velma_core_ve_body_re_body_msgs::Status > status_data_;
     RTT::OutputPort<velma_core_ve_body_re_body_msgs::Status > port_status_out_;
+
+    RTT::TaskContext* owner_;
 };
 
 };  // namespace velma_core_ve_body_types

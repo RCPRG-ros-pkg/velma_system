@@ -52,6 +52,7 @@ orocos_component(velma_core_ve_body
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
 
 orocos_service(VelmaCoreVeBodyMaster
+    src/common_predicates.cpp
     src/master_service.cpp
 )
 target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})

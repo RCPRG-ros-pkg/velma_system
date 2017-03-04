@@ -38,7 +38,8 @@ bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
 bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, velma_core_ve_body_types::ErrorCausePtr err = velma_core_ve_body_types::ErrorCausePtr());
 //bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd);
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st);
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, velma_core_ve_body_types::ErrorCausePtr err = velma_core_ve_body_types::ErrorCausePtr());
+std::string getErrorReasonStr(velma_core_ve_body_types::ErrorCauseConstPtr err);
 
 #endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 

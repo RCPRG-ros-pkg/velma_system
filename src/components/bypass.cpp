@@ -117,8 +117,8 @@ void BypassComponent::updateHook() {
 
     cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
 
-    cmd_out_.rTact = cmd_in_.rTact;
-    cmd_out_.rTact_valid = cmd_in_.rTact_valid;
+//    cmd_out_.rTact = cmd_in_.rTact;
+//    cmd_out_.rTact_valid = cmd_in_.rTact_valid;
 
     cmd_out_.tMotor = cmd_in_.tMotor;
     cmd_out_.tMotor_valid = cmd_in_.tMotor_valid;
@@ -135,11 +135,11 @@ void BypassComponent::updateHook() {
     cmd_out_.rArm = cmd_in_.rArm;
     cmd_out_.rArm_valid = cmd_in_.rArm_valid;
 
-    cmd_out_.lHand = cmd_in_.lHand;
-    cmd_out_.lHand_valid = cmd_in_.lHand_valid;
+//    cmd_out_.lHand = cmd_in_.lHand;
+//    cmd_out_.lHand_valid = cmd_in_.lHand_valid;
 
-    cmd_out_.rHand = cmd_in_.rHand;
-    cmd_out_.rHand_valid = cmd_in_.rHand_valid;
+//    cmd_out_.rHand = cmd_in_.rHand;
+//    cmd_out_.rHand_valid = cmd_in_.rHand_valid;
 
     port_cmd_out_.write(cmd_out_);
 
