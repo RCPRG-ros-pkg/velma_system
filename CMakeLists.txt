@@ -1,14 +1,14 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(velma_core_cs)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
-
 ### ROS Dependencies ###
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
+  rtt_subsystem_ports
   velma_core_cs_task_cs_msgs
   velma_core_cs_ve_body_msgs
+  velma_core_cs_ve_hand_msgs
   kuka_lwr_fri
   eigen_conversions
   common_interfaces
@@ -39,30 +39,24 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ### Orocos Targets ###
 
+ros_generate_rtt_master()
+
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
     src/common_predicates.cpp
-    src/state_idle.cpp
     src/behavior_idle.cpp
-    src/state_safe.cpp
     src/behavior_safe.cpp
     src/behavior_cart_imp.cpp
-    src/state_cart_imp.cpp
     src/behavior_jnt_imp.cpp
-    src/state_jnt_imp.cpp
     src/components/idle.cpp
     src/components/safe.cpp
     src/components/cartesian_interpolator.cpp
     src/components/cartesian_impedance_interpolator.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
+    src/components/vector_dummy.cpp
 )
-target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
-
-orocos_service(VelmaCoreCsMaster
-    src/master_service.cpp
-)
-target_link_libraries(VelmaCoreCsMaster ${catkin_LIBRARIES})
+target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
 ### Orocos Package Exports and Install Targets ###
 

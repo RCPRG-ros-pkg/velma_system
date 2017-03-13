@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
-#include "input_data.h"
+#include "velma_core_cs/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
@@ -36,8 +35,10 @@ public:
     BehaviorJntImp() :
         BehaviorBase("behavior_velma_core_cs_jnt_imp", "jnt_imp")
     {
+        addRunningComponent("Mass");
         addRunningComponent("TrajectoryGeneratorJoint");
         addRunningComponent("JntImp");
+        addRunningComponent("FK");
     }
 
     virtual bool checkErrorCondition(
@@ -54,7 +55,7 @@ public:
         }
 
         // TODO: check VE state
-        if (in_data->status_.sc.safe_behavior == true) {
+        if (in_data->b_st.sc.safe_behavior == true) {
             return true;
         }
 
@@ -68,7 +69,7 @@ public:
                 const std::vector<RTT::TaskContext*> &components) const
     {
         // received exactly one command for another behavior
-        bool another_behavior_command = (oneCommandValid(in_data->cmd_) && !jntImpCommandValid(in_data->cmd_));
+        bool another_behavior_command = (oneCommandValid(in_data->cmd) && !jntImpCommandValid(in_data->cmd));
         if (another_behavior_command) {
             return true;
         }
@@ -77,7 +78,52 @@ public:
     }
 };
 
+class StateJntImp : public StateBase {
+public:
+    StateJntImp() :
+        StateBase("state_velma_core_cs_jnt_imp", "jnt_imp", "behavior_velma_core_cs_jnt_imp")
+    {
+    }
+
+    bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_cs_jnt_imp") {
+            // the behavior cannot be restarted
+            return false;
+        }
+
+        if (in_error) {
+            return false;
+        }
+
+        // received exactly one command for this behavior
+        bool this_behavior_command = (oneCommandValid(in_data->cmd) && jntImpCommandValid(in_data->cmd));
+        if (!this_behavior_command) {
+            return false;
+        }
+
+        // TODO: check if command is valid in terms of data
+
+        // TODO: check state of VE
+        if (in_data->b_st.sc.error) {
+            return false;
+        }
+
+        if (in_data->b_st.sc.safe_behavior) {
+            // TODO: manage exiting safe_behavior in ve_body
+            return false;
+        }
+
+        return true;
+    }
+};
+
 };  // namespace velma_core_cs_types
 
 REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorJntImp );
+REGISTER_STATE( velma_core_cs_types::StateJntImp );
 

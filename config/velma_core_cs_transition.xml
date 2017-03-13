@@ -1,0 +1,249 @@
+<subsystem>
+    <import>rtt_barrett_hand_controller_msgs</import>
+    <import>eigen_typekit</import>
+    <import>rtt_control_msgs</import>
+    <import>controller_common</import>
+    <import>velma_controller</import>
+    <import>rtt_cartesian_trajectory_msgs</import>
+    <import>rtt_std_msgs</import>
+    <import>rtt_tf</import>
+    <import>port_operations</import>
+    <import>force_control</import>
+    <import>rtt_force_control_msgs</import>
+    <import>velma_core_cs</import>
+    <import>rtt_velma_core_cs_ve_body_msgs</import>
+    <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
+    <import>rtt_velma_core_cs_task_cs_msgs</import>
+    <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
+    <import>velma_task_cs_ros_interface</import>
+
+    <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
+    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
+<!--
+    <component name="HeadPanVelocityLimiter"    type="VelocityLimiter" running="true" />
+    <component name="HeadTiltVelocityLimiter"   type="VelocityLimiter" running="true" />
+    <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
+    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" running="true" />
+    <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
+    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" running="true" />
+-->
+    <component name="Jc"        type="VectorConcate1_7_7_0" running="true" />
+    <component name="Jvc"       type="VectorConcate1_7_7_0" running="true" />
+    <component name="JcAll"     type="VectorConcate15_2_8_8" running="true" />
+    <component name="JvcAll"    type="VectorConcate15_2_8_8" running="true" />
+    <component name="Dwr"       type="DecimatorWrench" />
+    <component name="Dwl"       type="DecimatorWrench" />
+    <component name="Mass"      type="MassTest15_2" running="true" >
+        <service>robot</service>
+    </component>
+<!--
+#    <component name="TorquePubRight"   type="TorquePublisher7" />
+#    <component name="TorquePubLeft"    type="TorquePublisher7" />
+#    <component name="VG"       type="VelmaGrav" />
+#    <component name="HeadTrajectoryGeneratorJoint" type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
+#HeadTrajectoryGeneratorJoint.start();
+#TGR.start();
+-->
+    <component name="TGR"       type="TriggerGenerator" />
+    <component name="Sd"        type="ScalarDummy" running="true" />
+    <component name="Vd8"       type="VectorDummy8" running="true" />
+    <component name="Vd2"       type="VectorDummy2" running="true" />
+    <component name="Ts"        type="VectorSplit1_7_7_0" running="true" />
+    <component name="TJ"        type="TorsoTeleopJoy" running="true" />
+<!--    <component name="HeadPosAggregate"      type="PortDoubleAggregate2" running="true" />
+    <component name="HeadVelAggregate"      type="PortDoubleAggregate2" running="true" />
+    <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
+-->
+    <component name="TorsoPosAggregate"     type="PortDoubleAggregate1" running="true" />
+    <component name="TorsoVelAggregate"     type="PortDoubleAggregate1" running="true" />
+    <component name="TorsoTrqSplit"         type="PortDoubleSplit1" running="true" />
+    <component name="CImp"                  type="CartesianImpedance15_2" >
+        <service>robot</service>
+    </component>
+    <component name="PoseIntRight"          type="CartesianInterpolatorVelma" />
+    <component name="PoseIntLeft"           type="CartesianInterpolatorVelma" />
+    <component name="ToolIntRight"          type="CartesianInterpolatorVelma" running="true" />
+    <component name="ToolIntLeft"           type="CartesianInterpolatorVelma" running="true" />
+    <component name="ImpedanceIntRight"     type="CartesianImpedanceInterpolatorVelma" running="true" />
+    <component name="ImpedanceIntLeft"      type="CartesianImpedanceInterpolatorVelma" running="true" />
+    <component name="JntImp"                type="JointImpedance15" />
+    <component name="FK"                    type="VelmaFK" running="true" >
+        <service>robot</service>
+    </component>
+    <component name="RightForceTransformation"  type="ForceTransformation" />
+    <component name="LeftForceTransformation"   type="ForceTransformation" />
+    <component name="RightForceControl"         type="ForceControlLaw" />
+    <component name="LeftForceControl"          type="ForceControlLaw" />
+    <component name="TrajectoryGeneratorJoint"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" />
+    <component name="JntLimit"                  type="JointLimitAvoidance15" />
+    <component name="safe"      type="velma_core_cs_types::SafeComponent" />
+    <component name="idle"      type="velma_core_cs_types::IdleComponent" />
+
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.tMotor_q_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.tMotor_dq_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.tMotor_i_INPORT" />
+<!--    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="HeadPanVelocityLimiter.Position_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_q_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="HeadTiltVelocityLimiter.Position_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.htMotor_q_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_q_OUTPORT" to="HeadPanTransmision.MotorPosition_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_dq_OUTPORT" to="HeadPanTransmision.MotorVelocity_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.htMotor_q_OUTPORT" to="HeadTiltTransmision.MotorPosition_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.htMotor_dq_OUTPORT" to="HeadTiltTransmision.MotorVelocity_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT" />
+-->
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_q_OUTPORT" to="Jc.In1" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_q_OUTPORT" to="Jc.In2" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_dq_OUTPORT" to="Jvc.In1" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_dq_OUTPORT" to="Jvc.In2" />
+    <connection from="Vd8.vector_OUTPORT" to="JcAll.In2" />
+    <connection from="Vd8.vector_OUTPORT" to="JcAll.In3" />
+    <connection from="Vd8.vector_OUTPORT" to="JvcAll.In2" />
+    <connection from="Vd8.vector_OUTPORT" to="JvcAll.In3" />
+    <connection from="Ts.Out1" to="velma_core_cs_ve_body_msgs_CommandConcate.rArm_t_INPORT" />
+    <connection from="Ts.Out2" to="velma_core_cs_ve_body_msgs_CommandConcate.lArm_t_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_w_OUTPORT" to="Dwr.In" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_w_OUTPORT" to="Dwl.In" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" />
+    <connection from="Jc.Out" to="Mass.JointPosition_INPORT" />
+<!--
+    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT" to="HeadPanVelocityLimiter.Position_INPORT" />
+    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="HeadTiltVelocityLimiter.Position_INPORT" />
+    <connection from="HeadPanTransmision.JointPosition_OUTPORT" to="HeadPosAggregate.InputPort_0" />
+    <connection from="HeadTiltTransmision.JointPosition_OUTPORT" to="HeadPosAggregate.InputPort_1" />
+    <connection from="HeadPanTransmision.JointVelocity_OUTPORT" to="HeadVelAggregate.InputPort_0" />
+    <connection from="HeadTiltTransmision.JointVelocity_OUTPORT" to="HeadVelAggregate.InputPort_1" />
+    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanTransmisionInv.JointPosition_INPORT" />
+    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltTransmisionInv.JointPosition_INPORT" />
+    <connection from="HeadPosAggregate.OutputPort" to="JcAll.In1" />
+    <connection from="HeadVelAggregate.OutputPort" to="JvcAll.In1" />
+-->
+    <connection from="Vd2.vector_OUTPORT" to="JcAll.In1" />
+    <connection from="Vd2.vector_OUTPORT" to="JvcAll.In1" />
+    <connection from="TorsoPosAggregate.OutputPort" to="Jc.In0" />
+    <connection from="TorsoPanTransmision.JointPosition_OUTPORT" to="TorsoPosAggregate.InputPort_0" />
+    <connection from="TorsoVelAggregate.OutputPort" to="Jvc.In0" />
+    <connection from="TorsoPanTransmision.JointVelocity_OUTPORT" to="TorsoVelAggregate.InputPort_0" />
+    <connection from="Jc.Out" to="JcAll.In0" />
+    <connection from="Jvc.Out" to="JvcAll.In0" />
+    <connection from="TorsoTrqSplit.OutputPort_0" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
+    <connection from="Ts.Out0" to="TorsoTrqSplit.InputPort" />
+    <connection from="Jc.Out" to="CImp.JointPosition_INPORT" />
+    <connection from="Jvc.Out" to="CImp.JointVelocity_INPORT" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="CImp.MassMatrixInv_INPORT" />
+    <connection from="CImp.JointTorqueCommand_OUTPORT" to="Ts.In" />
+    <connection from="PoseIntRight.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_r_pose_OUTPORT" to="PoseIntRight.CartesianTrajectoryCommand_INPORT" />
+    <connection from="PoseIntRight.generator_status_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.rCart_status_INPORT" />
+    <connection from="PoseIntRight.CartesianPositionCommand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.rCart_cmd_INPORT" />
+    <connection from="PoseIntLeft.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand1_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_l_pose_OUTPORT" to="PoseIntLeft.CartesianTrajectoryCommand_INPORT" />
+    <connection from="PoseIntLeft.generator_status_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.lCart_status_INPORT" />
+    <connection from="PoseIntLeft.CartesianPositionCommand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.lCart_cmd_INPORT" />
+    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand0_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_r_tool_OUTPORT" to="ToolIntRight.CartesianTrajectoryCommand_INPORT" />
+    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand1_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_l_tool_OUTPORT" to="ToolIntLeft.CartesianTrajectoryCommand_INPORT" />
+    <connection from="ImpedanceIntRight.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand0_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_r_imp_OUTPORT" to="ImpedanceIntRight.CartesianImpedanceTrajectoryCommand_INPORT" />
+    <connection from="ImpedanceIntLeft.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand1_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.cart_l_imp_OUTPORT" to="ImpedanceIntLeft.CartesianImpedanceTrajectoryCommand_INPORT" />
+    <connection from="Jc.Out" to="JntImp.JointPosition_INPORT" />
+    <connection from="Jvc.Out" to="JntImp.JointVelocity_INPORT" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="JntImp.MassMatrix_INPORT" />
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="Ts.In" />
+    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" />
+    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" />
+    <connection from="Jc.Out" to="FK.JointPosition_INPORT" />
+    <connection from="FK.LeftPosition_OUTPORT" to="PoseIntLeft.CartesianPosition_INPORT" />
+    <connection from="FK.RightPosition_OUTPORT" to="PoseIntRight.CartesianPosition_INPORT" />
+    <connection from="FK.RightWrist_OUTPORT" to="RightForceTransformation.CurrentWristPose" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rFt_sfw_OUTPORT" to="RightForceTransformation.CurrentSensorSlowFilteredWrench" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rFt_rw_OUTPORT" to="RightForceTransformation.CurrentSensorFastFilteredWrench" />
+    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="RightForceTransformation.Tool" />
+    <connection from="FK.LeftWrist_OUTPORT" to="LeftForceTransformation.CurrentWristPose" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lFt_sfw_OUTPORT" to="LeftForceTransformation.CurrentSensorSlowFilteredWrench" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lFt_rw_OUTPORT" to="LeftForceTransformation.CurrentSensorFastFilteredWrench" />
+    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="LeftForceTransformation.Tool" />
+    <connection from="RightForceControl.OutputEndEffectorPose" to="CImp.CartPositionCommand0_INPORT" />
+    <connection from="FK.RightPosition_OUTPORT" to="RightForceControl.CurrentEndEffectorPose" />
+    <connection from="RightForceTransformation.OutputEndEffectorWrench" to="RightForceControl.CurrentEndEffectorWrench" />
+    <connection from="LeftForceControl.OutputEndEffectorPose" to="CImp.CartPositionCommand1_INPORT" />
+    <connection from="FK.LeftPosition_OUTPORT" to="LeftForceControl.CurrentEndEffectorPose" />
+    <connection from="LeftForceTransformation.OutputEndEffectorWrench" to="LeftForceControl.CurrentEndEffectorWrench" />
+    <connection from="Jc.Out" to="TrajectoryGeneratorJoint.JointPosition_INPORT" />
+    <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" />
+    <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.jnt_q_desired_INPORT" />
+    <connection from="TrajectoryGeneratorJoint.generator_status_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.jnt_status_INPORT" />
+    <connection from="TrajectoryGeneratorJoint.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.jnt_OUTPORT" to="TrajectoryGeneratorJoint.jnt_INPORT" />
+    <connection from="Jc.Out" to="JntLimit.JointPosition_INPORT" />
+    <connection from="Jvc.Out" to="JntLimit.JointVelocity_INPORT" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" />
+    <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" />
+    <connection from="master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT" to="safe.status_INPORT" />
+    <connection from="Jc.Out" to="safe.JointPosition_INPORT" />
+    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" />
+    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" />
+    <connection from="idle.cmd_sc_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.sc_INPORT" />
+    <connection from="master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT" to="idle.status_INPORT" />
+    <connection from="idle.JointTorqueCommand_OUTPORT" to="Ts.In" />
+    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.test_INPORT" />
+    <ros_stream port="velma_core_cs_ve_body_msgs_StatusSplit._OUTPORT" topic="/velma_core_cs/velma_core_cs_ve_body_msgs_StatusSplit" />
+    <connection from="JcAll.Out" to="velma_core_cs_task_cs_msgs_StatusConcate.q_INPORT" />
+    <connection from="JvcAll.Out" to="velma_core_cs_task_cs_msgs_StatusConcate.dq_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_r_OUTPORT" to="velma_core_cs_ve_hand_msgs_right_CommandConcate._INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_l_OUTPORT" to="velma_core_cs_ve_hand_msgs_left_CommandConcate._INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_r_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_left_StatusSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_l_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.p_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.p_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.f_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.f_INPORT" />
+    <ros_stream port="velma_core_cs_ve_body_msgs_CommandConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
+
+<!--
+//    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
+//    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
+#    <connection from="HeadPanTransmisionInv.MotorCurrent_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT" />
+#    <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT" />
+#    <connection from="HeadTiltTransmisionInv.MotorCurrent_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT" />
+#    <connection from="HeadTiltTransmisionInv.MotorVelocity_OUTPORT" to="velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT" to="JcAll.In2" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT" to="JcAll.In3" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT" to="JvcAll.In2" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT" to="JvcAll.In3" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_t_OUTPORT" to="TorquePubRight.InJointTorque" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT" to="TorquePubRight.InGravityTorque" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_t_OUTPORT" to="TorquePubLeft.InJointTorque" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT" to="TorquePubLeft.InGravityTorque" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.lArm_gt_OUTPORT" to="VG.GravTrqLeft" />
+#    <connection from="velma_core_cs_ve_body_msgs_StatusSplit.rArm_gt_OUTPORT" to="VG.GravTrqRight" />
+#    <ros_stream port="velma_core_cs_ve_body_msgs_StatusSplit.rArm_w_OUTPORT" topic="/right_arm/wrench" />
+#    <ros_stream port="velma_core_cs_ve_body_msgs_StatusSplit.lArm_w_OUTPORT" topic="/left_arm/wrench" />
+#    <ros_stream port="Dwr.Out" topic="/right_arm/wrench" />
+#    <ros_stream port="Dwl.Out" topic="/left_arm/wrench" />
+#    <ros_stream port="TJ.Joy_INPORT" topic="/joy" />
+#    <ros_stream port="TGR.TriggerStamp" topic="/camera_trigger_stamp" />
+#    <connection from="FK.RightPosition_OUTPORT" to="TfPub.In4" />
+#    <connection from="FK.LeftPosition_OUTPORT" to="TfPub.In5" />
+#    <ros_stream port="RightForceTransformation.ToolGravityParam" topic="/right_arm/tg_param" />
+#    <ros_stream port="RightForceTransformation.OutputEndEffectorWrench" topic="/right_arm/transformed_wrench" />
+#    <ros_stream port="LeftForceTransformation.ToolGravityParam" topic="/left_arm/tg_param" />
+#    <ros_stream port="LeftForceTransformation.OutputEndEffectorWrench" topic="/left_arm/transformed_wrench" />
+//    <connection from="RightForceControl.IsSynchronisedIn" to="Irp6otHardwareInterface.IsSynchronised" />
+//    <connection from="RightForceControl.GeneratorActiveOut" to="Irp6otHardwareInterface.GeneratorActiveIn" />
+#    <ros_stream port="RightForceControl.CurrentFclParam" topic="/right_arm/fcl_param" />
+//    <connection from="LeftForceControl.IsSynchronisedIn" to="Irp6otHardwareInterface.IsSynchronised" />
+//    <connection from="LeftForceControl.GeneratorActiveOut" to="Irp6otHardwareInterface.GeneratorActiveIn" />
+#    <ros_stream port="LeftForceControl.CurrentFclParam" topic="/left_arm/fcl_param" />
+//    <connection from="TJ.NullSpaceTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
+#    <connection from="VG.GravTrq" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
+#    <connection from="HeadPosAggregate.OutputPort" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
+#    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
+#    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
+-->
+</subsystem>
+

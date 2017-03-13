@@ -123,14 +123,21 @@ connect("HeadTiltVelocityLimiter.Position_OUTPORT",  "velma_core_cs_ve_body_msgs
 connect("velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_q_OUTPORT",   "HeadPanTransmision.MotorPosition_INPORT", ConnPolicy());
 connect("velma_core_cs_ve_body_msgs_StatusSplit.hpMotor_dq_OUTPORT",  "HeadPanTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT", ConnPolicy())
-connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT", ConnPolicy())
+#TODO: use real data
+loadComponent("Sd", "ScalarDummy");
+connect("Sd.scalar_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT", ConnPolicy())
+connect("Sd.scalar_OUTPORT", "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT", ConnPolicy())
+#connect("HeadPanTransmisionInv.MotorCurrent_OUTPORT",   "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_i_INPORT", ConnPolicy())
+#connect("HeadPanTransmisionInv.MotorVelocity_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.hpMotor_dq_INPORT", ConnPolicy())
 
 connect("velma_core_cs_ve_body_msgs_StatusSplit.htMotor_q_OUTPORT",   "HeadTiltTransmision.MotorPosition_INPORT", ConnPolicy());
 connect("velma_core_cs_ve_body_msgs_StatusSplit.htMotor_dq_OUTPORT",  "HeadTiltTransmision.MotorVelocity_INPORT", ConnPolicy());
 
-connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT", ConnPolicy())
-connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT", ConnPolicy())
+#TODO: use real data
+connect("Sd.scalar_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT", ConnPolicy())
+connect("Sd.scalar_OUTPORT", "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT", ConnPolicy())
+#connect("HeadTiltTransmisionInv.MotorCurrent_OUTPORT",  "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_i_INPORT", ConnPolicy())
+#connect("HeadTiltTransmisionInv.MotorVelocity_OUTPORT", "velma_core_cs_ve_body_msgs_CommandConcate.htMotor_dq_INPORT", ConnPolicy())
 
 ## vector concatenations and splits
 
@@ -140,11 +147,20 @@ connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_q_OUTPORT",  "Jc.In2", Conn
 connect("velma_core_cs_ve_body_msgs_StatusSplit.rArm_dq_OUTPORT", "Jvc.In1", ConnPolicy());
 connect("velma_core_cs_ve_body_msgs_StatusSplit.lArm_dq_OUTPORT", "Jvc.In2", ConnPolicy());
 
-connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
-connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
 
-connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
-connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
+loadComponent("Vd8", "VectorDummy8");
+
+#TODO: use real data
+connect("Vd8.vector_OUTPORT", "JcAll.In2", ConnPolicy());
+connect("Vd8.vector_OUTPORT", "JcAll.In3", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JcAll.In2", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JcAll.In3", ConnPolicy());
+
+#TODO: use real data
+connect("Vd8.vector_OUTPORT", "JvcAll.In2", ConnPolicy());
+connect("Vd8.vector_OUTPORT", "JvcAll.In3", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.rHand_q_OUTPORT", "JvcAll.In2", ConnPolicy());
+#connect("velma_core_cs_ve_body_msgs_StatusSplit.lHand_q_OUTPORT", "JvcAll.In3", ConnPolicy());
 
 loadComponent("Ts", "VectorSplit1_7_7_0");
 connect("Ts.Out1", "velma_core_cs_ve_body_msgs_CommandConcate.rArm_t_INPORT", ConnPolicy());
@@ -415,12 +431,12 @@ connect("JntLimit.JointTorqueCommand_OUTPORT", "CImp.NullSpaceTorqueCommand_INPO
 
 
 
-loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGeneratorVelmaHead");
-HeadTrajectoryGeneratorJoint.loadService("rosparam");
-HeadTrajectoryGeneratorJoint.rosparam.getAll();
-connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
-connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","HeadPosSplit.InputPort", ConnPolicy());
-connect("velma_core_cs_task_cs_msgs_CommandSplit.head_OUTPORT", "TrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
+#loadComponent("HeadTrajectoryGeneratorJoint", "InternalSpaceSplineTrajectoryGeneratorVelmaHead");
+#HeadTrajectoryGeneratorJoint.loadService("rosparam");
+#HeadTrajectoryGeneratorJoint.rosparam.getAll();
+#connect("HeadPosAggregate.OutputPort","HeadTrajectoryGeneratorJoint.JointPosition_INPORT", ConnPolicy());
+#connect("HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT","HeadPosSplit.InputPort", ConnPolicy());
+#connect("velma_core_cs_task_cs_msgs_CommandSplit.head_OUTPORT", "HeadTrajectoryGeneratorJoint.jnt_INPORT", ConnPolicy());
 
 
 
@@ -434,6 +450,9 @@ loadComponent("idle", "velma_core_cs_types::IdleComponent");
 connect("idle.cmd_sc_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.sc_INPORT", ConnPolicy())
 connect("master_component.velma_core_cs_ve_body_msgs_Status_OUTPORT","idle.status_INPORT", ConnPolicy());
 connect("idle.JointTorqueCommand_OUTPORT", "Ts.In", ConnPolicy())
+
+Sd.configure();
+Vd8.configure();
 
 // CONFIGURE
 Jc.configure();
@@ -449,7 +468,7 @@ ImpedanceIntRight.configure()
 ImpedanceIntLeft.configure()
 JntLimit.configure();
 TrajectoryGeneratorJoint.configure();
-HeadTrajectoryGeneratorJoint.configure();
+#HeadTrajectoryGeneratorJoint.configure();
 FK.configure();
 JntImp.configure();
 
@@ -458,16 +477,30 @@ HeadTiltVelocityLimiter.configure();
 
 connect("velma_core_cs_ve_body_msgs_StatusSplit.test_OUTPORT","velma_core_cs_ve_body_msgs_CommandConcate.test_INPORT", ConnPolicy())
 
+stream("velma_core_cs_ve_body_msgs_StatusSplit._OUTPORT", ros.comm.topic("/velma_core_cs/velma_core_cs_ve_body_msgs_StatusSplit"));
+
 connect("JcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.q_INPORT", ConnPolicy());
 connect("JvcAll.Out", "velma_core_cs_task_cs_msgs_StatusConcate.dq_INPORT", ConnPolicy());
 
+# hands commands
+connect("velma_core_cs_task_cs_msgs_CommandSplit.hand_r_OUTPORT", "velma_core_cs_ve_hand_msgs_right_CommandConcate._INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_CommandSplit.hand_l_OUTPORT", "velma_core_cs_ve_hand_msgs_left_CommandConcate._INPORT", ConnPolicy());
 
+# hands status
+connect("velma_core_cs_ve_hand_msgs_right_StatusSplit.hand_OUTPORT",    "velma_core_cs_task_cs_msgs_StatusConcate.hand_r_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_hand_msgs_left_StatusSplit.hand_OUTPORT",     "velma_core_cs_task_cs_msgs_StatusConcate.hand_l_INPORT", ConnPolicy());
+
+connect("velma_core_cs_ve_hand_msgs_right_StatusSplit.p_OUTPORT",    "velma_core_cs_task_cs_msgs_StatusConcate.p_INPORT", ConnPolicy());
+connect("velma_core_cs_ve_hand_msgs_right_StatusSplit.f_OUTPORT",    "velma_core_cs_task_cs_msgs_StatusConcate.f_INPORT", ConnPolicy());
 
 stream("velma_core_cs_ve_body_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_core_cs/ve_body_msgs_CommandConcate"));
 
 //------------------------------------------------------------------------------
 
 TJ.start();
+
+Sd.start();
+Vd8.start();
 
 TorsoPanTransmision.start();
 TorsoPanTransmisionInv.start();
@@ -480,7 +513,7 @@ HeadTiltVelocityLimiter.start();
 HeadPosSplit.start();
 HeadPosAggregate.start();
 HeadVelAggregate.start();
-HeadTrajectoryGeneratorJoint.start();
+#HeadTrajectoryGeneratorJoint.start();
 TorsoTrqSplit.start();
 TorsoPosAggregate.start();
 TorsoVelAggregate.start();

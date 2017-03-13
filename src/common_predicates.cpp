@@ -27,6 +27,8 @@
 
 #include "common_predicates.h"
 
+#include <rtt/Logger.hpp>
+
 bool cartImpCommandValid(const velma_core_cs_task_cs_msgs::Command& cmd) {
     return  cmd.cart_r.imp_valid || cmd.cart_r.pose_valid || cmd.cart_r.tool_valid ||
             cmd.cart_l.imp_valid || cmd.cart_l.pose_valid || cmd.cart_l.tool_valid;
@@ -74,6 +76,7 @@ bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std
             if (components[i]->getName() == running_components_names[j]) {
                 // this component should be in running state
                 if (task_state != RTT::TaskContext::Running) {
+                    RTT::Logger::log() << RTT::Logger::Error << "component \'" << components[i]->getName() << "\' should be in running state" << RTT::Logger::endl;
                     return false;
                 }
             }
@@ -81,6 +84,7 @@ bool allComponentsOk(const std::vector<RTT::TaskContext*> &components, const std
 
         // anyway, the component should be in stopped or running state
         if (task_state != RTT::TaskContext::Stopped && task_state != RTT::TaskContext::Running) {
+            RTT::Logger::log() << RTT::Logger::Error << "component \'" << components[i]->getName() << "\' is not in running or stopped state" << RTT::Logger::endl;
             // so the task is in on of the states:
             // Init, PreOperational, FatalError, Exception, RunTimeError
             return false;

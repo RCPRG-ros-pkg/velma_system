@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
-#include "input_data.h"
+#include "velma_core_cs/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
@@ -55,7 +54,36 @@ public:
     {
         // this behavior is stopped only if lower subsystem is operational (has no error condition)
         // and started to listen this level
-        if (in_data->status_.sc.error == false && in_data->status_.sc.safe_behavior == false) {
+        if (in_data->b_st.sc_valid == true && in_data->b_st.sc.error == false && in_data->b_st.sc.safe_behavior == false &&
+            in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
+class StateIdle : public StateBase {
+public:
+    StateIdle() :
+        StateBase("state_velma_core_cs_idle", "idle", "behavior_velma_core_cs_idle")
+    {
+    }
+
+    bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_cs_idle") {
+            return false;
+        }
+
+        // this behavior is started only if lower subsystem is not operational
+        // and is not listening this level
+        if (in_data->b_st.sc.safe_behavior == true ||
+            !in_data->b_st.sc_valid || !in_data->b_st.rArm_valid || !in_data->b_st.lArm_valid || !in_data->b_st.tMotor_valid) {
             return true;
         }
 
@@ -66,4 +94,5 @@ public:
 };  // namespace velma_core_cs_types
 
 REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorIdle );
+REGISTER_STATE( velma_core_cs_types::StateIdle );
 

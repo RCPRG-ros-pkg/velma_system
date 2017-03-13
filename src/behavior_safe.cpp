@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
-#include "input_data.h"
+#include "velma_core_cs/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_cs_types {
@@ -37,6 +36,8 @@ public:
         BehaviorBase("behavior_velma_core_cs_safe", "safe")
     {
         addRunningComponent("safe");
+        addRunningComponent("Mass");
+        addRunningComponent("FK");
         addRunningComponent("JntImp");
     }
 
@@ -45,7 +46,17 @@ public:
                 const std::vector<RTT::TaskContext*> &components,
                 ErrorCausePtr result) const
     {
-        if (in_data->status_.sc.safe_behavior == true) {
+        if (in_data->b_st.sc.safe_behavior == true) {
+            if (result) {
+                result->setBit(VE_BODY_SAFE_bit, true);
+            }
+            return true;
+        }
+
+        if (!in_data->b_st.sc_valid || !in_data->b_st.rArm_valid || !in_data->b_st.lArm_valid || !in_data->b_st.tMotor_valid) {
+            if (result) {
+                result->setBit(VE_BODY_ST_INV_bit, true);
+            }
             return true;
         }
 
@@ -61,10 +72,10 @@ public:
         }
 
 //        // the error situation in ve_body have to be ended
-//        if (in_data->status_.sc.error == false) {
+//        if (in_data->b_st.sc.error == false) {
 
             // and a new command from task_cs have to be valid
-            if (oneCommandValid(in_data->cmd_)) {
+            if (oneCommandValid(in_data->cmd)) {
                 return true;
             }
 //        }
@@ -73,7 +84,41 @@ public:
     }
 };
 
+class StateSafe : public StateBase {
+public:
+    StateSafe() :
+        StateBase("state_velma_core_cs_safe", "safe", "behavior_velma_core_cs_safe")
+    {
+    }
+
+    bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_cs_safe") {
+            return false;
+        }
+
+        if (in_data->b_st.sc.safe_behavior == true) {
+            return false;
+        }
+
+        if (!in_data->b_st.sc_valid || !in_data->b_st.rArm_valid || !in_data->b_st.lArm_valid || !in_data->b_st.tMotor_valid) {
+            return false;
+        }
+
+        if (in_error || (prev_state_name == "state_velma_core_cs_idle")) {
+            return true;
+        }
+
+        return false;
+    }
+};
+
 };  // namespace velma_core_cs_types
 
 REGISTER_BEHAVIOR( velma_core_cs_types::BehaviorSafe );
+REGISTER_STATE( velma_core_cs_types::StateSafe );
 
