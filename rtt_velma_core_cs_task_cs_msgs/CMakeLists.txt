@@ -8,5 +8,5 @@ ros_generate_rtt_typekit(velma_core_cs_task_cs_msgs)
 orocos_generate_package(
   DEPENDS velma_core_cs_task_cs_msgs
   DEPENDS_TARGETS rtt_roscomm rtt_std_msgs rtt_geometry_msgs rtt_cartesian_trajectory_msgs rtt_control_msgs
-
+  rtt_velma_core_ve_hand_re_hand_msgs rtt_velma_core_cs_ve_hand_msgs
 )
