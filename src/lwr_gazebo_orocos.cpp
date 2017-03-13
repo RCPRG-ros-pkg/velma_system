@@ -104,17 +104,26 @@ using namespace RTT;
     bool LWRGazebo::configureHook() {
         Logger::In in("LWRGazebo::configureHook");
 
+        Logger::log() << Logger::Info << "node namespace: " << ros::this_node::getNamespace() << Logger::endl;
+        Logger::log() << Logger::Info << "node name: " << ros::this_node::getName() << Logger::endl;
+
         if (init_joint_names_.size() != init_joint_positions_.size()) {
             Logger::log() << Logger::Error <<
-                "ERROR: LWRGazebo::configureHook: init_joint_names_.size() != init_joint_positions_.size(), " <<
+                "init_joint_names_.size() != init_joint_positions_.size(), " <<
                 init_joint_names_.size() << "!=" << init_joint_positions_.size() << Logger::endl;
+            return false;
+        }
+
+        if (init_joint_names_.size() == 0) {
+            Logger::log() << Logger::Error <<
+                "ROS parameter init_joint_names is empty" << Logger::endl;
             return false;
         }
 
         std::map<std::string, double> init_joint_map;
         for (int i=0; i<init_joint_names_.size(); i++) {
             Logger::log() << Logger::Info <<
-                "LWRGazebo::configureHook: inital position: " << init_joint_names_[i] << " " <<
+                "inital position: " << init_joint_names_[i] << " " <<
                 init_joint_positions_[i] << Logger::endl;
             init_joint_map[init_joint_names_[i]] = init_joint_positions_[i];
         }
@@ -126,6 +135,12 @@ using namespace RTT;
 
         std::vector<double > init_q_vec;
         for (int i = 0; i < joints_.size(); ++i) {
+            std::map<std::string, double>::const_iterator it = init_joint_map.find(joints_[i]->GetName());
+            if (it == init_joint_map.end()) {
+                Logger::log() << Logger::Error <<
+                    "could not find joint " << joints_[i]->GetName() << "in init_joint_map ROS parameter" << Logger::endl;
+                return false;
+            }
             init_q_vec.push_back(init_joint_map[joints_[i]->GetName()]);
         }
         setInitialPosition(init_q_vec);

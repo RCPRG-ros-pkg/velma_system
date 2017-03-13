@@ -1,0 +1,69 @@
+#ros.import("rtt_rosclock");
+ros.import("rtt_barrett_hand_controller_msgs");
+ros.import("rtt_geometry_msgs");
+ros.import("rtt_velma_core_cs_ve_body_msgs");
+ros.import("rtt_velma_core_cs_ve_body_subsystem_ports");
+ros.import("velma_core_ve_body");
+ros.import("rtt_velma_core_ve_body_re_body_msgs");
+ros.import("rtt_velma_core_ve_body_re_body_subsystem_ports");
+
+ros.import("eigen_typekit");
+ros.import("rtt_std_msgs");
+ros.import("port_operations");
+
+ros.import("rtt_control_msgs");
+ros.import("lwr_fri");
+ros.import("velma_controller");
+ros.import("rtt_cartesian_trajectory_msgs");
+ros.import("rtt_std_msgs");
+ros.import("rtt_tf");
+ros.import("velma_sim_gazebo");
+
+//------------------------------------------------------------------------------
+//-- Simulation interface
+//------------------------------------------------------------------------------
+
+bool useSimulationTime()   { return true; }
+
+setActivity("LeftHandOptoforce", 0, 6, ORO_SCHED_RT)
+LeftHandOptoforce.loadService("rosparam")
+LeftHandOptoforce.rosparam.getAll()
+LeftHandOptoforce.configure()
+
+// TODO: uncomment
+//stream("LeftHandOptoforce.force_0_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_0"))
+//stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
+//stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
+
+setActivity("LeftHand", 0, 6, ORO_SCHED_RT)
+LeftHand.loadService("rosparam")
+LeftHand.rosparam.getAll()
+LeftHand.configure()
+
+#
+# hand status concate for master_component and other components
+#
+
+connect("LeftHand.q_OUTPORT",                   "velma_core_cs_ve_hand_msgs_left_StatusConcate.hand_q_INPORT", ConnPolicy())
+connect("LeftHand.status_OUTPORT",              "velma_core_cs_ve_hand_msgs_left_StatusConcate.hand_s_INPORT", ConnPolicy())
+
+# TODO:
+#LeftHand.t_OUTPORT
+
+#
+# hand command split for master_component and other components
+#
+
+connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_q_OUTPORT",        "LeftHand.q_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_dq_OUTPORT",       "LeftHand.v_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_max_i_OUTPORT",    "LeftHand.t_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_max_p_OUTPORT",    "LeftHand.mp_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_hold_OUTPORT",     "LeftHand.hold_INPORT", ConnPolicy())
+
+# TODO:
+#LeftHand.max_measured_pressure_INPORT
+#LeftHand.reset_fingers_INPORT
+
+LeftHandOptoforce.start();
+LeftHand.start();
+

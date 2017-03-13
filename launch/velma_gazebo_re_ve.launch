@@ -4,7 +4,7 @@
   <arg name="world_name" default="worlds/empty.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
   <arg name="use_kinect" default="false"/>
   <arg name="gui" default="false"/>
-  <arg name="DEBUG" default="false"/>
+  <arg name="debug" default="false"/>
 
   <!-- Orocos target (gnulinux, xenomai, etc) -->
   <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
@@ -19,21 +19,19 @@
     <arg name="gui" value="$(arg gui)"/>
     <arg name="verbose" value="true"/>
     <arg name="headless" value="false"/>
-    <arg name="debug" value="$(arg DEBUG)"/>
+    <arg name="debug" value="$(arg debug)"/>
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
   </include>
-<!--
-  <node
-    name="velma_high_level"
-    pkg="rtt_ros" type="deployer"
-    args="- -DeployerName velma_high_level -l $(arg LOG_LEVEL) -s $(find velma_sim_gazebo)/config/velma_high.ops - -" output="screen">
-    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
-    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>
-  </node>
--->
+
   <!-- load robot description-->
   <param name="/use_sim_time" value="true"/>
-  <param name="/robot_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro' gazebo_script:=true gazebo_ops_file:='$(find velma_sim_gazebo)/config/velma_core_ve_body.ops' use_gazebo_kinect:=$(arg use_kinect)" />
+  <param name="/robot_description"
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'
+        gazebo_scripts:=true
+        gazebo_ops_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_ve_body.ops'
+        gazebo_ops_file_re_right_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handright.ops'
+        gazebo_ops_file_re_left_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handleft.ops'
+        use_gazebo_kinect:=$(arg use_kinect)" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
@@ -42,7 +40,9 @@
     <param name="use_tf_static" value="false"/>
   </node>
 
-  <group ns="gazebo">
+  <node name="unpause_on_init" pkg="velma_sim_gazebo" type="unpause_on_init.py" output="screen" />
+
+  <group ns="/gazebo">
     <rosparam>
       LWRrSim:
         name: right
@@ -76,14 +76,6 @@
           iyy: 0.1
           iyz: 0.0
           izz: 0.1
-      safe:
-        l_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
-        r_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
-        torso_damping_factor: 20
-        arm_q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
-        arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-        arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
-        arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
       RightHand:
         prefix: right
       LeftHand:
@@ -102,9 +94,28 @@
         joint_name: leftFtSensorJoint
         transform_xyz: [0, 0, 0]
         transform_rpy: [0, 0, 0]
+      safe:
+        l_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        r_arm_damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        torso_damping_factor: 20
+        arm_q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+        arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
+        arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
+      RightHand:
+        prefix: right
+      RightHandTactile:
+        prefix: right
     </rosparam>
-
-<!--    <include file="$(find velma_controller)/launch/velma_common_params.launch" />-->
   </group>
+
+<!--
+      LeftHand:
+        prefix: left
+      LeftHandOptoforce:
+        device_name: gazebo_leftHand
+        n_sensors: 3
+        frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
+-->
 
 </launch>

@@ -27,7 +27,7 @@
 
   <!-- start gazebo server-->
   <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
-	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart" >
+	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u --sim_clock_period 0.0001" >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
 <!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
   </node>

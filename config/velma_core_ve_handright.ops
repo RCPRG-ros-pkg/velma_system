@@ -1,0 +1,106 @@
+#ros.import("rtt_rosclock");
+ros.import("rtt_barrett_hand_controller_msgs");
+ros.import("rtt_geometry_msgs");
+ros.import("rtt_velma_core_cs_ve_body_msgs");
+ros.import("rtt_velma_core_cs_ve_body_subsystem_ports");
+ros.import("velma_core_ve_body");
+ros.import("rtt_velma_core_ve_body_re_body_msgs");
+ros.import("rtt_velma_core_ve_body_re_body_subsystem_ports");
+
+ros.import("eigen_typekit");
+ros.import("rtt_std_msgs");
+ros.import("port_operations");
+
+ros.import("rtt_control_msgs");
+ros.import("lwr_fri");
+ros.import("velma_controller");
+ros.import("rtt_cartesian_trajectory_msgs");
+ros.import("rtt_std_msgs");
+ros.import("rtt_tf");
+ros.import("velma_sim_gazebo");
+
+//------------------------------------------------------------------------------
+//-- Simulation interface
+//------------------------------------------------------------------------------
+
+bool useSimulationTime()   { return true; }
+
+setActivity("RightHandTactile", 0, 6, ORO_SCHED_RT)
+RightHandTactile.loadService("rosparam")
+RightHandTactile.rosparam.getAll()
+RightHandTactile.configure()
+
+#stream("RightHandTactile.BHPressureState_OUTPORT", ros.comm.topic("/right_hand/BHPressureState"))
+#stream("RightHandTactile.calibrate_tactile_sensors_INPORT", ros.comm.topic("/right_hand/calibrate_tactile_sensors"))
+#stream("RightHandTactile.set_median_filter_INPORT", ros.comm.topic("/right_hand/set_median_filter"))
+#stream("RightHandTactile.tactile_info_OUTPORT", ros.comm.topic("/right_hand/tactile_info_out"))
+//connect("RightHandTactile.max_measured_pressure_OUTPORT", "Hand.max_measured_pressure_in", ConnPolicy());
+
+#setActivity("LeftHandOptoforce", 0, 6, ORO_SCHED_RT)
+#LeftHandOptoforce.loadService("rosparam")
+#LeftHandOptoforce.rosparam.getAll()
+#LeftHandOptoforce.configure()
+
+// TODO: uncomment
+//stream("LeftHandOptoforce.force_0_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_0"))
+//stream("LeftHandOptoforce.force_1_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_1"))
+//stream("LeftHandOptoforce.force_2_OUTPORT", ros.comm.topic("/left_hand/optoforce/force_2"))
+
+setActivity("RightHand", 0, 6, ORO_SCHED_RT)
+RightHand.loadService("rosparam")
+RightHand.rosparam.getAll()
+RightHand.configure()
+
+#setActivity("LeftHand", 0, 6, ORO_SCHED_RT)
+#LeftHand.loadService("rosparam")
+#LeftHand.rosparam.getAll()
+#LeftHand.configure()
+
+#loadComponent("bypass","velma_core_ve_body_types::BypassComponent")
+
+#loadComponent("safe","velma_core_ve_body_types::SafeComponent");
+
+#loadComponent("packet_counter", "velma_core_ve_body_types::PacketCounterComponent");
+#packet_counter.configure();
+
+#
+# hand status concate for master_component and other components
+#
+
+connect("RightHand.q_OUTPORT",                  "velma_core_cs_ve_hand_msgs_right_StatusConcate.hand_q_INPORT", ConnPolicy())
+connect("RightHand.status_OUTPORT",             "velma_core_cs_ve_hand_msgs_right_StatusConcate.hand_s_INPORT", ConnPolicy())
+#connect("LeftHand.q_OUTPORT",                   "velma_core_cs_ve_hand_msgs_left_StatusConcate.hand_q_INPORT", ConnPolicy())
+#connect("LeftHand.status_OUTPORT",              "velma_core_cs_ve_hand_msgs_left_StatusConcate.hand_s_INPORT", ConnPolicy())
+
+# TODO:
+#RightHand.t_OUTPORT
+#LeftHand.t_OUTPORT
+
+#
+# hand command split for master_component and other components
+#
+
+connect("velma_core_cs_ve_hand_msgs_right_CommandSplit.hand_q_OUTPORT",        "RightHand.q_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_right_CommandSplit.hand_dq_OUTPORT",       "RightHand.v_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_right_CommandSplit.hand_max_i_OUTPORT",    "RightHand.t_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_right_CommandSplit.hand_max_p_OUTPORT",    "RightHand.mp_INPORT", ConnPolicy())
+connect("velma_core_cs_ve_hand_msgs_right_CommandSplit.hand_hold_OUTPORT",     "RightHand.hold_INPORT", ConnPolicy())
+
+#connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_q_OUTPORT",        "LeftHand.q_INPORT", ConnPolicy())
+#connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_dq_OUTPORT",       "LeftHand.v_INPORT", ConnPolicy())
+#connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_max_i_OUTPORT",    "LeftHand.t_INPORT", ConnPolicy())
+#connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_max_p_OUTPORT",    "LeftHand.mp_INPORT", ConnPolicy())
+#connect("velma_core_cs_ve_hand_msgs_left_CommandSplit.hand_hold_OUTPORT",     "LeftHand.hold_INPORT", ConnPolicy())
+
+# TODO:
+#RightHand.max_measured_pressure_INPORT
+#RightHand.reset_fingers_INPORT
+#LeftHand.max_measured_pressure_INPORT
+#LeftHand.reset_fingers_INPORT
+
+RightHandTactile.start();
+#LeftHandOptoforce.start();
+RightHand.start();
+#LeftHand.start();
+#packet_counter.start();
+
