@@ -344,11 +344,11 @@ Class used as Velma robot Interface.
 #        self.action_impedance_client["right"].wait_for_server()
 #        self.action_impedance_client["left"].wait_for_server()
 
-#        self.action_move_hand_client = {
-#            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
-#            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
-#        self.action_move_hand_client["right"].wait_for_server()
-#        self.action_move_hand_client["left"].wait_for_server()
+        self.action_move_hand_client = {
+            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
+            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
+        self.action_move_hand_client["right"].wait_for_server()
+        self.action_move_hand_client["left"].wait_for_server()
 
 
 #        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
@@ -490,7 +490,8 @@ Class used as Velma robot Interface.
         CartImpResult.INVALID_GOAL:'INVALID_GOAL',
         CartImpResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
         CartImpResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
-        CartImpResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED', }
+        CartImpResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED',
+        CartImpResult.UNKNOWN_ERROR:'UNKNOWN_ERROR', }
 
     def waitForEffector(self, prefix, timeout_s=None):
         if timeout_s == None:
