@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="LOG_LEVEL" default="Info"/>
-  <arg name="DEBUG" default="false"/>
+  <arg name="debug" default="false"/>
 
-  <arg unless="$(arg DEBUG)" name="LAUNCH_PREFIX" value=""/>
-  <arg     if="$(arg DEBUG)" name="LAUNCH_PREFIX" value="gdb --args "/>
+  <arg unless="$(arg debug)" name="LAUNCH_PREFIX" value=""/>
+  <arg     if="$(arg debug)" name="LAUNCH_PREFIX" value="gdb --args "/>
 
   <!-- Orocos target (gnulinux, xenomai, etc) -->
   <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
@@ -15,7 +15,7 @@
     launch-prefix="$(arg LAUNCH_PREFIX)"
     name="velma_task_cs_ros_interface"
     pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_task_cs_ros_interface -l $(arg LOG_LEVEL) -s $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.ops -m velma_task_cs_ros_interface --" output="screen">
+    args="--DeployerName velma_task_cs_ros_interface -l $(arg LOG_LEVEL) -x $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.xml -m velma_task_cs_ros_interface --" output="screen">
 <!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
 <!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
@@ -31,6 +31,10 @@
         joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint, head_pan_joint, head_tilt_joint, right_HandFingerOneKnuckleOneJoint, right_HandFingerOneKnuckleTwoJoint, right_HandFingerOneKnuckleThreeJoint, right_HandFingerTwoKnuckleOneJoint, right_HandFingerTwoKnuckleTwoJoint, right_HandFingerTwoKnuckleThreeJoint, right_HandFingerThreeKnuckleTwoJoint, right_HandFingerThreeKnuckleThreeJoint, left_HandFingerOneKnuckleOneJoint, left_HandFingerOneKnuckleTwoJoint, left_HandFingerOneKnuckleThreeJoint, left_HandFingerTwoKnuckleOneJoint, left_HandFingerTwoKnuckleTwoJoint, left_HandFingerTwoKnuckleThreeJoint, left_HandFingerThreeKnuckleTwoJoint, left_HandFingerThreeKnuckleThreeJoint ]
         constant_names: [leftFtSensorJoint, rightFtSensorJoint]
         constant_positions: [0, 0]
+      LeftHandAction:
+        prefix: "left"
+      RightHandAction:
+        prefix: "right"
     </rosparam>
 <!--
       rightHandMoveAction:

@@ -86,6 +86,38 @@ connect("velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT", "JntPub.JointVeloci
 
 stream("JntPub.joint_state", ros.comm.topic("/joint_states"));
 
+
+loadComponent("LeftHandAction", "BarrettHandMoveAction");
+LeftHandAction.loadService("rosparam");
+LeftHandAction.rosparam.getAll();
+LeftHandAction.configure();
+LeftHandAction.loadService("actionlib")
+LeftHandAction.actionlib.connect("/left_hand/move_hand")
+connect("LeftHandAction.q_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_q_INPORT", ConnPolicy());
+connect("LeftHandAction.v_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_dq_INPORT", ConnPolicy());
+connect("LeftHandAction.t_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_max_i_INPORT", ConnPolicy());
+connect("LeftHandAction.mp_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_max_p_INPORT", ConnPolicy());
+connect("LeftHandAction.hold_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_hold_INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_l_s_OUTPORT", "LeftHandAction.status_INPORT", ConnPolicy());
+#connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_l_q_OUTPORT", "TODO", ConnPolicy());
+
+loadComponent("RightHandAction", "BarrettHandMoveAction");
+RightHandAction.loadService("rosparam");
+RightHandAction.rosparam.getAll();
+RightHandAction.configure();
+RightHandAction.loadService("actionlib")
+RightHandAction.actionlib.connect("/right_hand/move_hand")
+connect("RightHandAction.q_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_q_INPORT", ConnPolicy());
+connect("RightHandAction.v_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_dq_INPORT", ConnPolicy());
+connect("RightHandAction.t_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_max_i_INPORT", ConnPolicy());
+connect("RightHandAction.mp_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_max_p_INPORT", ConnPolicy());
+connect("RightHandAction.hold_OUTPORT", "velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_hold_INPORT", ConnPolicy());
+connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_r_s_OUTPORT", "RightHandAction.status_INPORT", ConnPolicy());
+#connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_r_q_OUTPORT", "TODO", ConnPolicy());
+
+
+
+
 JntPub.configure();
 
 q_splitAll.start();
@@ -94,4 +126,6 @@ CartImpActionRight.start();
 CartImpActionLeft.start();
 JntImpAction.start();
 JntPub.start();
+LeftHandAction.start();
+RightHandAction.start();
 

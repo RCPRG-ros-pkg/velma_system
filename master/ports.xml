@@ -1,0 +1,19 @@
+<subsystem_definition>
+
+    <ports>
+        <in name="velma_core_cs_task_cs_msgs_Status"        type="velma_core_cs_task_cs_msgs::Status"     side="bottom"   ipc="true"    short_name="st" />
+        <out name="velma_core_cs_task_cs_msgs_Command"      type="velma_core_cs_task_cs_msgs::Command"    side="bottom"   ipc="true"/>
+    </ports>
+
+    <errors>
+    </errors>
+
+    <states>
+        <initial_state name="state_velma_task_cs_ros_interface_normal" />
+    </states>
+
+    <activity period="0.01" />
+
+    <simulation use_ros_sim_clock="true" use_sim_clock="true" />
+
+</subsystem_definition>
