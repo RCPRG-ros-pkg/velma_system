@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
-#include "input_data.h"
+#include "velma_core_ve_body/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
@@ -51,16 +50,16 @@ public:
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        bool rLwrOk = isLwrOk(in_data->status_.rArmFriRobot, in_data->status_.rArmFriIntf);
-        bool lLwrOk = isLwrOk(in_data->status_.lArmFriRobot, in_data->status_.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(in_data->status_.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(in_data->status_.lArmFriIntf);
+        bool rLwrOk = isLwrOk(in_data->st.rArmFriRobot, in_data->st.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in_data->st.lArmFriRobot, in_data->st.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in_data->st.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in_data->st.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-        bool resetCmd = (in_data->cmd_.sc_valid && in_data->cmd_.sc.cmd == 1);
+        bool resetCmd = (in_data->cmd.sc_valid && in_data->cmd.sc.cmd == 1);
 
-//        std::cout << (hwOk?"t":"f") << (resetCmd?"t":"f") << (isCmdValid(in_data->cmd_)?"t":"f") << (isStatusValid(in_data->status_)?"t":"f") << std::endl;
-        if (hwOk && resetCmd && isCmdValid(in_data->cmd_) && isStatusValid(in_data->status_))
+//        std::cout << (hwOk?"t":"f") << (resetCmd?"t":"f") << (isCmdValid(in_data->cmd)?"t":"f") << (isStatusValid(in_data->st)?"t":"f") << std::endl;
+        if (hwOk && resetCmd && isCmdValid(in_data->cmd) && isStatusValid(in_data->st))
         {
             return true;
         }
@@ -68,7 +67,30 @@ public:
     }
 };
 
+class StateSafe : public StateBase {
+public:
+    StateSafe() :
+        StateBase("state_velma_core_ve_body_safe", "safe", "behavior_velma_core_ve_body_safe")
+    {
+    }
+
+    virtual bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_ve_body_safe") {
+            return false;
+        }
+
+        return true;
+    }
+};
+
 };  // namespace velma_core_ve_body_types
 
 REGISTER_BEHAVIOR( velma_core_ve_body_types::BehaviorSafe );
+
+REGISTER_STATE( velma_core_ve_body_types::StateSafe );
 

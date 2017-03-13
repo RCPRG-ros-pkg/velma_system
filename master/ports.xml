@@ -1,0 +1,53 @@
+<subsystem_definition>
+
+    <ports>
+        <in name="velma_core_ve_body_re_body_msgs_Status"    type="velma_core_ve_body_re_body_msgs::Status"     side="bottom"   ipc="false" short_name="st" />
+        <in name="velma_core_cs_ve_body_msgs_Command"        type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true"  short_name="cmd" />
+
+        <out name="velma_core_ve_body_re_body_msgs_Command"  type="velma_core_ve_body_re_body_msgs::Command"    side="bottom"   ipc="false"/>
+        <out name="velma_core_cs_ve_body_msgs_Status"        type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
+    </ports>
+
+    <errors>
+        <err name="R_LWR" />
+        <err name="L_LWR" />
+        <err name="R_LWR_CMD" />
+        <err name="L_LWR_CMD" />
+        <err name="STATUS" />
+        <err name="STATUS_R_LWR_INVALID" />
+        <err name="STATUS_L_LWR_INVALID" />
+        <err name="STATUS_R_FT_INVALID" />
+        <err name="STATUS_L_FT_INVALID" />
+        <err name="STATUS_T_MOTOR_INVALID" />
+        <err name="STATUS_HP_MOTOR_INVALID" />
+        <err name="STATUS_HT_MOTOR_INVALID" />
+        <err name="LWR_NAN_LIM" />
+        <err name="COMMAND" />
+        <err name="CMD_T_MOTOR_INVALID" />
+        <err name="CMD_HP_MOTOR_INVALID" />
+        <err name="CMD_HT_MOTOR_INVALID" />
+        <err name="CMD_L_ARM_INVALID" />
+        <err name="CMD_R_ARM_INVALID" />
+        <err name="CMD_R_ARM_NAN" />
+        <err name="CMD_L_ARM_NAN" />
+        <err name="CMD_R_ARM_LIM" />
+        <err name="CMD_L_ARM_LIM" />
+        <err name="CMD_T_MOTOR_T_NAN" />
+    </errors>
+
+    <states>
+        <state name="state_velma_core_ve_body_idle" />
+        <initial_state name="state_velma_core_ve_body_safe" />
+    </states>
+
+    <activity period="0.001" />
+
+    <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
+
+    <no_input_wait cycles="1000" />
+
+    <latched_connections>
+        <components first="velma_core_ve_body_re_body_msgs_StatusConcate" second="safe" />
+    </latched_connections>
+
+</subsystem_definition>

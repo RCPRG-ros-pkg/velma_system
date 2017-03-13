@@ -25,8 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "abstract_behavior.h"
-#include "input_data.h"
+#include "velma_core_ve_body/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
@@ -46,13 +45,13 @@ public:
                 const std::vector<RTT::TaskContext*> &components,
                 ErrorCausePtr result) const
     {
-        bool rLwrOk = isLwrOk(in_data->status_.rArmFriRobot, in_data->status_.rArmFriIntf);
-        bool lLwrOk = isLwrOk(in_data->status_.lArmFriRobot, in_data->status_.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(in_data->status_.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(in_data->status_.lArmFriIntf);
+        bool rLwrOk = isLwrOk(in_data->st.rArmFriRobot, in_data->st.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in_data->st.lArmFriRobot, in_data->st.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in_data->st.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in_data->st.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
-        bool statusOk = isStatusValid(in_data->status_);
-        bool cmdOk = isCmdValid(in_data->cmd_, result);
+        bool statusOk = isStatusValid(in_data->st);
+        bool cmdOk = isCmdValid(in_data->cmd, result);
 
         if (result) {
             result->setBit(R_LWR_bit, !rLwrOk);
@@ -78,7 +77,30 @@ public:
     }
 };
 
+class StateIdle : public StateBase {
+public:
+    StateIdle() :
+        StateBase("state_velma_core_ve_body_idle", "idle", "behavior_velma_core_ve_body_idle")
+    {
+    }
+
+    virtual bool checkInitialCondition(
+                const boost::shared_ptr<InputData >& in_data,
+                const std::vector<RTT::TaskContext*> &components,
+                const std::string& prev_state_name,
+                bool in_error) const
+    {
+        if (prev_state_name == "state_velma_core_ve_body_idle") {
+            return false;
+        }
+
+        return true;
+    }
+};
+
 };  // namespace velma_core_ve_body_types
 
 REGISTER_BEHAVIOR( velma_core_ve_body_types::BehaviorIdle );
+
+REGISTER_STATE( velma_core_ve_body_types::StateIdle );
 

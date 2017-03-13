@@ -121,7 +121,9 @@ bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, ErrorCausePtr er
         err->setBit(CMD_R_ARM_INVALID_bit, !cmd.rArm_valid);
     }
 
-    if (!cmd.tMotor_valid || !cmd.hpMotor_valid || !cmd.htMotor_valid || !cmd.lArm_valid || !cmd.rArm_valid) {
+    if (!cmd.tMotor_valid ||
+        // !cmd.hpMotor_valid || !cmd.htMotor_valid ||
+         !cmd.lArm_valid || !cmd.rArm_valid) {
         return false;
     }
 
@@ -163,10 +165,21 @@ bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, ErrorCausePtr er
             }
         }
     }
-// TODO: error checks for torso: torque limits
 
-// TODO: error checks for head
-//
+    double tMotor_i_limit = 1000;
+    if (!isInLim(cmd.tMotor.i, -tMotor_i_limit, tMotor_i_limit)) {
+        return false;
+    }
+
+//    double hpMotor_dq_limit = 1.0;
+//    if (!isInLim(cmd.hpMotor.dq, -hpMotor_dq_limit, hpMotor_dq_limit)) {
+//        return false;
+//    }
+
+//    double htMotor_dq_limit = 1.0;
+//    if (!isInLim(cmd.htMotor.dq, -htMotor_dq_limit, htMotor_dq_limit)) {
+//        return false;
+//    }
 
     return true;
 }
@@ -221,9 +234,9 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, ErrorCause
         && st.lArm_valid
         && st.rFt_valid
         && st.lFt_valid
-        && st.tMotor_valid
-        && st.hpMotor_valid
-        && st.htMotor_valid;
+        && st.tMotor_valid;
+//        && st.hpMotor_valid
+//        && st.htMotor_valid;
 
     if (!status_valid) {
         if (err) {
@@ -232,8 +245,8 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, ErrorCause
             err->setBit(STATUS_R_FT_INVALID_bit, !st.rFt_valid);
             err->setBit(STATUS_L_FT_INVALID_bit, !st.lFt_valid);
             err->setBit(STATUS_T_MOTOR_INVALID_bit, !st.tMotor_valid);
-            err->setBit(STATUS_HP_MOTOR_INVALID_bit, !st.hpMotor_valid);
-            err->setBit(STATUS_HT_MOTOR_INVALID_bit, !st.htMotor_valid);
+//            err->setBit(STATUS_HP_MOTOR_INVALID_bit, !st.hpMotor_valid);
+//            err->setBit(STATUS_HT_MOTOR_INVALID_bit, !st.htMotor_valid);
         }
         return false;
     }

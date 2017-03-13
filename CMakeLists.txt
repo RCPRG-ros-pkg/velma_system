@@ -1,12 +1,11 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(velma_core_ve_body)
 
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
-
 ### ROS Dependencies ###
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
+  rtt_subsystem_ports
   velma_core_cs_ve_body_msgs
   velma_core_ve_body_re_body_msgs
   eigen_conversions
@@ -38,24 +37,18 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ### Orocos Targets ###
 
+ros_generate_rtt_master()
+
 orocos_component(velma_core_ve_body
     src/behavior_idle.cpp
     src/behavior_safe.cpp
-    src/state_idle.cpp
-    src/state_safe.cpp
     src/common_predicates.cpp
     src/velma_core_ve_body.cpp
     src/components/bypass.cpp
     src/components/safe.cpp
     src/components/packet_counter.cpp
 )
-target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
-
-orocos_service(VelmaCoreVeBodyMaster
-    src/common_predicates.cpp
-    src/master_service.cpp
-)
-target_link_libraries(VelmaCoreVeBodyMaster ${catkin_LIBRARIES})
+target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
 ### Orocos Package Exports and Install Targets ###
 

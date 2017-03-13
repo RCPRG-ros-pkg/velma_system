@@ -46,6 +46,7 @@
 #include <rtt_rosclock/rtt_rosclock.h>
 
 #include "../common_predicates.h"
+#include "velma_core_ve_body/master.h"
 
 #include <sys/time.h>
 
@@ -350,8 +351,8 @@ void SafeComponent::updateHook() {
     bool rArm_valid = rArm_valid_prev || status_in_.rArm_valid;
     bool lArm_valid = lArm_valid_prev || status_in_.lArm_valid;
 
-    diag_->setBit(STATUS_R_LWR_INVALID_bit, rArm_valid);
-    diag_->setBit(STATUS_L_LWR_INVALID_bit, lArm_valid);
+    diag_->setBit(STATUS_R_LWR_INVALID_bit, !rArm_valid);
+    diag_->setBit(STATUS_L_LWR_INVALID_bit, !lArm_valid);
 
     // check FRI and LWR state
     // as FRI components may not be synchronized

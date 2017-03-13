@@ -123,11 +123,11 @@ void BypassComponent::updateHook() {
     cmd_out_.tMotor = cmd_in_.tMotor;
     cmd_out_.tMotor_valid = cmd_in_.tMotor_valid;
 
-    cmd_out_.hpMotor = cmd_in_.hpMotor;
-    cmd_out_.hpMotor_valid = cmd_in_.hpMotor_valid;
+//    cmd_out_.hpMotor = cmd_in_.hpMotor;
+//    cmd_out_.hpMotor_valid = cmd_in_.hpMotor_valid;
 
-    cmd_out_.htMotor = cmd_in_.htMotor;
-    cmd_out_.htMotor_valid = cmd_in_.htMotor_valid;
+//    cmd_out_.htMotor = cmd_in_.htMotor;
+//    cmd_out_.htMotor_valid = cmd_in_.htMotor_valid;
 
     cmd_out_.lArm = cmd_in_.lArm;
     cmd_out_.lArm_valid = cmd_in_.lArm_valid;
