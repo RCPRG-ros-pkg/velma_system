@@ -1,19 +1,20 @@
 <subsystem_definition>
 
     <ports>
-        <in name="velma_core_cs_ve_body_msgs_Status"        type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true"    short_name="b_st">
+        <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true" >
             <trigger min="0.0008" avg="0.001" max="0.002" />
         </in>
-        <in name="velma_core_cs_ve_hand_msgs_Status_right"  type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="rh_st" />
-        <in name="velma_core_cs_ve_hand_msgs_Status_left"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="lh_st" />
+        <in alias="rh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
+        <in alias="lh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
+        <in alias="h_st"    type="velma_core_ve_head_re_head_msgs::Status"    side="bottom"   ipc="true"/>
 
-        <in name="velma_core_cs_task_cs_msgs_Command"       type="velma_core_cs_task_cs_msgs::Command"    side="top"      ipc="true"    short_name="cmd" />
+        <out alias="b_cmd"  type="velma_core_cs_ve_body_msgs::Command"    side="bottom"   ipc="true"/>
+        <out alias="rh_cmd" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
+        <out alias="lh_cmd" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
+        <out alias="h_cmd"  type="velma_core_ve_head_re_head_msgs::Command"    side="bottom"   ipc="true"/>
 
-        <out name="velma_core_cs_ve_body_msgs_Command"      type="velma_core_cs_ve_body_msgs::Command"    side="bottom"   ipc="true"/>
-        <out name="velma_core_cs_ve_hand_msgs_Command_right" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
-        <out name="velma_core_cs_ve_hand_msgs_Command_left" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
-
-        <out name="velma_core_cs_task_cs_msgs_Status"       type="velma_core_cs_task_cs_msgs::Status"     side="top"      ipc="true"/>
+        <in alias="cmd"     type="velma_core_cs_task_cs_msgs::Command"    side="top"      ipc="true" />
+        <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"      ipc="true"/>
     </ports>
 
     <errors>
