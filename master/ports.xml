@@ -1,11 +1,11 @@
 <subsystem_definition>
 
     <ports>
-        <in name="velma_core_ve_body_re_body_msgs_Status"    type="velma_core_ve_body_re_body_msgs::Status"     side="bottom"   ipc="false" short_name="st" />
-        <in name="velma_core_cs_ve_body_msgs_Command"        type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true"  short_name="cmd" />
+        <in alias="lo_st"       type="velma_core_ve_body_re_body_msgs::Status"     side="bottom"   ipc="false" />
+        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true" />
 
-        <out name="velma_core_ve_body_re_body_msgs_Command"  type="velma_core_ve_body_re_body_msgs::Command"    side="bottom"   ipc="false"/>
-        <out name="velma_core_cs_ve_body_msgs_Status"        type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
+        <out alias="lo_cmd"     type="velma_core_ve_body_re_body_msgs::Command"    side="bottom"   ipc="false"/>
+        <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
     </ports>
 
     <errors>
@@ -47,7 +47,7 @@
     <no_input_wait cycles="1000" />
 
     <latched_connections>
-        <components first="velma_core_ve_body_re_body_msgs_StatusConcate" second="safe" />
+        <components first="lo_stConcate" second="safe" />
     </latched_connections>
 
 </subsystem_definition>

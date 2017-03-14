@@ -50,16 +50,16 @@ public:
                 const boost::shared_ptr<InputData >& in_data,
                 const std::vector<RTT::TaskContext*> &components) const
     {
-        bool rLwrOk = isLwrOk(in_data->st.rArmFriRobot, in_data->st.rArmFriIntf);
-        bool lLwrOk = isLwrOk(in_data->st.lArmFriRobot, in_data->st.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(in_data->st.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(in_data->st.lArmFriIntf);
+        bool rLwrOk = isLwrOk(in_data->lo_st.rArmFriRobot, in_data->lo_st.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in_data->lo_st.lArmFriRobot, in_data->lo_st.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in_data->lo_st.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in_data->lo_st.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
 
-        bool resetCmd = (in_data->cmd.sc_valid && in_data->cmd.sc.cmd == 1);
+        bool resetCmd = (in_data->hi_cmd.sc_valid && in_data->hi_cmd.sc.cmd == 1);
 
-//        std::cout << (hwOk?"t":"f") << (resetCmd?"t":"f") << (isCmdValid(in_data->cmd)?"t":"f") << (isStatusValid(in_data->st)?"t":"f") << std::endl;
-        if (hwOk && resetCmd && isCmdValid(in_data->cmd) && isStatusValid(in_data->st))
+//        std::cout << (hwOk?"t":"f") << (resetCmd?"t":"f") << (isCmdValid(in_data->hi_cmd)?"t":"f") << (isStatusValid(in_data->lo_st)?"t":"f") << std::endl;
+        if (hwOk && resetCmd && isCmdValid(in_data->hi_cmd) && isStatusValid(in_data->lo_st))
         {
             return true;
         }

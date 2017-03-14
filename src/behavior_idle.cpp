@@ -45,13 +45,13 @@ public:
                 const std::vector<RTT::TaskContext*> &components,
                 ErrorCausePtr result) const
     {
-        bool rLwrOk = isLwrOk(in_data->st.rArmFriRobot, in_data->st.rArmFriIntf);
-        bool lLwrOk = isLwrOk(in_data->st.lArmFriRobot, in_data->st.lArmFriIntf);
-        bool rLwrCmd = isLwrInCmdState(in_data->st.rArmFriIntf);
-        bool lLwrCmd = isLwrInCmdState(in_data->st.lArmFriIntf);
+        bool rLwrOk = isLwrOk(in_data->lo_st.rArmFriRobot, in_data->lo_st.rArmFriIntf);
+        bool lLwrOk = isLwrOk(in_data->lo_st.lArmFriRobot, in_data->lo_st.lArmFriIntf);
+        bool rLwrCmd = isLwrInCmdState(in_data->lo_st.rArmFriIntf);
+        bool lLwrCmd = isLwrInCmdState(in_data->lo_st.lArmFriIntf);
         bool hwOk = (rLwrOk && lLwrOk && rLwrCmd && lLwrCmd);
-        bool statusOk = isStatusValid(in_data->st);
-        bool cmdOk = isCmdValid(in_data->cmd, result);
+        bool statusOk = isStatusValid(in_data->lo_st);
+        bool cmdOk = isCmdValid(in_data->hi_cmd, result);
 
         if (result) {
             result->setBit(R_LWR_bit, !rLwrOk);
