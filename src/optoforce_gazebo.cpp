@@ -32,7 +32,7 @@
 using namespace RTT;
 
     OptoforceGazebo::OptoforceGazebo(std::string const& name) : 
-        TaskContext(name),
+        TaskContext(name, RTT::TaskContext::PreOperational),
         model_(NULL),
         n_sensors_(3),
         data_valid_(false),

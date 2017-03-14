@@ -28,7 +28,7 @@
 #include "torso_gazebo.h"
 
     TorsoGazebo::TorsoGazebo(std::string const& name)
-        : TaskContext(name)
+        : TaskContext(name, RTT::TaskContext::PreOperational)
         , data_valid_(false)
         , q_(1)
         , dq_(1)

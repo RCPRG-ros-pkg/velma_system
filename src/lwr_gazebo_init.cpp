@@ -28,7 +28,7 @@
 #include "lwr_gazebo.h"
 
     LWRGazebo::LWRGazebo(std::string const& name)
-        : TaskContext(name)
+        : TaskContext(name, RTT::TaskContext::PreOperational)
         , data_valid_(false)
         , port_CartesianWrench_out_("CartesianWrench_OUTPORT", false)
         , port_RobotState_out_("RobotState_OUTPORT", false)

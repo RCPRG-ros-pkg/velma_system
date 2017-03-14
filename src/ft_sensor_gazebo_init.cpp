@@ -28,7 +28,7 @@
 #include "ft_sensor_gazebo.h"
 
 FtSensorGazebo::FtSensorGazebo(std::string const& name)
-    : TaskContext(name)
+    : TaskContext(name, RTT::TaskContext::PreOperational)
     , slow_buffer_size_(2)
     , fast_buffer_size_(100)
     , slow_buffer_index_(0)

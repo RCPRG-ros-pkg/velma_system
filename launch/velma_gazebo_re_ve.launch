@@ -27,11 +27,21 @@
   <param name="/use_sim_time" value="true"/>
   <param name="/robot_description"
     command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'
+        subsystem_xml:=true
+        xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_ve_body.xml'
+        xml_file_re_right_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handright.xml'
+        xml_file_re_left_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handleft.xml'
+        xml_file_re_head:='$(find velma_sim_gazebo)/config/velma_core_ve_head.xml'
+        use_gazebo_kinect:=$(arg use_kinect)" />
+<!--
+  <param name="/robot_description"
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'
         gazebo_scripts:=true
         gazebo_ops_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_ve_body.ops'
         gazebo_ops_file_re_right_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handright.ops'
         gazebo_ops_file_re_left_hand:='$(find velma_sim_gazebo)/config/velma_core_ve_handleft.ops'
         use_gazebo_kinect:=$(arg use_kinect)" />
+-->
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />

@@ -1,0 +1,29 @@
+<subsystem>
+    <import>rtt_geometry_msgs</import>
+    <import>rtt_velma_core_cs_ve_body_msgs</import>
+    <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
+    <import>velma_core_ve_body</import>
+    <import>rtt_velma_core_ve_body_re_body_msgs</import>
+    <import>rtt_velma_core_ve_body_re_body_subsystem_ports</import>
+    <import>eigen_typekit</import>
+    <import>rtt_std_msgs</import>
+    <import>port_operations</import>
+    <import>rtt_control_msgs</import>
+    <import>lwr_fri</import>
+    <import>velma_controller</import>
+    <import>rtt_cartesian_trajectory_msgs</import>
+    <import>rtt_std_msgs</import>
+    <import>rtt_tf</import>
+    <import>velma_sim_gazebo</import>
+    <import>rtt_barrett_hand_controller_msgs</import>
+
+    <component name="Head" running="true" />
+
+    <io_buffer alias="hi_st" name="velma_core_cs_ve_head_msgs_Status" />
+    <io_buffer alias="hi_cmd" name="velma_core_cs_ve_head_msgs_Command" />
+
+    <connection from="Head.q_OUTPORT"               to="hi_stConcate.q_INPORT" />
+    <connection from="Head.dq_OUTPORT"              to="hi_stConcate.dq_INPORT" />
+    <connection from="hi_cmdSplit.q_OUTPORT"        to="Head.q_INPORT" />
+</subsystem>
+

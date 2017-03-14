@@ -28,7 +28,7 @@
 #include "barrett_hand_gazebo.h"
 
     BarrettHandGazebo::BarrettHandGazebo(std::string const& name)
-        : TaskContext(name)
+        : TaskContext(name, RTT::TaskContext::PreOperational)
         , too_big_force_counter_(3, 0)
         , data_valid_(false)
         , port_q_out_("q_OUTPORT", false)

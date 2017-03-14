@@ -44,6 +44,7 @@ orocos_component(velma_sim_gazebo
     src/optoforce_gazebo.cpp
     src/ft_sensor_gazebo.cpp src/ft_sensor_gazebo_init.cpp src/ft_sensor_gazebo_orocos.cpp
     src/velma_sim_conversion.cpp
+    src/head_gazebo.cpp
     src/velma_sim_library.cpp
 )
 

@@ -33,7 +33,7 @@
 using namespace RTT;
 
     BarrettTactileGazebo::BarrettTactileGazebo(std::string const& name)
-        : TaskContext(name)
+        : TaskContext(name, RTT::TaskContext::PreOperational)
         , median_filter_samples_(1)
         , median_filter_max_samples_(8)
         , model_(NULL)
