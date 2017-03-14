@@ -27,6 +27,7 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ### Orocos Targets ###
 
 orocos_component(velma_data_conversions
+  src/components/eigen_vector_2.cpp
   src/components/eigen_vector_4.cpp
   src/components/eigen_vector_7.cpp
   src/components/eigen_vector_8.cpp
