@@ -4,14 +4,14 @@
         <in name="velma_core_cs_ve_body_msgs_Status"        type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true"    short_name="b_st">
             <trigger min="0.0008" avg="0.001" max="0.002" />
         </in>
-        <in name="velma_core_cs_ve_hand_msgs_right_Status"  type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="rh_st" />
-        <in name="velma_core_cs_ve_hand_msgs_left_Status"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="lh_st" />
+        <in name="velma_core_cs_ve_hand_msgs_Status_right"  type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="rh_st" />
+        <in name="velma_core_cs_ve_hand_msgs_Status_left"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true"    short_name="lh_st" />
 
         <in name="velma_core_cs_task_cs_msgs_Command"       type="velma_core_cs_task_cs_msgs::Command"    side="top"      ipc="true"    short_name="cmd" />
 
         <out name="velma_core_cs_ve_body_msgs_Command"      type="velma_core_cs_ve_body_msgs::Command"    side="bottom"   ipc="true"/>
-        <out name="velma_core_cs_ve_hand_msgs_right_Command" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
-        <out name="velma_core_cs_ve_hand_msgs_left_Command" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
+        <out name="velma_core_cs_ve_hand_msgs_Command_right" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
+        <out name="velma_core_cs_ve_hand_msgs_Command_left" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
 
         <out name="velma_core_cs_task_cs_msgs_Status"       type="velma_core_cs_task_cs_msgs::Status"     side="top"      ipc="true"/>
     </ports>

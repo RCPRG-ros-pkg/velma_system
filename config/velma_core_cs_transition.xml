@@ -196,12 +196,12 @@
     <ros_stream port="velma_core_cs_ve_body_msgs_StatusSplit._OUTPORT" topic="/velma_core_cs/velma_core_cs_ve_body_msgs_StatusSplit" />
     <connection from="JcAll.Out" to="velma_core_cs_task_cs_msgs_StatusConcate.q_INPORT" />
     <connection from="JvcAll.Out" to="velma_core_cs_task_cs_msgs_StatusConcate.dq_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_r_OUTPORT" to="velma_core_cs_ve_hand_msgs_right_CommandConcate._INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_l_OUTPORT" to="velma_core_cs_ve_hand_msgs_left_CommandConcate._INPORT" />
-    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_r_INPORT" />
-    <connection from="velma_core_cs_ve_hand_msgs_left_StatusSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_l_INPORT" />
-    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.p_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.p_INPORT" />
-    <connection from="velma_core_cs_ve_hand_msgs_right_StatusSplit.f_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.f_INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_r_OUTPORT" to="velma_core_cs_ve_hand_msgs_Command_rightConcate._INPORT" />
+    <connection from="velma_core_cs_task_cs_msgs_CommandSplit.hand_l_OUTPORT" to="velma_core_cs_ve_hand_msgs_Command_leftConcate._INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_Status_rightSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_r_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_Status_leftSplit.hand_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.hand_l_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_Status_rightSplit.p_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.p_INPORT" />
+    <connection from="velma_core_cs_ve_hand_msgs_Status_rightSplit.f_OUTPORT" to="velma_core_cs_task_cs_msgs_StatusConcate.f_INPORT" />
     <ros_stream port="velma_core_cs_ve_body_msgs_CommandConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!--
