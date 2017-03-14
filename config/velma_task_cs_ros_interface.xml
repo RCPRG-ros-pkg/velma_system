@@ -23,45 +23,48 @@
     <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
     <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
 
-    <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="velma_core_cs_task_cs_msgs_CommandConcate.cart_r_pose_INPORT" />
-    <connection from="CartImpActionRight.cart_tool_command_OUTPORT"                 to="velma_core_cs_task_cs_msgs_CommandConcate.cart_r_tool_INPORT" />
-    <connection from="CartImpActionRight.cart_imp_command_OUTPORT"                  to="velma_core_cs_task_cs_msgs_CommandConcate.cart_r_imp_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.rCart_status_OUTPORT"  to="CartImpActionRight.generator_status_INPORT" />
-    <ros_stream port="CartImpActionRight.cart_pose_command_OUTPORT"                 topic="/velma_task_cs_ros_interface/CartImpActionRight/cart_pose_command_OUTPORT" />
-    <connection from="CartImpActionLeft.cart_pose_command_OUTPORT"                  to="velma_core_cs_task_cs_msgs_CommandConcate.cart_l_pose_INPORT" />
-    <connection from="CartImpActionLeft.cart_tool_command_OUTPORT"                  to="velma_core_cs_task_cs_msgs_CommandConcate.cart_l_tool_INPORT" />
-    <connection from="CartImpActionLeft.cart_imp_command_OUTPORT"                   to="velma_core_cs_task_cs_msgs_CommandConcate.cart_l_imp_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.lCart_status_OUTPORT"  to="CartImpActionLeft.generator_status_INPORT" />
-    <ros_stream port="CartImpActionLeft.cart_pose_command_OUTPORT"                  topic="/velma_task_cs_ros_interface/CartImpActionLeft/cart_pose_command_OUTPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.q_OUTPORT"             to="q_splitAll.In" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT"            to="dq_splitAll.In" />
-    <connection from="JntImpAction.jnt_OUTPORT"       to="velma_core_cs_task_cs_msgs_CommandConcate.jnt_INPORT" />
-    <connection from="q_splitAll.Out0"                to="JntImpAction.JointPosition_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.jnt_q_desired_OUTPORT" to="JntImpAction.JointPositionCommand_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.jnt_status_OUTPORT"    to="JntImpAction.generator_status_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.q_OUTPORT"             to="JntPub.JointPosition" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
-    <ros_stream port="JntPub.joint_state"             topic="/joint_states" />
-    <connection from="LeftHandAction.q_OUTPORT"       to="velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_q_INPORT" />
-    <connection from="LeftHandAction.v_OUTPORT"       to="velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_dq_INPORT" />
-    <connection from="LeftHandAction.t_OUTPORT"       to="velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_max_i_INPORT" />
-    <connection from="LeftHandAction.mp_OUTPORT"      to="velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_max_p_INPORT" />
-    <connection from="LeftHandAction.hold_OUTPORT"    to="velma_core_cs_task_cs_msgs_CommandConcate.hand_l_hand_hold_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.hand_l_s_OUTPORT"        to="LeftHandAction.status_INPORT" />
-    <connection from="RightHandAction.q_OUTPORT"      to="velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_q_INPORT" />
-    <connection from="RightHandAction.v_OUTPORT"      to="velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_dq_INPORT" />
-    <connection from="RightHandAction.t_OUTPORT"      to="velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_max_i_INPORT" />
-    <connection from="RightHandAction.mp_OUTPORT"     to="velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_max_p_INPORT" />
-    <connection from="RightHandAction.hold_OUTPORT"   to="velma_core_cs_task_cs_msgs_CommandConcate.hand_r_hand_hold_INPORT" />
-    <connection from="velma_core_cs_task_cs_msgs_StatusSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
+    <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
+    <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
-    <ros_stream port="velma_core_cs_task_cs_msgs_StatusRx.msg_OUTPORT"             topic="/velma_core_cs_task_cs_msgs_StatusSplit" />
+    <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
+    <connection from="CartImpActionRight.cart_tool_command_OUTPORT"                 to="cmdConcate.cart_r_tool_INPORT" />
+    <connection from="CartImpActionRight.cart_imp_command_OUTPORT"                  to="cmdConcate.cart_r_imp_INPORT" />
+    <connection from="stSplit.rCart_status_OUTPORT"  to="CartImpActionRight.generator_status_INPORT" />
+    <ros_stream port="CartImpActionRight.cart_pose_command_OUTPORT"                 topic="/velma_task_cs_ros_interface/CartImpActionRight/cart_pose_command_OUTPORT" />
+    <connection from="CartImpActionLeft.cart_pose_command_OUTPORT"                  to="cmdConcate.cart_l_pose_INPORT" />
+    <connection from="CartImpActionLeft.cart_tool_command_OUTPORT"                  to="cmdConcate.cart_l_tool_INPORT" />
+    <connection from="CartImpActionLeft.cart_imp_command_OUTPORT"                   to="cmdConcate.cart_l_imp_INPORT" />
+    <connection from="stSplit.lCart_status_OUTPORT"  to="CartImpActionLeft.generator_status_INPORT" />
+    <ros_stream port="CartImpActionLeft.cart_pose_command_OUTPORT"                  topic="/velma_task_cs_ros_interface/CartImpActionLeft/cart_pose_command_OUTPORT" />
+    <connection from="stSplit.q_OUTPORT"             to="q_splitAll.In" />
+    <connection from="stSplit.dq_OUTPORT"            to="dq_splitAll.In" />
+    <connection from="JntImpAction.jnt_OUTPORT"       to="cmdConcate.jnt_INPORT" />
+    <connection from="q_splitAll.Out0"                to="JntImpAction.JointPosition_INPORT" />
+    <connection from="stSplit.jnt_q_desired_OUTPORT" to="JntImpAction.JointPositionCommand_INPORT" />
+    <connection from="stSplit.jnt_status_OUTPORT"    to="JntImpAction.generator_status_INPORT" />
+    <connection from="stSplit.q_OUTPORT"             to="JntPub.JointPosition" />
+    <connection from="stSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
+    <ros_stream port="JntPub.joint_state"             topic="/joint_states" />
+    <connection from="LeftHandAction.q_OUTPORT"       to="cmdConcate.hand_l_hand_q_INPORT" />
+    <connection from="LeftHandAction.v_OUTPORT"       to="cmdConcate.hand_l_hand_dq_INPORT" />
+    <connection from="LeftHandAction.t_OUTPORT"       to="cmdConcate.hand_l_hand_max_i_INPORT" />
+    <connection from="LeftHandAction.mp_OUTPORT"      to="cmdConcate.hand_l_hand_max_p_INPORT" />
+    <connection from="LeftHandAction.hold_OUTPORT"    to="cmdConcate.hand_l_hand_hold_INPORT" />
+    <connection from="stSplit.hand_l_s_OUTPORT"        to="LeftHandAction.status_INPORT" />
+    <connection from="RightHandAction.q_OUTPORT"      to="cmdConcate.hand_r_hand_q_INPORT" />
+    <connection from="RightHandAction.v_OUTPORT"      to="cmdConcate.hand_r_hand_dq_INPORT" />
+    <connection from="RightHandAction.t_OUTPORT"      to="cmdConcate.hand_r_hand_max_i_INPORT" />
+    <connection from="RightHandAction.mp_OUTPORT"     to="cmdConcate.hand_r_hand_max_p_INPORT" />
+    <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hand_hold_INPORT" />
+    <connection from="stSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
+
+    <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
 
 <!--
-#stream("velma_core_cs_task_cs_msgs_CommandConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/velma_core_cs_task_cs_msgs_CommandConcate/msg_OUTPORT"));
+#stream("cmdConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/cmdConcate/msg_OUTPORT"));
 //connect("TODO", "JntPub.JointEffort", ConnPolicy());
-#connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_l_q_OUTPORT", "TODO", ConnPolicy());
-#connect("velma_core_cs_task_cs_msgs_StatusSplit.hand_r_q_OUTPORT", "TODO", ConnPolicy());
+#connect("stSplit.hand_l_q_OUTPORT", "TODO", ConnPolicy());
+#connect("stSplit.hand_r_q_OUTPORT", "TODO", ConnPolicy());
 -->
 </subsystem>
 

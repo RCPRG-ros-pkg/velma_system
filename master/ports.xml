@@ -1,8 +1,8 @@
 <subsystem_definition>
 
     <ports>
-        <in name="velma_core_cs_task_cs_msgs_Status"        type="velma_core_cs_task_cs_msgs::Status"     side="bottom"   ipc="true"    short_name="st" />
-        <out name="velma_core_cs_task_cs_msgs_Command"      type="velma_core_cs_task_cs_msgs::Command"    side="bottom"   ipc="true"/>
+        <in alias="st"      type="velma_core_cs_task_cs_msgs::Status"     side="bottom"   ipc="true" />
+        <out alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="bottom"   ipc="true" />
     </ports>
 
     <errors>
