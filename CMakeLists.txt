@@ -45,10 +45,10 @@ ros_generate_rtt_master()
 orocos_component(velma_core_cs
     src/velma_core_cs.cpp
     src/common_predicates.cpp
-    src/behavior_idle.cpp
-    src/behavior_safe.cpp
-    src/behavior_cart_imp.cpp
-    src/behavior_jnt_imp.cpp
+    src/state_idle.cpp
+    src/state_safe.cpp
+    src/state_cart_imp.cpp
+    src/state_jnt_imp.cpp
     src/components/idle.cpp
     src/components/safe.cpp
     src/components/cartesian_interpolator.cpp
