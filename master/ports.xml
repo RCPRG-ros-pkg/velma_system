@@ -23,11 +23,85 @@
         <err name="VE_BODY_ST_INV" />
     </errors>
 
+    <predicates>
+        <predicate name="graphSafe" />
+        <predicate name="graphCartImp" />
+        <predicate name="graphJntImp" />
+        <predicate name="veBodyInSafeState" />
+        <predicate name="veBodyInError" />
+        <predicate name="veBodyStatusValid" />
+        <predicate name="recvCartImpCmd" />
+        <predicate name="recvJntImpCmd" />
+        <predicate name="recvOneCmd" />
+    </predicates>
+
     <states>
-        <state name="state_velma_core_cs_safe" />
-        <state name="state_velma_core_cs_cart_imp" />
-        <state name="state_velma_core_cs_jnt_imp" />
-        <initial_state name="state_velma_core_cs_idle" />
+        <state name="idle" is_initial="true" behavior="idle" 
+            init_cond="(not PREV_STATE_idle) and ((not veBodyStatusValid) or veBodyInSafeState) "
+        />
+        <behavior name="idle" 
+            stop_cond="veBodyStatusValid and (not veBodyInError) and (not veBodyInSafeState)"
+            err_cond="FALSE" >
+            <running_component name="idle" />
+        </behavior>
+
+        <state name="safe" behavior="safe" 
+            init_cond="(not PREV_STATE_safe) and (not veBodyInSafeState) and veBodyStatusValid and (IN_ERROR || PREV_STATE_idle)"
+        />
+        <behavior name="safe"
+            stop_cond="recvOneCmd"
+            err_cond="(not veBodyStatusValid) or veBodyInSafeState" >
+            <running_component name="safe" />
+            <running_component name="Mass" />
+            <running_component name="FK" />
+            <running_component name="JntImp" />
+        </behavior>
+
+        <state name="cart_imp" behavior="cart_imp"
+            init_cond="(not PREV_STATE_cart_imp) and (not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
+        />
+        <behavior name="cart_imp"
+            stop_cond="veBodyStatusValid and recvOneCmd and (not recvCartImpCmd)"
+            err_cond="(not graphCartImp) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="CImp" />
+            <running_component name="Mass" />
+            <running_component name="JntLimit" />
+            <running_component name="PoseIntLeft" />
+            <running_component name="PoseIntRight" />
+            <running_component name="FK" />
+        </behavior>
+
+        <state name="jnt_imp" behavior="jnt_imp"
+            init_cond="(not PREV_STATE_jnt_imp) and (not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
+        />
+        <behavior name="jnt_imp"
+            stop_cond="veBodyStatusValid and recvOneCmd and (not recvJntImpCmd)"
+            err_cond="(not graphJntImp) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="Mass" />
+            <running_component name="TrajectoryGeneratorJoint" />
+            <running_component name="FK" />
+            <running_component name="JntImp" />
+        </behavior>
+
+<!--
+        <substates>
+            <state name="cart_imp" />
+            <state name="jnt_imp" />
+            <state name="safe_body" />
+        </substates>
+        <substates>
+            <state name="position_head" />
+            <state name="safe_head" />
+        </substates>
+        <substates>
+            <state name="command_lh" />
+            <state name="idle_lh" />
+        </substates>
+        <substates>
+            <state name="command_rh" />
+            <state name="idle_rh" />
+        </substates>
+-->
     </states>
 
     <simulation use_ros_sim_clock="true" use_sim_clock="true" />
