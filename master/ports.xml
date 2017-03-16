@@ -2,7 +2,7 @@
 
     <ports>
         <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true" >
-            <trigger min="0.0008" avg="0.001" max="0.002" />
+            <trigger min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" />
         </in>
         <in alias="rh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
         <in alias="lh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
