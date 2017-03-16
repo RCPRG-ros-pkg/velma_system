@@ -2,7 +2,9 @@
 
     <ports>
         <in alias="lo_st"       type="velma_core_ve_body_re_body_msgs::Status"     side="bottom"   ipc="false" />
-        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true" />
+        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true" >
+            <trigger min="0.0008" avg="0.001" max="0.002" sim_max="1.0" />
+        </in>
 
         <out alias="lo_cmd"     type="velma_core_ve_body_re_body_msgs::Command"    side="bottom"   ipc="false"/>
         <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
@@ -67,7 +69,7 @@
 
     </states>
 
-    <activity period="0.001" />
+<!--    <activity period="0.001" />-->
 
     <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
 
