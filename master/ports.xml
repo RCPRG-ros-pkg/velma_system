@@ -8,8 +8,17 @@
     <errors>
     </errors>
 
+    <predicates>
+    </predicates>
+
     <states>
-        <initial_state name="state_velma_task_cs_ros_interface_normal" />
+        <state name="normal" is_initial="true" behavior="normal"
+            init_cond="FALSE"
+        />
+        <behavior name="normal" 
+            stop_cond="FALSE"
+            err_cond="FALSE" >
+        </behavior>
     </states>
 
     <activity period="0.01" />
