@@ -40,9 +40,10 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ros_generate_rtt_master()
 
 orocos_component(velma_core_ve_body
-    src/behavior_idle.cpp
-    src/behavior_safe.cpp
+#    src/behavior_idle.cpp
+#    src/behavior_safe.cpp
     src/common_predicates.cpp
+    src/predicates.cpp
     src/velma_core_ve_body.cpp
     src/components/bypass.cpp
     src/components/safe.cpp

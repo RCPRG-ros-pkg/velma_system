@@ -35,9 +35,36 @@
         <err name="CMD_T_MOTOR_T_NAN" />
     </errors>
 
+    <predicates>
+        <predicate name="rLwrOk" />
+        <predicate name="rLwrInCmdState" />
+        <predicate name="lLwrOk" />
+        <predicate name="lLwrInCmdState" />
+        <predicate name="rLwrCmdOk" />
+        <predicate name="lLwrCmdOk" />
+        <predicate name="tCmdOk" />
+        <predicate name="cmdExitSafeState" />
+    </predicates>
+
     <states>
-        <state name="state_velma_core_ve_body_idle" />
-        <initial_state name="state_velma_core_ve_body_safe" />
+        <state name="safe" is_initial="true" behavior="safe"
+            init_cond="(not PREV_STATE_safe) and ((not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk))"
+        />
+        <behavior name="safe" 
+            stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"
+            err_cond="FALSE" >
+            <running_component name="safe" />
+        </behavior>
+
+        <state name="transparent" behavior="transparent"
+            init_cond="(not PREV_STATE_transparent) and rLwrOk and rLwrInCmdState and lLwrOk and lLwrInCmdState and rLwrCmdOk and lLwrCmdOk and tCmdOk and cmdExitSafeState"
+        />
+        <behavior name="transparent" 
+            stop_cond="FALSE"
+            err_cond="(not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)" >
+            <running_component name="bypass" />
+        </behavior>
+
     </states>
 
     <activity period="0.001" />
