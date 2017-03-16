@@ -62,14 +62,6 @@ bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::
     return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc.cmd == 1);
 }
 
-bool currentStateSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_ve_body_safe";
-}
-
-bool currentStateTransparent( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_ve_body_transparent";
-}
-
 };  // namespace velma_core_ve_body_types
 
 REGISTER_PREDICATE( velma_core_ve_body_types::rLwrOk );
@@ -80,6 +72,4 @@ REGISTER_PREDICATE( velma_core_ve_body_types::rLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::lLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::tCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::cmdExitSafeState );
-REGISTER_PREDICATE( velma_core_ve_body_types::currentStateSafe );
-REGISTER_PREDICATE( velma_core_ve_body_types::currentStateTransparent );
 
