@@ -111,22 +111,6 @@ bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskCo
     return valid_count == 1;
 }
 
-bool currentStateIdle( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_cs_idle";
-}
-
-bool currentStateSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_cs_safe";
-}
-
-bool currentStateCartImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_cs_cart_imp";
-}
-
-bool currentStateJntImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return prev_state_name == "velma_core_cs_jnt_imp";
-}
-
 };  // namespace velma_core_cs_types
 
 REGISTER_PREDICATE( velma_core_cs_types::graphSafe );
@@ -138,8 +122,4 @@ REGISTER_PREDICATE( velma_core_cs_types::veBodyStatusValid );
 REGISTER_PREDICATE( velma_core_cs_types::recvCartImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvOneCmd );
-REGISTER_PREDICATE( velma_core_cs_types::currentStateIdle );
-REGISTER_PREDICATE( velma_core_cs_types::currentStateSafe );
-REGISTER_PREDICATE( velma_core_cs_types::currentStateCartImp );
-REGISTER_PREDICATE( velma_core_cs_types::currentStateJntImp );
 
