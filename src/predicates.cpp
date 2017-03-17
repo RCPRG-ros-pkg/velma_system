@@ -30,35 +30,35 @@
 
 namespace velma_core_ve_body_types {
 
-bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return isLwrOk(in_data->lo_st.rArmFriRobot, in_data->lo_st.rArmFriIntf);
 }
 
-bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return isLwrInCmdState(in_data->lo_st.rArmFriIntf);
 }
 
-bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return isLwrOk(in_data->lo_st.lArmFriRobot, in_data->lo_st.lArmFriIntf);
 }
 
-bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return isLwrInCmdState(in_data->lo_st.lArmFriIntf);
 }
 
-bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->hi_cmd.rArm_valid;
 }
 
-bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->hi_cmd.lArm_valid;
 }
 
-bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->hi_cmd.tMotor_i_valid;
 }
 
-bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc == 1);
 }
 

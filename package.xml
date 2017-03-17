@@ -31,6 +31,7 @@
   <run_depend>velma_core_ve_body_re_body_msgs</run_depend>
   <run_depend>rtt_velma_core_cs_ve_body_subsystem_ports</run_depend>
   <run_depend>rtt_velma_core_ve_body_re_body_subsystem_ports</run_depend>
+  <run_depend>subsystem_deployer</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>
