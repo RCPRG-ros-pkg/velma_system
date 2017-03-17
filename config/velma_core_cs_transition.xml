@@ -80,14 +80,8 @@
     <component name="idle"      type="velma_core_cs_types::IdleComponent" />
 
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
-    <io_buffer alias="rh_st"    name="velma_core_cs_ve_hand_msgs_Status_right" />
-    <io_buffer alias="lh_st"    name="velma_core_cs_ve_hand_msgs_Status_left" />
-    <io_buffer alias="h_st"     name="velma_core_cs_ve_head_msgs_Status" />
 
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
-    <io_buffer alias="rh_cmd"   name="velma_core_cs_ve_hand_msgs_Command_right" />
-    <io_buffer alias="lh_cmd"   name="velma_core_cs_ve_hand_msgs_Command_left" />
-    <io_buffer alias="h_cmd"    name="velma_core_cs_ve_head_msgs_Command" />
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
@@ -101,11 +95,9 @@
     <connection from="HeadTiltVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
     <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanTransmision.MotorPosition_INPORT" />
     <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="HeadPanTransmision.MotorVelocity_INPORT" />
-    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.hpMotor_i_INPORT" />
     <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
     <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltTransmision.MotorPosition_INPORT" />
     <connection from="b_stSplit.htMotor_dq_OUTPORT" to="HeadTiltTransmision.MotorVelocity_INPORT" />
-    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.htMotor_i_INPORT" />
     <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" />
 -->
     <connection from="b_stSplit.rArm_q_OUTPORT" to="Jc.In1" />
@@ -209,20 +201,18 @@
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st" />
     <connection from="JcAll.Out" to="stConcate.q_INPORT" />
     <connection from="JvcAll.Out" to="stConcate.dq_INPORT" />
-    <connection from="cmdSplit.hand_r_OUTPORT" to="rh_cmdConcate._INPORT" />
-    <connection from="cmdSplit.hand_l_OUTPORT" to="lh_cmdConcate._INPORT" />
-    <connection from="rh_stSplit.hand_OUTPORT" to="stConcate.hand_r_INPORT" />
-    <connection from="lh_stSplit.hand_OUTPORT" to="stConcate.hand_l_INPORT" />
-    <connection from="rh_stSplit.p_OUTPORT" to="stConcate.p_INPORT" />
-    <connection from="lh_stSplit.f_OUTPORT" to="stConcate.f_INPORT" />
+    <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" />
+    <connection from="cmdSplit.hand_l_OUTPORT" to="b_cmdConcate.lHand_INPORT" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.hand_r_INPORT" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.hand_l_INPORT" />
+    <connection from="b_stSplit.p_OUTPORT" to="stConcate.p_INPORT" />
+    <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" />
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
-#    <connection from="HeadPanTransmisionInv.MotorCurrent_OUTPORT" to="b_cmdConcate.hpMotor_i_INPORT" />
 #    <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
-#    <connection from="HeadTiltTransmisionInv.MotorCurrent_OUTPORT" to="b_cmdConcate.htMotor_i_INPORT" />
 #    <connection from="HeadTiltTransmisionInv.MotorVelocity_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" />
 #    <connection from="b_stSplit.rHand_q_OUTPORT" to="JcAll.In2" />
 #    <connection from="b_stSplit.lHand_q_OUTPORT" to="JcAll.In3" />

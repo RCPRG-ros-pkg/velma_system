@@ -72,8 +72,8 @@ private:
 //    velma_core_cs_ve_body_msgs::Command cmd_out_;
 //    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
 
-    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
-    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
+    int32_t cmd_sc_out_;
+    RTT::OutputPort<int32_t > port_cmd_sc_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
@@ -166,8 +166,7 @@ void IdleComponent::updateHook() {
     cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
 */
     if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
-        cmd_sc_out_.cmd = 1;
-        cmd_sc_out_.valid = true;   // TODO: this is not needed
+        cmd_sc_out_ = 1;
         first_step_ = true;
     }
 

@@ -4,14 +4,7 @@
         <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true" >
             <trigger min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" />
         </in>
-        <in alias="rh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
-        <in alias="lh_st"   type="velma_core_cs_ve_hand_msgs::Status"     side="bottom"   ipc="true" />
-        <in alias="h_st"    type="velma_core_ve_head_re_head_msgs::Status"    side="bottom"   ipc="true"/>
-
         <out alias="b_cmd"  type="velma_core_cs_ve_body_msgs::Command"    side="bottom"   ipc="true"/>
-        <out alias="rh_cmd" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
-        <out alias="lh_cmd" type="velma_core_cs_ve_hand_msgs::Command"    side="bottom"   ipc="true"/>
-        <out alias="h_cmd"  type="velma_core_ve_head_re_head_msgs::Command"    side="bottom"   ipc="true"/>
 
         <in alias="cmd"     type="velma_core_cs_task_cs_msgs::Command"    side="top"      ipc="true" />
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"      ipc="true"/>
