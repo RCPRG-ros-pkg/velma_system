@@ -120,8 +120,8 @@ void BypassComponent::updateHook() {
 //    cmd_out_.rTact = cmd_in_.rTact;
 //    cmd_out_.rTact_valid = cmd_in_.rTact_valid;
 
-    cmd_out_.tMotor = cmd_in_.tMotor;
-    cmd_out_.tMotor_valid = cmd_in_.tMotor_valid;
+    cmd_out_.tMotor_i = cmd_in_.tMotor_i;
+    cmd_out_.tMotor_i_valid = cmd_in_.tMotor_i_valid;
 
 //    cmd_out_.hpMotor = cmd_in_.hpMotor;
 //    cmd_out_.hpMotor_valid = cmd_in_.hpMotor_valid;

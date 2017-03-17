@@ -476,21 +476,17 @@ void SafeComponent::updateHook() {
     cmd_out_.lArm_valid = lArm_valid;
 
     if (tMotor_valid) {
-        calculateTorsoDampingTorque(status_in_.tMotor.dq, cmd_out_.tMotor.i);
-        cmd_out_.tMotor.q = 0;
-        cmd_out_.tMotor.dq = 0;
+        calculateTorsoDampingTorque(status_in_.tMotor.dq, cmd_out_.tMotor_i);
     }
-    cmd_out_.tMotor_valid = tMotor_valid;
+    cmd_out_.tMotor_i_valid = tMotor_valid;
 
     if (hpMotor_valid) {
-        cmd_out_.hpMotor.i = 0;
         cmd_out_.hpMotor.q = status_in_.hpMotor.q;
         cmd_out_.hpMotor.dq = 0;
     }
     cmd_out_.hpMotor_valid = hpMotor_valid;
 
     if (htMotor_valid) {
-        cmd_out_.htMotor.i = 0;
         cmd_out_.htMotor.q = status_in_.htMotor.q;
         cmd_out_.htMotor.dq = 0;
     }

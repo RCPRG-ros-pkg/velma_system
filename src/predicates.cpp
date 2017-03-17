@@ -55,11 +55,11 @@ bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskCon
 }
 
 bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.tMotor_valid;
+    return in_data->hi_cmd.tMotor_i_valid;
 }
 
 bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc.cmd == 1);
+    return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc == 1);
 }
 
 };  // namespace velma_core_ve_body_types
