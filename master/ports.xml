@@ -11,15 +11,18 @@
     <predicates>
     </predicates>
 
-    <states>
-        <state name="normal" is_initial="true" behavior="normal"
+    <output_scopes>
+        <scope name="all" />
+    </output_scopes>
+
+    <behaviors>
+        <behavior name="normal" is_initial="true"
             init_cond="FALSE"
-        />
-        <behavior name="normal" 
             stop_cond="FALSE"
             err_cond="FALSE" >
+            <scope name="all" />
         </behavior>
-    </states>
+    </behaviors>
 
     <activity period="0.01" />
 
