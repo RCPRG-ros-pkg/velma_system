@@ -41,11 +41,11 @@
   <build_depend>rtt_control_msgs</build_depend>
   <run_depend>rtt_control_msgs</run_depend>
 
-  <build_depend>rtt_velma_core_ve_hand_re_hand_msgs</build_depend>
-  <run_depend>rtt_velma_core_ve_hand_re_hand_msgs</run_depend>
+  <build_depend>rtt_barrett_hand_controller_msgs</build_depend>
+  <run_depend>rtt_barrett_hand_controller_msgs</run_depend>
 
-  <build_depend>rtt_velma_core_cs_ve_hand_msgs</build_depend>
-  <run_depend>rtt_velma_core_cs_ve_hand_msgs</run_depend>
+  <build_depend>rtt_velma_core_ve_body_re_body_msgs</build_depend>
+  <run_depend>rtt_velma_core_ve_body_re_body_msgs</run_depend>
 
   <export>
     <rtt_ros>
