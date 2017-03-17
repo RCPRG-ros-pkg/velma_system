@@ -45,17 +45,17 @@
     <connection from="stSplit.q_OUTPORT"             to="JntPub.JointPosition" />
     <connection from="stSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
     <ros_stream port="JntPub.joint_state"             topic="/joint_states" />
-    <connection from="LeftHandAction.q_OUTPORT"       to="cmdConcate.hand_l_hand_q_INPORT" />
-    <connection from="LeftHandAction.v_OUTPORT"       to="cmdConcate.hand_l_hand_dq_INPORT" />
-    <connection from="LeftHandAction.t_OUTPORT"       to="cmdConcate.hand_l_hand_max_i_INPORT" />
-    <connection from="LeftHandAction.mp_OUTPORT"      to="cmdConcate.hand_l_hand_max_p_INPORT" />
-    <connection from="LeftHandAction.hold_OUTPORT"    to="cmdConcate.hand_l_hand_hold_INPORT" />
+    <connection from="LeftHandAction.q_OUTPORT"       to="cmdConcate.hand_l_q_INPORT" />
+    <connection from="LeftHandAction.v_OUTPORT"       to="cmdConcate.hand_l_dq_INPORT" />
+    <connection from="LeftHandAction.t_OUTPORT"       to="cmdConcate.hand_l_max_i_INPORT" />
+    <connection from="LeftHandAction.mp_OUTPORT"      to="cmdConcate.hand_l_max_p_INPORT" />
+    <connection from="LeftHandAction.hold_OUTPORT"    to="cmdConcate.hand_l_hold_INPORT" />
     <connection from="stSplit.hand_l_s_OUTPORT"        to="LeftHandAction.status_INPORT" />
-    <connection from="RightHandAction.q_OUTPORT"      to="cmdConcate.hand_r_hand_q_INPORT" />
-    <connection from="RightHandAction.v_OUTPORT"      to="cmdConcate.hand_r_hand_dq_INPORT" />
-    <connection from="RightHandAction.t_OUTPORT"      to="cmdConcate.hand_r_hand_max_i_INPORT" />
-    <connection from="RightHandAction.mp_OUTPORT"     to="cmdConcate.hand_r_hand_max_p_INPORT" />
-    <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hand_hold_INPORT" />
+    <connection from="RightHandAction.q_OUTPORT"      to="cmdConcate.hand_r_q_INPORT" />
+    <connection from="RightHandAction.v_OUTPORT"      to="cmdConcate.hand_r_dq_INPORT" />
+    <connection from="RightHandAction.t_OUTPORT"      to="cmdConcate.hand_r_max_i_INPORT" />
+    <connection from="RightHandAction.mp_OUTPORT"     to="cmdConcate.hand_r_max_p_INPORT" />
+    <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hold_INPORT" />
     <connection from="stSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
 
     <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
