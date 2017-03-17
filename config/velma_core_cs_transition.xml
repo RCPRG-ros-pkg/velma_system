@@ -15,7 +15,6 @@
     <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
     <import>rtt_velma_core_cs_task_cs_msgs</import>
     <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
-    <import>velma_task_cs_ros_interface</import>
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
@@ -37,10 +36,14 @@
         <service>robot</service>
     </component>
 <!--
+    <component name="HeadTrajectoryGeneratorJoint" type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
+    <component name="HeadPosAggregate"      type="PortDoubleAggregate2" />
+    <component name="HeadPosSplit"          type="PortDoubleSplit2" />
+-->
+<!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
 #    <component name="TorquePubLeft"    type="TorquePublisher7" />
 #    <component name="VG"       type="VelmaGrav" />
-#    <component name="HeadTrajectoryGeneratorJoint" type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
 #HeadTrajectoryGeneratorJoint.start();
 #TGR.start();
 -->
@@ -50,7 +53,7 @@
     <component name="Vd2"       type="VectorDummy2" running="true" />
     <component name="Ts"        type="VectorSplit1_7_7_0" running="true" />
     <component name="TJ"        type="TorsoTeleopJoy" running="true" />
-<!--    <component name="HeadPosAggregate"      type="PortDoubleAggregate2" running="true" />
+<!--
     <component name="HeadVelAggregate"      type="PortDoubleAggregate2" running="true" />
     <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
 -->
@@ -210,6 +213,11 @@
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!--
+    <connection from="HeadPosAggregate.OutputPort" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
+    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
+    <connection from="cmdSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
+-->
+<!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
 #    <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
@@ -244,9 +252,6 @@
 #    <ros_stream port="LeftForceControl.CurrentFclParam" topic="/left_arm/fcl_param" />
 //    <connection from="TJ.NullSpaceTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 #    <connection from="VG.GravTrq" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
-#    <connection from="HeadPosAggregate.OutputPort" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
-#    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
-#    <connection from="cmdSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
 -->
 </subsystem>
 

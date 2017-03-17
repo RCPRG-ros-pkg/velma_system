@@ -29,7 +29,7 @@
 
 namespace velma_core_cs_types {
 
-bool graphSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool graphSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
         const std::string& name = components[i]->getName();
         RTT::TaskContext::TaskState state = components[i]->getTaskState();
@@ -47,7 +47,7 @@ bool graphSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskCon
     return true;
 }
 
-bool graphCartImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool graphCartImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
         const std::string& name = components[i]->getName();
         RTT::TaskContext::TaskState state = components[i]->getTaskState();
@@ -65,7 +65,7 @@ bool graphCartImp( const InputDataConstPtr& in_data, const std::vector<RTT::Task
     return true;
 }
 
-bool graphJntImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool graphJntImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
         const std::string& name = components[i]->getName();
         RTT::TaskContext::TaskState state = components[i]->getTaskState();
@@ -83,31 +83,27 @@ bool graphJntImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskC
     return true;
 }
 
-bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->b_st.sc.safe_behavior;
 }
 
-bool veBodyInError( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->b_st.sc.error;
-}
-
-bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid;
 }
 
-bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->cmd.cart_r.imp_valid || in_data->cmd.cart_r.pose_valid || in_data->cmd.cart_r.tool_valid ||
            in_data->cmd.cart_l.imp_valid || in_data->cmd.cart_l.pose_valid || in_data->cmd.cart_l.tool_valid;
 }
 
-bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->cmd.jnt_valid;
 }
 
-bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     unsigned int valid_count = 0;
-    valid_count += (recvCartImpCmd(in_data, components, prev_state_name) ? 1 : 0);
-    valid_count += (recvJntImpCmd(in_data, components, prev_state_name) ? 1 : 0);
+    valid_count += (recvCartImpCmd(in_data, components) ? 1 : 0);
+    valid_count += (recvJntImpCmd(in_data, components) ? 1 : 0);
     return valid_count == 1;
 }
 
@@ -117,7 +113,6 @@ REGISTER_PREDICATE( velma_core_cs_types::graphSafe );
 REGISTER_PREDICATE( velma_core_cs_types::graphCartImp );
 REGISTER_PREDICATE( velma_core_cs_types::graphJntImp );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyInSafeState );
-REGISTER_PREDICATE( velma_core_cs_types::veBodyInError );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyStatusValid );
 REGISTER_PREDICATE( velma_core_cs_types::recvCartImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );
