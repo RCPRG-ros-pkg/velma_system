@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(rtt_velma_core_cs_ve_body_msgs)
 
-find_package(catkin REQUIRED COMPONENTS rtt_roscomm velma_core_cs_ve_body_msgs velma_core_ve_body_re_body_msgs common_interfaces)
+find_package(catkin REQUIRED COMPONENTS rtt_roscomm velma_core_cs_ve_body_msgs velma_core_ve_body_re_body_msgs rtt_velma_core_ve_body_re_body_msgs rtt_barrett_hand_controller_msgs common_interfaces)
 
 ros_generate_rtt_typekit(velma_core_cs_ve_body_msgs)
 
