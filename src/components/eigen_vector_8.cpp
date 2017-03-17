@@ -29,6 +29,6 @@
 #include "common_interfaces/data_conversion.h"
 #include "rtt/Component.hpp"
 
-REGISTER_DATA_CONVERSION(velma_core_ve_hand_re_hand_msgs, StatusHand, q, (boost::array<double, 8 >), (Eigen::Matrix<double, 8, 1 >),
+REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, StatusHand, q, (boost::array<double, 8 >), (Eigen::Matrix<double, 8, 1 >),
 { ::convert<8>(ros, oro); }, { ::convert<8>(oro, ros); } )
 
