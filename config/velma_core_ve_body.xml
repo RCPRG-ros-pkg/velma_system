@@ -47,8 +47,6 @@
     <connection from="lo_cmdSplit.lArmFri_OUTPORT" to="LWRlSim.KRL_CMD_INPORT" />
 
     <connection from="lo_cmdSplit.tMotor_i_OUTPORT" to="TorsoSim.t_MotorCurrentCommand_INPORT" />
-    <connection from="lo_cmdSplit.hpMotor_i_OUTPORT" to="TorsoSim.head_pan_motor_current_command_INPORT" />
-    <connection from="lo_cmdSplit.htMotor_i_OUTPORT"          to="TorsoSim.head_tilt_motor_current_command_INPORT" />
     <connection from="lo_cmdSplit.hpMotor_q_OUTPORT"          to="TorsoSim.head_pan_motor_position_command_INPORT" />
     <connection from="lo_cmdSplit.htMotor_q_OUTPORT"          to="TorsoSim.head_tilt_motor_position_command_INPORT" />
     <connection from="lo_cmdSplit.hpMotor_dq_OUTPORT"         to="TorsoSim.head_pan_motor_velocity_command_INPORT" />
