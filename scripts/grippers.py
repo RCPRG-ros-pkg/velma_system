@@ -36,11 +36,11 @@ if __name__ == "__main__":
     print "init ok"
 
     print "move left"
-    velma.moveHandLeft([90.0/18.0*math.pi,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+    velma.moveHandLeft([90.0/180.0*math.pi,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
     velma.waitForHandLeft()
 
     print "move right"
-    velma.moveHandRight([90.0/18.0*math.pi,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+    velma.moveHandRight([90.0/180.0*math.pi,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
     velma.waitForHandRight()
 
     print "move left"
