@@ -110,8 +110,8 @@
         </behavior>
 
         <behavior name="position_hands_neck"
-            init_cond="(not veBodyInSafeState) and veBodyStatusValid"
-            stop_cond="veBodyStatusValid and (not veBodyInSafeState)"
+            init_cond="veBodyStatusValid and (not veBodyInSafeState)"
+            stop_cond="veBodyStatusValid and veBodyInSafeState"
             err_cond="FALSE" >
 <!--            <running_component name="HeadTrajectoryGeneratorJoint" />-->
             <scope name="right_hand" />
