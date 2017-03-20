@@ -118,8 +118,8 @@
     <connection from="b_stSplit.lArm_q_OUTPORT" to="Jc.In2" />
     <connection from="b_stSplit.rArm_dq_OUTPORT" to="Jvc.In1" />
     <connection from="b_stSplit.lArm_dq_OUTPORT" to="Jvc.In2" />
-    <connection from="Vd8.vector_OUTPORT" to="JcAll.In2" />
-    <connection from="Vd8.vector_OUTPORT" to="JcAll.In3" />
+    <connection from="b_stSplit.rHand_q_OUTPORT" to="JcAll.In2" />
+    <connection from="b_stSplit.lHand_q_OUTPORT" to="JcAll.In3" />
     <connection from="Vd8.vector_OUTPORT" to="JvcAll.In2" />
     <connection from="Vd8.vector_OUTPORT" to="JvcAll.In3" />
     <connection from="Ts.Out1" to="b_cmdConcate.rArm_t_INPORT" />
