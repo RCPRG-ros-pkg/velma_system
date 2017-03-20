@@ -9,6 +9,12 @@ bool lArm_valid
 velma_core_ve_body_re_body_msgs/CommandArm rArm         # subsystem_buffer{type: container; validity: rArm_valid}
 bool rArm_valid
 
+velma_core_ve_body_re_body_msgs/CommandMotor hpMotor    # subsystem_buffer{type: container; validity: hpMotor_valid}
+bool hpMotor_valid
+
+velma_core_ve_body_re_body_msgs/CommandMotor htMotor    # subsystem_buffer{type: container; validity: htMotor_valid}
+bool htMotor_valid
+
 int32 sc                # subsystem_buffer{type: port; validity: sc_valid}
 bool sc_valid
 
