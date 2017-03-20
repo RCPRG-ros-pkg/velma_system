@@ -199,6 +199,8 @@ void BypassComponent::updateHook() {
 //        return;
 //    }
 
+    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
+
     if (port_cmd_tact_in_.read(tact_in) != RTT::NewData) {
         cmd_out_.tact_valid = false;
     }
@@ -233,8 +235,6 @@ void BypassComponent::updateHook() {
 //    }
 
     diag_ = 0;
-
-    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
 
     cmd_out_.tMotor_i = tMotor_i_in;
     cmd_out_.tMotor_i_valid = true;
