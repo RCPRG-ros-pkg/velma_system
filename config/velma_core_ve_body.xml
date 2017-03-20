@@ -1,4 +1,5 @@
 <subsystem>
+    <import>controller_common</import>
     <import>rtt_geometry_msgs</import>
     <import>rtt_velma_core_cs_ve_body_msgs</import>
     <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
@@ -22,6 +23,13 @@
     <component name="LeftFtSensor" running="true" />
     <component name="RightFtSensor" running="true" />
 
+    <component name="TorsoPanTransmision"       type="SimpleTransmision" />
+    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
+    <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
+    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" running="true" />
+    <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
+    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" running="true" />
+
     <component name="bypass" type="velma_core_ve_body_types::BypassComponent" />
     <component name="safe" type="velma_core_ve_body_types::SafeComponent" />
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" running="true" />
@@ -35,6 +43,33 @@
     <ros_stream port="master_component.hi_cmd_OUTPORT"      topic="/velma_core_ve_body/hi_cmd" />
 
     <ros_stream port="hi_stConcate.msg_OUTPORT"             topic="/velma_core_ve_body/hi_st" />
+
+
+    <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
+    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT" to="bypass.cmd_hpMotor_q_INPORT" />
+
+    <connection from="hi_cmdSplit.htMotor_q_OUTPORT" to="HeadTiltTransmisionInv.JointPosition_INPORT" />
+    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="bypass.cmd_htMotor_q_INPORT" />
+
+
+
+    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"         to="HeadPanTransmision.MotorPosition_INPORT" />
+    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"         to="HeadPanTransmision.MotorVelocity_INPORT" />
+    <connection from="HeadPanTransmision.JointPosition_OUTPORT"         to="hi_stConcate.hpMotor_q_INPORT" />
+    <connection from="HeadPanTransmision.JointVelocity_OUTPORT"         to="hi_stConcate.hpMotor_dq_INPORT" />
+
+    <connection from="TorsoSim.head_tilt_motor_position_OUTPORT"        to="HeadTiltTransmision.MotorPosition_INPORT" />
+    <connection from="TorsoSim.head_tilt_motor_velocity_OUTPORT"        to="HeadTiltTransmision.MotorVelocity_INPORT" />
+    <connection from="HeadTiltTransmision.JointPosition_OUTPORT" to="hi_stConcate.htMotor_q_INPORT" />
+    <connection from="HeadTiltTransmision.JointVelocity_OUTPORT" to="hi_stConcate.htMotor_dq_INPORT" />
+
+
+
+
+
+    <connection from="TorsoSim.t_MotorPosition_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" />
+    <connection from="TorsoSim.t_MotorVelocity_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" />
+
 
     <connection from="lo_stConcate.msg_OUTPORT" to="safe.status_INPORT" />
     <connection from="safe.cmd_OUTPORT" to="lo_cmdConcate._INPORT" />
@@ -52,7 +87,14 @@
     <connection from="lo_cmdSplit.hpMotor_dq_OUTPORT"         to="TorsoSim.head_pan_motor_velocity_command_INPORT" />
     <connection from="lo_cmdSplit.htMotor_dq_OUTPORT"         to="TorsoSim.head_tilt_motor_velocity_command_INPORT" />
 
-    <connection from="hi_cmdSplit._OUTPORT" to="bypass.command_INPORT" />
+
+    
+    <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT" to="bypass.cmd_tMotor_INPORT" />
+    <connection from="hi_cmdSplit.lArm_OUTPORT" to="bypass.cmd_lArm_INPORT" />
+    <connection from="hi_cmdSplit.rArm_OUTPORT" to="bypass.cmd_rArm_INPORT" />
+    <connection from="hi_cmdSplit.lHand_OUTPORT" to="bypass.cmd_lHand_INPORT" />
+    <connection from="hi_cmdSplit.rHand_OUTPORT" to="bypass.cmd_rHand_INPORT" />
     <connection from="bypass.command_OUTPORT" to="lo_cmdConcate._INPORT" />
     <connection from="bypass.sc_OUTPORT" to="hi_stConcate.sc_INPORT" />
 
@@ -72,12 +114,8 @@
     <connection from="LWRlSim.CartesianWrench_OUTPORT"                  to="hi_stConcate.lArm_w_INPORT" />
     <connection from="LWRlSim.MassMatrix_OUTPORT"                       to="hi_stConcate.lArm_mmx_INPORT" />
 
-    <connection from="TorsoSim.t_MotorPosition_OUTPORT"                 to="hi_stConcate.tMotor_q_INPORT" />
-    <connection from="TorsoSim.t_MotorVelocity_OUTPORT"                 to="hi_stConcate.tMotor_dq_INPORT" />
-    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"         to="hi_stConcate.hpMotor_q_INPORT" />
-    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"         to="hi_stConcate.hpMotor_dq_INPORT" />
-    <connection from="TorsoSim.head_tilt_motor_position_OUTPORT"        to="hi_stConcate.htMotor_q_INPORT" />
-    <connection from="TorsoSim.head_tilt_motor_velocity_OUTPORT"        to="hi_stConcate.htMotor_dq_INPORT" />
+    <connection from="TorsoPanTransmision.JointPosition_OUTPORT"        to="hi_stConcate.tMotor_q_INPORT" />
+    <connection from="TorsoPanTransmision.JointVelocity_OUTPORT"        to="hi_stConcate.tMotor_dq_INPORT" />
 
     <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="hi_stConcate.rFt_rw_INPORT" />
     <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_ffw_INPORT" />
