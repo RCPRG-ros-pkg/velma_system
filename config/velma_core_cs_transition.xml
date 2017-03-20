@@ -39,7 +39,6 @@
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
 #    <component name="TorquePubLeft"    type="TorquePublisher7" />
 #    <component name="VG"       type="VelmaGrav" />
-#HeadTrajectoryGeneratorJoint.start();
 #TGR.start();
 -->
     <component name="TGR"       type="TriggerGenerator" />
@@ -94,20 +93,22 @@
 <!--    <connection from="Vd2.vector_OUTPORT" to="HeadPosSplit.InputPort" />-->
 
 <!--    <connection from="HeadPosSplit.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
-<!--    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanVelocityLimiter.Position_INPORT" />-->
-<!--    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />-->
+    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanVelocityLimiter.Position_INPORT" />
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
 
     <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadPosAggregate.InputPort_1" />
     <connection from="b_stSplit.htMotor_dq_OUTPORT" to="HeadVelAggregate.InputPort_1" />
-<!--    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltVelocityLimiter.Position_INPORT" />-->
+    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltVelocityLimiter.Position_INPORT" />
 <!--    <connection from="HeadPosSplit.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
 
+<!--
     <connection from="Sd.scalar_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
     <connection from="Sd.scalar_OUTPORT" to="HeadTiltVelocityLimiter.Position_INPORT" />
     <connection from="Sd.scalar_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
     <connection from="Sd.scalar_OUTPORT" to="HeadPanVelocityLimiter.Position_INPORT" />
+-->
 
-<!--    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />-->
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
     <connection from="HeadPanVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
     <connection from="HeadTiltVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
 <!--    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
@@ -215,7 +216,7 @@
 
 
     <connection from="HeadPosAggregate.OutputPort" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
-<!--    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />-->
+    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
     <connection from="cmdSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
 
 

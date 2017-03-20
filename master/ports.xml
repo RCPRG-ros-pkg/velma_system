@@ -36,83 +36,11 @@
 
     <behaviors>
 
-        <behavior name="test_all_scopes"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="upper_body" />
-            <scope name="right_hand" />
-            <scope name="left_hand" />
-            <scope name="neck" />
-        </behavior>
-
-        <behavior name="test_all_scopes_2"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="upper_body" />
-            <scope name="right_hand" />
-            <scope name="left_hand" />
-            <scope name="neck" />
-        </behavior>
-
-        <behavior name="test_lh_scope"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="left_hand" />
-        </behavior>
-
-        <behavior name="test_lh_scope_2"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="left_hand" />
-        </behavior>
-
-        <behavior name="test_rh_scope"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="right_hand" />
-        </behavior>
-
-        <behavior name="test_lh_neck_scope"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="left_hand" />
-            <scope name="neck" />
-        </behavior>
-
-        <behavior name="test_neck_scope"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="neck" />
-        </behavior>
-
-        <behavior name="test_neck_scope_2"
-            init_cond="FALSE"
-            stop_cond="FALSE"
-            err_cond="FALSE" >
-            <scope name="neck" />
-        </behavior>
-<!--
-        <behavior name="idle_hands_neck" is_initial="true"
-            init_cond="(not veBodyStatusValid) or veBodyInSafeState"
-            stop_cond="veBodyStatusValid and (not veBodyInSafeState)"
-            err_cond="FALSE" >
-            <scope name="right_hand" />
-            <scope name="left_hand" />
-            <scope name="neck" />
-        </behavior>
--->
         <behavior name="position_hands_neck"
             init_cond="veBodyStatusValid and (not veBodyInSafeState)"
             stop_cond="veBodyStatusValid and veBodyInSafeState"
             err_cond="FALSE" >
-<!--            <running_component name="HeadTrajectoryGeneratorJoint" />-->
+            <running_component name="HeadTrajectoryGeneratorJoint" />
             <running_component name="HeadPanVelocityLimiter" />
             <running_component name="HeadTiltVelocityLimiter" />
             <scope name="right_hand" />
