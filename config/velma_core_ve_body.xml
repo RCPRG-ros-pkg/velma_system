@@ -23,8 +23,8 @@
     <component name="LeftFtSensor" running="true" />
     <component name="RightFtSensor" running="true" />
 
-    <component name="TorsoPanTransmision"       type="SimpleTransmision" />
-    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
+    <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
+    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
     <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
     <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" running="true" />
     <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
