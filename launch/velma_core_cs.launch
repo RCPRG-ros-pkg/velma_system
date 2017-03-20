@@ -63,43 +63,10 @@
         v_head: 0.392
         h_cam:  0.0
         v_cam:  0.225
-      TorsoPanTransmision:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-      TorsoPanTransmisionInv:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-        motor_constant: 0.00105
       HeadPanVelocityLimiter:
         max_vel: 50.0
       HeadTiltVelocityLimiter:
         max_vel: 50.0
-      HeadPanTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-      HeadPanTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
-      HeadTiltTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-      HeadTiltTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
       JntImp:
         initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.0, 200.01]
       JntLimit:
@@ -137,6 +104,18 @@
         check_tolerances: false
     </rosparam>
 <!--
+      TorsoPanTransmision:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+      TorsoPanTransmisionInv:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+        motor_constant: 0.00105
+
       rightHandMoveAction:
         prefix: right
       leftHandMoveAction:

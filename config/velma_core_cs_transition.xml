@@ -16,16 +16,10 @@
     <import>rtt_velma_core_cs_task_cs_msgs</import>
     <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
 
-    <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
-    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
-<!--
-    <component name="HeadPanVelocityLimiter"    type="VelocityLimiter" running="true" />
-    <component name="HeadTiltVelocityLimiter"   type="VelocityLimiter" running="true" />
-    <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
-    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" running="true" />
-    <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
-    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" running="true" />
--->
+
+    <component name="HeadPanVelocityLimiter"    type="VelocityLimiter" />
+    <component name="HeadTiltVelocityLimiter"   type="VelocityLimiter" />
+
     <component name="Jc"        type="VectorConcate1_7_7_0" running="true" />
     <component name="Jvc"       type="VectorConcate1_7_7_0" running="true" />
     <component name="JcAll"     type="VectorConcate15_2_8_8" running="true" />
@@ -35,11 +29,12 @@
     <component name="Mass"      type="MassTest15_2" running="true" >
         <service>robot</service>
     </component>
-<!--
+
     <component name="HeadTrajectoryGeneratorJoint" type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
-    <component name="HeadPosAggregate"      type="PortDoubleAggregate2" />
-    <component name="HeadPosSplit"          type="PortDoubleSplit2" />
--->
+
+    <component name="HeadPosAggregate"      type="PortDoubleAggregate2" running="true" />
+    <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
+
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
 #    <component name="TorquePubLeft"    type="TorquePublisher7" />
@@ -53,10 +48,10 @@
     <component name="Vd2"       type="VectorDummy2" running="true" />
     <component name="Ts"        type="VectorSplit1_7_7_0" running="true" />
     <component name="TJ"        type="TorsoTeleopJoy" running="true" />
-<!--
+
     <component name="HeadVelAggregate"      type="PortDoubleAggregate2" running="true" />
     <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
--->
+
     <component name="TorsoPosAggregate"     type="PortDoubleAggregate1" running="true" />
     <component name="TorsoVelAggregate"     type="PortDoubleAggregate1" running="true" />
     <component name="TorsoTrqSplit"         type="PortDoubleSplit1" running="true" />
@@ -89,20 +84,35 @@
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
-    <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" />
-    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" />
-    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" />
-<!--    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPosAggregate.InputPort_0" />
+    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoVelAggregate.InputPort_0" />
+    <connection from="TorsoTrqSplit.OutputPort_0" to="b_cmdConcate.tMotor_i_INPORT" />
+
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPosAggregate.InputPort_0" />
+    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="HeadVelAggregate.InputPort_0" />
+
+<!--    <connection from="Vd2.vector_OUTPORT" to="HeadPosSplit.InputPort" />-->
+
+<!--    <connection from="HeadPosSplit.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
+<!--    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanVelocityLimiter.Position_INPORT" />-->
+<!--    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />-->
+
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadPosAggregate.InputPort_1" />
+    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="HeadVelAggregate.InputPort_1" />
+<!--    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltVelocityLimiter.Position_INPORT" />-->
+<!--    <connection from="HeadPosSplit.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
+
+    <connection from="Sd.scalar_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="HeadTiltVelocityLimiter.Position_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="HeadPanVelocityLimiter.Position_INPORT" />
+
+<!--    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />-->
     <connection from="HeadPanVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
     <connection from="HeadTiltVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
-    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanTransmision.MotorPosition_INPORT" />
-    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="HeadPanTransmision.MotorVelocity_INPORT" />
-    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltTransmision.MotorPosition_INPORT" />
-    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="HeadTiltTransmision.MotorVelocity_INPORT" />
-    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" />
--->
+<!--    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
+    <connection from="Sd.scalar_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />-->
+
     <connection from="b_stSplit.rArm_q_OUTPORT" to="Jc.In1" />
     <connection from="b_stSplit.lArm_q_OUTPORT" to="Jc.In2" />
     <connection from="b_stSplit.rArm_dq_OUTPORT" to="Jvc.In1" />
@@ -119,26 +129,15 @@
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" />
     <connection from="Jc.Out" to="Mass.JointPosition_INPORT" />
 <!--
-    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT" to="HeadPanVelocityLimiter.Position_INPORT" />
-    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="HeadTiltVelocityLimiter.Position_INPORT" />
-    <connection from="HeadPanTransmision.JointPosition_OUTPORT" to="HeadPosAggregate.InputPort_0" />
-    <connection from="HeadTiltTransmision.JointPosition_OUTPORT" to="HeadPosAggregate.InputPort_1" />
-    <connection from="HeadPanTransmision.JointVelocity_OUTPORT" to="HeadVelAggregate.InputPort_0" />
-    <connection from="HeadTiltTransmision.JointVelocity_OUTPORT" to="HeadVelAggregate.InputPort_1" />
-    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanTransmisionInv.JointPosition_INPORT" />
-    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltTransmisionInv.JointPosition_INPORT" />
     <connection from="HeadPosAggregate.OutputPort" to="JcAll.In1" />
     <connection from="HeadVelAggregate.OutputPort" to="JvcAll.In1" />
 -->
     <connection from="Vd2.vector_OUTPORT" to="JcAll.In1" />
     <connection from="Vd2.vector_OUTPORT" to="JvcAll.In1" />
     <connection from="TorsoPosAggregate.OutputPort" to="Jc.In0" />
-    <connection from="TorsoPanTransmision.JointPosition_OUTPORT" to="TorsoPosAggregate.InputPort_0" />
     <connection from="TorsoVelAggregate.OutputPort" to="Jvc.In0" />
-    <connection from="TorsoPanTransmision.JointVelocity_OUTPORT" to="TorsoVelAggregate.InputPort_0" />
     <connection from="Jc.Out" to="JcAll.In0" />
     <connection from="Jvc.Out" to="JvcAll.In0" />
-    <connection from="TorsoTrqSplit.OutputPort_0" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
     <connection from="Ts.Out0" to="TorsoTrqSplit.InputPort" />
     <connection from="Jc.Out" to="CImp.JointPosition_INPORT" />
     <connection from="Jvc.Out" to="CImp.JointVelocity_INPORT" />
@@ -200,6 +199,8 @@
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
     <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" />
     <connection from="idle.JointTorqueCommand_OUTPORT" to="Ts.In" />
+    <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
+    <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st" />
     <connection from="JcAll.Out" to="stConcate.q_INPORT" />
@@ -212,16 +213,15 @@
     <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" />
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
-<!--
+
     <connection from="HeadPosAggregate.OutputPort" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
-    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
+<!--    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />-->
     <connection from="cmdSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
--->
+
+
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
-#    <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
-#    <connection from="HeadTiltTransmisionInv.MotorVelocity_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" />
 #    <connection from="b_stSplit.rHand_q_OUTPORT" to="JcAll.In2" />
 #    <connection from="b_stSplit.lHand_q_OUTPORT" to="JcAll.In3" />
 #    <connection from="b_stSplit.rHand_q_OUTPORT" to="JvcAll.In2" />

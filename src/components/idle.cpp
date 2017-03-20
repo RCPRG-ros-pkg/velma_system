@@ -84,6 +84,9 @@ private:
     VectorNd joint_torque_command_;
     RTT::OutputPort<VectorNd> port_joint_torque_command_;
 
+    RTT::OutputPort<double > port_cmd_hpMotor_out_;
+    RTT::OutputPort<double > port_cmd_htMotor_out_;
+
     VectorNd internal_space_position_;
 
     bool first_step_;
@@ -97,14 +100,17 @@ IdleComponent::IdleComponent(const std::string &name)
     , port_joint_torque_command_("JointTorqueCommand_OUTPORT")
     , port_status_in_("status_INPORT")
     , port_cmd_sc_out_("cmd_sc_OUTPORT")
+    , port_cmd_hpMotor_out_("cmd_hpMotor_q_OUTPORT")
+    , port_cmd_htMotor_out_("cmd_htMotor_q_OUTPORT")
     , first_step_(true)
 {
-
     this->ports()->addPort(port_internal_space_position_command_out_);
     this->ports()->addPort(port_internal_space_position_measurement_in_);
     this->ports()->addPort(port_joint_torque_command_);
     this->ports()->addPort(port_status_in_);
     this->ports()->addPort(port_cmd_sc_out_);
+    this->ports()->addPort(port_cmd_hpMotor_out_);
+    this->ports()->addPort(port_cmd_htMotor_out_);
 
     // TODO
     //this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
@@ -165,7 +171,7 @@ void IdleComponent::updateHook() {
     cmd_out_.htMotor_valid = status_in_.htMotor_valid;
     cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
 */
-    if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error) {
+    if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error && status_in_.hpMotor_valid && status_in_.htMotor_valid) {
         cmd_sc_out_ = 1;
         first_step_ = true;
     }
@@ -178,6 +184,18 @@ void IdleComponent::updateHook() {
     }
     else {
         ++counter_;
+    }
+
+// TODO
+    port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);
+    port_cmd_htMotor_out_.write(status_in_.htMotor.q);
+
+    if (status_in_.hpMotor_valid) {
+//        port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);
+    }
+
+    if (status_in_.htMotor_valid) {
+//        port_cmd_htMotor_out_.write(status_in_.htMotor.q);
     }
 
 /*    // read current configuration
