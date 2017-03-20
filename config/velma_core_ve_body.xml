@@ -18,6 +18,8 @@
     <import>velma_sim_gazebo</import>
 
     <component name="TorsoSim" running="true" />
+    <component name="LeftHand" running="true" />
+    <component name="RightHand" running="true" />
     <component name="LWRrSim" running="true" />
     <component name="LWRlSim" running="true" />
     <component name="LeftFtSensor" running="true" />
@@ -154,5 +156,25 @@
     <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="lo_stConcate.lFt_rw_INPORT" />
     <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_ffw_INPORT" />
     <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_sfw_INPORT" />
+
+    <connection from="RightHand.q_OUTPORT"              to="hi_stConcate.rHand_q_INPORT" />
+    <connection from="RightHand.status_OUTPORT"         to="hi_stConcate.rHand_s_INPORT" />
+    <connection from="RightHand.q_OUTPORT"              to="lo_stConcate.rHand_q_INPORT" />
+    <connection from="RightHand.status_OUTPORT"         to="lo_stConcate.rHand_s_INPORT" />
+    <connection from="lo_cmdSplit.rHand_q_OUTPORT"       to="RightHand.q_INPORT" />
+    <connection from="lo_cmdSplit.rHand_dq_OUTPORT"      to="RightHand.v_INPORT" />
+    <connection from="lo_cmdSplit.rHand_max_i_OUTPORT"   to="RightHand.t_INPORT" />
+    <connection from="lo_cmdSplit.rHand_max_p_OUTPORT"   to="RightHand.mp_INPORT" />
+    <connection from="lo_cmdSplit.rHand_hold_OUTPORT"    to="RightHand.hold_INPORT" />
+
+    <connection from="LeftHand.q_OUTPORT"               to="hi_stConcate.lHand_q_INPORT" />
+    <connection from="LeftHand.status_OUTPORT"          to="hi_stConcate.lHand_s_INPORT" />
+    <connection from="LeftHand.q_OUTPORT"               to="lo_stConcate.lHand_q_INPORT" />
+    <connection from="LeftHand.status_OUTPORT"          to="lo_stConcate.lHand_s_INPORT" />
+    <connection from="lo_cmdSplit.lHand_q_OUTPORT"       to="LeftHand.q_INPORT" />
+    <connection from="lo_cmdSplit.lHand_dq_OUTPORT"      to="LeftHand.v_INPORT" />
+    <connection from="lo_cmdSplit.lHand_max_i_OUTPORT"   to="LeftHand.t_INPORT" />
+    <connection from="lo_cmdSplit.lHand_max_p_OUTPORT"   to="LeftHand.mp_INPORT" />
+    <connection from="lo_cmdSplit.lHand_hold_OUTPORT"    to="LeftHand.hold_INPORT" />
 </subsystem>
 
