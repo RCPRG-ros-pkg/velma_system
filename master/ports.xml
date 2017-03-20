@@ -66,12 +66,6 @@
             stop_cond="FALSE"
             err_cond="(not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)" >
             <running_component name="bypass" />
-            <running_component name="TorsoPanTransmision" />
-            <running_component name="TorsoPanTransmisionInv" />
-            <running_component name="HeadPanTransmision" />
-            <running_component name="HeadPanTransmisionInv" />
-            <running_component name="HeadTiltTransmision" />
-            <running_component name="HeadTiltTransmisionInv" />
             <scope name="all" />
         </behavior>
 
