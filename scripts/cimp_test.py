@@ -58,6 +58,9 @@ if __name__ == "__main__":
     velma.moveEffectorRight(T_B_Trd, 0.1, PyKDL.Wrench(PyKDL.Vector(50,50,50), PyKDL.Vector(50,50,50)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.04, 0.04, 0.04), PyKDL.Vector(0.1, 0.1, 0.1)))
     velma.waitForEffectorRight()
 
+    print "waiting 2 seconds..."
+    rospy.sleep(2)
+
     print "moving right arm to initial pose"
     velma.moveEffectorRight(T_B_Trd_prev, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
