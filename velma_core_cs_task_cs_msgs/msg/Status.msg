@@ -19,6 +19,12 @@ bool rWristPose_valid
 geometry_msgs/Pose lWristPose   # subsystem_buffer{type: port; validity: lWristPose_valid}
 bool lWristPose_valid
 
+geometry_msgs/Pose rToolInWristPose                 # subsystem_buffer{type: port; validity: rToolInWristPose_valid}
+bool rToolInWristPose_valid
+
+geometry_msgs/Pose lToolInWristPose                 # subsystem_buffer{type: port; validity: lToolInWristPose_valid}
+bool lToolInWristPose_valid
+
 velma_core_ve_body_re_body_msgs/StatusHand hand_r   # subsystem_buffer{type: container; validity: hand_r_valid}
 bool hand_r_valid
 
