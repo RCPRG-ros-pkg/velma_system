@@ -45,6 +45,9 @@ orocos_component(velma_core_cs
     src/predicates.cpp
     src/components/idle.cpp
     src/components/safe.cpp
+    src/components/cart_imp.cpp
+    src/components/jnt_imp.cpp
+    src/components/fcl.cpp
     src/components/cartesian_interpolator.cpp
     src/components/cartesian_impedance_interpolator.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp

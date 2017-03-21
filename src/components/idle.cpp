@@ -33,6 +33,7 @@
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
+#include "velma_core_cs_task_cs_msgs/Status.h"
 
 #include "eigen_conversions/eigen_msg.h"
 
@@ -54,15 +55,9 @@ public:
 
     explicit IdleComponent(const std::string &name);
 
-    bool configureHook();
-
     bool startHook();
 
-    void stopHook();
-
     void updateHook();
-
-    std::string getDiag();
 
 private:
 
@@ -70,7 +65,8 @@ private:
 
     // OROCOS ports
 
-    int32_t cmd_sc_out_;
+    RTT::OutputPort<uint32_t > port_status_subsystem_state_out_;
+
     RTT::OutputPort<int32_t > port_cmd_sc_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;
@@ -92,7 +88,7 @@ private:
 };
 
 IdleComponent::IdleComponent(const std::string &name)
-    : TaskContext(name, PreOperational)
+    : TaskContext(name)
     , port_internal_space_position_command_out_("JointPositionCommand_OUTPORT")
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
     , port_joint_torque_command_("JointTorqueCommand_OUTPORT")
@@ -100,6 +96,7 @@ IdleComponent::IdleComponent(const std::string &name)
     , port_cmd_sc_out_("cmd_sc_OUTPORT")
     , port_cmd_hpMotor_out_("cmd_hpMotor_q_OUTPORT")
     , port_cmd_htMotor_out_("cmd_htMotor_q_OUTPORT")
+    , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
     , first_step_(true)
 {
     this->ports()->addPort(port_internal_space_position_command_out_);
@@ -109,33 +106,13 @@ IdleComponent::IdleComponent(const std::string &name)
     this->ports()->addPort(port_cmd_sc_out_);
     this->ports()->addPort(port_cmd_hpMotor_out_);
     this->ports()->addPort(port_cmd_htMotor_out_);
-
-    // TODO
-    //this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
-}
-
-std::string IdleComponent::getDiag() {
-// this method may not be RT-safe
-    return "TODO";
-}
-
-bool IdleComponent::configureHook() {
-    Logger::In in("IdleComponent::configureHook");
-
-//    for (int i = 0; i < NUMBER_OF_JOINTS; ++i) {
-//        joint_stiffness_command_(i) = 5.0;
-//    }
-
-    return true;
+    this->ports()->addPort(port_status_subsystem_state_out_);
 }
 
 bool IdleComponent::startHook() {
     first_step_ = true;
     counter_ = 0;
     return true;
-}
-
-void IdleComponent::stopHook() {
 }
 
 void IdleComponent::updateHook() {
@@ -169,8 +146,10 @@ void IdleComponent::updateHook() {
     cmd_out_.htMotor_valid = status_in_.htMotor_valid;
     cmd_out_.htMotor.q_valid = status_in_.htMotor_valid;
 */
+    int32_t cmd_sc_out = 0;
+
     if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error && status_in_.hpMotor_valid && status_in_.htMotor_valid) {
-        cmd_sc_out_ = 1;
+        cmd_sc_out = 1;
         first_step_ = true;
     }
 
@@ -226,8 +205,9 @@ void IdleComponent::updateHook() {
     //
     // write commands
     //
-    port_cmd_sc_out_.write(cmd_sc_out_);
+    port_cmd_sc_out_.write(cmd_sc_out);
 
+    port_status_subsystem_state_out_.write(velma_core_cs_task_cs_msgs::Status::STATE_IDLE);
 }
 
 }   // namespace velma_core_cs_types

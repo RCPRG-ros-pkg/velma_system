@@ -40,14 +40,14 @@
 #TGR.start();
 -->
 <!--    <component name="TGR"       type="TriggerGenerator" />-->
-    <component name="Sd"        type="ScalarDummy" running="true" />
+<!--    <component name="Sd"        type="ScalarDummy" running="true" />-->
     <component name="Vd8"       type="VectorDummy8" running="true" />
-    <component name="Vd2"       type="VectorDummy2" running="true" />
+<!--    <component name="Vd2"       type="VectorDummy2" running="true" />-->
     <component name="Ts"        type="VectorSplit1_7_7_0" running="true" />
-    <component name="TJ"        type="TorsoTeleopJoy" running="true" />
+<!--    <component name="TJ"        type="TorsoTeleopJoy" running="true" />-->
 
     <component name="HeadVelAggregate"      type="PortDoubleAggregate2" running="true" />
-    <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
+    <component name="HeadPosSplit"          type="PortDoubleSplit2" />
 
     <component name="TorsoPosAggregate"     type="PortDoubleAggregate1" running="true" />
     <component name="TorsoVelAggregate"     type="PortDoubleAggregate1" running="true" />
@@ -71,8 +71,12 @@
     <component name="LeftForceControl"          type="ForceControlLaw" />
     <component name="TrajectoryGeneratorJoint"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" />
     <component name="JntLimit"                  type="JointLimitAvoidance15" />
-    <component name="safe"      type="velma_core_cs_types::SafeComponent" />
-    <component name="idle"      type="velma_core_cs_types::IdleComponent" />
+
+    <component name="idle"          type="velma_core_cs_types::IdleComponent" />
+    <component name="safe"          type="velma_core_cs_types::SafeComponent" />
+    <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" />
+    <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" />
+    <component name="fcl"           type="velma_core_cs_types::FclComponent" />
 
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 
@@ -80,6 +84,13 @@
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
+
+    <connection from="idle.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" />
+    <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" />
+    <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" />
+    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" />
+    <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
+
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPosAggregate.InputPort_0" />
     <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoVelAggregate.InputPort_0" />
@@ -125,12 +136,12 @@
     <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" />
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" />
     <connection from="Jc.Out" to="Mass.JointPosition_INPORT" />
-<!--
+
     <connection from="HeadPosAggregate.OutputPort" to="JcAll.In1" />
     <connection from="HeadVelAggregate.OutputPort" to="JvcAll.In1" />
--->
-    <connection from="Vd2.vector_OUTPORT" to="JcAll.In1" />
-    <connection from="Vd2.vector_OUTPORT" to="JvcAll.In1" />
+
+<!--    <connection from="Vd2.vector_OUTPORT" to="JcAll.In1" />
+    <connection from="Vd2.vector_OUTPORT" to="JvcAll.In1" />-->
     <connection from="TorsoPosAggregate.OutputPort" to="Jc.In0" />
     <connection from="TorsoVelAggregate.OutputPort" to="Jvc.In0" />
     <connection from="Jc.Out" to="JcAll.In0" />

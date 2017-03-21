@@ -40,6 +40,7 @@
             <running_component name="HeadTrajectoryGeneratorJoint" />
             <running_component name="HeadPanVelocityLimiter" />
             <running_component name="HeadTiltVelocityLimiter" />
+            <running_component name="HeadPosSplit" />
             <scope name="right_hand" />
             <scope name="left_hand" />
             <scope name="neck" />
@@ -71,6 +72,7 @@
             init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvCartImpCmd)"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="cart_imp" />
             <running_component name="CImp" />
             <running_component name="Mass" />
             <running_component name="JntLimit" />
@@ -84,6 +86,7 @@
             init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvJntImpCmd)"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="jnt_imp" />
             <running_component name="Mass" />
             <running_component name="TrajectoryGeneratorJoint" />
             <running_component name="FK" />
@@ -95,6 +98,7 @@
             init_cond="FALSE"
             stop_cond="TRUE"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="fcl" />
             <running_component name="CImp" />
             <running_component name="Mass" />
             <running_component name="JntLimit" />
