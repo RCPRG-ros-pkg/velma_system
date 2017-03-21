@@ -24,6 +24,9 @@
     <component name="LWRlSim" running="true" />
     <component name="LeftFtSensor" running="true" />
     <component name="RightFtSensor" running="true" />
+    <component name="LeftHandOptoforce" running="true" />
+    <component name="RightHandTactile" running="true" />
+    <component name="gazebo" running="true" />
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
