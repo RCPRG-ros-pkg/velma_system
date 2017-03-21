@@ -24,10 +24,7 @@ if __name__ == "__main__":
 
     rospy.init_node('jimp_test', anonymous=True)
 
-    prefix = "right"
-
     rospy.sleep(1)
-
 
     velma = VelmaInterface("/velma_task_cs_ros_interface")
     print "waiting for init..."
@@ -44,7 +41,7 @@ if __name__ == "__main__":
         joint_names.append(joint_name)
         q_dest.append(js[1][joint_name])
 
-    velma.moveJoint(q_dest, joint_names, 5.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest, joint_names, 1.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     print "moving to position 0 (too fast - error)"
@@ -59,10 +56,10 @@ if __name__ == "__main__":
     rospy.sleep(2)
 
     print "moving to position 0 (slowly)"
-    velma.moveJoint(q_dest_0, joint_names, 20, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest_0, joint_names, 6, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     print "moving to initial position"
-    velma.moveJoint(q_dest, joint_names, 20, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest, joint_names, 6, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 

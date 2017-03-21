@@ -24,10 +24,7 @@ if __name__ == "__main__":
 
     rospy.init_node('jimp_test', anonymous=True)
 
-    prefix = "right"
-
     rospy.sleep(1)
-
 
     velma = VelmaInterface("/velma_task_cs_ros_interface")
     print "waiting for init..."
@@ -57,7 +54,7 @@ if __name__ == "__main__":
 
     print "moving to position 0"
     q_dest = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest, joint_names, 6.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     rospy.sleep(2)
@@ -66,7 +63,7 @@ if __name__ == "__main__":
     q_dest = []
     for joint_name in joint_names:
         q_dest.append(q_map[joint_name])
-    velma.moveJoint(q_dest, joint_names, 10.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest, joint_names, 6.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     rospy.sleep(2)
@@ -74,7 +71,7 @@ if __name__ == "__main__":
     print "moving right arm in cimp mode"
     T_B_Trd = velma.getTf("B", "Wr")
     T_B_Trd = T_B_Trd * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
-    velma.moveEffectorRight(T_B_Trd, 10.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorRight(T_B_Trd, 3.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
 
     print "moving to initial position"
@@ -84,7 +81,7 @@ if __name__ == "__main__":
     print "moving left arm in cimp mode"
     T_B_Tld = velma.getTf("B", "Wl")
     T_B_Tld = T_B_Tld * PyKDL.Frame(PyKDL.Vector(0.1,0,0))
-    velma.moveEffectorLeft(T_B_Tld, 10.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorLeft(T_B_Tld, 3.0, PyKDL.Wrench(PyKDL.Vector(10,10,10), PyKDL.Vector(10,10,10)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorLeft()
 
     print "moving to initial position"

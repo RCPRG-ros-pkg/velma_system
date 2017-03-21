@@ -35,6 +35,9 @@
         prefix: "left"
       RightHandAction:
         prefix: "right"
+      TfPub:
+        frame_ids: [right_arm_7_link, left_arm_7_link]
+        child_frame_ids: [right_arm_tool, left_arm_tool]
     </rosparam>
 <!--
       rightHandMoveAction:
