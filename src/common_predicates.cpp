@@ -88,7 +88,9 @@ bool isCommandValidSc(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd)
     return true;
 }
 
-bool isCmdValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
+*/
+
+bool isCmdArmValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
     double arm_t_limits[7] = {100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0};
     for (int i = 0; i < cmd.t.size(); ++i) {
         if (!isInLim(cmd.t[i], -arm_t_limits[i], arm_t_limits[i])) {
@@ -98,97 +100,19 @@ bool isCmdValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
     return true;
 }
 
-bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd) {
-
-    return cmd.tMotor_valid
-        && cmd.hpMotor_valid
-        && cmd.htMotor_valid
-        && cmd.lArm_valid
-        && cmd.rArm_valid
-        && isCmdValid(cmd.rArm) && isCmdValid(cmd.lArm)
-        && isCommandValidTorso(cmd.tMotor)
-        && isCommandValidHeadPan(cmd.hpMotor)
-        && isCommandValidHeadTilt(cmd.htMotor);
-}
-*/
-bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, ErrorCausePtr err) {
-    if (err) {
-        err->setBit(CMD_T_MOTOR_INVALID_bit, !cmd.tMotor_i_valid);
-//        err->setBit(CMD_HP_MOTOR_INVALID_bit, !cmd.hpMotor_valid);
-//        err->setBit(CMD_HT_MOTOR_INVALID_bit, !cmd.htMotor_valid);
-        err->setBit(CMD_L_ARM_INVALID_bit, !cmd.lArm_valid);
-        err->setBit(CMD_R_ARM_INVALID_bit, !cmd.rArm_valid);
-    }
-
-    if (!cmd.tMotor_i_valid ||
-        // !cmd.hpMotor_valid || !cmd.htMotor_valid ||
-         !cmd.lArm_valid || !cmd.rArm_valid) {
-        return false;
-    }
-
-    double arm_t_limits[7] = {100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0};
-
-    if (err) {
-        for (int i = 0; i < cmd.rArm.t.size(); ++i) {
-            if (isNaN(cmd.rArm.t[i])) {
-                err->setBit(CMD_R_ARM_NAN_bit, true);
-            }
-            else if (!isInLim(cmd.rArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
-                err->setBit(CMD_R_ARM_LIM_bit, true);
-            }
-        }
-
-        for (int i = 0; i < cmd.lArm.t.size(); ++i) {
-            if (isNaN(cmd.lArm.t[i])) {
-                err->setBit(CMD_L_ARM_NAN_bit, true);
-            }
-            else if (!isInLim(cmd.lArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
-                err->setBit(CMD_L_ARM_LIM_bit, true);
-            }
-        }
-        err->setBit(CMD_T_MOTOR_T_NAN_bit, isNaN(cmd.tMotor_i));
-        if (err->orValue()) {
-            return false;
-        }
-    }
-    else {
-        for (int i = 0; i < cmd.rArm.t.size(); ++i) {
-            if (!isInLim(cmd.rArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
-                return false;
-            }
-        }
-
-        for (int i = 0; i < cmd.lArm.t.size(); ++i) {
-            if (!isInLim(cmd.lArm.t[i], -arm_t_limits[i], arm_t_limits[i])) {
-                return false;
-            }
-        }
-    }
-
+bool isCmdTorsoValid(double cmd_tMotor_i) {
     double tMotor_i_limit = 1000;
-    if (!isInLim(cmd.tMotor_i, -tMotor_i_limit, tMotor_i_limit)) {
+    if (!isInLim(cmd_tMotor_i, -tMotor_i_limit, tMotor_i_limit)) {
         return false;
     }
-
-//    double hpMotor_dq_limit = 1.0;
-//    if (!isInLim(cmd.hpMotor.dq, -hpMotor_dq_limit, hpMotor_dq_limit)) {
-//        return false;
-//    }
-
-//    double htMotor_dq_limit = 1.0;
-//    if (!isInLim(cmd.htMotor.dq, -htMotor_dq_limit, htMotor_dq_limit)) {
-//        return false;
-//    }
-
     return true;
 }
-
 
 //
 // status validation
 //
 
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st, ErrorCausePtr err=ErrorCausePtr()) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st) {
     double arm_q_limits_lo[7] = {-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96};
     double arm_q_limits_hi[7] = {2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96};
 
@@ -200,9 +124,9 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st, ErrorCa
             isNaN(st.t[i]) ||
             isNaN(st.gt[i]))
         {
-            if (err) {
-                err->setBit(LWR_NAN_LIM_bit, true);
-            }
+//            if (err) {
+//                err->setBit(LWR_NAN_LIM_bit, true);
+//            }
             return false;
         }
     }
@@ -218,17 +142,7 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st, ErrorCa
 //    return true;
 //}
 
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusMotor &st, ErrorCausePtr err=ErrorCausePtr()) {
-// TODO
-    return true;
-}
-
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusFT &st, ErrorCausePtr err=ErrorCausePtr()) {
-// TODO
-    return true;
-}
-
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, ErrorCausePtr err) {
+bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st) {
     bool status_valid = st.rArm_valid
         && st.lArm_valid
         && st.rFt_valid
@@ -238,29 +152,14 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, ErrorCause
 //        && st.htMotor_valid;
 
     if (!status_valid) {
-        if (err) {
-            err->setBit(STATUS_R_LWR_INVALID_bit, !st.rArm_valid);
-            err->setBit(STATUS_L_LWR_INVALID_bit, !st.lArm_valid);
-            err->setBit(STATUS_R_FT_INVALID_bit, !st.rFt_valid);
-            err->setBit(STATUS_L_FT_INVALID_bit, !st.lFt_valid);
-            err->setBit(STATUS_T_MOTOR_INVALID_bit, !st.tMotor_valid);
-//            err->setBit(STATUS_HP_MOTOR_INVALID_bit, !st.hpMotor_valid);
-//            err->setBit(STATUS_HT_MOTOR_INVALID_bit, !st.htMotor_valid);
-        }
         return false;
     }
 
-    if (!isStatusValid(st.rArm, err)) {
-        if (err) {
-            err->setBit(STATUS_R_LWR_INVALID_bit, true);
-        }
+    if (!isStatusValid(st.rArm)) {
         return false;
     }
 
-    if (!isStatusValid(st.lArm, err)) {
-        if (err) {
-            err->setBit(STATUS_L_LWR_INVALID_bit, true);
-        }
+    if (!isStatusValid(st.lArm)) {
         return false;
     }
 
@@ -271,35 +170,5 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, ErrorCause
 //        && isStatusValid(st.tMotor, err)
 //        && isStatusValid(st.hpMotor, err)
 //        && isStatusValid(st.htMotor, err);
-}
-
-std::string getErrorReasonStr(ErrorCauseConstPtr err) {
-    std::string result;
-    result += (err->getBit(R_LWR_bit)?"R_LWR ":"");
-    result += (err->getBit(L_LWR_bit)?"L_LWR ":"");
-    result += (err->getBit(R_LWR_CMD_bit)?"R_LWR_CMD ":"");
-    result += (err->getBit(L_LWR_CMD_bit)?"L_LWR_CMD ":"");
-    result += (err->getBit(STATUS_bit)?"STATUS ":"");
-    result += (err->getBit(STATUS_R_LWR_INVALID_bit)?"ST_R_LWR_INV ":"");
-    result += (err->getBit(STATUS_L_LWR_INVALID_bit)?"ST_L_LWR_INV ":"");
-    result += (err->getBit(STATUS_R_FT_INVALID_bit)?"ST_R_FT_INV ":"");
-    result += (err->getBit(STATUS_L_FT_INVALID_bit)?"ST_L_FT_INV ":"");
-    result += (err->getBit(STATUS_T_MOTOR_INVALID_bit)?"ST_T_MOTOR_INV ":"");
-    result += (err->getBit(STATUS_HP_MOTOR_INVALID_bit)?"ST_HP_MOTOR_INV ":"");
-    result += (err->getBit(STATUS_HT_MOTOR_INVALID_bit)?"ST_HT_MOTOR_INV ":"");
-    result += (err->getBit(LWR_NAN_LIM_bit)?"ST_LWR_NAN_LIM ":"");
-    result += (err->getBit(COMMAND_bit)?"CMD ":"");
-    result += (err->getBit(CMD_T_MOTOR_INVALID_bit)?"CMD_T_MOTOR_INV ":"");
-    result += (err->getBit(CMD_HP_MOTOR_INVALID_bit)?"CMD_HP_MOTOR_INV ":"");
-    result += (err->getBit(CMD_HT_MOTOR_INVALID_bit)?"CMD_HT_MOTOR_INV ":"");
-    result += (err->getBit(CMD_L_ARM_INVALID_bit)?"CMD_L_ARM_INV ":"");
-    result += (err->getBit(CMD_R_ARM_INVALID_bit)?"CMD_R_ARM_INV ":"");
-    result += (err->getBit(CMD_R_ARM_NAN_bit)?"CMD_R_ARM_NAN ":"");
-    result += (err->getBit(CMD_L_ARM_NAN_bit)?"CMD_L_ARM_NAN ":"");
-    result += (err->getBit(CMD_R_ARM_LIM_bit)?"CMD_R_ARM_LIM ":"");
-    result += (err->getBit(CMD_L_ARM_LIM_bit)?"CMD_L_ARM_LIM ":"");
-    result += (err->getBit(CMD_T_MOTOR_T_NAN_bit)?"CMD_T_MOTOR_T_NAN ":"");
-
-    return result;
 }
 

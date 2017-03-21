@@ -38,6 +38,7 @@
     </errors>
 
     <predicates>
+        <predicate name="safeIterationsPassed500" />
         <predicate name="rLwrOk" />
         <predicate name="rLwrInCmdState" />
         <predicate name="lLwrOk" />
@@ -54,17 +55,17 @@
 
     <behaviors>
         <behavior name="safe" is_initial="true"
-            init_cond="(not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"
-            stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"
+            init_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"
+            stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"
             err_cond="FALSE" >
             <running_component name="safe" />
             <scope name="all" />
         </behavior>
 
         <behavior name="transparent" 
-            init_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"
+            init_cond="safeIterationsPassed500 and rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"
             stop_cond="FALSE"
-            err_cond="(not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)" >
             <running_component name="bypass" />
             <scope name="all" />
         </behavior>
