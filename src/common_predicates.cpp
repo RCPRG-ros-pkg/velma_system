@@ -91,7 +91,7 @@ bool isCommandValidSc(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd)
 */
 
 bool isCmdArmValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
-    double arm_t_limits[7] = {100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0};
+    double arm_t_limits[7] = {50.0, 50.0, 30.0, 20.0, 20.0, 10.0, 10.0};
     for (int i = 0; i < cmd.t.size(); ++i) {
         if (!isInLim(cmd.t[i], -arm_t_limits[i], arm_t_limits[i])) {
             return false;
@@ -101,7 +101,7 @@ bool isCmdArmValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
 }
 
 bool isCmdTorsoValid(double cmd_tMotor_i) {
-    double tMotor_i_limit = 1000;
+    double tMotor_i_limit = 100;
     if (!isInLim(cmd_tMotor_i, -tMotor_i_limit, tMotor_i_limit)) {
         return false;
     }
