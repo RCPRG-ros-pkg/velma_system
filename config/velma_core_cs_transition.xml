@@ -24,8 +24,6 @@
     <component name="Jvc"       type="VectorConcate1_7_7_0" running="true" />
     <component name="JcAll"     type="VectorConcate15_2_8_8" running="true" />
     <component name="JvcAll"    type="VectorConcate15_2_8_8" running="true" />
-    <component name="Dwr"       type="DecimatorWrench" />
-    <component name="Dwl"       type="DecimatorWrench" />
     <component name="Mass"      type="MassTest15_2" running="true" >
         <service>robot</service>
     </component>
@@ -41,7 +39,7 @@
 #    <component name="VG"       type="VelmaGrav" />
 #TGR.start();
 -->
-    <component name="TGR"       type="TriggerGenerator" />
+<!--    <component name="TGR"       type="TriggerGenerator" />-->
     <component name="Sd"        type="ScalarDummy" running="true" />
     <component name="Vd8"       type="VectorDummy8" running="true" />
     <component name="Vd2"       type="VectorDummy2" running="true" />
@@ -124,8 +122,6 @@
     <connection from="Vd8.vector_OUTPORT" to="JvcAll.In3" />
     <connection from="Ts.Out1" to="b_cmdConcate.rArm_t_INPORT" />
     <connection from="Ts.Out2" to="b_cmdConcate.lArm_t_INPORT" />
-    <connection from="b_stSplit.rArm_w_OUTPORT" to="Dwr.In" />
-    <connection from="b_stSplit.lArm_w_OUTPORT" to="Dwl.In" />
     <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" />
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" />
     <connection from="Jc.Out" to="Mass.JointPosition_INPORT" />
@@ -235,8 +231,6 @@
 #    <connection from="b_stSplit.rArm_gt_OUTPORT" to="VG.GravTrqRight" />
 #    <ros_stream port="b_stSplit.rArm_w_OUTPORT" topic="/right_arm/wrench" />
 #    <ros_stream port="b_stSplit.lArm_w_OUTPORT" topic="/left_arm/wrench" />
-#    <ros_stream port="Dwr.Out" topic="/right_arm/wrench" />
-#    <ros_stream port="Dwl.Out" topic="/left_arm/wrench" />
 #    <ros_stream port="TJ.Joy_INPORT" topic="/joy" />
 #    <ros_stream port="TGR.TriggerStamp" topic="/camera_trigger_stamp" />
 #    <connection from="FK.RightPosition_OUTPORT" to="TfPub.In4" />

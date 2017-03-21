@@ -17,9 +17,6 @@
     </errors>
 
     <predicates>
-        <predicate name="graphSafe" />
-        <predicate name="graphCartImp" />
-        <predicate name="graphJntImp" />
         <predicate name="veBodyInSafeState" />
         <predicate name="veBodyStatusValid" />
         <predicate name="recvCartImpCmd" />
@@ -49,7 +46,7 @@
         </behavior>
 
         <behavior name="idle" is_initial="true"
-            init_cond="(not veBodyStatusValid) or veBodyInSafeState"
+            init_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState"
             stop_cond="veBodyStatusValid and (not veBodyInSafeState)"
             err_cond="FALSE" >
             <running_component name="idle" />
@@ -62,7 +59,7 @@
         <behavior name="safe"
             init_cond="(not veBodyInSafeState) and veBodyStatusValid and (IN_ERROR or (not recvOneCmd))"
             stop_cond="recvOneCmd"
-            err_cond="(not veBodyStatusValid) or veBodyInSafeState" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="safe" />
             <running_component name="Mass" />
             <running_component name="FK" />
@@ -73,7 +70,7 @@
         <behavior name="cart_imp"
             init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvCartImpCmd)"
-            err_cond="(not graphCartImp) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="CImp" />
             <running_component name="Mass" />
             <running_component name="JntLimit" />
@@ -86,11 +83,26 @@
         <behavior name="jnt_imp"
             init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvJntImpCmd)"
-            err_cond="(not graphJntImp) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="Mass" />
             <running_component name="TrajectoryGeneratorJoint" />
             <running_component name="FK" />
             <running_component name="JntImp" />
+            <scope name="upper_body" />
+        </behavior>
+
+        <behavior name="fcl"
+            init_cond="FALSE"
+            stop_cond="TRUE"
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            <running_component name="CImp" />
+            <running_component name="Mass" />
+            <running_component name="JntLimit" />
+            <running_component name="LeftForceControl" />
+            <running_component name="RightForceControl" />
+            <running_component name="LeftForceTransformation" />
+            <running_component name="RightForceTransformation" />
+            <running_component name="FK" />
             <scope name="upper_body" />
         </behavior>
 
