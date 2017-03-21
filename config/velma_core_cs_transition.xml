@@ -85,6 +85,9 @@
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
+    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" />
+    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" />
+
     <connection from="idle.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" />
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" />
