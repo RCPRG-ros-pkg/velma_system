@@ -52,10 +52,31 @@ if __name__ == "__main__":
     for joint_name in q_map:
         joint_names.append(joint_name)
 
+    print "moving to current position"
+    js = velma.getLastJointState()
+    q_map_current = js[1]
+    q_dest = []
+    for name in joint_names:
+        q_dest.append( q_map_current[name] )
+    velma.moveJoint(q_dest, joint_names, 2.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+
     print "moving to position 0"
-    q_dest = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    q_dest = [0.2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     velma.moveJoint(q_dest, joint_names, 6.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
+
+    if True:
+        print "moving to osc. position"
+        q_dest_osc = [-0.15214130720857572, 0.10515184331308991, -1.2467876847358885, 0.9126682266649763, 0.878948249832275, 0.006743614987513767, -1.597927382059243, 1.1084458395050156,
+            0.17617247391228125, 0.8291781171997458, -0.9786058106846747, -1.0229772583291257, -0.4661064923246427, 1.6189015800736866, -0.8543317202407017]
+        velma.moveJoint(q_dest_osc, joint_names, 6.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+        velma.waitForJoint()
+
+        exit(0)
+
+#    exit(0)
 
     rospy.sleep(2)
 
