@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_interfaces
   common_behavior
   kuka_lwr_fri
+  controller_common
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -48,6 +49,7 @@ orocos_component(velma_core_ve_body
     src/components/bypass.cpp
     src/components/safe.cpp
     src/components/packet_counter.cpp
+    src/components/vector_dummy.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
