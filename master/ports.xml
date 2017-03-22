@@ -22,6 +22,7 @@
         <predicate name="recvCartImpCmd" />
         <predicate name="recvJntImpCmd" />
         <predicate name="recvOneCmd" />
+        <predicate name="inSelfCollision" />
     </predicates>
 
     <output_scopes>
@@ -58,7 +59,7 @@
         </behavior>
 
         <behavior name="safe"
-            init_cond="(not veBodyInSafeState) and veBodyStatusValid and (IN_ERROR or (not recvOneCmd))"
+            init_cond="(not veBodyInSafeState) and veBodyStatusValid and (IN_ERROR or (not recvOneCmd) or inSelfCollision)"
             stop_cond="recvOneCmd"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="safe" />
@@ -69,9 +70,9 @@
         </behavior>
 
         <behavior name="cart_imp"
-            init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
+            init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState) and (not inSelfCollision)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvCartImpCmd)"
-            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState) or inSelfCollision" >
             <running_component name="cart_imp" />
             <running_component name="CImp" />
             <running_component name="Mass" />
@@ -79,13 +80,14 @@
             <running_component name="PoseIntLeft" />
             <running_component name="PoseIntRight" />
             <running_component name="FK" />
+            <running_component name="wcc_r" />
             <scope name="upper_body" />
         </behavior>
 
         <behavior name="jnt_imp"
-            init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState)"
+            init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState) and (not inSelfCollision)"
             stop_cond="veBodyStatusValid and recvOneCmd and (not recvJntImpCmd)"
-            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState) or inSelfCollision" >
             <running_component name="jnt_imp" />
             <running_component name="Mass" />
             <running_component name="TrajectoryGeneratorJoint" />
@@ -97,7 +99,7 @@
         <behavior name="fcl"
             init_cond="FALSE"
             stop_cond="TRUE"
-            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState) or inSelfCollision" >
             <running_component name="fcl" />
             <running_component name="CImp" />
             <running_component name="Mass" />

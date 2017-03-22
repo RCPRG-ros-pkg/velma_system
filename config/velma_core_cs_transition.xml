@@ -78,12 +78,21 @@
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" />
     <component name="fcl"           type="velma_core_cs_types::FclComponent" />
 
+    <component name="wcc_r"           type="DoubleJointConstraint15" />
+<!--    <component name="wcc_l"           type="DoubleJointConstraint15" />-->
+
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
+
+    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" />
+    <connection from="Jc.Out" to="wcc_r.JointPosition_INPORT" />
+    <connection from="Jvc.Out" to="wcc_r.JointVelocity_INPORT" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" />
+    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="Ts.In" />
 
     <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" />
     <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" />
@@ -153,7 +162,7 @@
     <connection from="Jc.Out" to="CImp.JointPosition_INPORT" />
     <connection from="Jvc.Out" to="CImp.JointVelocity_INPORT" />
     <connection from="Mass.MassMatrix_OUTPORT" to="CImp.MassMatrixInv_INPORT" />
-    <connection from="CImp.JointTorqueCommand_OUTPORT" to="Ts.In" />
+<!--    <connection from="CImp.JointTorqueCommand_OUTPORT" to="Ts.In" />-->
     <connection from="PoseIntRight.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" />
     <connection from="cmdSplit.cart_r_pose_OUTPORT" to="PoseIntRight.CartesianTrajectoryCommand_INPORT" />
     <connection from="PoseIntRight.generator_status_OUTPORT" to="stConcate.rCart_status_INPORT" />

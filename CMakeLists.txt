@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_interfaces
   common_behavior
   controller_common
+  planer_utils
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -53,6 +54,7 @@ orocos_component(velma_core_cs
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
     src/components/vector_dummy.cpp
+    src/components/double_joint_constraint.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

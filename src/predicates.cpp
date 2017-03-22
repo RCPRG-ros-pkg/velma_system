@@ -29,6 +29,33 @@
 
 namespace velma_core_cs_types {
 
+static RTT::OperationCaller<bool(double, double)> getOperationWristInCollision(const std::string& component_name, const std::vector<RTT::TaskContext*> &components) {
+    RTT::OperationCaller<bool(double, double)> inCollision;
+    for (int i = 0; i < components.size(); ++i) {
+        if (components[i]->getName() == component_name) {
+            inCollision = components[i]->getOperation("inCollision");
+            break;
+        }
+    }
+
+    if (!inCollision.ready()) {
+        RTT::Logger::log() << RTT::Logger::Error << "could not get operation \'inCollision\' for component \'" << component_name << "\'" << RTT::Logger::endl;
+    }
+    return inCollision;
+}
+
+bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+    static const std::string wcc_r_name("wcc_r");
+    static RTT::OperationCaller<bool(double, double)> inCollisionWristRight = getOperationWristInCollision(wcc_r_name, components);
+
+// TODO: add collision detection for left wrist
+// TODO: add collision detection for whole body
+    if (inCollisionWristRight.ready()) {
+        return inCollisionWristRight(in_data->b_st.rArm.t[5], in_data->b_st.rArm.t[6]);
+    }
+    return false;
+}
+
 bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     return in_data->b_st.sc.safe_behavior;
 }
@@ -55,6 +82,7 @@ bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskCo
 
 };  // namespace velma_core_cs_types
 
+REGISTER_PREDICATE( velma_core_cs_types::inSelfCollision );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyInSafeState );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyStatusValid );
 REGISTER_PREDICATE( velma_core_cs_types::recvCartImpCmd );
