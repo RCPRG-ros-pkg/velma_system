@@ -142,6 +142,8 @@ public:
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
+
+    bool disable_component_;
 };
 
 #endif  // BARRETT_HAND_GAZEBO_H__

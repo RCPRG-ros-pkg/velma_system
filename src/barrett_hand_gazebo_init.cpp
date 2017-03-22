@@ -34,10 +34,12 @@
         , port_q_out_("q_OUTPORT", false)
         , port_t_out_("t_OUTPORT", false)
         , port_status_out_("status_OUTPORT", false)
+        , disable_component_(false)
     {
 
         nh_ = new ros::NodeHandle();
         addProperty("prefix", prefix_);
+        addProperty("disable_component", disable_component_);
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&BarrettHandGazebo::gazeboConfigureHook,this,RTT::ClientThread);

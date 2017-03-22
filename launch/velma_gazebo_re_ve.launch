@@ -30,8 +30,11 @@
         subsystem_xml:=true
         xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_ve_body.xml'
         use_gazebo_kinect:=$(arg use_kinect)" />
-
-  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+<!--
+        collision_model_full:=false
+        collision_model_simplified:=true
+-->
+<!--  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />-->
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
 
@@ -77,8 +80,10 @@
           izz: 0.1
       RightHand:
         prefix: right
+        disable_component: false
       LeftHand:
         prefix: left
+        disable_component: false
       RightHandTactile:
         prefix: right
       LeftHandOptoforce:
@@ -101,10 +106,6 @@
         arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
         arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
         arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
-      RightHand:
-        prefix: right
-      RightHandTactile:
-        prefix: right
       TorsoPanTransmision:
         motor_offset: -88524
         joint_offset: 0.0
@@ -140,14 +141,4 @@
         motor_constant: 0.0
     </rosparam>
   </group>
-
-<!--
-      LeftHand:
-        prefix: left
-      LeftHandOptoforce:
-        device_name: gazebo_leftHand
-        n_sensors: 3
-        frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
--->
-
 </launch>

@@ -18,12 +18,12 @@
     <import>velma_sim_gazebo</import>
 
     <component name="TorsoSim" running="true" />
-    <component name="LeftHand" running="true" />
-    <component name="RightHand" running="true" />
     <component name="LWRrSim" running="true" />
     <component name="LWRlSim" running="true" />
     <component name="LeftFtSensor" running="true" />
     <component name="RightFtSensor" running="true" />
+    <component name="LeftHand" running="true" />
+    <component name="RightHand" running="true" />
     <component name="LeftHandOptoforce" running="true" />
     <component name="RightHandTactile" running="true" />
     <component name="gazebo" running="true" />
@@ -98,8 +98,6 @@
     <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT" to="bypass.cmd_tMotor_INPORT" />
     <connection from="hi_cmdSplit.lArm_OUTPORT" to="bypass.cmd_lArm_INPORT" />
     <connection from="hi_cmdSplit.rArm_OUTPORT" to="bypass.cmd_rArm_INPORT" />
-    <connection from="hi_cmdSplit.lHand_OUTPORT" to="bypass.cmd_lHand_INPORT" />
-    <connection from="hi_cmdSplit.rHand_OUTPORT" to="bypass.cmd_rHand_INPORT" />
     <connection from="bypass.command_OUTPORT" to="lo_cmdConcate._INPORT" />
     <connection from="bypass.sc_OUTPORT" to="hi_stConcate.sc_INPORT" />
 
@@ -160,6 +158,8 @@
     <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_ffw_INPORT" />
     <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_sfw_INPORT" />
 
+    <connection from="hi_cmdSplit.lHand_OUTPORT" to="bypass.cmd_lHand_INPORT" />
+    <connection from="hi_cmdSplit.rHand_OUTPORT" to="bypass.cmd_rHand_INPORT" />
     <connection from="RightHand.q_OUTPORT"              to="hi_stConcate.rHand_q_INPORT" />
     <connection from="RightHand.status_OUTPORT"         to="hi_stConcate.rHand_s_INPORT" />
     <connection from="RightHand.q_OUTPORT"              to="lo_stConcate.rHand_q_INPORT" />
