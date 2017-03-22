@@ -65,6 +65,8 @@
 
     <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
 
+    <ros_stream port="TfPub.OutTf"                  topic="/tf" />
+
 <!--
 #stream("cmdConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/cmdConcate/msg_OUTPORT"));
 //connect("TODO", "JntPub.JointEffort", ConnPolicy());
