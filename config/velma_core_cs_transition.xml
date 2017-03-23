@@ -55,20 +55,22 @@
     <component name="CImp"                  type="CartesianImpedance15_2" >
         <service>robot</service>
     </component>
+
     <component name="PoseIntRight"          type="CartesianInterpolatorVelma" />
     <component name="PoseIntLeft"           type="CartesianInterpolatorVelma" />
-    <component name="ToolIntRight"          type="CartesianInterpolatorVelma" running="true" />
-    <component name="ToolIntLeft"           type="CartesianInterpolatorVelma" running="true" />
-    <component name="ImpedanceIntRight"     type="CartesianImpedanceInterpolatorVelma" running="true" />
-    <component name="ImpedanceIntLeft"      type="CartesianImpedanceInterpolatorVelma" running="true" />
+    <component name="ToolIntRight"          type="CartesianInterpolatorVelma" />
+    <component name="ToolIntLeft"           type="CartesianInterpolatorVelma" />
+    <component name="ImpedanceIntRight"     type="CartesianImpedanceInterpolatorVelma" />
+    <component name="ImpedanceIntLeft"      type="CartesianImpedanceInterpolatorVelma" />
     <component name="JntImp"                type="JointImpedance15" />
     <component name="FK"                    type="VelmaFK" running="true" >
         <service>robot</service>
     </component>
-    <component name="RightForceTransformation"  type="ForceTransformation" />
+<!--    <component name="RightForceTransformation"  type="ForceTransformation" />
     <component name="LeftForceTransformation"   type="ForceTransformation" />
     <component name="RightForceControl"         type="ForceControlLaw" />
     <component name="LeftForceControl"          type="ForceControlLaw" />
+-->
     <component name="TrajectoryGeneratorJoint"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" />
     <component name="JntLimit"                  type="JointLimitAvoidance15" />
 
@@ -76,7 +78,7 @@
     <component name="safe"          type="velma_core_cs_types::SafeComponent" />
     <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" />
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" />
-    <component name="fcl"           type="velma_core_cs_types::FclComponent" />
+<!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
     <component name="wcc_r"           type="DoubleJointConstraint15" />
 <!--    <component name="wcc_l"           type="DoubleJointConstraint15" />-->
@@ -101,8 +103,6 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" />
-    <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
-
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPosAggregate.InputPort_0" />
     <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoVelAggregate.InputPort_0" />
@@ -188,6 +188,9 @@
     <connection from="Jc.Out" to="FK.JointPosition_INPORT" />
     <connection from="FK.LeftPosition_OUTPORT" to="PoseIntLeft.CartesianPosition_INPORT" />
     <connection from="FK.RightPosition_OUTPORT" to="PoseIntRight.CartesianPosition_INPORT" />
+
+<!--
+    <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
     <connection from="FK.RightWrist_OUTPORT" to="RightForceTransformation.CurrentWristPose" />
     <connection from="b_stSplit.rFt_sfw_OUTPORT" to="RightForceTransformation.CurrentSensorSlowFilteredWrench" />
     <connection from="b_stSplit.rFt_rw_OUTPORT" to="RightForceTransformation.CurrentSensorFastFilteredWrench" />
@@ -202,6 +205,7 @@
     <connection from="LeftForceControl.OutputEndEffectorPose" to="CImp.CartPositionCommand1_INPORT" />
     <connection from="FK.LeftPosition_OUTPORT" to="LeftForceControl.CurrentEndEffectorPose" />
     <connection from="LeftForceTransformation.OutputEndEffectorWrench" to="LeftForceControl.CurrentEndEffectorWrench" />
+-->
     <connection from="Jc.Out" to="TrajectoryGeneratorJoint.JointPosition_INPORT" />
     <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" />
     <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" />
