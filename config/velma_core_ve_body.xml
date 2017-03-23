@@ -29,11 +29,11 @@
     <component name="gazebo" running="true" />
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
-    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" running="true" />
+    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
     <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
-    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" running="true" />
+    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" />
     <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
-    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" running="true" />
+    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" />
 
     <component name="bypass" type="velma_core_ve_body_types::BypassComponent" />
     <component name="safe" type="velma_core_ve_body_types::SafeComponent" />
@@ -103,60 +103,60 @@
 
     <connection from="packet_counter.packet_counter_OUTPORT"            to="hi_stConcate.test_INPORT" />
 
-    <connection from="LWRrSim.JointPosition_OUTPORT"                    to="hi_stConcate.rArm_q_INPORT" />
-    <connection from="LWRrSim.JointVelocity_OUTPORT"                    to="hi_stConcate.rArm_dq_INPORT" />
-    <connection from="LWRrSim.JointTorque_OUTPORT"                      to="hi_stConcate.rArm_t_INPORT" />
-    <connection from="LWRrSim.GravityTorque_OUTPORT"                    to="hi_stConcate.rArm_gt_INPORT" />
-    <connection from="LWRrSim.CartesianWrench_OUTPORT"                  to="hi_stConcate.rArm_w_INPORT" />
-    <connection from="LWRrSim.MassMatrix_OUTPORT"                       to="hi_stConcate.rArm_mmx_INPORT" />
+    <connection from="LWRrSim.JointPosition_OUTPORT"                    to="hi_stConcate.rArm_q_INPORT" name="q" />
+    <connection from="LWRrSim.JointVelocity_OUTPORT"                    to="hi_stConcate.rArm_dq_INPORT" name="dq" />
+    <connection from="LWRrSim.JointTorque_OUTPORT"                      to="hi_stConcate.rArm_t_INPORT" name="t" />
+    <connection from="LWRrSim.GravityTorque_OUTPORT"                    to="hi_stConcate.rArm_gt_INPORT" name="gt" />
+    <connection from="LWRrSim.CartesianWrench_OUTPORT"                  to="hi_stConcate.rArm_w_INPORT" name="wr" />
+    <connection from="LWRrSim.MassMatrix_OUTPORT"                       to="hi_stConcate.rArm_mmx_INPORT" name="M" />
 
-    <connection from="LWRlSim.JointPosition_OUTPORT"                    to="hi_stConcate.lArm_q_INPORT" />
-    <connection from="LWRlSim.JointVelocity_OUTPORT"                    to="hi_stConcate.lArm_dq_INPORT" />
-    <connection from="LWRlSim.JointTorque_OUTPORT"                      to="hi_stConcate.lArm_t_INPORT" />
-    <connection from="LWRlSim.GravityTorque_OUTPORT"                    to="hi_stConcate.lArm_gt_INPORT" />
-    <connection from="LWRlSim.CartesianWrench_OUTPORT"                  to="hi_stConcate.lArm_w_INPORT" />
-    <connection from="LWRlSim.MassMatrix_OUTPORT"                       to="hi_stConcate.lArm_mmx_INPORT" />
+    <connection from="LWRlSim.JointPosition_OUTPORT"                    to="hi_stConcate.lArm_q_INPORT" name="q" />
+    <connection from="LWRlSim.JointVelocity_OUTPORT"                    to="hi_stConcate.lArm_dq_INPORT" name="dq" />
+    <connection from="LWRlSim.JointTorque_OUTPORT"                      to="hi_stConcate.lArm_t_INPORT" name="t" />
+    <connection from="LWRlSim.GravityTorque_OUTPORT"                    to="hi_stConcate.lArm_gt_INPORT" name="gt" />
+    <connection from="LWRlSim.CartesianWrench_OUTPORT"                  to="hi_stConcate.lArm_w_INPORT" name="wr" />
+    <connection from="LWRlSim.MassMatrix_OUTPORT"                       to="hi_stConcate.lArm_mmx_INPORT" name="M" />
 
-    <connection from="TorsoPanTransmision.JointPosition_OUTPORT"        to="hi_stConcate.tMotor_q_INPORT" />
-    <connection from="TorsoPanTransmision.JointVelocity_OUTPORT"        to="hi_stConcate.tMotor_dq_INPORT" />
+    <connection from="TorsoPanTransmision.JointPosition_OUTPORT"        to="hi_stConcate.tMotor_q_INPORT" name="q" />
+    <connection from="TorsoPanTransmision.JointVelocity_OUTPORT"        to="hi_stConcate.tMotor_dq_INPORT" name="dq" />
 
-    <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="hi_stConcate.rFt_rw_INPORT" />
-    <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_ffw_INPORT" />
-    <connection from="RightFtSensor.slowFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_sfw_INPORT" />
-    <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="hi_stConcate.lFt_rw_INPORT" />
-    <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_ffw_INPORT" />
-    <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_sfw_INPORT" />
+    <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="hi_stConcate.rFt_rw_INPORT" name="raw_wr" />
+    <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_ffw_INPORT" name="fast_wr" />
+    <connection from="RightFtSensor.slowFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_sfw_INPORT" name="slow_wr" />
+    <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="hi_stConcate.lFt_rw_INPORT" name="raw_wr" />
+    <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_ffw_INPORT" name="fast_wr" />
+    <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_sfw_INPORT" name="slow_wr" />
 
-    <connection from="LWRrSim.JointPosition_OUTPORT"                    to="lo_stConcate.rArm_q_INPORT" />
-    <connection from="LWRrSim.JointVelocity_OUTPORT"                    to="lo_stConcate.rArm_dq_INPORT" />
-    <connection from="LWRrSim.JointTorque_OUTPORT"                      to="lo_stConcate.rArm_t_INPORT" />
-    <connection from="LWRrSim.GravityTorque_OUTPORT"                    to="lo_stConcate.rArm_gt_INPORT" />
-    <connection from="LWRrSim.CartesianWrench_OUTPORT"                  to="lo_stConcate.rArm_w_INPORT" />
-    <connection from="LWRrSim.MassMatrix_OUTPORT"                       to="lo_stConcate.rArm_mmx_INPORT" />
+    <connection from="LWRrSim.JointPosition_OUTPORT"                    to="lo_stConcate.rArm_q_INPORT" name="q" />
+    <connection from="LWRrSim.JointVelocity_OUTPORT"                    to="lo_stConcate.rArm_dq_INPORT" name="dq" />
+    <connection from="LWRrSim.JointTorque_OUTPORT"                      to="lo_stConcate.rArm_t_INPORT" name="t" />
+    <connection from="LWRrSim.GravityTorque_OUTPORT"                    to="lo_stConcate.rArm_gt_INPORT" name="gt" />
+    <connection from="LWRrSim.CartesianWrench_OUTPORT"                  to="lo_stConcate.rArm_w_INPORT" name="wr" />
+    <connection from="LWRrSim.MassMatrix_OUTPORT"                       to="lo_stConcate.rArm_mmx_INPORT" name="M" />
     <connection from="LWRrSim.FRIState_OUTPORT"                         to="lo_stConcate.rArmFriIntf_INPORT" />
     <connection from="LWRrSim.RobotState_OUTPORT"                       to="lo_stConcate.rArmFriRobot_INPORT" />
 
-    <connection from="LWRlSim.JointPosition_OUTPORT"                    to="lo_stConcate.lArm_q_INPORT" />
-    <connection from="LWRlSim.JointVelocity_OUTPORT"                    to="lo_stConcate.lArm_dq_INPORT" />
-    <connection from="LWRlSim.JointTorque_OUTPORT"                      to="lo_stConcate.lArm_t_INPORT" />
-    <connection from="LWRlSim.GravityTorque_OUTPORT"                    to="lo_stConcate.lArm_gt_INPORT" />
-    <connection from="LWRlSim.CartesianWrench_OUTPORT"                  to="lo_stConcate.lArm_w_INPORT" />
-    <connection from="LWRlSim.MassMatrix_OUTPORT"                       to="lo_stConcate.lArm_mmx_INPORT" />
+    <connection from="LWRlSim.JointPosition_OUTPORT"                    to="lo_stConcate.lArm_q_INPORT" name="q" />
+    <connection from="LWRlSim.JointVelocity_OUTPORT"                    to="lo_stConcate.lArm_dq_INPORT" name="dq" />
+    <connection from="LWRlSim.JointTorque_OUTPORT"                      to="lo_stConcate.lArm_t_INPORT" name="t" />
+    <connection from="LWRlSim.GravityTorque_OUTPORT"                    to="lo_stConcate.lArm_gt_INPORT" name="gt" />
+    <connection from="LWRlSim.CartesianWrench_OUTPORT"                  to="lo_stConcate.lArm_w_INPORT" name="wr" />
+    <connection from="LWRlSim.MassMatrix_OUTPORT"                       to="lo_stConcate.lArm_mmx_INPORT" name="M" />
     <connection from="LWRlSim.FRIState_OUTPORT"                         to="lo_stConcate.lArmFriIntf_INPORT" />
     <connection from="LWRlSim.RobotState_OUTPORT"                       to="lo_stConcate.lArmFriRobot_INPORT" />
-    <connection from="TorsoSim.t_MotorPosition_OUTPORT"                 to="lo_stConcate.tMotor_q_INPORT" />
-    <connection from="TorsoSim.t_MotorVelocity_OUTPORT"                 to="lo_stConcate.tMotor_dq_INPORT" />
-    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"         to="lo_stConcate.hpMotor_q_INPORT" />
-    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"         to="lo_stConcate.hpMotor_dq_INPORT" />
-    <connection from="TorsoSim.head_tilt_motor_position_OUTPORT"        to="lo_stConcate.htMotor_q_INPORT" />
-    <connection from="TorsoSim.head_tilt_motor_velocity_OUTPORT"        to="lo_stConcate.htMotor_dq_INPORT" />
+    <connection from="TorsoSim.t_MotorPosition_OUTPORT"                 to="lo_stConcate.tMotor_q_INPORT" name="q_t" />
+    <connection from="TorsoSim.t_MotorVelocity_OUTPORT"                 to="lo_stConcate.tMotor_dq_INPORT" name="dq_t" />
+    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"         to="lo_stConcate.hpMotor_q_INPORT" name="q_hp" />
+    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"         to="lo_stConcate.hpMotor_dq_INPORT" name="dq_hp" />
+    <connection from="TorsoSim.head_tilt_motor_position_OUTPORT"        to="lo_stConcate.htMotor_q_INPORT" name="q_ht" />
+    <connection from="TorsoSim.head_tilt_motor_velocity_OUTPORT"        to="lo_stConcate.htMotor_dq_INPORT" name="dq_ht" />
 
-    <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="lo_stConcate.rFt_rw_INPORT" />
-    <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="lo_stConcate.rFt_ffw_INPORT" />
-    <connection from="RightFtSensor.slowFilteredWrench_OUTPORT"         to="lo_stConcate.rFt_sfw_INPORT" />
-    <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="lo_stConcate.lFt_rw_INPORT" />
-    <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_ffw_INPORT" />
-    <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_sfw_INPORT" />
+    <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="lo_stConcate.rFt_rw_INPORT" name="raw_wr" />
+    <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="lo_stConcate.rFt_ffw_INPORT" name="fast_wr" />
+    <connection from="RightFtSensor.slowFilteredWrench_OUTPORT"         to="lo_stConcate.rFt_sfw_INPORT" name="slow_wr" />
+    <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="lo_stConcate.lFt_rw_INPORT" name="raw_wr" />
+    <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_ffw_INPORT" name="fast_wr" />
+    <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="lo_stConcate.lFt_sfw_INPORT" name="slow_wr" />
 
     <connection from="hi_cmdSplit.lHand_OUTPORT" to="bypass.cmd_lHand_INPORT" />
     <connection from="hi_cmdSplit.rHand_OUTPORT" to="bypass.cmd_rHand_INPORT" />
