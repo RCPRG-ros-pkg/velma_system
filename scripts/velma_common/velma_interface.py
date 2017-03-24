@@ -146,135 +146,6 @@ Class used as Velma robot Interface.
     def getHeadJointUpperLimits(self):
         return self.head_joint_upper_limits
 
-    BEHAVOIUR_ERROR = 0
-    BEHAVOIUR_OTHER = 1
-    BEHAVOIUR_NONE = 2
-    BEHAVOIUR_CART_IMP = 3
-    BEHAVOIUR_CART_IMP_FT = 4
-    BEHAVOIUR_JNT_IMP = 5
-    BEHAVOIUR_CART_FCL = 6
-
-    def getBehaviourName(self, behaviour_id):
-        if not behaviour_id in self.behaviour_names:
-            return "unknown behaviour"
-        return self.behaviour_names[behaviour_id]
-
-    def getControllerBehaviour(self):
-        running = set()
-        stopped = set()
-        for item in self.conmanList().controller:
-            if item.state == "stopped":
-                stopped.add(item.name)
-            elif item.state == "running":
-                running.add(item.name)
-            else:
-                return self.BEHAVOIUR_ERROR
-        for key in self.behavoiur_stopped_dict:
-            if self.behavoiur_stopped_dict[key] == stopped:
-                return key
-        return self.BEHAVOIUR_OTHER
-
-    def getControllerBehaviourName(self):
-        return self.getBehaviourName( self.getControllerBehaviour() )
-        
-    def initConmanInterface(self):
-        rospy.wait_for_service('/controller_manager/switch_controller')
-        self.conmanSwitch = rospy.ServiceProxy('/controller_manager/switch_controller', controller_manager_msgs.srv.SwitchController)
-
-        rospy.wait_for_service('/controller_manager/list_controllers')
-        self.conmanList = rospy.ServiceProxy('/controller_manager/list_controllers', controller_manager_msgs.srv.ListControllers)
-
-        self.behavoiur_stopped_dict = {self.BEHAVOIUR_ERROR:None,
-            self.BEHAVOIUR_OTHER:None,
-            self.BEHAVOIUR_NONE:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'TrajectoryGeneratorJoint', 'VG', 'PoseIntLeft', 'JntLimit', 'CImp', 'HeadTrajectoryGeneratorJoint', 'PoseIntRight', 'JntImp']),
-            self.BEHAVOIUR_CART_IMP:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp', 'RightForceTransformation', 'LeftForceTransformation']),
-            self.BEHAVOIUR_CART_IMP_FT:set(['LeftForceControl', 'RightForceControl', 'TrajectoryGeneratorJoint', 'VG', 'JntImp']),
-            self.BEHAVOIUR_JNT_IMP:set(['LeftForceControl', 'RightForceControl', 'RightForceTransformation', 'LeftForceTransformation', 'VG', 'CImp', 'PoseIntLeft', 'PoseIntRight']),
-            self.BEHAVOIUR_CART_FCL:set(['TrajectoryGeneratorJoint', 'VG', 'JntImp', 'PoseIntLeft', 'PoseIntRight'])}
-
-        self.possible_behavoiur_switches = set( [
-            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_CART_IMP),
-            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_JNT_IMP),
-            (self.BEHAVOIUR_OTHER,self.BEHAVOIUR_CART_FCL),
-            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_CART_IMP_FT),
-            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_JNT_IMP),
-            (self.BEHAVOIUR_CART_IMP,self.BEHAVOIUR_CART_FCL),
-            (self.BEHAVOIUR_CART_IMP_FT,self.BEHAVOIUR_CART_IMP),
-            (self.BEHAVOIUR_CART_IMP_FT,self.BEHAVOIUR_JNT_IMP),
-            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_IMP),
-            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_IMP_FT),
-            (self.BEHAVOIUR_JNT_IMP,self.BEHAVOIUR_CART_FCL),
-            (self.BEHAVOIUR_CART_FCL,self.BEHAVOIUR_CART_IMP),
-            (self.BEHAVOIUR_CART_FCL,self.BEHAVOIUR_JNT_IMP), ] )
-
-        self.behaviour_names = {
-            self.BEHAVOIUR_ERROR:"BEHAVOIUR_ERROR",
-            self.BEHAVOIUR_OTHER:"BEHAVOIUR_OTHER",
-            self.BEHAVOIUR_NONE:"BEHAVOIUR_NONE",
-            self.BEHAVOIUR_CART_IMP:"BEHAVOIUR_CART_IMP",
-            self.BEHAVOIUR_CART_IMP_FT:"BEHAVOIUR_CART_IMP_FT",
-            self.BEHAVOIUR_JNT_IMP:"BEHAVOIUR_JNT_IMP",
-            self.BEHAVOIUR_CART_FCL:"BEHAVOIUR_CART_FCL", }
-
-    def switchToBehavoiur(self, behaviour):
-        current = self.getControllerBehaviour()
-        if current == behaviour:
-            return True
-
-        if (not (current, behaviour) in self.possible_behavoiur_switches):
-            print "VelmaInterface.switchToBehavoiur: could not switch behavoiur from " + self.getBehaviourName(current) + " to " + self.getBehaviourName(behaviour)
-            return False
-
-        if current == self.BEHAVOIUR_ERROR:
-            return False
-        elif current == self.BEHAVOIUR_OTHER:
-            current_stopped = set()
-            for item in self.conmanList().controller:
-                if item.state == "stopped":
-                    current_stopped.add(item.name)
-        else:
-            current_stopped = self.behavoiur_stopped_dict[current]
-        des_stopped = self.behavoiur_stopped_dict[behaviour]
-
-        cmd_start = current_stopped - des_stopped
-        cmd_stop = des_stopped - current_stopped
-
-        cmd_start_list = []
-        for item in cmd_start:
-            cmd_start_list.append(item)
-        cmd_stop_list = []
-        for item in cmd_stop:
-            cmd_stop_list.append(item)
-
-        if len(cmd_start_list) == 0 and len(cmd_stop_list) == 0:
-            return True
-
-        if self.conmanSwitch(cmd_start_list, cmd_stop_list, 2):
-            return True
-
-        return False
-
-#    def switchToJntImp(self):
-#        return self.switchToBehavoiur(self.BEHAVOIUR_JNT_IMP)
-
-#    def switchToCartImp(self):
-#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP)
-
-#    def switchToCartImpFT(self):
-#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_IMP_FT)
-
-#    def switchToCartFcl(self):
-#        return self.switchToBehavoiur(self.BEHAVOIUR_CART_FCL)
-
-    def isInCartImp(self):
-        return self.getControllerBehaviour() == self.BEHAVOIUR_CART_IMP
-
-    def isInCartImpFT(self):
-        return self.getControllerBehaviour() == self.BEHAVOIUR_CART_IMP_FT
-
-    def isInJntImp(self):
-        return self.getControllerBehaviour() == self.BEHAVOIUR_JNT_IMP
-
     def __init__(self, namespace="/velma_controller"):
 
         self.listener = tf.TransformListener();
@@ -381,8 +252,6 @@ Class used as Velma robot Interface.
             sub = rospy.Subscriber(topic[0], topic[1], partial( self.topicCallback, topic = topic[0] ))
             self.subscribed_topics[topic[0]].append(sub)
 
-#        self.initConmanInterface()
-
     def topicCallback(self, data, topic):
         self.subscribed_topics[topic][0].acquire()
         self.subscribed_topics[topic][1] = copy.copy(data)
@@ -422,10 +291,6 @@ Class used as Velma robot Interface.
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-#        behaviour = self.getControllerBehaviour()
-#        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
-#            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-#            return False
 
         self.joint_traj_active = False
         wrist_pose = pm.toMsg(T_B_Td)
@@ -455,10 +320,6 @@ Class used as Velma robot Interface.
         return self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
     def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
-#        behaviour = self.getControllerBehaviour()
-#        if behaviour != self.BEHAVOIUR_CART_IMP and behaviour != self.BEHAVOIUR_CART_IMP_FT:
-#            print "moveEffector " + prefix + ": wrong behaviour " + self.getBehaviourName(bahaviour)
-#            return False
 
         action_trajectory_goal = CartImpGoal()
         if stamp != None:
@@ -605,10 +466,6 @@ Class used as Velma robot Interface.
         return self.waitForImpedance("right")
 
     def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
-#        behaviour = self.getControllerBehaviour()
-#        if behaviour != self.BEHAVOIUR_JNT_IMP:
-#            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-#            return False
 
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
@@ -634,10 +491,6 @@ Class used as Velma robot Interface.
         self.action_joint_traj_client.send_goal(goal)
 
     def moveJointTraj(self, traj, joint_names, start_time=0.2):
-#        behaviour = self.getControllerBehaviour()
-#        if behaviour != self.BEHAVOIUR_JNT_IMP:
-#            print "moveJoint " + prefix + ": wrong behaviour " + self.getBehaviourName(behaviour)
-#            return False
 
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
