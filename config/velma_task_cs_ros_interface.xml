@@ -23,14 +23,15 @@
     <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
     <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
 
-    <component type="TfPublisher"                                   name="TfPub"                running="true" />
+<!--    <component type="TfPublisher"                                   name="TfPub"                running="true" />-->
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
-
+<!--
     <connection from="stSplit.rToolInWristPose_OUTPORT"             to="TfPub.In0" />
     <connection from="stSplit.lToolInWristPose_OUTPORT"             to="TfPub.In1" />
-
+    <ros_stream port="TfPub.OutTf"                  topic="/tf" />
+-->
     <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
     <connection from="CartImpActionRight.cart_tool_command_OUTPORT"                 to="cmdConcate.cart_r_tool_INPORT" />
     <connection from="CartImpActionRight.cart_imp_command_OUTPORT"                  to="cmdConcate.cart_r_imp_INPORT" />
@@ -64,8 +65,6 @@
     <connection from="stSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
 
     <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
-
-    <ros_stream port="TfPub.OutTf"                  topic="/tf" />
 
 <!--
 #stream("cmdConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/cmdConcate/msg_OUTPORT"));
