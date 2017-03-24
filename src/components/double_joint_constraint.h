@@ -138,6 +138,7 @@ template<unsigned DOFS >
   bool DoubleJointConstraint<DOFS >::inCollision(double q0, double q1) const {
     if (cc_) {
         DoubleJointCC::Joints q(q0, q1);
+//        RTT::log(RTT::Warning) << getName() << " in collision: " << (cc_->inCollision(q)?"true ":"false") << " " << q0 << " " << q1 << RTT::endlog();
         return cc_->inCollision(q);
     }
     return false;
@@ -161,6 +162,16 @@ template<unsigned DOFS >
 
     if (joint0_idx_ == joint1_idx_) {
         RTT::log(RTT::Error) << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << RTT::endlog();
+        return false;
+    }
+
+    if (joint0_idx_ >= DOFS) {
+        RTT::log(RTT::Error) << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << RTT::endlog();
+        return false;
+    }
+
+    if (joint1_idx_ >= DOFS) {
+        RTT::log(RTT::Error) << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << RTT::endlog();
         return false;
     }
 
@@ -289,7 +300,7 @@ template<unsigned DOFS >
         double D = 0;//2.0 * 0.7 * sqrt(Mdij_inv * K);  // sqrt(K/M)
         joint_torque_command_.noalias() = JT * (Frep - D * ddij);
 
-        RTT::log(RTT::Info) << joint_torque_command_.transpose() << RTT::endlog();
+//        RTT::log(RTT::Info) << joint_torque_command_.transpose() << RTT::endlog();
     }
 
     if (!joint_torque_command_.allFinite()) {

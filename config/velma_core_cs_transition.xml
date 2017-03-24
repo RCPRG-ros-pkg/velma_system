@@ -17,23 +17,21 @@
     <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
 
 
-    <component name="HeadPanVelocityLimiter"    type="VelocityLimiter" />
-    <component name="HeadTiltVelocityLimiter"   type="VelocityLimiter" />
-<!--        <port_data_conversion port_name="PositionMsr_INPORT" />
-    </component>-->
+    <component name="VL_hp"     type="VelocityLimiter" />
+    <component name="VL_ht"     type="VelocityLimiter" />
 
-    <component name="Jc"        type="VectorConcate1_7_7_0" running="true" />
-    <component name="Jvc"       type="VectorConcate1_7_7_0" running="true" />
-    <component name="JcAll"     type="VectorConcate15_2_8_8" running="true" />
-    <component name="JvcAll"    type="VectorConcate15_2_8_8" running="true" />
+    <component name="C_q_body"  type="VectorConcate1_7_7_0" running="true" />
+    <component name="C_dq_body" type="VectorConcate1_7_7_0" running="true" />
+    <component name="C_q_all"   type="VectorConcate15_2_8_8" running="true" />
+    <component name="C_dq_all"  type="VectorConcate15_2_8_8" running="true" />
     <component name="Mass"      type="MassTest15_2" running="true" >
         <service>robot</service>
     </component>
 
-    <component name="HeadTrajectoryGeneratorJoint" type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
+    <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" />
 
-    <component name="HeadPosConcate"      type="VectorConcate1_1_0_0" running="true" />
-    <component name="HeadPosSplit"          type="PortDoubleSplit2" running="true" />
+    <component name="C_q_head"  type="VectorConcate1_1_0_0" running="true" />
+    <component name="S_q_head"  type="PortDoubleSplit2" running="true" />
 
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
@@ -42,25 +40,25 @@
 #TGR.start();
 -->
 <!--    <component name="TGR"       type="TriggerGenerator" />-->
-    <component name="ZeroVec8"       type="VectorDummy8" running="true" />
-    <component name="Ts"        type="VectorSplit1_7_7_0" />
+    <component name="ZeroVec8"  type="VectorDummy8" running="true" />
+    <component name="S_t_body"        type="VectorSplit1_7_7_0" />
 <!--    <component name="TJ"        type="TorsoTeleopJoy" running="true" />-->
 
-    <component name="HeadVelConcate"      type="VectorConcate1_1_0_0" running="true" />
-    <component name="HeadPosSplit"          type="PortDoubleSplit2" />
+    <component name="C_dq_head" type="VectorConcate1_1_0_0" running="true" />
+    <component name="S_q_head"  type="PortDoubleSplit2" />
 
     <component name="CImp"                  type="CartesianImpedance15_2" >
         <service>robot</service>
     </component>
 
-    <component name="PoseIntRight"          type="CartesianInterpolatorVelma" />
-    <component name="PoseIntLeft"           type="CartesianInterpolatorVelma" />
-    <component name="ToolIntRight"          type="CartesianInterpolatorVelma" />
-    <component name="ToolIntLeft"           type="CartesianInterpolatorVelma" />
-    <component name="ImpedanceIntRight"     type="CartesianImpedanceInterpolatorVelma" />
-    <component name="ImpedanceIntLeft"      type="CartesianImpedanceInterpolatorVelma" />
-    <component name="JntImp"                type="JointImpedance15" />
-    <component name="FK"                    type="VelmaFK" running="true" >
+    <component name="INT_pose_r"    type="CartesianInterpolatorVelma" />
+    <component name="INT_pose_l"    type="CartesianInterpolatorVelma" />
+    <component name="INT_tool_r"    type="CartesianInterpolatorVelma" />
+    <component name="INT_tool_l"    type="CartesianInterpolatorVelma" />
+    <component name="INT_imp_r"     type="CartesianImpedanceInterpolatorVelma" />
+    <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" />
+    <component name="JntImp"        type="JointImpedance15" />
+    <component name="FK"            type="VelmaFK" >
         <service>robot</service>
     </component>
 <!--    <component name="RightForceTransformation"  type="ForceTransformation" />
@@ -68,7 +66,7 @@
     <component name="RightForceControl"         type="ForceControlLaw" />
     <component name="LeftForceControl"          type="ForceControlLaw" />
 -->
-    <component name="TrajectoryGeneratorJoint"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" />
+    <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" />
     <component name="JntLimit"                  type="JointLimitAvoidance15" />
 
     <component name="idle"          type="velma_core_cs_types::IdleComponent" />
@@ -80,16 +78,6 @@
     <component name="wcc_r"           type="DoubleJointConstraint15" />
 <!--    <component name="wcc_l"           type="DoubleJointConstraint15" />-->
 
-<!--    <component name="conv1"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv2"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv3"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv4"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv5"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv6"         type="ScalarDoubleToEigen" />
-    <component name="conv7"         type="ScalarDoubleToEigen" />
-    <component name="conv8"         type="ScalarDoubleToEigen" running="true" />
-    <component name="conv9"         type="ScalarEigenToDouble" />-->
-
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
@@ -98,132 +86,116 @@
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
     <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" />
-    <connection from="Jc.Out" to="wcc_r.JointPosition_INPORT" name="q_body" />
-    <connection from="Jvc.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" />
+    <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" />
+    <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" name="M" />
-    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="Ts.In" name="cmd_t_body" />
+    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" />
 
-    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" />
-    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" />
 
     <connection from="idle.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" />
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" />
 
-<!--TODO    <connection from="b_stSplit.tMotor_q_OUTPORT" to="conv1.sc_INPORT" />
-    <connection from="conv1.sc_OUTPORT" to="Jc.In0" />-->
-    <connection from="b_stSplit.tMotor_q_OUTPORT" to="Jc.In0" />
+    <connection from="b_stSplit.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t"/>
 
 <!--    <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPosConcate.InputPort_0" />-->
 <!--    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoVelConcate.InputPort_0" />-->
 <!--    <connection from="TorsoTrqSplit.OutputPort_0" to="b_cmdConcate.tMotor_i_INPORT" />-->
 
-    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPosConcate.In0" />
-<!--    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="conv2.sc_INPORT" />
-    <connection from="conv2.sc_OUTPORT" to="HeadPosConcate.In0" />-->
-    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="HeadVelConcate.In0" />
-<!--    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="conv3.sc_INPORT" />
-    <connection from="conv3.sc_OUTPORT" to="HeadVelConcate.In0" />-->
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="C_q_head.In0" name="q_hp" />
+    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="C_dq_head.In0" name="dq_hp" />
 
-<!--    <connection from="Vd2.vector_OUTPORT" to="HeadPosSplit.InputPort" />-->
+<!--    <connection from="Vd2.vector_OUTPORT" to="S_q_head.InputPort" />-->
 
-<!--    <connection from="HeadPosSplit.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
-    <connection from="HeadPosSplit.OutputPort_0" to="HeadPanVelocityLimiter.Position_INPORT" />
+<!--    <connection from="S_q_head.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
+    <connection from="S_q_head.OutputPort_0" to="VL_hp.Position_INPORT" name="q_hp" />
 
 
-<!--TODO    <connection from="b_stSplit.htMotor_q_OUTPORT" to="conv6.sc_INPORT" />
-    <connection from="conv6.sc_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />-->
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadTiltVelocityLimiter.PositionMsr_INPORT" />
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="VL_ht.PositionMsr_INPORT" name="q_ht" />
 
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="HeadPosConcate.In1" />
-<!--TODO    <connection from="b_stSplit.htMotor_q_OUTPORT" to="conv4.sc_INPORT" />
-    <connection from="conv4.sc_OUTPORT" to="HeadPosConcate.In1" />-->
-    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="HeadVelConcate.In1" />
-<!--    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="conv5.sc_INPORT" />
-    <connection from="conv5.sc_OUTPORT" to="HeadVelConcate.In1" />-->
-    <connection from="HeadPosSplit.OutputPort_1" to="HeadTiltVelocityLimiter.Position_INPORT" />
-<!--    <connection from="HeadPosSplit.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="C_q_head.In1" name="q_ht" />
+    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="C_dq_head.In1" name="dq_ht" />
+    <connection from="S_q_head.OutputPort_1" to="VL_ht.Position_INPORT" name="q_ht" />
+<!--    <connection from="S_q_head.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
 
-    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />
-<!--    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="conv7.sc_INPORT" />
-    <connection from="conv7.sc_OUTPORT" to="HeadPanVelocityLimiter.PositionMsr_INPORT" />-->
-    <connection from="HeadPanVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
-    <connection from="HeadTiltVelocityLimiter.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="VL_hp.PositionMsr_INPORT" name="q_hp" />
+    <connection from="VL_hp.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" />
+    <connection from="VL_ht.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" />
 
-    <connection from="b_stSplit.rArm_q_OUTPORT" to="Jc.In1" />
-    <connection from="b_stSplit.lArm_q_OUTPORT" to="Jc.In2" />
-    <connection from="b_stSplit.rArm_dq_OUTPORT" to="Jvc.In1" />
-    <connection from="b_stSplit.lArm_dq_OUTPORT" to="Jvc.In2" />
-    <connection from="b_stSplit.rHand_q_OUTPORT" to="JcAll.In2" />
-    <connection from="b_stSplit.lHand_q_OUTPORT" to="JcAll.In3" />
-    <connection from="ZeroVec8.vector_OUTPORT" to="JvcAll.In2" name="0" />
-    <connection from="ZeroVec8.vector_OUTPORT" to="JvcAll.In3" name="0" />
-    <connection from="Ts.Out1" to="b_cmdConcate.rArm_t_INPORT" name="t_ra" />
-    <connection from="Ts.Out2" to="b_cmdConcate.lArm_t_INPORT" name="t_la" />
+    <connection from="b_stSplit.rArm_q_OUTPORT" to="C_q_body.In1" />
+    <connection from="b_stSplit.lArm_q_OUTPORT" to="C_q_body.In2" />
+    <connection from="b_stSplit.rArm_dq_OUTPORT" to="C_dq_body.In1" />
+    <connection from="b_stSplit.lArm_dq_OUTPORT" to="C_dq_body.In2" />
+    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_q_all.In2" />
+    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_q_all.In3" />
+    <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In2" name="0" />
+    <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In3" name="0" />
+    <connection from="S_t_body.Out1" to="b_cmdConcate.rArm_t_INPORT" name="t_ra" />
+    <connection from="S_t_body.Out2" to="b_cmdConcate.lArm_t_INPORT" name="t_la" />
     <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" />
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" />
-    <connection from="Jc.Out" to="Mass.JointPosition_INPORT"  name="q_body" />
+    <connection from="C_q_body.Out" to="Mass.JointPosition_INPORT"  name="q_body" />
 
-    <connection from="HeadPosConcate.Out" to="JcAll.In1" name="q_head" />
-    <connection from="HeadVelConcate.Out" to="JvcAll.In1" name="dq_head" />
+    <connection from="C_q_head.Out" to="C_q_all.In1" name="q_head" />
+    <connection from="C_dq_head.Out" to="C_dq_all.In1" name="dq_head" />
 
-<!--    <connection from="Vd2.vector_OUTPORT" to="JcAll.In1" />
-    <connection from="Vd2.vector_OUTPORT" to="JvcAll.In1" />-->
-<!--    <connection from="TorsoPosConcate.OutputPort" to="Jc.In0" />-->
+<!--    <connection from="Vd2.vector_OUTPORT" to="C_q_all.In1" />
+    <connection from="Vd2.vector_OUTPORT" to="C_dq_all.In1" />-->
+<!--    <connection from="TorsoPosConcate.OutputPort" to="C_q_body.In0" />-->
 
-    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="Jvc.In0" />
-<!--    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="conv8.sc_INPORT" />
-    <connection from="conv8.sc_OUTPORT" to="Jvc.In0" />-->
+    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="C_dq_body.In0" name="dq_t" />
 
-<!--    <connection from="TorsoVelConcate.OutputPort" to="Jvc.In0" />-->
-    <connection from="Jc.Out" to="JcAll.In0" name="q_body" />
-    <connection from="Jvc.Out" to="JvcAll.In0" name="dq_body" />
-<!--    <connection from="Ts.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
-    <connection from="Ts.Out0" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />
-<!--    <connection from="Ts.Out0" to="conv9.sc_INPORT" name="t_t" />
+<!--    <connection from="TorsoVelConcate.OutputPort" to="C_dq_body.In0" />-->
+    <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" />
+    <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" />
+<!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
+    <connection from="S_t_body.Out0" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />
+<!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
     <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
 
-    <connection from="Jc.Out" to="CImp.JointPosition_INPORT" name="q_body" />
-    <connection from="Jvc.Out" to="CImp.JointVelocity_INPORT" name="dq_body" />
+    <connection from="C_q_body.Out" to="CImp.JointPosition_INPORT" name="q_body" />
+    <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" />
     <connection from="Mass.MassMatrix_OUTPORT" to="CImp.MassMatrixInv_INPORT" name="M" />
-<!--    <connection from="CImp.JointTorqueCommand_OUTPORT" to="Ts.In" />-->
-    <connection from="PoseIntRight.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" name="cmd_pos_r" />
-    <connection from="cmdSplit.cart_r_pose_OUTPORT" to="PoseIntRight.CartesianTrajectoryCommand_INPORT" />
-    <connection from="PoseIntRight.generator_status_OUTPORT" to="stConcate.rCart_status_INPORT" />
-    <connection from="PoseIntRight.CartesianPositionCommand_OUTPORT" to="stConcate.rCart_cmd_INPORT" name="cmd_pos_r" />
-    <connection from="PoseIntLeft.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand1_INPORT" name="cmd_pos_l" />
-    <connection from="cmdSplit.cart_l_pose_OUTPORT" to="PoseIntLeft.CartesianTrajectoryCommand_INPORT" />
-    <connection from="PoseIntLeft.generator_status_OUTPORT" to="stConcate.lCart_status_INPORT" />
-    <connection from="PoseIntLeft.CartesianPositionCommand_OUTPORT" to="stConcate.lCart_cmd_INPORT" name="cmd_pos_l" />
-    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand0_INPORT" name="cmd_tool_r" />
-    <connection from="cmdSplit.cart_r_tool_OUTPORT" to="ToolIntRight.CartesianTrajectoryCommand_INPORT" />
-    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand1_INPORT" name="cmd_tool_l" />
-    <connection from="cmdSplit.cart_l_tool_OUTPORT" to="ToolIntLeft.CartesianTrajectoryCommand_INPORT" />
-    <connection from="ImpedanceIntRight.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand0_INPORT" name="cmd_imp_r" />
-    <connection from="cmdSplit.cart_r_imp_OUTPORT" to="ImpedanceIntRight.CartesianImpedanceTrajectoryCommand_INPORT" />
-    <connection from="ImpedanceIntLeft.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand1_INPORT" name="cmd_imp_l" />
-    <connection from="cmdSplit.cart_l_imp_OUTPORT" to="ImpedanceIntLeft.CartesianImpedanceTrajectoryCommand_INPORT" />
-    <connection from="Jc.Out" to="JntImp.JointPosition_INPORT" name="q_body" />
-    <connection from="Jvc.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" />
+<!--    <connection from="CImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" />-->
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" name="cmd_pos_r" />
+    <connection from="cmdSplit.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" />
+    <connection from="INT_pose_r.generator_status_OUTPORT" to="stConcate.rCart_status_INPORT" name="gen_st" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="stConcate.rCart_cmd_INPORT" name="cmd_pos_r" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand1_INPORT" name="cmd_pos_l" />
+    <connection from="cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" />
+    <connection from="INT_pose_l.generator_status_OUTPORT" to="stConcate.lCart_status_INPORT" name="gen_st" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="stConcate.lCart_cmd_INPORT" name="cmd_pos_l" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand0_INPORT" name="cmd_tool_r" />
+    <connection from="cmdSplit.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand1_INPORT" name="cmd_tool_l" />
+    <connection from="cmdSplit.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" />
+    <connection from="INT_imp_r.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand0_INPORT" name="cmd_imp_r" />
+    <connection from="cmdSplit.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" />
+    <connection from="INT_imp_l.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand1_INPORT" name="cmd_imp_l" />
+    <connection from="cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" />
+    <connection from="C_q_body.Out" to="JntImp.JointPosition_INPORT" name="q_body" />
+    <connection from="C_dq_body.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntImp.MassMatrix_INPORT" name="M" />
-    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="Ts.In" name="cmd_t_body" />
-    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" name="cmd_tool_l" />
-    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" name="cmd_tool_r" />
-    <connection from="Jc.Out" to="FK.JointPosition_INPORT" name="q_body" />
-    <connection from="FK.LeftPosition_OUTPORT" to="PoseIntLeft.CartesianPosition_INPORT" />
-    <connection from="FK.RightPosition_OUTPORT" to="PoseIntRight.CartesianPosition_INPORT" />
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" name="cmd_tool_l" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" name="cmd_tool_r" />
+    <connection from="C_q_body.Out" to="FK.JointPosition_INPORT" name="q_body" />
+    <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" />
+    <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" />
 
 <!--
     <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
     <connection from="FK.RightWrist_OUTPORT" to="RightForceTransformation.CurrentWristPose" />
     <connection from="b_stSplit.rFt_sfw_OUTPORT" to="RightForceTransformation.CurrentSensorSlowFilteredWrench" />
     <connection from="b_stSplit.rFt_rw_OUTPORT" to="RightForceTransformation.CurrentSensorFastFilteredWrench" />
-    <connection from="ToolIntRight.CartesianPositionCommand_OUTPORT" to="RightForceTransformation.Tool" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="RightForceTransformation.Tool" />
     <connection from="FK.LeftWrist_OUTPORT" to="LeftForceTransformation.CurrentWristPose" />
     <connection from="b_stSplit.lFt_sfw_OUTPORT" to="LeftForceTransformation.CurrentSensorSlowFilteredWrench" />
     <connection from="b_stSplit.lFt_rw_OUTPORT" to="LeftForceTransformation.CurrentSensorFastFilteredWrench" />
-    <connection from="ToolIntLeft.CartesianPositionCommand_OUTPORT" to="LeftForceTransformation.Tool" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="LeftForceTransformation.Tool" />
     <connection from="RightForceControl.OutputEndEffectorPose" to="CImp.CartPositionCommand0_INPORT" />
     <connection from="FK.RightPosition_OUTPORT" to="RightForceControl.CurrentEndEffectorPose" />
     <connection from="RightForceTransformation.OutputEndEffectorWrench" to="RightForceControl.CurrentEndEffectorWrench" />
@@ -231,29 +203,29 @@
     <connection from="FK.LeftPosition_OUTPORT" to="LeftForceControl.CurrentEndEffectorPose" />
     <connection from="LeftForceTransformation.OutputEndEffectorWrench" to="LeftForceControl.CurrentEndEffectorWrench" />
 -->
-    <connection from="Jc.Out" to="TrajectoryGeneratorJoint.JointPosition_INPORT" name="q_body" />
-    <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" />
-    <connection from="TrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" />
-    <connection from="TrajectoryGeneratorJoint.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" />
-    <connection from="TrajectoryGeneratorJoint.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" />
-    <connection from="cmdSplit.jnt_OUTPORT" to="TrajectoryGeneratorJoint.jnt_INPORT" />
-    <connection from="Jc.Out" to="JntLimit.JointPosition_INPORT" name="q_body" />
-    <connection from="Jvc.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" />
+    <connection from="C_q_body.Out" to="JTG_body.JointPosition_INPORT" name="q_body" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" name="cmd_q_body" />
+    <connection from="JTG_body.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" name="gen_st" />
+    <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" />
+    <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" />
+    <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" />
+    <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" name="M" />
     <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" />
     <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" />
-    <connection from="Jc.Out" to="safe.JointPosition_INPORT" name="q_body" />
-    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" />
-    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" />
+    <connection from="C_q_body.Out" to="safe.JointPosition_INPORT" name="q_body" />
+    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" />
+    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" />
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
     <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" />
-    <connection from="idle.JointTorqueCommand_OUTPORT" to="Ts.In" name="cmd_t_body" />
-    <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
-    <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
+    <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" />
+    <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" />
+    <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
-    <connection from="JcAll.Out" to="stConcate.q_INPORT" name="q" />
-    <connection from="JvcAll.Out" to="stConcate.dq_INPORT" name="dq" />
+    <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" />
+    <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" />
     <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" />
     <connection from="cmdSplit.hand_l_OUTPORT" to="b_cmdConcate.lHand_INPORT" />
     <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.hand_r_INPORT" />
@@ -263,18 +235,21 @@
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 
-    <connection from="HeadPosConcate.Out" to="HeadTrajectoryGeneratorJoint.JointPosition_INPORT" />
-    <connection from="HeadTrajectoryGeneratorJoint.JointPositionCommand_OUTPORT" to="HeadPosSplit.InputPort" />
-    <connection from="cmdSplit.head_OUTPORT" to="HeadTrajectoryGeneratorJoint.jnt_INPORT" />
+    <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" />
+    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" />
+    <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" />
 
+<!-- this is unnecessary, as the wrist pose is calculated in ROS
+    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lWristPose_INPORT" />
+    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rWristPose_INPORT" />-->
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
-#    <connection from="b_stSplit.rHand_q_OUTPORT" to="JcAll.In2" />
-#    <connection from="b_stSplit.lHand_q_OUTPORT" to="JcAll.In3" />
-#    <connection from="b_stSplit.rHand_q_OUTPORT" to="JvcAll.In2" />
-#    <connection from="b_stSplit.lHand_q_OUTPORT" to="JvcAll.In3" />
+#    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_q_all.In2" />
+#    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_q_all.In3" />
+#    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_dq_all.In2" />
+#    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_dq_all.In3" />
 #    <connection from="b_stSplit.rArm_t_OUTPORT" to="TorquePubRight.InJointTorque" />
 #    <connection from="b_stSplit.rArm_gt_OUTPORT" to="TorquePubRight.InGravityTorque" />
 #    <connection from="b_stSplit.lArm_t_OUTPORT" to="TorquePubLeft.InJointTorque" />
