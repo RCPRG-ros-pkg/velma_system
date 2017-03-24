@@ -51,7 +51,7 @@ bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<RTT::T
 // TODO: add collision detection for left wrist
 // TODO: add collision detection for whole body
     if (inCollisionWristRight.ready()) {
-        return inCollisionWristRight(in_data->b_st.rArm.t[5], in_data->b_st.rArm.t[6]);
+        return inCollisionWristRight(in_data->b_st.rArm.q[5], in_data->b_st.rArm.q[6]);
     }
     return false;
 }
