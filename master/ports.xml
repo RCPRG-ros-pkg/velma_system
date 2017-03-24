@@ -41,8 +41,6 @@
             <running_component name="HeadTrajectoryGeneratorJoint" />
             <running_component name="HeadPanVelocityLimiter" />
             <running_component name="HeadTiltVelocityLimiter" />
-            <running_component name="conv6" />
-            <running_component name="conv7" />
             <running_component name="HeadPosSplit" />
             <scope name="right_hand" />
             <scope name="left_hand" />
@@ -55,7 +53,6 @@
             err_cond="FALSE" >
             <running_component name="idle" />
             <running_component name="Ts" />
-            <running_component name="conv9" />
             <scope name="upper_body" />
             <scope name="right_hand" />
             <scope name="left_hand" />
@@ -71,7 +68,6 @@
 <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="Ts" />
-            <running_component name="conv9" />
             <scope name="upper_body" />
         </behavior>
 
@@ -92,7 +88,6 @@
             <running_component name="FK" />
             <running_component name="wcc_r" />
             <running_component name="Ts" />
-            <running_component name="conv9" />
             <scope name="upper_body" />
         </behavior>
 
@@ -106,7 +101,6 @@
 <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="Ts" />
-            <running_component name="conv9" />
             <scope name="upper_body" />
         </behavior>
 <!--
