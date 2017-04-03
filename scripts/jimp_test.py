@@ -56,10 +56,10 @@ if __name__ == "__main__":
     rospy.sleep(2)
 
     print "moving to position 0 (slowly)"
-    velma.moveJoint(q_dest_0, joint_names, 6, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest_0, joint_names, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     print "moving to initial position"
-    velma.moveJoint(q_dest, joint_names, 6, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_dest, joint_names, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
