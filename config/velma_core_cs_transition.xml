@@ -17,21 +17,21 @@
     <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
 
 
-    <component name="VL_hp"     type="VelocityLimiter" />
-    <component name="VL_ht"     type="VelocityLimiter" />
+    <component name="VL_hp"     type="VelocityLimiter" latex="\text{VelLim}_{hp}" />
+    <component name="VL_ht"     type="VelocityLimiter" latex="\text{VelLim}_{ht}" />
 
-    <component name="C_q_body"  type="VectorConcate1_7_7_0" running="true" latex="\text{conc}_{q,body}" />
-    <component name="C_dq_body" type="VectorConcate1_7_7_0" running="true" latex="\text{conc}_{\dot{q},body}" />
-    <component name="C_q_all"   type="VectorConcate15_2_8_8" running="true" latex="\text{conc}_{q,all}" />
-    <component name="C_dq_all"  type="VectorConcate15_2_8_8" running="true" latex="\text{conc}_{\dot{q},all}" />
-    <component name="Mass"      type="MassTest15_2" running="true" >
+    <component name="C_q_body"  type="VectorConcate1_7_7_0" running="true" latex="\text{Conc}_{q,b}" />
+    <component name="C_dq_body" type="VectorConcate1_7_7_0" running="true" latex="\text{Conc}_{\dot{q},b}" />
+    <component name="C_q_all"   type="VectorConcate15_2_8_8" running="true" latex="\text{Conc}_{q}" />
+    <component name="C_dq_all"  type="VectorConcate15_2_8_8" running="true" latex="\text{Conc}_{\dot{q}}" />
+    <component name="Mass"      type="MassTest15_2" running="true" latex="\text{Mass}" >
         <service>robot</service>
     </component>
 
     <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JntTrGen}_{head}" />
 
-    <component name="C_q_head"  type="VectorConcate1_1_0_0" running="true" latex="\text{conc}_{q,head}" />
-    <component name="S_q_head"  type="PortDoubleSplit2" running="true" latex="\text{split}_{q,head}" />
+    <component name="C_q_head"  type="VectorConcate1_1_0_0" running="true" latex="\text{Conc}_{q,head}" />
+    <component name="S_q_head"  type="PortDoubleSplit2" running="true" latex="\text{Split}_{q,head}" />
 
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
@@ -40,11 +40,11 @@
 #TGR.start();
 -->
 <!--    <component name="TGR"       type="TriggerGenerator" />-->
-    <component name="ZeroVec8"  type="VectorDummy8" running="true" />
-    <component name="S_t_body"        type="VectorSplit1_7_7_0" latex="\text{split}_{t,body}" />
+    <component name="ZeroVec8"  type="VectorDummy8" running="true" latex="\text{ZeroVec}_{8}" />
+    <component name="S_t_body"        type="VectorSplit1_7_7_0" latex="\text{Split}_{t,b}" />
 <!--    <component name="TJ"        type="TorsoTeleopJoy" running="true" />-->
 
-    <component name="C_dq_head" type="VectorConcate1_1_0_0" running="true" latex="\text{conc}_{\dot{q},head}" />
+    <component name="C_dq_head" type="VectorConcate1_1_0_0" running="true" latex="\text{Conc}_{\dot{q},head}" />
 
     <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{IMP}_{cart}" >
         <service>robot</service>
@@ -65,7 +65,7 @@
     <component name="RightForceControl"         type="ForceControlLaw" />
     <component name="LeftForceControl"          type="ForceControlLaw" />
 -->
-    <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" latex="\text{JntTrGen}_{body}" />
+    <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" latex="\text{JntTrGen}_{b}" />
     <component name="JntLimit"                  type="JointLimitAvoidance15" latex="\text{JntLim}" />
 
     <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{IDLE}" />
@@ -74,8 +74,19 @@
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{JIMP}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
-    <component name="wcc_r"           type="DoubleJointConstraint15" />
+    <component name="wcc_r"           type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
 <!--    <component name="wcc_l"           type="DoubleJointConstraint15" />-->
+
+    <component name="b_stSplit"     running="true" latex="\text{Split}_{b,st}" />
+    <component name="cmdSplit"      running="true" latex="\text{Split}_{task,cmd}" />
+    <component name="stConcate"     running="true" latex="\text{Conc}_{task,st}" />
+    <component name="b_cmdConcate"  running="true" latex="\text{Conc}_{b,cmd}" />
+
+    <component name="b_stRx"     running="true" latex="\text{x}_{b,st}" />
+    <component name="cmdRx"      running="true" latex="\text{x}_{task,cmd}" />
+    <component name="stTx"     running="true" latex="\text{y}_{task,st}" />
+    <component name="b_cmdTx"  running="true" latex="\text{y}_{b,cmd}" />
+    <component name="master_component"  running="true" latex="\text{MC}" />
 
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 
@@ -84,11 +95,11 @@
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
-    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,body}" />
-    <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{body}" />
+    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+    <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" name="M" latex="M" />
-    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,body}" />
+    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
 
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
@@ -148,15 +159,15 @@
     <connection from="b_stSplit.tMotor_dq_OUTPORT" to="C_dq_body.In0" name="dq_t" latex="\dot{q}_{t}" />
 
 <!--    <connection from="TorsoVelConcate.OutputPort" to="C_dq_body.In0" />-->
-    <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{body}" />
-    <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{body}" />
+    <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{b}" />
 <!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
     <connection from="S_t_body.Out0" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
 <!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
     <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
 
-    <connection from="C_q_body.Out" to="CImp.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{body}" />
+    <connection from="C_q_body.Out" to="CImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="CImp.MassMatrixInv_INPORT" name="M" latex="M" />
 <!--    <connection from="CImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" />-->
     <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" name="cmd_pos_r" latex="p_{r,pos}" />
@@ -175,13 +186,13 @@
     <connection from="cmdSplit.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
     <connection from="INT_imp_l.CartesianImpedanceCommand_OUTPORT" to="CImp.CartImpedanceCommand1_INPORT" name="cmd_imp_l" latex="p_{l,imp}" />
     <connection from="cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
-    <connection from="C_q_body.Out" to="JntImp.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="C_dq_body.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{body}" />
+    <connection from="C_q_body.Out" to="JntImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntImp.MassMatrix_INPORT" name="M" latex="M" />
-    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{body,cmd}" />
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
-    <connection from="C_q_body.Out" to="FK.JointPosition_INPORT" name="q_body" latex="q_{body}" />
+    <connection from="C_q_body.Out" to="FK.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
@@ -202,23 +213,23 @@
     <connection from="FK.LeftPosition_OUTPORT" to="LeftForceControl.CurrentEndEffectorPose" />
     <connection from="LeftForceTransformation.OutputEndEffectorWrench" to="LeftForceControl.CurrentEndEffectorWrench" />
 -->
-    <connection from="C_q_body.Out" to="JTG_body.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{body,cmd}" />
-    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{body,cmd}" />
+    <connection from="C_q_body.Out" to="JTG_body.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
     <connection from="JTG_body.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{body,cmd}" />
+    <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
-    <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{body}" />
+    <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" name="M" latex="M" />
-    <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{body,cmd}" />
+    <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" />
     <connection from="C_q_body.Out" to="safe.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{body, cmd}" />
-    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{body,cmd}" />
+    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b, cmd}" />
+    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
     <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" />
-    <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{body,cmd}" />
+    <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
