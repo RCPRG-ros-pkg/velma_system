@@ -87,6 +87,7 @@
             <running_component name="INT_imp_l" />
             <running_component name="FK" />
             <running_component name="wcc_r" />
+            <running_component name="wcc_l" />
             <running_component name="S_t_body" />
             <scope name="upper_body" />
         </behavior>

@@ -75,7 +75,7 @@
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
     <component name="wcc_r"           type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
-<!--    <component name="wcc_l"           type="DoubleJointConstraint15" />-->
+    <component name="wcc_l"           type="DoubleJointConstraint15" latex="\text{WCC}_{l}" />
 
     <component name="b_stSplit"     running="true" latex="\text{Split}_{b,st}" />
     <component name="cmdSplit"      running="true" latex="\text{Split}_{task,cmd}" />
@@ -100,6 +100,12 @@
     <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" name="M" latex="M" />
     <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
+
+    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="wcc_l.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+    <connection from="C_q_body.Out" to="wcc_l.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="wcc_l.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="wcc_l.MassMatrixInv_INPORT" name="M" latex="M" />
+    <connection from="wcc_l.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
 
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
