@@ -21,18 +21,18 @@
     <component name="VL_hp"     type="VelocityLimiter" latex="\text{VelLim}_{hp}" />
     <component name="VL_ht"     type="VelocityLimiter" latex="\text{VelLim}_{ht}" />
 
-    <component name="C_q_body"  type="VectorConcate1_7_7_0" running="true" latex="\text{Conc}_{q,b}" />
-    <component name="C_dq_body" type="VectorConcate1_7_7_0" running="true" latex="\text{Conc}_{\dot{q},b}" />
-    <component name="C_q_all"   type="VectorConcate15_2_8_8" running="true" latex="\text{Conc}_{q}" />
-    <component name="C_dq_all"  type="VectorConcate15_2_8_8" running="true" latex="\text{Conc}_{\dot{q}}" />
-    <component name="Mass"      type="MassTest15_2" running="true" latex="\text{Mass}" >
+    <component name="C_q_body"  type="VectorConcate1_7_7_0" latex="\text{Conc}_{q,b}" />
+    <component name="C_dq_body" type="VectorConcate1_7_7_0" latex="\text{Conc}_{\dot{q},b}" />
+    <component name="C_q_all"   type="VectorConcate15_2_8_8" latex="\text{Conc}_{q}" />
+    <component name="C_dq_all"  type="VectorConcate15_2_8_8" latex="\text{Conc}_{\dot{q}}" />
+    <component name="Mass"      type="MassTest15_2" latex="\text{Mass}" >
         <service>robot</service>
     </component>
 
     <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JntTrGen}_{head}" />
 
-    <component name="C_q_head"  type="VectorConcate1_1_0_0" running="true" latex="\text{Conc}_{q,head}" />
-    <component name="S_q_head"  type="PortDoubleSplit2" running="true" latex="\text{Split}_{q,head}" />
+    <component name="C_q_head"  type="VectorConcate1_1_0_0" latex="\text{Conc}_{q,head}" />
+    <component name="S_q_head"  type="PortDoubleSplit2" latex="\text{Split}_{q,head}" />
 
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
@@ -41,11 +41,11 @@
 #TGR.start();
 -->
 <!--    <component name="TGR"       type="TriggerGenerator" />-->
-    <component name="ZeroVec8"  type="VectorDummy8" running="true" latex="\text{ZeroVec}_{8}" />
+    <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" />
     <component name="S_t_body"        type="VectorSplit1_7_7_0" latex="\text{Split}_{t,b}" />
 <!--    <component name="TJ"        type="TorsoTeleopJoy" running="true" />-->
 
-    <component name="C_dq_head" type="VectorConcate1_1_0_0" running="true" latex="\text{Conc}_{\dot{q},head}" />
+    <component name="C_dq_head" type="VectorConcate1_1_0_0" latex="\text{Conc}_{\dot{q},head}" />
 
     <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{IMP}_{cart}" >
         <service>robot</service>
@@ -78,16 +78,16 @@
     <component name="wcc_r"           type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
     <component name="wcc_l"           type="DoubleJointConstraint15" latex="\text{WCC}_{l}" />
 
-    <component name="b_stSplit"     running="true" latex="\text{Split}_{b,st}" />
-    <component name="cmdSplit"      running="true" latex="\text{Split}_{task,cmd}" />
-    <component name="stConcate"     running="true" latex="\text{Conc}_{task,st}" />
-    <component name="b_cmdConcate"  running="true" latex="\text{Conc}_{b,cmd}" />
+    <component name="b_stSplit"     latex="\text{Split}_{b,st}" />
+    <component name="cmdSplit"      latex="\text{Split}_{task,cmd}" />
+    <component name="stConcate"     latex="\text{Conc}_{task,st}" />
+    <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
 
-    <component name="b_stRx"     running="true" latex="\text{x}_{b,st}" />
-    <component name="cmdRx"      running="true" latex="\text{x}_{task,cmd}" />
-    <component name="stTx"     running="true" latex="\text{y}_{task,st}" />
-    <component name="b_cmdTx"  running="true" latex="\text{y}_{b,cmd}" />
-    <component name="master_component"  running="true" latex="\text{MC}" />
+    <component name="b_stRx"        latex="\text{x}_{b,st}" />
+    <component name="cmdRx"         latex="\text{x}_{task,cmd}" />
+    <component name="stTx"          latex="\text{y}_{task,st}" />
+    <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />
+    <component name="master_component"      latex="\text{MC}" />
 
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 

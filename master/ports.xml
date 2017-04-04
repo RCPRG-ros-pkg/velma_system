@@ -42,6 +42,14 @@
             <running_component name="VL_hp" />
             <running_component name="VL_ht" />
             <running_component name="S_q_head" />
+            <running_component name="C_q_head" />
+            <running_component name="C_dq_head" />
+            <running_component name="b_stSplit" />
+            <running_component name="cmdSplit" />
+            <running_component name="stConcate" />
+            <running_component name="b_cmdConcate" />
+            <running_component name="b_stRx" />
+            <running_component name="cmdRx" />
             <scope name="right_hand" />
             <scope name="left_hand" />
             <scope name="neck" />
@@ -53,6 +61,10 @@
             err_cond="FALSE" >
             <running_component name="idle" />
             <running_component name="S_t_body" />
+            <running_component name="b_stSplit" />
+            <running_component name="stConcate" />
+            <running_component name="b_cmdConcate" />
+            <running_component name="b_stRx" />
             <scope name="upper_body" />
             <scope name="right_hand" />
             <scope name="left_hand" />
@@ -68,6 +80,15 @@
 <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
+            <running_component name="C_q_body" />
+            <running_component name="C_dq_body" />
+            <running_component name="C_q_all" />
+            <running_component name="C_dq_all" />
+            <running_component name="ZeroVec8" />
+            <running_component name="b_stSplit" />
+            <running_component name="stConcate" />
+            <running_component name="b_cmdConcate" />
+            <running_component name="b_stRx" />
             <scope name="upper_body" />
         </behavior>
 
@@ -90,6 +111,17 @@
             <running_component name="wcc_l" />
             <running_component name="S_t_body" />
             <running_component name="ColDet" />
+            <running_component name="C_q_body" />
+            <running_component name="C_dq_body" />
+            <running_component name="C_q_all" />
+            <running_component name="C_dq_all" />
+            <running_component name="ZeroVec8" />
+            <running_component name="b_stSplit" />
+            <running_component name="cmdSplit" />
+            <running_component name="stConcate" />
+            <running_component name="b_cmdConcate" />
+            <running_component name="b_stRx" />
+            <running_component name="cmdRx" />
             <scope name="upper_body" />
         </behavior>
 
@@ -104,6 +136,17 @@
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
             <running_component name="ColDet" />
+            <running_component name="C_q_body" />
+            <running_component name="C_dq_body" />
+            <running_component name="C_q_all" />
+            <running_component name="C_dq_all" />
+            <running_component name="ZeroVec8" />
+            <running_component name="b_stSplit" />
+            <running_component name="cmdSplit" />
+            <running_component name="stConcate" />
+            <running_component name="b_cmdConcate" />
+            <running_component name="b_stRx" />
+            <running_component name="cmdRx" />
             <scope name="upper_body" />
         </behavior>
 <!--
