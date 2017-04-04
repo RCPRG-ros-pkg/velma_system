@@ -34,7 +34,7 @@
         collision_model_full:=false
         collision_model_simplified:=true
 -->
-<!--  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />-->
+  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
   <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
 
