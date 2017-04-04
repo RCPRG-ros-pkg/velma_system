@@ -44,11 +44,28 @@ static RTT::OperationCaller<bool(double, double)> getOperationWristInCollision(c
     return inCollision;
 }
 
+static RTT::OperationCaller<bool()> getOperationInCollision(const std::vector<RTT::TaskContext*> &components) {
+    static const std::string component_name("ColDet");
+    RTT::OperationCaller<bool()> inCollision;
+    for (int i = 0; i < components.size(); ++i) {
+        if (components[i]->getName() == component_name) {
+            inCollision = components[i]->getOperation("inCollision");
+            break;
+        }
+    }
+
+    if (!inCollision.ready()) {
+        RTT::Logger::log() << RTT::Logger::Error << "could not get operation \'inCollision\' for component \'" << component_name << "\'" << RTT::Logger::endl;
+    }
+    return inCollision;
+}
+
 bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
     static const std::string wcc_r_name("wcc_r");
     static const std::string wcc_l_name("wcc_l");
     static RTT::OperationCaller<bool(double, double)> inCollisionWristRight = getOperationWristInCollision(wcc_r_name, components);
     static RTT::OperationCaller<bool(double, double)> inCollisionWristLeft = getOperationWristInCollision(wcc_l_name, components);
+    static RTT::OperationCaller<bool()> inCollision = getOperationInCollision(components);
 
 // TODO: add collision detection for left wrist
 // TODO: add collision detection for whole body
@@ -57,7 +74,7 @@ bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<RTT::T
 //    }
 //    return false;
 
-    return inCollisionWristRight(in_data->b_st.rArm.q[5], in_data->b_st.rArm.q[6]) || inCollisionWristLeft(in_data->b_st.lArm.q[5], in_data->b_st.lArm.q[6]);
+    return inCollisionWristRight(in_data->b_st.rArm.q[5], in_data->b_st.rArm.q[6]) || inCollisionWristLeft(in_data->b_st.lArm.q[5], in_data->b_st.lArm.q[6]) || inCollision();
 }
 
 bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {

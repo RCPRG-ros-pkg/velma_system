@@ -89,6 +89,7 @@
             <running_component name="wcc_r" />
             <running_component name="wcc_l" />
             <running_component name="S_t_body" />
+            <running_component name="ColDet" />
             <scope name="upper_body" />
         </behavior>
 
@@ -102,6 +103,7 @@
 <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
+            <running_component name="ColDet" />
             <scope name="upper_body" />
         </behavior>
 <!--
