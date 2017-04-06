@@ -1,26 +1,17 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom" >
-            <tgr min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" />
-        </in>
+        <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom" />
         <out alias="b_cmd"  type="velma_core_cs_ve_body_msgs::Command"    side="bottom"/>
 
         <in alias="cmd"     type="velma_core_cs_task_cs_msgs::Command"    side="top"/>
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"/>
     </buffers>
 
-    <trigger>
-        <buffer min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" >
-            <on_buffer name="b_st" />
-        </buffer>
-    </trigger>
-
-    <errors>
-        <err name="COMPONENT" />
-        <err name="VE_BODY_SAFE" />
-        <err name="VE_BODY_ST_INV" />
-    </errors>
+    <trigger_methods>
+        <new_data_on_buffer name="b_st" min="0.0008" />
+        <no_data_on_buffer name="b_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+    </trigger_methods>
 
     <predicates>
         <predicate name="veBodyInSafeState" />
@@ -56,6 +47,7 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
+            <running_component name="Y" />
             <scope name="right_hand" />
             <scope name="left_hand" />
             <scope name="neck" />
@@ -71,6 +63,7 @@
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
+            <running_component name="Y" />
             <scope name="upper_body" />
             <scope name="right_hand" />
             <scope name="left_hand" />
@@ -95,6 +88,7 @@
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
+            <running_component name="Y" />
             <scope name="upper_body" />
         </behavior>
 
@@ -128,6 +122,7 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
+            <running_component name="Y" />
             <scope name="upper_body" />
         </behavior>
 
@@ -153,6 +148,7 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
+            <running_component name="Y" />
             <scope name="upper_body" />
         </behavior>
 <!--

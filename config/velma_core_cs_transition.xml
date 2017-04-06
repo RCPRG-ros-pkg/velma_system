@@ -90,7 +90,6 @@
     <component name="master_component"      latex="\text{MC}" />
 -->
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
-
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
@@ -103,7 +102,6 @@
     <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" name="M" latex="M" />
-    <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
 
     <connection from="wcc_r.JointTorqueCommand_OUTPORT" to="wcc_l.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
     <connection from="C_q_body.Out" to="wcc_l.JointPosition_INPORT" name="q_body" latex="q_{b}" />
