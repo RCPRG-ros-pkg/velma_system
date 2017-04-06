@@ -12,21 +12,19 @@
     <predicates>
     </predicates>
 
-    <output_scopes>
-        <scope name="all" />
-    </output_scopes>
-
     <behaviors>
-        <behavior name="normal" is_initial="true"
-            init_cond="FALSE"
+        <behavior name="normal"
             stop_cond="FALSE"
             err_cond="FALSE" >
             <running_component name="Y" />
-            <scope name="all" />
         </behavior>
     </behaviors>
 
-<!--    <activity period="0.01" />-->
+    <states>
+        <state name="normal" is_initial="true">
+            <behavior name="normal" />
+        </state>
+    </states>
 
     <simulation use_ros_sim_clock="true" use_sim_clock="true" />
 
