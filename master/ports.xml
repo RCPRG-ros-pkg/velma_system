@@ -22,22 +22,15 @@
         <predicate name="cmdExitSafeState" />
     </predicates>
 
-    <output_scopes>
-        <scope name="all" />
-    </output_scopes>
-
     <behaviors>
-        <behavior name="safe" is_initial="true"
-            init_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"
+        <behavior name="safe"
             stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"
             err_cond="FALSE" >
             <running_component name="safe" />
             <running_component name="Y" />
-            <scope name="all" />
         </behavior>
 
         <behavior name="transparent" 
-            init_cond="safeIterationsPassed500 and rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"
             stop_cond="FALSE"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)" >
             <running_component name="bypass" />
@@ -45,21 +38,23 @@
             <running_component name="HeadPanTransmisionInv" />
             <running_component name="HeadTiltTransmisionInv" />
             <running_component name="Y" />
-            <scope name="all" />
         </behavior>
 
     </behaviors>
 
-<!--    <activity period="0.001" />-->
+    <states>
+        <state name="safe" is_initial="true">
+            <behavior name="safe" />
+            <next_state name="transparent" init_cond="TRUE"/>
+        </state>
+        <state name="transparent">
+            <behavior name="transparent" />
+            <next_state name="safe" init_cond="TRUE"/>
+        </state>
+    </states>
 
     <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
 
     <no_input_wait cycles="1000" />
-
-    <latched_connections>
-        <components first="LWRrSim" second="safe" />
-        <components first="LWRlSim" second="safe" />
-        <components first="TorsoSim" second="safe" />
-    </latched_connections>
 
 </subsystem_definition>
