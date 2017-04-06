@@ -1,8 +1,8 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="st"      type="velma_core_cs_task_cs_msgs::Status"     side="bottom"   ipc="true" />
-        <out alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="bottom"   ipc="true" />
+        <in alias="st"      type="velma_core_cs_task_cs_msgs::Status"     side="bottom"/>
+        <out alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="bottom"/>
     </buffers>
 
     <trigger>
