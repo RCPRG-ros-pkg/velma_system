@@ -83,12 +83,12 @@
     <component name="stConcate"     latex="\text{Conc}_{task,st}" />
     <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
 
-    <component name="b_stRx"        latex="\text{x}_{b,st}" />
+<!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
     <component name="cmdRx"         latex="\text{x}_{task,cmd}" />
     <component name="stTx"          latex="\text{y}_{task,st}" />
     <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />
     <component name="master_component"      latex="\text{MC}" />
-
+-->
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
 
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />

@@ -1,14 +1,20 @@
 <subsystem_definition>
 
-    <ports>
+    <buffers>
         <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom"   ipc="true" >
-            <trigger min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" />
+            <tgr min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" />
         </in>
         <out alias="b_cmd"  type="velma_core_cs_ve_body_msgs::Command"    side="bottom"   ipc="true"/>
 
         <in alias="cmd"     type="velma_core_cs_task_cs_msgs::Command"    side="top"      ipc="true" />
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"      ipc="true"/>
-    </ports>
+    </buffers>
+
+    <trigger>
+        <buffer min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" >
+            <on_buffer name="b_st" />
+        </buffer>
+    </trigger>
 
     <errors>
         <err name="COMPONENT" />

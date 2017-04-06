@@ -66,12 +66,6 @@ private:
     typedef Eigen::Matrix<double, NUMBER_OF_JOINTS, 1>  VectorNd;
 
     // OROCOS ports
-//    velma_core_cs_ve_body_msgs::Command cmd_out_;
-//    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
-
-//    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
-//    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
-
     RTT::OutputPort<uint32_t > port_status_subsystem_state_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;

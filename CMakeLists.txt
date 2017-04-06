@@ -5,6 +5,7 @@ project(velma_core_cs)
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
+  rtt_rosclock
   rtt_subsystem_ports
   velma_core_cs_task_cs_msgs
   velma_core_cs_ve_body_msgs
