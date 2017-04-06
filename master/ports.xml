@@ -1,44 +1,14 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top" >
-            <tgr min="0.0008" avg="0.001" max="0.002" sim_max="1.0" />
-        </in>
+        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top" />
         <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"/>
     </buffers>
 
-    <trigger>
-        <buffer min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" >
-            <on_buffer name="hi_cmd" />
-        </buffer>
-    </trigger>
-
-    <errors>
-        <err name="R_LWR" />
-        <err name="L_LWR" />
-        <err name="R_LWR_CMD" />
-        <err name="L_LWR_CMD" />
-        <err name="STATUS" />
-        <err name="STATUS_R_LWR_INVALID" />
-        <err name="STATUS_L_LWR_INVALID" />
-        <err name="STATUS_R_FT_INVALID" />
-        <err name="STATUS_L_FT_INVALID" />
-        <err name="STATUS_T_MOTOR_INVALID" />
-        <err name="STATUS_HP_MOTOR_INVALID" />
-        <err name="STATUS_HT_MOTOR_INVALID" />
-        <err name="LWR_NAN_LIM" />
-        <err name="COMMAND" />
-        <err name="CMD_T_MOTOR_INVALID" />
-        <err name="CMD_HP_MOTOR_INVALID" />
-        <err name="CMD_HT_MOTOR_INVALID" />
-        <err name="CMD_L_ARM_INVALID" />
-        <err name="CMD_R_ARM_INVALID" />
-        <err name="CMD_R_ARM_NAN" />
-        <err name="CMD_L_ARM_NAN" />
-        <err name="CMD_R_ARM_LIM" />
-        <err name="CMD_L_ARM_LIM" />
-        <err name="CMD_T_MOTOR_T_NAN" />
-    </errors>
+    <trigger_methods>
+        <new_data_on_buffer name="hi_cmd" min="0.0008" />
+        <no_data_on_buffer name="hi_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+    </trigger_methods>
 
     <predicates>
         <predicate name="safeIterationsPassed500" />
@@ -62,6 +32,7 @@
             stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"
             err_cond="FALSE" >
             <running_component name="safe" />
+            <running_component name="Y" />
             <scope name="all" />
         </behavior>
 
@@ -73,6 +44,7 @@
             <running_component name="TorsoPanTransmisionInv" />
             <running_component name="HeadPanTransmisionInv" />
             <running_component name="HeadTiltTransmisionInv" />
+            <running_component name="Y" />
             <scope name="all" />
         </behavior>
 
