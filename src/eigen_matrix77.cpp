@@ -50,6 +50,6 @@ void convert(   const boost::array<double, 28 >& data_ros,
     }
 }
 
-REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, StatusArm, mmx, (boost::array<double, 28 >), (Eigen::Matrix<double, 7, 7 >),
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, mmx, (boost::array<double, 28 >), (Eigen::Matrix<double, 7, 7 >),
 { ::convert(ros, oro); }, { ::convert(oro, ros); } )
 

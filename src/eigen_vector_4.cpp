@@ -30,12 +30,12 @@
 #include "common_interfaces/data_conversion.h"
 #include "rtt/Component.hpp"
 
-REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, CommandHand, q, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, q, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
 { ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 
-REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, CommandHand, dq, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, dq, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
 { ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 
-REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, CommandHand, max_i, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, max_i, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
 { ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 

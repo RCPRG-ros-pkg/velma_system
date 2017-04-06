@@ -10,7 +10,6 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   common_interfaces
   common_behavior
-  velma_core_ve_body_re_body_msgs
   kuka_lwr_fri
 )
 
@@ -35,7 +34,7 @@ orocos_component(velma_data_conversions
   src/eigen_vector_15.cpp
   src/eigen_vector_33.cpp
   src/eigen_matrix77.cpp
-  src/fri.cpp
+#  src/fri.cpp
   src/velma_data_conversions.cpp
 )
 target_link_libraries(velma_data_conversions ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})
