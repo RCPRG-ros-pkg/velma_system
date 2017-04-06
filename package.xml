@@ -15,13 +15,11 @@
   <build_depend>rtt_ros</build_depend>
   <build_depend>rtt_rosclock</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
-  <build_depend>velma_core_ve_body_re_body_msgs</build_depend>
   <build_depend>common_interfaces</build_depend>
   <build_depend>common_behavior</build_depend>
   <build_depend>kuka_lwr_fri</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>rtt_velma_core_cs_ve_body_subsystem_ports</build_depend>
-  <build_depend>rtt_velma_core_ve_body_re_body_subsystem_ports</build_depend>
   <build_depend>rtt_subsystem_ports</build_depend>
   <build_depend>controller_common</build_depend>
 
@@ -29,9 +27,7 @@
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
-  <run_depend>velma_core_ve_body_re_body_msgs</run_depend>
   <run_depend>rtt_velma_core_cs_ve_body_subsystem_ports</run_depend>
-  <run_depend>rtt_velma_core_ve_body_re_body_subsystem_ports</run_depend>
   <run_depend>subsystem_deployer</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
@@ -44,7 +40,6 @@
       <plugin_depend>rtt_std_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
       <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_velma_core_ve_body_re_body_subsystem_ports</plugin_depend>
     </rtt_ros>
   </export>
 </package>

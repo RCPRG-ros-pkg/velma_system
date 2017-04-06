@@ -31,10 +31,9 @@
 #include "rtt/RTT.hpp"
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
+#include <Eigen/Dense>
 
-#include "velma_core_cs_ve_body_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/StatusSC.h"
-#include "velma_core_ve_body_re_body_msgs/Command.h"
 
 using namespace RTT;
 
@@ -55,73 +54,96 @@ public:
     std::string getDiag();
 
 private:
+    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
+    typedef Eigen::Matrix<double, 4, 1 > HandDofs;
 
-
-//    RTT::InputPort<uint32_t > port_cmd_test_in_;
     RTT::InputPort<double > port_cmd_tMotor_i_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::CommandArm > port_cmd_lArm_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::CommandArm > port_cmd_rArm_in_;
-//    RTT::InputPort<int32_t > port_cmd_sc_in_;
+    RTT::InputPort<ArmJoints > port_cmd_lArm_t_in_;
+    RTT::InputPort<ArmJoints > port_cmd_rArm_t_in_;
     RTT::InputPort<int32_t > port_cmd_tact_in_;
     RTT::InputPort<double > port_cmd_hpMotor_q_in_;
     RTT::InputPort<double > port_cmd_htMotor_q_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::CommandHand > port_cmd_lHand_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::CommandHand > port_cmd_rHand_in_;
 
-//    velma_core_cs_ve_body_msgs::Command cmd_in_;
-//    RTT::InputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_in_;
+    RTT::InputPort<HandDofs > port_cmd_rHand_q_in_;
+    RTT::InputPort<HandDofs > port_cmd_lHand_q_in_;
+    RTT::InputPort<HandDofs > port_cmd_rHand_dq_in_;
+    RTT::InputPort<HandDofs > port_cmd_lHand_dq_in_;
 
-    velma_core_ve_body_re_body_msgs::Command cmd_out_;
-    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+    RTT::InputPort<double > port_cmd_rHand_max_p_in_;
+    RTT::InputPort<double > port_cmd_lHand_max_p_in_;
+
+    RTT::InputPort<HandDofs > port_cmd_rHand_max_i_in_;
+    RTT::InputPort<HandDofs > port_cmd_lHand_max_i_in_;
+
+    RTT::InputPort<int32_t > port_cmd_rHand_hold_in_;
+    RTT::InputPort<int32_t > port_cmd_lHand_hold_in_;
 
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
-
-    int diag_;
+    std::vector<RTT::base::DataSourceBase::shared_ptr > ds_;
+    std::vector<RTT::base::InputPortInterface* > ipi_;
+    std::vector<RTT::base::OutputPortInterface* > opi_;
 };
 
 BypassComponent::BypassComponent(const std::string &name)
     : TaskContext(name, PreOperational)
-//    , port_cmd_in_("command_INPORT")
-//    , port_cmd_test_in_("cmd_test_INPORT")
-    , port_cmd_tMotor_i_in_("cmd_tMotor_INPORT")
-    , port_cmd_lArm_in_("cmd_lArm_INPORT")
-    , port_cmd_rArm_in_("cmd_rArm_INPORT")
-//    , port_cmd_sc_in_("cmd_sc_INPORT")
-    , port_cmd_tact_in_("cmd_tact_INPORT")
-    , port_cmd_hpMotor_q_in_("cmd_hpMotor_q_INPORT")
-    , port_cmd_htMotor_q_in_("cmd_htMotor_q_INPORT")
-    , port_cmd_lHand_in_("cmd_lHand_INPORT")
-    , port_cmd_rHand_in_("cmd_rHand_INPORT")
-    , port_cmd_out_("command_OUTPORT")
+    , port_cmd_tMotor_i_in_("tMotor_i_INPORT")
+    , port_cmd_rArm_t_in_("rArm_t_INPORT")
+    , port_cmd_lArm_t_in_("lArm_t_INPORT")
+    , port_cmd_tact_in_("tact_INPORT")
+    , port_cmd_hpMotor_q_in_("hpMotor_q_INPORT")
+    , port_cmd_htMotor_q_in_("htMotor_q_INPORT")
+    , port_cmd_rHand_q_in_("rHand_q_INPORT")
+    , port_cmd_lHand_q_in_("lHand_q_INPORT")
+    , port_cmd_rHand_dq_in_("rHand_dq_INPORT")
+    , port_cmd_lHand_dq_in_("lHand_dq_INPORT")
+    , port_cmd_rHand_max_p_in_("rHand_max_p_INPORT")
+    , port_cmd_lHand_max_p_in_("lHand_max_p_INPORT")
+    , port_cmd_rHand_max_i_in_("rHand_max_i_INPORT")
+    , port_cmd_lHand_max_i_in_("lHand_max_i_INPORT")
+    , port_cmd_rHand_hold_in_("rHand_hold_INPORT")
+    , port_cmd_lHand_hold_in_("lHand_hold_INPORT")
 {
-
-//    this->ports()->addPort(port_cmd_test_in_);
     this->ports()->addPort(port_cmd_tMotor_i_in_);
-    this->ports()->addPort(port_cmd_lArm_in_);
-    this->ports()->addPort(port_cmd_rArm_in_);
-//    this->ports()->addPort(port_cmd_sc_in_);
+    this->ports()->addPort(port_cmd_rArm_t_in_);
+    this->ports()->addPort(port_cmd_lArm_t_in_);
     this->ports()->addPort(port_cmd_tact_in_);
     this->ports()->addPort(port_cmd_hpMotor_q_in_);
     this->ports()->addPort(port_cmd_htMotor_q_in_);
-    this->ports()->addPort(port_cmd_lHand_in_);
-    this->ports()->addPort(port_cmd_rHand_in_);
+    this->ports()->addPort(port_cmd_rHand_q_in_);
+    this->ports()->addPort(port_cmd_lHand_q_in_);
+    this->ports()->addPort(port_cmd_rHand_dq_in_);
+    this->ports()->addPort(port_cmd_lHand_dq_in_);
+    this->ports()->addPort(port_cmd_rHand_max_p_in_);
+    this->ports()->addPort(port_cmd_lHand_max_p_in_);
+    this->ports()->addPort(port_cmd_rHand_max_i_in_);
+    this->ports()->addPort(port_cmd_lHand_max_i_in_);
+    this->ports()->addPort(port_cmd_rHand_hold_in_);
+    this->ports()->addPort(port_cmd_lHand_hold_in_);
 
-//    this->ports()->addPort(port_cmd_in_);
-    this->ports()->addPort(port_cmd_out_);
+    RTT::DataFlowInterface::Ports ports = this->ports()->getPorts();
+    for (int i = 0; i < ports.size(); ++i) {
+        RTT::base::InputPortInterface* ipi = dynamic_cast<RTT::base::InputPortInterface* >(ports[i]);
+        if (ipi) {
+            RTT::base::OutputPortInterface* opi( dynamic_cast<RTT::base::OutputPortInterface* >(ipi->antiClone()) );
+            std::string name = opi->getName();
+            name = name.substr(0, name.length()-6) + "OUTPORT";
+            opi->setName(name);
+            this->ports()->addPort(*opi);
+            ipi_.push_back(ipi);
+            opi_.push_back(opi);
+            ds_.push_back(RTT::base::DataSourceBase::shared_ptr(ipi->getDataSource()));
+        }
+    }
+
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
-    this->addOperation("getDiag", &BypassComponent::getDiag, this, RTT::ClientThread);
+//    this->addOperation("getDiag", &BypassComponent::getDiag, this, RTT::ClientThread);
 }
 
 std::string BypassComponent::getDiag() {
 // this method may not be RT-safe
-    int diag = diag_;
-
-    if (diag == 1) {
-        return "could not read commands";
-    }
     return "";
 }
 
@@ -137,123 +159,11 @@ void BypassComponent::stopHook() {
 }
 
 void BypassComponent::updateHook() {
-
-//    uint32_t test_in;
-    double tMotor_i_in;
-    velma_core_ve_body_re_body_msgs::CommandArm lArm_in;
-    velma_core_ve_body_re_body_msgs::CommandArm rArm_in;
-//    int32_t sc_in;
-    int32_t tact_in;
-    double hpMotor_q_in_;
-    double htMotor_q_in_;
-    velma_core_ve_body_re_body_msgs::CommandHand lHand_in;
-    velma_core_ve_body_re_body_msgs::CommandHand rHand_in;
-
-//    if (port_cmd_test_in_.read(test_in) != RTT::NewData) {
-//        Logger::In in("BypassComponent::updateHook");
-//        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_test_in_.getName() << Logger::endl;
-//        error();
-//        return;
-//    }
-
-    if (port_cmd_tMotor_i_in_.read(tMotor_i_in) != RTT::NewData) {
-        Logger::In in("BypassComponent::updateHook");
-        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_tMotor_i_in_.getName() << Logger::endl;
-        error();
-        return;
+    for (int i = 0; i < ipi_.size(); ++i) {
+        if (ipi_[i]->read(ds_[i]) == RTT::NewData) {
+            opi_[i]->write(ds_[i]);
+        }
     }
-
-    if (port_cmd_lArm_in_.read(lArm_in) != RTT::NewData) {
-        Logger::In in("BypassComponent::updateHook");
-        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_lArm_in_.getName() << Logger::endl;
-        error();
-        return;
-    }
-
-    if (port_cmd_rArm_in_.read(rArm_in) != RTT::NewData) {
-        Logger::In in("BypassComponent::updateHook");
-        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_rArm_in_.getName() << Logger::endl;
-        error();
-        return;
-    }
-
-    if (port_cmd_hpMotor_q_in_.read(hpMotor_q_in_) != RTT::NewData) {
-        Logger::In in("BypassComponent::updateHook");
-        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_hpMotor_q_in_.getName() << Logger::endl;
-        error();
-        return;
-    }
-
-    if (port_cmd_htMotor_q_in_.read(htMotor_q_in_) != RTT::NewData) {
-        Logger::In in("BypassComponent::updateHook");
-        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_htMotor_q_in_.getName() << Logger::endl;
-        error();
-        return;
-    }
-
-
-//    if (port_cmd_sc_in_ != RTT::NewData) {
-//        Logger::In in("BypassComponent::updateHook");
-//        Logger::log() << Logger::Error << "could not read data on port " << port_cmd_sc_in_.getName() << Logger::endl;
-//        error();
-//        return;
-//    }
-
-    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
-
-    if (port_cmd_tact_in_.read(tact_in) != RTT::NewData) {
-        cmd_out_.tact_valid = false;
-    }
-    else {
-        cmd_out_.tact = tact_in;
-        cmd_out_.tact_valid = true;
-    }
-
-    if (port_cmd_lHand_in_.read(lHand_in) != RTT::NewData) {
-        cmd_out_.lHand_valid = false;
-    }
-    else {
-        cmd_out_.lHand = lHand_in;
-        cmd_out_.lHand_valid = true;
-    }
-
-    if (port_cmd_rHand_in_.read(rHand_in) != RTT::NewData) {
-        cmd_out_.rHand_valid = false;
-    }
-    else {
-        cmd_out_.rHand = rHand_in;
-        cmd_out_.rHand_valid = true;
-    }
-
-//    if (port_cmd_in_.read(cmd_in_) != RTT::NewData) {
-//        Logger::In in("BypassComponent::updateHook");
-//        Logger::log() << Logger::Error << "could not read data on port "
-//            << port_cmd_in_.getName() << Logger::endl;
-//        error();
-//        diag_ = 1;
-//        return;
-//    }
-
-    diag_ = 0;
-
-    cmd_out_.tMotor_i = tMotor_i_in;
-    cmd_out_.tMotor_i_valid = true;
-
-    cmd_out_.hpMotor_valid = true;
-    cmd_out_.hpMotor.q_valid = true;
-    cmd_out_.hpMotor.q = hpMotor_q_in_;
-
-    cmd_out_.htMotor_valid = true;
-    cmd_out_.htMotor.q_valid = true;
-    cmd_out_.htMotor.q = htMotor_q_in_;
-
-    cmd_out_.lArm = lArm_in;
-    cmd_out_.lArm_valid = true;
-
-    cmd_out_.rArm = rArm_in;
-    cmd_out_.rArm_valid = true;
-
-    port_cmd_out_.write(cmd_out_);
 
     // no error
     sc_out_.safe_behavior = false;
@@ -262,13 +172,6 @@ void BypassComponent::updateHook() {
     sc_out_.faulty_module_id = 0;
 
     port_sc_out_.write(sc_out_);
-
-// TODO:
-//CommandMotor hpMotor    # subsystem_buffer{type: container; validity: hpMotor_valid}
-//bool hpMotor_valid
-//CommandMotor htMotor    # subsystem_buffer{type: container; validity: htMotor_valid}
-//bool htMotor_valid
-
 }
 
 }   //namespace velma_core_ve_body_types

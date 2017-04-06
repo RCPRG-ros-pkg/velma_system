@@ -7,7 +7,6 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   rtt_subsystem_ports
   velma_core_cs_ve_body_msgs
-  velma_core_ve_body_re_body_msgs
   eigen_conversions
   common_interfaces
   common_behavior
@@ -50,6 +49,7 @@ orocos_component(velma_core_ve_body
     src/components/safe.cpp
     src/components/packet_counter.cpp
     src/components/vector_dummy.cpp
+    src/components/hw_state.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

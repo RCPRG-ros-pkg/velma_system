@@ -55,20 +55,39 @@ bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector
     return false;
 }
 
+static RTT::OperationCaller<bool()> getOperation_bool(const std::string& operation_name, const std::vector<RTT::TaskContext*> &components) {
+    RTT::OperationCaller<bool()> oc;
+    for (int i = 0; i < components.size(); ++i) {
+        if (components[i]->getName() == "hw_state") {
+            oc = components[i]->getOperation(operation_name);
+            break;
+        }
+    }
+
+    if (!oc.ready()) {
+        RTT::Logger::log() << RTT::Logger::Error << "could not get operation " << operation_name << RTT::Logger::endl;
+    }
+    return oc;
+}
+
 bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    return isLwrOk(in_data->lo_st.rArmFriRobot, in_data->lo_st.rArmFriIntf);
+    static RTT::OperationCaller<bool()> oc_rLwrOk = getOperation_bool("rLwrOk", components);
+    return oc_rLwrOk();
 }
 
 bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    return isLwrInCmdState(in_data->lo_st.rArmFriIntf);
+    static RTT::OperationCaller<bool()> oc_rLwrCmdState = getOperation_bool("rLwrCmdState", components);
+    return oc_rLwrCmdState();
 }
 
 bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    return isLwrOk(in_data->lo_st.lArmFriRobot, in_data->lo_st.lArmFriIntf);
+    static RTT::OperationCaller<bool()> oc_lLwrOk = getOperation_bool("lLwrOk", components);
+    return oc_lLwrOk();
 }
 
 bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    return isLwrInCmdState(in_data->lo_st.lArmFriIntf);
+    static RTT::OperationCaller<bool()> oc_lLwrCmdState = getOperation_bool("lLwrCmdState", components);
+    return oc_lLwrCmdState();
 }
 
 bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {

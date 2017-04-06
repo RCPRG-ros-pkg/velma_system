@@ -1,14 +1,17 @@
 <subsystem_definition>
 
-    <ports>
-        <in alias="lo_st"       type="velma_core_ve_body_re_body_msgs::Status"     side="bottom"   ipc="false" />
+    <buffers>
         <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true" >
-            <trigger min="0.0008" avg="0.001" max="0.002" sim_max="1.0" />
+            <tgr min="0.0008" avg="0.001" max="0.002" sim_max="1.0" />
         </in>
-
-        <out alias="lo_cmd"     type="velma_core_ve_body_re_body_msgs::Command"    side="bottom"   ipc="false"/>
         <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
-    </ports>
+    </buffers>
+
+    <trigger>
+        <buffer min="0.0008" avg="0.001" max="0.0012" sim_max="1.0" >
+            <on_buffer name="hi_cmd" />
+        </buffer>
+    </trigger>
 
     <errors>
         <err name="R_LWR" />
@@ -82,7 +85,9 @@
     <no_input_wait cycles="1000" />
 
     <latched_connections>
-        <components first="lo_stConcate" second="safe" />
+        <components first="LWRrSim" second="safe" />
+        <components first="LWRlSim" second="safe" />
+        <components first="TorsoSim" second="safe" />
     </latched_connections>
 
 </subsystem_definition>

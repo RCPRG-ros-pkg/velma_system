@@ -29,16 +29,17 @@
 #define VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_ve_body_re_body_msgs/Status.h"
+#include "velma_core_cs_ve_body_msgs/Status.h"
 #include "velma_core_ve_body/master.h"
+#include <kuka_lwr_fri/friComm.h>
 
-bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
-bool isLwrInCmdState(const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
+bool isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf);
+bool isLwrInCmdState(const tFriIntfState& friIntf);
 bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
-bool isCmdArmValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd);
+bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd);
 bool isCmdTorsoValid(double cmd_tMotor_i);
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st);
+bool isStatusValid(const velma_core_cs_ve_body_msgs::Status &st);
 
 #endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 

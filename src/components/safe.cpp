@@ -32,12 +32,7 @@
 #include <rtt/base/PortInterface.hpp>
 #include <kuka_lwr_fri/friComm.h>
 
-#include "velma_core_cs_ve_body_msgs/Command.h"
-
 #include "eigen_conversions/eigen_msg.h"
-
-#include "velma_core_ve_body_re_body_msgs/Command.h"
-#include "velma_core_ve_body_re_body_msgs/Status.h"
 
 #include "velma_core_cs_ve_body_msgs/StatusSC.h"
 
@@ -48,20 +43,11 @@
 #include "../common_predicates.h"
 #include "velma_core_ve_body/master.h"
 
+#include <std_msgs/Int32.h>
 #include <sys/time.h>
 
 using namespace RTT;
-/*
-static const int DIAG_R_ARM_INVALID = 0;
-static const int DIAG_L_ARM_INVALID = 1;
-static const int DIAG_T_MOTOR_INVALID = 2;
-static const int DIAG_HP_MOTOR_INVALID = 3;
-static const int DIAG_HT_MOTOR_INVALID = 4;
-static const int DIAG_R_ARM_MONITOR_MODE = 5;
-static const int DIAG_L_ARM_MONITOR_MODE = 6;
-static const int DIAG_R_ARM_ERROR = 7;
-static const int DIAG_L_ARM_ERROR = 8;
-*/
+
 static int setBit(int bitfield, int bit_num, bool value) {
     if (value) {
         // set
@@ -99,12 +85,12 @@ public:
     uint32_t safeIterationsPassed() const;
 
 private:
-//    bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) const;
+    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
 
     const int arm_joints_count_;
 
-    void calculateArmDampingTorque(const boost::array<double, 7> &joint_velocity,
-        const std::vector<double> &damping_factors, boost::array<double, 7> &joint_torque_command);
+    void calculateArmDampingTorque(const ArmJoints &joint_velocity,
+        const std::vector<double> &damping_factors, ArmJoints &joint_torque_command);
 
     void calculateTorsoDampingTorque(double motor_velocity, double &motor_current_command);
 
@@ -121,32 +107,41 @@ private:
     std::vector<double> arm_dq_limits_;
     std::vector<double> arm_t_limits_;
 
-    // port data
-    velma_core_ve_body_re_body_msgs::Command cmd_out_;
-    RTT::OutputPort<velma_core_ve_body_re_body_msgs::Command > port_cmd_out_;
+    // ports
+    RTT::OutputPort<ArmJoints > port_rArm_t_out_;
+    RTT::OutputPort<ArmJoints > port_lArm_t_out_;
+    RTT::OutputPort<double > port_torso_i_out_;
 
-    velma_core_ve_body_re_body_msgs::Status status_in_;
-    RTT::InputPort<velma_core_ve_body_re_body_msgs::Status > port_status_in_;
+    RTT::OutputPort<double > port_hp_motor_q_out_;
+    RTT::OutputPort<double > port_ht_motor_q_out_;
+
+    RTT::OutputPort<std_msgs::Int32 > port_rArm_fri_cmd_out_;
+    RTT::OutputPort<std_msgs::Int32 > port_lArm_fri_cmd_out_;
+
+    RTT::InputPort<ArmJoints > port_rArm_dq_in_;
+    RTT::InputPort<ArmJoints > port_lArm_dq_in_;
+    RTT::InputPort<double > port_torso_dq_in_;
+    RTT::InputPort<double > port_hp_motor_q_in_;
+    RTT::InputPort<double > port_ht_motor_q_in_;
+
+    RTT::InputPort<tFriIntfState > port_rArm_fri_in_;
+    RTT::InputPort<tFriRobotState > port_rArm_rob_in_;
+    RTT::InputPort<tFriIntfState > port_lArm_fri_in_;
+    RTT::InputPort<tFriRobotState > port_lArm_rob_in_;
 
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
+    ArmJoints rArm_dq_;
+    ArmJoints lArm_dq_;
     tFriIntfState       rArm_fri_state_;
     tFriRobotState      rArm_robot_state_;
     tFriIntfState       lArm_fri_state_;
     tFriRobotState      lArm_robot_state_;
 
-    bool emergency_;
+    bool rArm_valid_prev_;
+    bool lArm_valid_prev_;
 
-    int no_hw_error_counter_;
-
-    bool allHwOk_;
-    bool hwStatusValid_;
-    bool readCmdData_;
-    bool cmdValid_;
-
-
-    uint32_t packet_counter_;
     ros::Time wall_time_prev_;
 
     uint32_t safe_iterations_;
@@ -159,8 +154,24 @@ SafeComponent::SafeComponent(const std::string &name) :
     arm_joints_count_(7),
     torso_damping_factor_(-1)   // initialize with invalid value, should be later set to >= 0
 {
-    this->ports()->addPort("status_INPORT", port_status_in_);
-    this->ports()->addPort("cmd_OUTPORT", port_cmd_out_);
+    this->ports()->addPort("rArm_t_OUTPORT", port_rArm_t_out_);
+    this->ports()->addPort("lArm_t_OUTPORT", port_lArm_t_out_);
+    this->ports()->addPort("tMotor_i_OUTPORT", port_torso_i_out_);
+    this->ports()->addPort("hpMotor_q_OUTPORT", port_hp_motor_q_out_);
+    this->ports()->addPort("htMotor_q_OUTPORT", port_ht_motor_q_out_);
+    this->ports()->addPort("rArmFri_OUTPORT", port_rArm_fri_cmd_out_);
+    this->ports()->addPort("lArmFri_OUTPORT", port_lArm_fri_cmd_out_);
+
+    this->ports()->addPort("rArm_dq_INPORT", port_rArm_dq_in_);
+    this->ports()->addPort("lArm_dq_INPORT", port_lArm_dq_in_);
+    this->ports()->addPort("tMotor_dq_INPORT", port_torso_dq_in_);
+    this->ports()->addPort("hpMotor_q_INPORT", port_hp_motor_q_in_);
+    this->ports()->addPort("htMotor_q_INPORT", port_ht_motor_q_in_);
+    this->ports()->addPort("rArmFriIntf_INPORT", port_rArm_fri_in_);
+    this->ports()->addPort("rArmFriRobot_INPORT", port_rArm_rob_in_);
+    this->ports()->addPort("lArmFriIntf_INPORT", port_lArm_fri_in_);
+    this->ports()->addPort("lArmFriRobot_INPORT", port_lArm_rob_in_);
+
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
 
     addProperty("l_arm_damping_factors", l_arm_damping_factors_);
@@ -251,6 +262,8 @@ bool SafeComponent::configureHook() {
 
 bool SafeComponent::startHook() {
     safe_iterations_ = 0;
+    rArm_valid_prev_ = false;
+    lArm_valid_prev_ = false;
     return true;
 }
 
@@ -258,11 +271,11 @@ void SafeComponent::stopHook() {
     safe_iterations_ = 0;
 }
 
-void SafeComponent::calculateArmDampingTorque(const boost::array<double, 7> &joint_velocity,
-    const std::vector<double> &damping_factors, boost::array<double, 7> &joint_torque_command)
+void SafeComponent::calculateArmDampingTorque(const ArmJoints &joint_velocity,
+    const std::vector<double> &damping_factors, SafeComponent::ArmJoints &joint_torque_command)
 {
     for (int i = 0; i < arm_joints_count_; ++i) {
-        joint_torque_command[i] = -damping_factors[i] * joint_velocity[i];
+        joint_torque_command(i) = -damping_factors[i] * joint_velocity(i);
     }
 }
 
@@ -277,218 +290,81 @@ void SafeComponent::calculateTorsoDampingTorque(double motor_velocity, double &m
 }
 
 void SafeComponent::updateHook() {
-    cmd_out_ = velma_core_ve_body_re_body_msgs::Command();
+    //
+    // read HW state
+    //
+    bool rArm_valid = (port_rArm_dq_in_.read(rArm_dq_) == RTT::NewData);
+
+    bool lArm_valid = (port_lArm_dq_in_.read(lArm_dq_) == RTT::NewData);
+
+    double torso_dq;
+    bool torso_valid = (port_torso_dq_in_.read(torso_dq) == RTT::NewData);
+
+    double hp_q;
+    bool hp_valid = (port_hp_motor_q_in_.read(hp_q) == RTT::NewData);
+
+    double ht_q;
+    bool ht_valid = (port_ht_motor_q_in_.read(ht_q) == RTT::NewData);
+
+    rArm_valid &= (port_rArm_fri_in_.read(rArm_fri_state_) == RTT::NewData);
+    rArm_valid &= (port_rArm_rob_in_.read(rArm_robot_state_) == RTT::NewData);
+    lArm_valid &= (port_lArm_fri_in_.read(lArm_fri_state_) == RTT::NewData);
+    lArm_valid &= (port_lArm_rob_in_.read(lArm_robot_state_) == RTT::NewData);
 
     //
-    // read HW status
+    // write commands to available HW devices
     //
-    bool rArm_valid_prev = status_in_.rArm_valid;
-    bool lArm_valid_prev = status_in_.lArm_valid;
 
-    if (port_status_in_.read(status_in_) != RTT::NewData) {
-        status_in_ = velma_core_ve_body_re_body_msgs::Status();
-//        diag_->setBit(STATUS_bit, true);
-    }
-    else {
-        bool statusOk = isStatusValid(status_in_);//, diag_);
-//        diag_->setBit(STATUS_bit, !statusOk);
-    }
-
-    // as FRI components are not synchronized, their communication status should
-    // be checked in two last cycles
-    bool rArm_valid = rArm_valid_prev || status_in_.rArm_valid;
-    bool lArm_valid = lArm_valid_prev || status_in_.lArm_valid;
-
-//    diag_->setBit(STATUS_R_LWR_INVALID_bit, !rArm_valid);
-//    diag_->setBit(STATUS_L_LWR_INVALID_bit, !lArm_valid);
-
-    // check FRI and LWR state
-    // as FRI components may not be synchronized
-    bool tMotor_valid = status_in_.tMotor_valid;
-    bool hpMotor_valid = status_in_.hpMotor_valid;
-    bool htMotor_valid = status_in_.htMotor_valid;
-
-/*
-// TODO
-    if (port_rArm_fri_state_in_.read(rArm_fri_state_) == RTT::NewData && port_rArm_robot_state_in_.read(rArm_robot_state_) == RTT::NewData) {
-        if ( !isLwrOk(rArm_fri_state_, rArm_robot_state_) ) {
-            rArm_valid = false;
-        }
-    }
-    if (port_lArm_fri_state_in_.read(lArm_fri_state_) == RTT::NewData && port_lArm_robot_state_in_.read(lArm_robot_state_) == RTT::NewData) {
-        if ( !isLwrOk(lArm_fri_state_, lArm_robot_state_) ) {
-            lArm_valid = false;
-        }
-    }
-
-    if ( !isStatusValid(status_in_.rArm, id_faulty_submodule) ) {
-        rArm_valid = false;
-    }
-    if ( !isStatusValid(status_in_.lArm, id_faulty_submodule) ) {
-        lArm_valid = false;
-    }
-
-    if ( !status_ports_in_.isValid("rHand")) {
-        rHand_valid = false;
-    }
-
-    if ( !isStatusValid(status_in_.rHand, id_faulty_submodule) ) {
-        rHand_valid = false;
-    }
-
-    if ( !status_ports_in_.isValid("lHand")) {
-        lHand_valid = false;
-    }
-
-    if ( !isStatusValid(status_in_.lHand, id_faulty_submodule) ) {
-        lHand_valid = false;
-    }
-
-    if ( !status_ports_in_.isValid("tMotor")) {
-        tMotor_valid = false;
-    }
-
-    if ( !isStatusValid(status_in_.tMotor, id_faulty_submodule) ) {
-        tMotor_valid = false;
-    }
-
-    if ( !status_ports_in_.isValid("hpMotor")) {
-        hpMotor_valid = false;
-    }
-
-    if ( !isStatusValid(status_in_.hpMotor, id_faulty_submodule) ) {
-        hpMotor_valid = false;
-    }
-
-    if ( !status_ports_in_.isValid("htMotor")) {
-        htMotor_valid = false;
-    }
-
-    if ( !isStatusValid(status_in_.htMotor, id_faulty_submodule) ) {
-        htMotor_valid = false;
-    }
-*/
-    allHwOk_ =  rArm_valid      && lArm_valid &&
-                tMotor_valid    && hpMotor_valid &&
-                htMotor_valid;
-/*
-    //
-    // read commands
-    //
-    readCmdData_ = (port_command_in_.read(cmd_in_) == NewData);
-    cmdValid_ = false;
-    if (!readCmdData_) {
-        setFault(status_sc_out_, StatusSC::FAULT_COMM_UP, 0, 0);
-    }
-    else if (!isCommandValid(cmd_in_, id_faulty_module, id_faulty_submodule)) {
-        setFault(status_sc_out_, StatusSC::FAULT_NAN_COMMAND, id_faulty_module, id_faulty_submodule);
-    }
-    else if (StatusSC::STATE_HW_DOWN != state_ && cmd_in_.test != packet_counter_) {
-        setFault(status_sc_out_, StatusSC::FAULT_COMM_PACKET_LOST, 0, 0);
-    }
-    else {
-        cmdValid_ = true;
-    }
-*/
-
-    //
-    // write HW commands to available devices
-    //
-/*
-            cmd_out_.rArmFri.data
-            cmd_out_.lArmFri.data
-        cmd_out_.rArm.t
-        cmd_out_.lArm.t
-        cmd_out_.tMotor.i
-
-        status_in_.rArm.dq
-        status_in_.lArm.dq
-        status_in_.tMotor.dq
-        status_in_.hpMotor.q
-        status_in_.htMotor.q
-        status_in_.rArmFriRobot
-        status_in_.rArmFriIntf.state
-
-        status_in_.lArmFriRobot
-        status_in_.lArmFriIntf.state
-*/
     // generate safe outputs for all operational devices
-    if (rArm_valid) {
-        calculateArmDampingTorque(status_in_.rArm.dq, r_arm_damping_factors_, cmd_out_.rArm.t);
+    if (rArm_valid || rArm_valid_prev_) {
+        ArmJoints t;
+        calculateArmDampingTorque(rArm_dq_, r_arm_damping_factors_, t);
+        port_rArm_t_out_.write(t);
     }
-    cmd_out_.rArm_valid = rArm_valid;
 
-    if (lArm_valid) {
-        calculateArmDampingTorque(status_in_.lArm.dq, l_arm_damping_factors_, cmd_out_.lArm.t);
+    if (lArm_valid || lArm_valid_prev_) {
+        ArmJoints t;
+        calculateArmDampingTorque(lArm_dq_, l_arm_damping_factors_, t);
+        port_lArm_t_out_.write(t);
     }
-    cmd_out_.lArm_valid = lArm_valid;
 
-    if (tMotor_valid) {
-        calculateTorsoDampingTorque(status_in_.tMotor.dq, cmd_out_.tMotor_i);
+    if (torso_valid) {
+        double tMotor_i;
+        calculateTorsoDampingTorque(torso_dq, tMotor_i);
+        port_torso_i_out_.write(tMotor_i);
     }
-    cmd_out_.tMotor_i_valid = tMotor_valid;
 
-    if (hpMotor_valid) {
-        cmd_out_.hpMotor.q = status_in_.hpMotor.q;
-        cmd_out_.hpMotor.dq = 0;
+    if (hp_valid) {
+        port_hp_motor_q_out_.write(hp_q);
     }
-    cmd_out_.hpMotor_valid = hpMotor_valid;
 
-    if (htMotor_valid) {
-        cmd_out_.htMotor.q = status_in_.htMotor.q;
-        cmd_out_.htMotor.dq = 0;
+    if (ht_valid) {
+        port_ht_motor_q_out_.write(ht_q);
     }
-    cmd_out_.htMotor_valid = htMotor_valid;
 
     // KUKA LWR fri commands
-    cmd_out_.rArmFri_valid = false;
     if (rArm_valid) {
-        bool lwrOk = isLwrOk(status_in_.rArmFriRobot, status_in_.rArmFriIntf);
+        bool lwrOk = isLwrOk(rArm_robot_state_, rArm_fri_state_);
 
         // try to switch LWR mode
-        if (lwrOk && status_in_.rArmFriIntf.state == FRI_STATE_MON) {
-            cmd_out_.rArmFri.data = 1;
-            cmd_out_.rArmFri_valid = true;
+        if (lwrOk && rArm_fri_state_.state == FRI_STATE_MON) {
+            std_msgs::Int32 cmd;
+            cmd.data = 1;
+            port_rArm_fri_cmd_out_.write(cmd);
         }
-
-        // diagnostics
-//        diag_->setBit(R_LWR_bit, !lwrOk);
-//        diag_->setBit(R_LWR_CMD_bit, status_in_.rArmFriIntf.state == FRI_STATE_MON);
-        //diag_ = setBit(diag_, DIAG_R_ARM_ERROR, !lwrOk);
-        //diag_ = setBit(diag_, DIAG_R_ARM_MONITOR_MODE, status_in_.rArmFriIntf.state == FRI_STATE_MON);
     }
 
-    cmd_out_.lArmFri_valid = false;
     if (lArm_valid) {
-        bool lwrOk = isLwrOk(status_in_.lArmFriRobot, status_in_.lArmFriIntf);
+        bool lwrOk = isLwrOk(lArm_robot_state_, lArm_fri_state_);
 
         // try to switch LWR mode
-        if (lwrOk && status_in_.lArmFriIntf.state == FRI_STATE_MON) {
-            cmd_out_.lArmFri.data = 1;
-            cmd_out_.lArmFri_valid = true;
+        if (lwrOk && lArm_fri_state_.state == FRI_STATE_MON) {
+            std_msgs::Int32 cmd;
+            cmd.data = 1;
+            port_lArm_fri_cmd_out_.write(cmd);
         }
-
-        // diagnostics
-//        diag_->setBit(L_LWR_bit, !lwrOk);
-//        diag_->setBit(L_LWR_CMD_bit, status_in_.lArmFriIntf.state == FRI_STATE_MON);
-        //diag_ = setBit(diag_, DIAG_L_ARM_ERROR, !lwrOk);
-        //diag_ = setBit(diag_, DIAG_L_ARM_MONITOR_MODE, status_in_.lArmFriIntf.state == FRI_STATE_MON);
     }
 
-    //
-    // write commands
-    //
-    port_cmd_out_.write(cmd_out_);
-
-    //
-    // write diagnostics information for this subsystem
-    //
-/*    diag_ = setBit(diag_, DIAG_R_ARM_INVALID, !rArm_valid);
-    diag_ = setBit(diag_, DIAG_L_ARM_INVALID, !lArm_valid);
-    diag_ = setBit(diag_, DIAG_T_MOTOR_INVALID, !tMotor_valid);
-    diag_ = setBit(diag_, DIAG_HP_MOTOR_INVALID, !hpMotor_valid);
-    diag_ = setBit(diag_, DIAG_HT_MOTOR_INVALID, !htMotor_valid);
-*/
     //
     // write diagnostics information for other subsystems
     //
@@ -497,31 +373,18 @@ void SafeComponent::updateHook() {
     sc_out_.fault_type = 0;
 
     setBit(sc_out_.fault_type, velma_core_cs_ve_body_msgs::StatusSC::FAULT_COMM_HW,
-        !rArm_valid || !lArm_valid ||
-        !tMotor_valid || !hpMotor_valid ||
-        !htMotor_valid);
+        !(rArm_valid || rArm_valid_prev_) || !(lArm_valid || lArm_valid_prev_) ||
+        !torso_valid || !hp_valid ||
+        !ht_valid);
 
-/*
-    setBit(sc_out_.fault_type, velma_core_cs_ve_body_msgs::StatusSC::FAULT_HW_STATE,
-        diag_->getBit(R_LWR_bit) || diag_->getBit(L_LWR_bit) ||
-        diag_->getBit(R_LWR_CMD_bit) || diag_->getBit(L_LWR_CMD_bit));
-
-    setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_R_ARM,
-        diag_->getBit(R_LWR_bit) || diag_->getBit(R_LWR_CMD_bit) ||
-        !rArm_valid);
-
-    setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_L_ARM,
-        diag_->getBit(L_LWR_bit) || diag_->getBit(L_LWR_CMD_bit) ||
-        !lArm_valid);
-*/
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_T_MOTOR,
-        !tMotor_valid);
+        !torso_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_HP_MOTOR,
-        !hpMotor_valid);
+        !hp_valid);
 
     setBit(sc_out_.faulty_module_id, velma_core_cs_ve_body_msgs::StatusSC::MODULE_HT_MOTOR,
-        !htMotor_valid);
+        !ht_valid);
 
     sc_out_.error = (sc_out_.fault_type != 0);
 
@@ -539,6 +402,9 @@ void SafeComponent::updateHook() {
     if (safe_iterations_ < numeric_limits<uint32_t>::max()) {
         ++safe_iterations_;
     }
+
+    rArm_valid_prev_ = rArm_valid;
+    lArm_valid_prev_ = lArm_valid;
 }
 
 }   // velma_core_ve_body_types

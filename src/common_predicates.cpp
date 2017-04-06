@@ -30,7 +30,7 @@
 
 using namespace velma_core_ve_body_types;
 
-bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) {
+bool isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf) {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
@@ -42,7 +42,7 @@ bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot,
     return true;
 }
 
-bool isLwrInCmdState(const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf) {
+bool isLwrInCmdState(const tFriIntfState& friIntf) {
     return friIntf.state == FRI_STATE_CMD;
 }
 
@@ -90,7 +90,7 @@ bool isCommandValidSc(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd)
 
 */
 
-bool isCmdArmValid(const velma_core_ve_body_re_body_msgs::CommandArm& cmd) {
+bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd) {
     double arm_t_limits[7] = {50.0, 50.0, 30.0, 20.0, 20.0, 10.0, 10.0};
     for (int i = 0; i < cmd.t.size(); ++i) {
         if (!isInLim(cmd.t[i], -arm_t_limits[i], arm_t_limits[i])) {
@@ -112,7 +112,7 @@ bool isCmdTorsoValid(double cmd_tMotor_i) {
 // status validation
 //
 
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st) {
+bool isStatusValid(const velma_core_cs_ve_body_msgs::StatusArm &st) {
     double arm_q_limits_lo[7] = {-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96};
     double arm_q_limits_hi[7] = {2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96};
 
@@ -142,7 +142,7 @@ bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusArm &st) {
 //    return true;
 //}
 
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st) {
+bool isStatusValid(const velma_core_cs_ve_body_msgs::Status &st) {
     bool status_valid = st.rArm_valid
         && st.lArm_valid
         && st.rFt_valid
