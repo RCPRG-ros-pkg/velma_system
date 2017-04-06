@@ -1,10 +1,10 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top"      ipc="true" >
+        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top" >
             <tgr min="0.0008" avg="0.001" max="0.002" sim_max="1.0" />
         </in>
-        <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"      ipc="true"/>
+        <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"/>
     </buffers>
 
     <trigger>
