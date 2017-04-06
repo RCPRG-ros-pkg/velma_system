@@ -151,5 +151,11 @@
 
     <connection from="LeftHand.q_OUTPORT"               to="hi_stConcate.lHand_q_INPORT" />
     <connection from="LeftHand.status_OUTPORT"          to="hi_stConcate.lHand_s_INPORT" />
-</subsystem>
 
+    <latched_connections>
+        <components from="LWRrSim" to="safe" />
+        <components from="LWRlSim" to="safe" />
+        <components from="TorsoSim" to="safe" />
+    </latched_connections>
+
+</subsystem>
