@@ -5,12 +5,9 @@
         <out alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="bottom"/>
     </buffers>
 
-    <trigger>
-        <period p="0.01" />
-    </trigger>
-
-    <errors>
-    </errors>
+    <trigger_methods>
+        <period value="0.01"/>
+    </trigger_methods>
 
     <predicates>
     </predicates>
@@ -24,11 +21,12 @@
             init_cond="FALSE"
             stop_cond="FALSE"
             err_cond="FALSE" >
+            <running_component name="Y" />
             <scope name="all" />
         </behavior>
     </behaviors>
 
-    <activity period="0.01" />
+<!--    <activity period="0.01" />-->
 
     <simulation use_ros_sim_clock="true" use_sim_clock="true" />
 
