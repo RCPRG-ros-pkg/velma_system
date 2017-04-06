@@ -1,33 +1,33 @@
-uint32 test         # subsystem_buffer{type: port; data_type: uint32_t}
+uint32 test             # subsystem_buffer{type: port; data_type: uint32_t}
 
-StatusSC sc         # subsystem_buffer{type: port; data_type: StatusSC; validity: sc_valid}
+StatusSC sc             # subsystem_buffer{type: port; data_type: StatusSC; validity: sc_valid}
 bool sc_valid
 
-velma_core_ve_body_re_body_msgs/StatusArm rArm          # subsystem_buffer{type: container; validity: rArm_valid}
+StatusArm rArm          # subsystem_buffer{type: container; validity: rArm_valid}
 bool rArm_valid
 
-velma_core_ve_body_re_body_msgs/StatusArm lArm          # subsystem_buffer{type: container; validity: lArm_valid}
+StatusArm lArm          # subsystem_buffer{type: container; validity: lArm_valid}
 bool lArm_valid
 
-velma_core_ve_body_re_body_msgs/StatusFT rFt            # subsystem_buffer{type: container; validity: rFt_valid}
+StatusFT rFt            # subsystem_buffer{type: container; validity: rFt_valid}
 bool rFt_valid
 
-velma_core_ve_body_re_body_msgs/StatusFT lFt            # subsystem_buffer{type: container; validity: lFt_valid}
+StatusFT lFt            # subsystem_buffer{type: container; validity: lFt_valid}
 bool lFt_valid
 
-velma_core_ve_body_re_body_msgs/StatusMotor tMotor      # subsystem_buffer{type: container; validity: tMotor_valid}
+StatusMotor tMotor      # subsystem_buffer{type: container; validity: tMotor_valid}
 bool tMotor_valid
 
-velma_core_ve_body_re_body_msgs/StatusMotor hpMotor     # subsystem_buffer{type: container; validity: hpMotor_valid}
+StatusMotor hpMotor     # subsystem_buffer{type: container; validity: hpMotor_valid}
 bool hpMotor_valid
 
-velma_core_ve_body_re_body_msgs/StatusMotor htMotor     # subsystem_buffer{type: container; validity: htMotor_valid}
+StatusMotor htMotor     # subsystem_buffer{type: container; validity: htMotor_valid}
 bool htMotor_valid
 
-velma_core_ve_body_re_body_msgs/StatusHand rHand          # subsystem_buffer{type: container; validity: rHand_valid}
+StatusHand rHand        # subsystem_buffer{type: container; validity: rHand_valid}
 bool rHand_valid
 
-velma_core_ve_body_re_body_msgs/StatusHand lHand          # subsystem_buffer{type: container; validity: lHand_valid}
+StatusHand lHand        # subsystem_buffer{type: container; validity: lHand_valid}
 bool lHand_valid
 
 barrett_hand_controller_msgs/BHPressureState p  # subsystem_buffer{type: port; validity: p_valid}
