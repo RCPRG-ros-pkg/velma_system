@@ -22,19 +22,10 @@
         <predicate name="inSelfCollision" />
     </predicates>
 
-    <output_scopes>
-        <scope name="upper_body" />
-        <scope name="right_hand" />
-        <scope name="left_hand" />
-        <scope name="neck" />
-    </output_scopes>
-
     <behaviors>
-
         <behavior name="position_hands_neck"
-            init_cond="veBodyStatusValid and (not veBodyInSafeState)"
-            stop_cond="veBodyStatusValid and veBodyInSafeState"
-            err_cond="FALSE" >
+            stop_cond="FALSE"
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="JTG_head" />
             <running_component name="VL_hp" />
             <running_component name="VL_ht" />
@@ -48,13 +39,9 @@
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
             <running_component name="Y" />
-            <scope name="right_hand" />
-            <scope name="left_hand" />
-            <scope name="neck" />
         </behavior>
 
-        <behavior name="idle" is_initial="true"
-            init_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState"
+        <behavior name="idle"
             stop_cond="veBodyStatusValid and (not veBodyInSafeState)"
             err_cond="FALSE" >
             <running_component name="idle" />
@@ -64,15 +51,10 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="Y" />
-            <scope name="upper_body" />
-            <scope name="right_hand" />
-            <scope name="left_hand" />
-            <scope name="neck" />
         </behavior>
 
         <behavior name="safe"
-            init_cond="(not veBodyInSafeState) and veBodyStatusValid and (IN_ERROR or (not recvOneCmd) or inSelfCollision)"
-            stop_cond="recvOneCmd"
+            stop_cond="recvOneCmd and (not inSelfCollision)"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="safe" />
             <running_component name="Mass" />
@@ -89,13 +71,11 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="Y" />
-            <scope name="upper_body" />
         </behavior>
 
         <behavior name="cart_imp"
-            init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd and veBodyStatusValid and (not veBodyInSafeState) and (not inSelfCollision)"
-            stop_cond="veBodyStatusValid and recvOneCmd and (not recvCartImpCmd)"
-            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState) or inSelfCollision" >
+            stop_cond="(recvOneCmd and (not recvCartImpCmd)) or inSelfCollision"
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="cart_imp" />
             <running_component name="CImp" />
             <running_component name="Mass" />
@@ -123,13 +103,11 @@
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
             <running_component name="Y" />
-            <scope name="upper_body" />
         </behavior>
 
         <behavior name="jnt_imp"
-            init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd and veBodyStatusValid and (not veBodyInSafeState) and (not inSelfCollision)"
-            stop_cond="veBodyStatusValid and recvOneCmd and (not recvJntImpCmd)"
-            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState) or inSelfCollision" >
+            stop_cond="(recvOneCmd and (not recvJntImpCmd)) or inSelfCollision"
+            err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="jnt_imp" />
             <running_component name="Mass" />
             <running_component name="JTG_body" />
@@ -149,7 +127,6 @@
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
             <running_component name="Y" />
-            <scope name="upper_body" />
         </behavior>
 <!--
         <behavior name="fcl"
@@ -169,6 +146,37 @@
         </behavior>
 -->
     </behaviors>
+
+    <states>
+        <state name="idle" is_initial="true">
+            <behavior name="idle" />
+            <next_state name="safe" init_cond="veBodyStatusValid and (not veBodyInSafeState)"/>
+        </state>
+
+        <state name="safe">
+            <behavior name="position_hands_neck" />
+            <behavior name="safe" />
+            <next_state name="idle" init_cond="IN_ERROR"/>
+            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
+            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
+        </state>
+
+        <state name="cart_imp">
+            <behavior name="position_hands_neck" />
+            <behavior name="cart_imp" />
+            <next_state name="idle" init_cond="IN_ERROR"/>
+            <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
+            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
+        </state>
+
+        <state name="jnt_imp">
+            <behavior name="position_hands_neck" />
+            <behavior name="jnt_imp" />
+            <next_state name="idle" init_cond="IN_ERROR"/>
+            <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
+            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
+        </state>
+    </states>
 
     <simulation use_ros_sim_clock="true" use_sim_clock="true" />
 
