@@ -147,8 +147,8 @@
 -->
     </behaviors>
 
-    <states>
-        <state name="idle" is_initial="true">
+    <states initial="idle">
+        <state name="idle">
             <behavior name="idle" />
             <next_state name="safe" init_cond="veBodyStatusValid and (not veBodyInSafeState)"/>
         </state>

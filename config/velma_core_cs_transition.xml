@@ -1,20 +1,20 @@
-<subsystem>
-    <import>rtt_barrett_hand_controller_msgs</import>
-    <import>eigen_typekit</import>
-    <import>rtt_control_msgs</import>
-    <import>controller_common</import>
-    <import>velma_controller</import>
-    <import>rtt_cartesian_trajectory_msgs</import>
-    <import>rtt_std_msgs</import>
-    <import>rtt_tf</import>
-    <import>port_operations</import>
-    <import>force_control</import>
-    <import>rtt_force_control_msgs</import>
-    <import>velma_core_cs</import>
-    <import>rtt_velma_core_cs_ve_body_msgs</import>
-    <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
-    <import>rtt_velma_core_cs_task_cs_msgs</import>
-    <import>rtt_velma_core_cs_task_cs_subsystem_ports</import>
+<subsystem_configuration>
+    <import package="rtt_barrett_hand_controller_msgs" />
+    <import package="eigen_typekit" />
+    <import package="rtt_control_msgs" />
+    <import package="controller_common" />
+    <import package="velma_controller" />
+    <import package="rtt_cartesian_trajectory_msgs" />
+    <import package="rtt_std_msgs" />
+    <import package="rtt_tf" />
+    <import package="port_operations" />
+    <import package="force_control" />
+    <import package="rtt_force_control_msgs" />
+    <import package="velma_core_cs" />
+    <import package="rtt_velma_core_cs_ve_body_msgs" />
+    <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
+    <import package="rtt_velma_core_cs_task_cs_msgs" />
+    <import package="rtt_velma_core_cs_task_cs_subsystem_ports" />
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
 
@@ -26,7 +26,7 @@
     <component name="C_q_all"   type="VectorConcate15_2_8_8" latex="\text{Conc}_{q}" />
     <component name="C_dq_all"  type="VectorConcate15_2_8_8" latex="\text{Conc}_{\dot{q}}" />
     <component name="Mass"      type="MassTest15_2" latex="\text{Mass}" >
-        <service>robot</service>
+        <service name="robot" />
     </component>
 
     <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JntTrGen}_{head}" />
@@ -48,7 +48,7 @@
     <component name="C_dq_head" type="VectorConcate1_1_0_0" latex="\text{Conc}_{\dot{q},head}" />
 
     <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{IMP}_{cart}" >
-        <service>robot</service>
+        <service name="robot" />
     </component>
 
     <component name="INT_pose_r"    type="CartesianInterpolatorVelma" latex="\text{INT}_{r,pos}" />
@@ -59,7 +59,7 @@
     <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT}_{l,imp}" />
     <component name="JntImp"        type="JointImpedance15" latex="\text{IMP}_{jnt}" />
     <component name="FK"            type="VelmaFK" latex="\text{FK}" >
-        <service>robot</service>
+        <service name="robot" />
     </component>
 <!--    <component name="RightForceTransformation"  type="ForceTransformation" />
     <component name="LeftForceTransformation"   type="ForceTransformation" />
@@ -293,5 +293,4 @@
 //    <connection from="TJ.NullSpaceTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 #    <connection from="VG.GravTrq" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 -->
-</subsystem>
-
+</subsystem_configuration>
