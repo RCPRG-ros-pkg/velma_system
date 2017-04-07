@@ -42,8 +42,8 @@
 
     </behaviors>
 
-    <states>
-        <state name="safe" is_initial="true">
+    <states initial="safe">
+        <state name="safe">
             <behavior name="safe" />
             <next_state name="transparent" init_cond="TRUE"/>
         </state>
@@ -54,7 +54,5 @@
     </states>
 
     <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
-
-    <no_input_wait cycles="1000" />
 
 </subsystem_definition>
