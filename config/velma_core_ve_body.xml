@@ -1,19 +1,19 @@
-<subsystem>
-    <import>controller_common</import>
-    <import>rtt_geometry_msgs</import>
-    <import>rtt_velma_core_cs_ve_body_msgs</import>
-    <import>rtt_velma_core_cs_ve_body_subsystem_ports</import>
-    <import>velma_core_ve_body</import>
-    <import>eigen_typekit</import>
-    <import>rtt_std_msgs</import>
-    <import>port_operations</import>
-    <import>rtt_control_msgs</import>
-    <import>lwr_fri</import>
-    <import>velma_controller</import>
-    <import>rtt_cartesian_trajectory_msgs</import>
-    <import>rtt_std_msgs</import>
-    <import>rtt_tf</import>
-    <import>velma_sim_gazebo</import>
+<subsystem_configuration>
+    <import package="controller_common" />
+    <import package="rtt_geometry_msgs" />
+    <import package="rtt_velma_core_cs_ve_body_msgs" />
+    <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
+    <import package="velma_core_ve_body" />
+    <import package="eigen_typekit" />
+    <import package="rtt_std_msgs" />
+    <import package="port_operations" />
+    <import package="rtt_control_msgs" />
+    <import package="lwr_fri" />
+    <import package="velma_controller" />
+    <import package="rtt_cartesian_trajectory_msgs" />
+    <import package="rtt_std_msgs" />
+    <import package="rtt_tf" />
+    <import package="velma_sim_gazebo" />
 
     <component name="TorsoSim" running="true" />
     <component name="LWRrSim" running="true" />
@@ -158,4 +158,4 @@
         <components from="TorsoSim" to="safe" />
     </latched_connections>
 
-</subsystem>
+</subsystem_configuration>
