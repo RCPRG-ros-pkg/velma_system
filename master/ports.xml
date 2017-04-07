@@ -20,8 +20,8 @@
         </behavior>
     </behaviors>
 
-    <states>
-        <state name="normal" is_initial="true">
+    <states initial="normal">
+        <state name="normal">
             <behavior name="normal" />
         </state>
     </states>
