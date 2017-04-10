@@ -83,12 +83,13 @@
     <component name="stConcate"     latex="\text{Conc}_{task,st}" />
     <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
 
-<!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
+    <component name="b_stRx"        latex="\text{x}_{b,st}" />
     <component name="cmdRx"         latex="\text{x}_{task,cmd}" />
-    <component name="stTx"          latex="\text{y}_{task,st}" />
-    <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />
+<!--    <component name="stTx"          latex="\text{y}_{task,st}" />
+    <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />-->
     <component name="master_component"      latex="\text{MC}" />
--->
+    <component name="Y"      latex="\text{y}" />
+
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
 
@@ -112,10 +113,10 @@
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
 
-    <connection from="idle.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="st" />
-    <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="st" />
-    <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="st" />
-    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="st" />
+    <connection from="idle.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t" latex="q_t" />
 
@@ -231,12 +232,12 @@
     <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" name="M" latex="M" />
     <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{b,cmd}" />
-    <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" />
+    <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" latex="st_{b}" />
     <connection from="C_q_body.Out" to="safe.JointPosition_INPORT" name="q_body" latex="q_{body}" />
     <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b, cmd}" />
     <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
-    <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" />
+    <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" latex="st_{b}" />
     <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
@@ -244,13 +245,22 @@
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
     <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
-    <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" />
-    <connection from="cmdSplit.hand_l_OUTPORT" to="b_cmdConcate.lHand_INPORT" />
-    <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.hand_r_INPORT" />
-    <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.hand_l_INPORT" />
-    <connection from="b_stSplit.p_OUTPORT" to="stConcate.p_INPORT" />
-    <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" />
+    <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
+    <connection from="cmdSplit.hand_l_OUTPORT" to="b_cmdConcate.lHand_INPORT" latex="cmd_{hand,l}" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.hand_r_INPORT" latex="st_{hand,r}" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.hand_l_INPORT" latex="st_{hand,l}" />
+    <connection from="b_stSplit.p_OUTPORT" to="stConcate.p_INPORT" latex="st_{tact}" />
+    <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" latex="st_{of}" />
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
+
+<!-- existing connections -->
+    <connection from="b_stRx.msg_OUTPORT" to="master_component.b_st_INPORT" latex="st_{b}" />
+    <connection from="b_stRx.no_data_OUTPORT" to="master_component.no_data_trigger_INPORT_" latex="tgr_{timeout}" />
+    <connection from="cmdRx.msg_OUTPORT" to="master_component.cmd_INPORT" latex="cmd_{task}" />
+    <connection from="master_component.b_st_OUTPORT" to="b_stSplit.msg_INPORT" latex="st_{b}" />
+    <connection from="master_component.cmd_OUTPORT" to="cmdSplit.msg_INPORT" latex="cmd_{task}" />
+    <connection from="b_cmdConcate.msg_OUTPORT" to="Y.b_cmd_INPORT" latex="cmd_{b}" />
+    <connection from="stConcate.msg_OUTPORT" to="Y.st_INPORT" latex="st_{task}" />
 
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />

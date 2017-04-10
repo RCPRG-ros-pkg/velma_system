@@ -34,6 +34,8 @@
             <running_component name="C_dq_head" />
             <running_component name="b_stSplit" />
             <running_component name="cmdSplit" />
+            <running_component name="C_q_all" />
+            <running_component name="C_dq_all" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
