@@ -29,72 +29,47 @@
 
 namespace velma_core_cs_types {
 
-static RTT::OperationCaller<bool(double, double)> getOperationWristInCollision(const std::string& component_name, const std::vector<RTT::TaskContext*> &components) {
-    RTT::OperationCaller<bool(double, double)> inCollision;
+static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
         if (components[i]->getName() == component_name) {
-            inCollision = components[i]->getOperation("inCollision");
-            break;
+            const RTT::Attribute<bool >* attr = static_cast<const RTT::Attribute< bool >* >(components[i]->getAttribute(attribute_name));
+            if (!attr) {
+                RTT::log(RTT::Error) << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+            }
+            return attr;
         }
     }
+    RTT::log(RTT::Error) << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
 
-    if (!inCollision.ready()) {
-        RTT::Logger::log() << RTT::Logger::Error << "could not get operation \'inCollision\' for component \'" << component_name << "\'" << RTT::Logger::endl;
-    }
-    return inCollision;
+    return NULL;
 }
 
-static RTT::OperationCaller<bool()> getOperationInCollision(const std::vector<RTT::TaskContext*> &components) {
-    static const std::string component_name("ColDet");
-    RTT::OperationCaller<bool()> inCollision;
-    for (int i = 0; i < components.size(); ++i) {
-        if (components[i]->getName() == component_name) {
-            inCollision = components[i]->getOperation("inCollision");
-            break;
-        }
-    }
+bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* inCollisionWristRight = getBoolAttribute("ColDetWrR", "inCollision", components);
+    static const RTT::Attribute< bool >* inCollisionWristLeft = getBoolAttribute("ColDetWrL", "inCollision", components);
+    static const RTT::Attribute< bool >* inCollision = getBoolAttribute("ColDet", "inCollision", components);
 
-    if (!inCollision.ready()) {
-        RTT::Logger::log() << RTT::Logger::Error << "could not get operation \'inCollision\' for component \'" << component_name << "\'" << RTT::Logger::endl;
-    }
-    return inCollision;
+    return inCollisionWristRight->get() || inCollisionWristLeft->get() || inCollision->get();
 }
 
-bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static const std::string wcc_r_name("wcc_r");
-    static const std::string wcc_l_name("wcc_l");
-    static RTT::OperationCaller<bool(double, double)> inCollisionWristRight = getOperationWristInCollision(wcc_r_name, components);
-    static RTT::OperationCaller<bool(double, double)> inCollisionWristLeft = getOperationWristInCollision(wcc_l_name, components);
-    static RTT::OperationCaller<bool()> inCollision = getOperationInCollision(components);
-
-// TODO: add collision detection for left wrist
-// TODO: add collision detection for whole body
-//    if (inCollisionWristRight.ready()) {
-//        return inCollisionWristRight(in_data->b_st.rArm.q[5], in_data->b_st.rArm.q[6]);
-//    }
-//    return false;
-
-    return inCollisionWristRight(in_data->b_st.rArm.q[5], in_data->b_st.rArm.q[6]) || inCollisionWristLeft(in_data->b_st.lArm.q[5], in_data->b_st.lArm.q[6]) || inCollision();
-}
-
-bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->b_st.sc.safe_behavior;
 }
 
-bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid && in_data->b_st.hpMotor_valid && in_data->b_st.htMotor_valid;
 }
 
-bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->cmd.cart_r.imp_valid || in_data->cmd.cart_r.pose_valid || in_data->cmd.cart_r.tool_valid ||
            in_data->cmd.cart_l.imp_valid || in_data->cmd.cart_l.pose_valid || in_data->cmd.cart_l.tool_valid;
 }
 
-bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->cmd.jnt_valid;
 }
 
-bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     unsigned int valid_count = 0;
     valid_count += (recvCartImpCmd(in_data, components) ? 1 : 0);
     valid_count += (recvJntImpCmd(in_data, components) ? 1 : 0);

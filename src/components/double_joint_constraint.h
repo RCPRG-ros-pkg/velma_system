@@ -58,8 +58,6 @@ class DoubleJointConstraint: public RTT::TaskContext {
 
   std::string getDiag();
 
-  bool inCollision(double q0, double q1) const;
-
  private:
 
   typedef Eigen::Matrix<double, DOFS, 1> Joints;
@@ -131,17 +129,6 @@ template<unsigned DOFS >
     this->addProperty("constraint_polygon", constraint_polygon_);
 
     this->addOperation("getDiag", &DoubleJointConstraint<DOFS >::getDiag, this, RTT::ClientThread);
-    this->addOperation("inCollision", &DoubleJointConstraint<DOFS >::inCollision, this, RTT::ClientThread);
-  }
-
-template<unsigned DOFS >
-  bool DoubleJointConstraint<DOFS >::inCollision(double q0, double q1) const {
-    if (cc_) {
-        DoubleJointCC::Joints q(q0, q1);
-//        RTT::log(RTT::Warning) << getName() << " in collision: " << (cc_->inCollision(q)?"true ":"false") << " " << q0 << " " << q1 << RTT::endlog();
-        return cc_->inCollision(q);
-    }
-    return false;
   }
 
 template<unsigned DOFS >
@@ -238,9 +225,6 @@ template<unsigned DOFS >
         RTT::log(RTT::Error) << "Minv contains NaN or inf" << RTT::endlog();
         return;
     }
-
-
-
 
     DoubleJointCC::Joints q2(joint_position_(joint0_idx_), joint_position_(joint1_idx_));
 

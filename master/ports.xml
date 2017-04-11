@@ -72,6 +72,9 @@
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
+            <running_component name="ColDet" />
+            <running_component name="ColDetWrR" />
+            <running_component name="ColDetWrL" />
             <running_component name="Y" />
         </behavior>
 
@@ -104,6 +107,9 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
+            <running_component name="ColDet" />
+            <running_component name="ColDetWrR" />
+            <running_component name="ColDetWrL" />
             <running_component name="Y" />
         </behavior>
 
@@ -128,6 +134,9 @@
             <running_component name="b_cmdConcate" />
             <running_component name="b_stRx" />
             <running_component name="cmdRx" />
+            <running_component name="ColDet" />
+            <running_component name="ColDetWrR" />
+            <running_component name="ColDetWrL" />
             <running_component name="Y" />
         </behavior>
 <!--

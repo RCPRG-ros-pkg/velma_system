@@ -58,6 +58,7 @@ orocos_component(velma_core_cs
     src/components/vector_dummy.cpp
     src/components/double_joint_constraint.cpp
     src/components/collision_detector.cpp
+    src/components/double_joint_collision_detector.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

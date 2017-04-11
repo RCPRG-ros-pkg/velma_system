@@ -17,6 +17,8 @@
     <import package="rtt_velma_core_cs_task_cs_subsystem_ports" />
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
+    <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,r}" />
+    <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,l}" />
 
     <component name="VL_hp"     type="VelocityLimiter" latex="\text{VelLim}_{hp}" />
     <component name="VL_ht"     type="VelocityLimiter" latex="\text{VelLim}_{ht}" />
@@ -97,7 +99,8 @@
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
-
+    <connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_q_body.Out" to="ColDetWrL.JointPosition_INPORT" name="q_body" latex="q_{b}" />
 
     <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
     <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{b}" />
