@@ -31,78 +31,59 @@
 
 namespace velma_core_ve_body_types {
 
-static RTT::OperationCaller<uint32_t()> getOperationSafeIterationsPassed(const std::vector<RTT::TaskContext*> &components) {
-    RTT::OperationCaller<uint32_t()> safeIterationsPassed;
+static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
-        if (components[i]->getName() == "safe") {
-            safeIterationsPassed = components[i]->getOperation("safeIterationsPassed");
-            break;
+        if (components[i]->getName() == component_name) {
+            const RTT::Attribute<bool >* attr = static_cast<const RTT::Attribute< bool >* >(components[i]->getAttribute(attribute_name));
+            if (!attr) {
+                RTT::log(RTT::Error) << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+            }
+            return attr;
         }
     }
+    RTT::log(RTT::Error) << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
 
-    if (!safeIterationsPassed.ready()) {
-        RTT::Logger::log() << RTT::Logger::Error << "could not get operation safeIterationsPassed" << RTT::Logger::endl;
-    }
-    return safeIterationsPassed;
+    return NULL;
 }
 
-bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static RTT::OperationCaller<uint32_t()> safeIterationsPassed = getOperationSafeIterationsPassed(components);
-
-    if (safeIterationsPassed.ready()) {
-        return (safeIterationsPassed() > 500);
-    }
-    return false;
+bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* safeIterationsOver500_attrib = getBoolAttribute("safe", "safeIterationsOver500", components);
+    return safeIterationsOver500_attrib->get();
 }
 
-static RTT::OperationCaller<bool()> getOperation_bool(const std::string& operation_name, const std::vector<RTT::TaskContext*> &components) {
-    RTT::OperationCaller<bool()> oc;
-    for (int i = 0; i < components.size(); ++i) {
-        if (components[i]->getName() == "hw_state") {
-            oc = components[i]->getOperation(operation_name);
-            break;
-        }
-    }
-
-    if (!oc.ready()) {
-        RTT::Logger::log() << RTT::Logger::Error << "could not get operation " << operation_name << RTT::Logger::endl;
-    }
-    return oc;
+bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* rLwrOk_attrib = getBoolAttribute("hw_state", "rLwrOk", components);
+    return rLwrOk_attrib->get();
 }
 
-bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static RTT::OperationCaller<bool()> oc_rLwrOk = getOperation_bool("rLwrOk", components);
-    return oc_rLwrOk();
+bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* rLwrCmdState_attrib = getBoolAttribute("hw_state", "rLwrCmdState", components);
+    return rLwrCmdState_attrib->get();
 }
 
-bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static RTT::OperationCaller<bool()> oc_rLwrCmdState = getOperation_bool("rLwrCmdState", components);
-    return oc_rLwrCmdState();
+bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* lLwrOk_attrib = getBoolAttribute("hw_state", "lLwrOk", components);
+    return lLwrOk_attrib->get();
 }
 
-bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static RTT::OperationCaller<bool()> oc_lLwrOk = getOperation_bool("lLwrOk", components);
-    return oc_lLwrOk();
+bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* lLwrCmdState_attrib = getBoolAttribute("hw_state", "lLwrCmdState", components);
+    return lLwrCmdState_attrib->get();
 }
 
-bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
-    static RTT::OperationCaller<bool()> oc_lLwrCmdState = getOperation_bool("lLwrCmdState", components);
-    return oc_lLwrCmdState();
-}
-
-bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->hi_cmd.rArm_valid && isCmdArmValid(in_data->hi_cmd.rArm);
 }
 
-bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->hi_cmd.lArm_valid && isCmdArmValid(in_data->hi_cmd.lArm);
 }
 
-bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->hi_cmd.tMotor_i_valid && isCmdTorsoValid(in_data->hi_cmd.tMotor_i);
 }
 
-bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components) {
+bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc == 1);
 }
 

@@ -51,15 +51,7 @@ public:
 
     std::string getDiag();
 
-    bool rLwrOk() const;
-    bool lLwrOk() const;
-    bool rLwrCmdState() const;
-    bool lLwrCmdState() const;
-
 private:
-
-//    bool isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf) const;
-//    bool isLwrInCmdState(const tFriIntfState& friIntf) const;
 
     // ports
     tFriIntfState       rArm_fri_state_;
@@ -80,51 +72,23 @@ private:
     bool r_lwr_cmd_;
     bool l_lwr_cmd_;
 };
-/*
-bool HwState::isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf) const {
-    if (friRobot.power != 0x7F                           // error
-        || friRobot.error != 0                           // error
-        || friRobot.warning != 0                         // TODO: check if this is error
-        || friRobot.control != FRI_CTRL_JNT_IMP          // error
-        || friIntf.quality <= FRI_QUALITY_UNACCEPTABLE)    // error
-    {
-        return false;
-    }
-    return true;
-}
-
-bool HwState::isLwrInCmdState(const tFriIntfState& friIntf) const {
-    return friIntf.state == FRI_STATE_CMD;
-}
-*/
-bool HwState::rLwrOk() const {
-    return r_lwr_ok_;
-}
-
-bool HwState::lLwrOk() const {
-    return l_lwr_ok_;
-}
-
-bool HwState::rLwrCmdState() const {
-    return r_lwr_cmd_;
-}
-
-bool HwState::lLwrCmdState() const {
-    return l_lwr_cmd_;
-}
 
 HwState::HwState(const std::string &name)
     : TaskContext(name)
+    , r_lwr_ok_(false)
+    , l_lwr_ok_(false)
+    , r_lwr_cmd_(false)
+    , l_lwr_cmd_(false)
 {
     this->ports()->addPort("rArm_fri_state_INPORT", port_rArm_fri_state_in_);
     this->ports()->addPort("rArm_robot_state_INPORT", port_rArm_robot_state_in_);
     this->ports()->addPort("lArm_fri_state_INPORT", port_lArm_fri_state_in_);
     this->ports()->addPort("lArm_robot_state_INPORT", port_lArm_robot_state_in_);
 
-    this->addOperation("rLwrOk", &HwState::rLwrOk, this, RTT::ClientThread);
-    this->addOperation("lLwrOk", &HwState::lLwrOk, this, RTT::ClientThread);
-    this->addOperation("rLwrCmdState", &HwState::rLwrCmdState, this, RTT::ClientThread);
-    this->addOperation("lLwrCmdState", &HwState::lLwrCmdState, this, RTT::ClientThread);
+    this->addAttribute("rLwrOk", r_lwr_ok_);
+    this->addAttribute("lLwrOk", l_lwr_ok_);
+    this->addAttribute("rLwrCmdState", r_lwr_cmd_);
+    this->addAttribute("lLwrCmdState", l_lwr_cmd_);
 }
 
 bool HwState::startHook() {

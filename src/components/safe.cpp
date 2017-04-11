@@ -82,8 +82,6 @@ public:
 
     std::string getDiag();
 
-    uint32_t safeIterationsPassed() const;
-
 private:
     typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
 
@@ -145,14 +143,16 @@ private:
     ros::Time wall_time_prev_;
 
     uint32_t safe_iterations_;
+    bool safe_iterations_over_500_;
 
     struct timeval time_prev_;
 };
 
-SafeComponent::SafeComponent(const std::string &name) :
-    TaskContext(name, PreOperational),
-    arm_joints_count_(7),
-    torso_damping_factor_(-1)   // initialize with invalid value, should be later set to >= 0
+SafeComponent::SafeComponent(const std::string &name)
+    : TaskContext(name, PreOperational)
+    , arm_joints_count_(7)
+    , torso_damping_factor_(-1)   // initialize with invalid value, should be later set to >= 0
+    , safe_iterations_over_500_(false)
 {
     this->ports()->addPort("rArm_t_OUTPORT", port_rArm_t_out_);
     this->ports()->addPort("lArm_t_OUTPORT", port_lArm_t_out_);
@@ -183,11 +183,7 @@ SafeComponent::SafeComponent(const std::string &name) :
     addProperty("arm_dq_limits", arm_dq_limits_);
     addProperty("arm_t_limits", arm_t_limits_);
 
-    this->addOperation("safeIterationsPassed", &SafeComponent::safeIterationsPassed, this, RTT::ClientThread);
-}
-
-uint32_t SafeComponent::safeIterationsPassed() const {
-    return safe_iterations_;
+    addAttribute("safeIterationsOver500", safe_iterations_over_500_);
 }
 
 bool SafeComponent::configureHook() {
@@ -262,6 +258,7 @@ bool SafeComponent::configureHook() {
 
 bool SafeComponent::startHook() {
     safe_iterations_ = 0;
+    safe_iterations_over_500_ = false;
     rArm_valid_prev_ = false;
     lArm_valid_prev_ = false;
     return true;
@@ -269,6 +266,7 @@ bool SafeComponent::startHook() {
 
 void SafeComponent::stopHook() {
     safe_iterations_ = 0;
+    safe_iterations_over_500_ = false;
 }
 
 void SafeComponent::calculateArmDampingTorque(const ArmJoints &joint_velocity,
@@ -401,6 +399,13 @@ void SafeComponent::updateHook() {
 
     if (safe_iterations_ < numeric_limits<uint32_t>::max()) {
         ++safe_iterations_;
+    }
+
+    if (safe_iterations_ > 500) {
+        safe_iterations_over_500_ = true;
+    }
+    else {
+        safe_iterations_over_500_ = false;
     }
 
     rArm_valid_prev_ = rArm_valid;
