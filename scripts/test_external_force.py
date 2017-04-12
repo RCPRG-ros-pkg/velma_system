@@ -17,7 +17,8 @@ if __name__ == "__main__":
     rospy.init_node('cimp_test', anonymous=True)
 
     print "This script tests Vitrual Effector of Velma robot for"
-    print "This script tests Vitrual Effector of Velma robot for"
+    print "stability of safe behavior."
+    print "It can be run in simulation environment only."
     rospy.sleep(1)
 
     try:
