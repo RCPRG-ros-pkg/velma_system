@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+ Copyright (c) 2014-2017, Robot Control and Pattern Recognition Group, Warsaw University of Technology
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -28,26 +28,16 @@
 #include "Eigen/Dense"
 #include "common_behavior/abstract_port_converter.h"
 
-class PortConverterEigen1ToDouble : public common_behavior::ConverterComponent<Eigen::Matrix<double, 1, 1>, double > {
+class PortConverterEigen1ToDouble : public common_behavior::Converter<Eigen::Matrix<double, 1, 1>, double > {
 public:
-
-    explicit PortConverterEigen1ToDouble(const std::string &name)
-        : common_behavior::ConverterComponent<Eigen::Matrix<double, 1, 1>, double >(name)
-    {
-    }
 
     virtual void convert(const Eigen::Matrix<double, 1, 1> &from, double &to) const {
         to = from(0);
     }
 };
 
-class PortConverterDoubleToEigen1 : public common_behavior::ConverterComponent<double, Eigen::Matrix<double, 1, 1> > {
+class PortConverterDoubleToEigen1 : public common_behavior::Converter<double, Eigen::Matrix<double, 1, 1> > {
 public:
-
-    explicit PortConverterDoubleToEigen1(const std::string &name)
-        : common_behavior::ConverterComponent<double, Eigen::Matrix<double, 1, 1> >(name)
-    {
-    }
 
     virtual void convert(const double &from, Eigen::Matrix<double, 1, 1> &to) const {
         to(0) = from;
@@ -55,6 +45,5 @@ public:
 };
 
 REGISTER_PORT_CONVERTER(PortConverterEigen1ToDouble);
-
 REGISTER_PORT_CONVERTER(PortConverterDoubleToEigen1);
 
