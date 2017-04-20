@@ -1,0 +1,26 @@
+<package>
+  <name>velma_sim</name>
+  <version>0.0.1</version>
+  <description>	Simulation plugin and launch scripts for Velma.</description>
+  <maintainer email="dawid.seredynski@gmail.com">Dawid Seredynski</maintainer>
+
+  <license>BSD</license>
+
+  <author>Dawid Seredynski</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>orocos_kdl</build_depend>
+  <build_depend>kdl_parser</build_depend>
+  <build_depend>kuka_lwr_fri</build_depend>
+  <build_depend>rtt_actionlib</build_depend>
+  <build_depend>barrett_hand_common</build_depend>
+  <build_depend>barrett_hand_controller_msgs</build_depend>
+
+  <run_depend>barrett_hand_controller_msgs</run_depend>
+  
+  <run_depend>orocos_kdl</run_depend>
+  <run_depend>kdl_parser</run_depend>
+  <run_depend>rtt_gazebo_deployer</run_depend>
+  <run_depend>barrett_hand_common</run_depend>
+</package>
