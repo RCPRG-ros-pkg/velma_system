@@ -104,9 +104,6 @@ using namespace RTT;
     bool LWRGazebo::configureHook() {
         Logger::In in("LWRGazebo::configureHook");
 
-        Logger::log() << Logger::Info << "node namespace: " << ros::this_node::getNamespace() << Logger::endl;
-        Logger::log() << Logger::Info << "node name: " << ros::this_node::getName() << Logger::endl;
-
         if (init_joint_names_.size() != init_joint_positions_.size()) {
             Logger::log() << Logger::Error <<
                 "init_joint_names_.size() != init_joint_positions_.size(), " <<

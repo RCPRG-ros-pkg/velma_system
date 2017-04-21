@@ -28,48 +28,18 @@
 #ifndef OPTOFORCE_GAZEBO_H__
 #define OPTOFORCE_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int32.h>
-
-#include <barrett_hand_controller_msgs/BHPressureState.h>
-#include <barrett_hand_controller_msgs/BHTemp.h>
-#include <barrett_hand_controller_msgs/BHPressureInfo.h>
-
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-//#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
-
-#include "Eigen/Dense"
-
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
 
-#include <geometry_msgs/WrenchStamped.h>
-
-#include <kuka_lwr_fri/friComm.h>
-//#include "barrett_hand_common/tactile.h"
-
-typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
+#include <geometry_msgs/Wrench.h>
 
 class OptoforceGazebo : public RTT::TaskContext
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
     // public methods
     OptoforceGazebo(std::string const& name);
     ~OptoforceGazebo();
@@ -80,8 +50,6 @@ public:
     void gazeboUpdateHook(gazebo::physics::ModelPtr model);
 
   protected:
-
-    ros::NodeHandle *nh_;
 
     // ROS parameters
     std::string device_name_;
@@ -102,10 +70,6 @@ public:
     // OROCOS ports
     boost::array<geometry_msgs::Wrench, 3 > force_out_;
     RTT::OutputPort<boost::array<geometry_msgs::Wrench, 3 > > port_force_out_;
-//    std::vector< RTT::OutputPort<geometry_msgs::WrenchStamped >* > port_force_out_;
-
-    // port variables
-//    std::vector< geometry_msgs::WrenchStamped > force_out_;
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;

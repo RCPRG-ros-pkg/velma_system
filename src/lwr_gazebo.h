@@ -28,38 +28,26 @@
 #ifndef LWR_GAZEBO_H__
 #define LWR_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-#include <std_msgs/Empty.h>
 #include <std_msgs/Int32.h>
+#include <geometry_msgs/Wrench.h>
+#include <geometry_msgs/Inertia.h>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
+#include <kdl/frames.hpp>
 
 #include "Eigen/Dense"
 
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
-
-#include <geometry_msgs/Wrench.h>
-#include <geometry_msgs/Inertia.h>
 
 #include <kuka_lwr_fri/friComm.h>
 
 #include "manipulator_mass_matrix.h"
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
 
 class LWRGazebo : public RTT::TaskContext
 {
@@ -125,8 +113,6 @@ public:
     bool parseDisableCollision(std::string &link1, std::string &link2, TiXmlElement *c);
     bool parseSRDF(const std::string &xml_string, std::vector<std::pair<std::string, std::string> > &disabled_collisions);
     void setInitialPosition(const std::vector<double > &init_q);
-
-    ros::NodeHandle *nh_;
 
     gazebo::physics::ModelPtr model_;
 

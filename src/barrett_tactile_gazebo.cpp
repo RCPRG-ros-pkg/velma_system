@@ -29,6 +29,7 @@
 #include "barrett_hand_common/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
 #include <rtt/Logger.hpp>
+#include <rtt/Component.hpp>
 
 using namespace RTT;
 
@@ -42,8 +43,6 @@ using namespace RTT;
         , port_tactile_info_out_("tactile_info_OUTPORT", false)
         , port_max_pressure_out_("max_measured_pressure_OUTPORT", false)
     {
-        nh_ = new ros::NodeHandle();
-
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&BarrettTactileGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&BarrettTactileGazebo::gazeboUpdateHook,this,RTT::ClientThread);

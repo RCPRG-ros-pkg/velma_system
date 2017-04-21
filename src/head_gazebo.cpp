@@ -25,25 +25,11 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "rtt_rosclock/rtt_rosclock.h"
-#include <rtt/Logger.hpp>
 #include "velma_sim_conversion.h"
-
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int32.h>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
-
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
 
 #include "Eigen/Dense"
 
@@ -51,10 +37,6 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
-
-#include <geometry_msgs/Wrench.h>
-
-#include <kuka_lwr_fri/friComm.h>
 
 class HeadGazebo : public RTT::TaskContext
 {
@@ -89,8 +71,6 @@ public:
 
     void setJointsPID();
 
-    ros::NodeHandle *nh_;
-
     gazebo::physics::ModelPtr model_;
 
     // head
@@ -122,9 +102,6 @@ HeadGazebo::HeadGazebo(std::string const& name)
     , port_q_out_("q_OUTPORT")
     , port_dq_out_("dq_OUTPORT")
 {
-
-    nh_ = new ros::NodeHandle();
-
     // Add required gazebo interfaces
     this->provides("gazebo")->addOperation("configure",&HeadGazebo::gazeboConfigureHook,this,RTT::ClientThread);
     this->provides("gazebo")->addOperation("update",&HeadGazebo::gazeboUpdateHook,this,RTT::ClientThread);

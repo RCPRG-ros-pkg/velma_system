@@ -26,14 +26,11 @@
 */
 
 #include "torso_gazebo.h"
+#include <rtt/Component.hpp>
 
     TorsoGazebo::TorsoGazebo(std::string const& name)
         : TaskContext(name, RTT::TaskContext::PreOperational)
         , data_valid_(false)
-        , q_(1)
-        , dq_(1)
-        , qh_(2)
-        , dqh_(2)
         , port_t_MotorPosition_out_("t_MotorPosition_OUTPORT", false)
         , port_t_MotorVelocity_out_("t_MotorVelocity_OUTPORT", false)
         , port_hp_q_out_("head_pan_motor_position_OUTPORT", false)
@@ -41,9 +38,6 @@
         , port_ht_q_out_("head_tilt_motor_position_OUTPORT", false)
         , port_ht_v_out_("head_tilt_motor_velocity_OUTPORT", false)
     {
-
-        nh_ = new ros::NodeHandle();
-
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&TorsoGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&TorsoGazebo::gazeboUpdateHook,this,RTT::ClientThread);
@@ -73,3 +67,4 @@
     }
 
 ORO_LIST_COMPONENT_TYPE(TorsoGazebo)
+

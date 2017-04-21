@@ -26,7 +26,7 @@
 */
 
 #include "optoforce_gazebo.h"
-#include "rtt_rosclock/rtt_rosclock.h"
+#include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
 
 using namespace RTT;
@@ -38,8 +38,6 @@ using namespace RTT;
         data_valid_(false),
         port_force_out_("force_OUTPORT", false)
     {
-        nh_ = new ros::NodeHandle();
-
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&OptoforceGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&OptoforceGazebo::gazeboUpdateHook,this,RTT::ClientThread);

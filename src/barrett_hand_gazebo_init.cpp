@@ -26,6 +26,7 @@
 */
 
 #include "barrett_hand_gazebo.h"
+#include <rtt/Component.hpp>
 
     BarrettHandGazebo::BarrettHandGazebo(std::string const& name)
         : TaskContext(name, RTT::TaskContext::PreOperational)
@@ -36,8 +37,6 @@
         , port_status_out_("status_OUTPORT", false)
         , disable_component_(false)
     {
-
-        nh_ = new ros::NodeHandle();
         addProperty("prefix", prefix_);
         addProperty("disable_component", disable_component_);
 

@@ -28,8 +28,6 @@
 #ifndef BARRETT_TACTILE_GAZEBO_H__
 #define BARRETT_TACTILE_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
 #include <std_msgs/Empty.h>
 #include <std_msgs/Int32.h>
 
@@ -39,33 +37,14 @@
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-//#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
-
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
 
 #include "Eigen/Dense"
 
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
 
-//#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Wrench.h>
-//#include <geometry_msgs/Twist.h>
-
-#include <kuka_lwr_fri/friComm.h>
 #include "barrett_hand_common/tactile.h"
-
-typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
 
 class BarrettTactileGazebo : public RTT::TaskContext
 {
@@ -83,7 +62,6 @@ public:
 
   protected:
 
-    ros::NodeHandle *nh_;
     std::string prefix_;
 
     int32_t median_filter_samples_, median_filter_max_samples_;
