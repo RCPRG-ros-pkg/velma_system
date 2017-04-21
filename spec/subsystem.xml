@@ -6,7 +6,7 @@
     </buffers>
 
     <trigger_methods>
-        <new_data_on_buffer name="hi_cmd" min="0.0008" />
+        <new_data_on_buffer name="hi_cmd" min="0.001" />
         <no_data_on_buffer name="hi_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
     </trigger_methods>
 
