@@ -246,6 +246,7 @@
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
+    <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
     <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
