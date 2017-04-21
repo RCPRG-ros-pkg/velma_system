@@ -64,7 +64,7 @@
     <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hold_INPORT" />
     <connection from="stSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
 
-    <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
+    <ros_stream port="stRx.msg_OUTPORT"             topic="/velma_task_cs_ros_interface/st" />
 
 <!--
 #stream("cmdConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/cmdConcate/msg_OUTPORT"));
