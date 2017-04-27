@@ -99,6 +99,7 @@
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
+    <connection from="C_dq_all.Out" to="ColDet.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_q_body.Out" to="ColDetWrL.JointPosition_INPORT" name="q_body" latex="q_{b}" />
 
