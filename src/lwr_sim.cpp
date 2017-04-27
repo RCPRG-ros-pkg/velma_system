@@ -152,7 +152,7 @@ using namespace RTT;
             JointVelocity_out_(i) += JointTorqueCommand_in_(i) * 0.001;
 
             // damping
-            JointVelocity_out_(i) *= 0.0;//0.99;
+            JointVelocity_out_(i) *= 0.99;
 
             // integrate velocity
             JointPosition_out_(i) += JointVelocity_out_(i) * 0.001;

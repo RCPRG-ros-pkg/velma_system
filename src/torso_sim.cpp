@@ -39,9 +39,9 @@ public:
     RTT::OutputPort<double >   port_t_MotorPosition_out_;
     RTT::OutputPort<double >   port_t_MotorVelocity_out_;
 
-    double t_MotorCurrentCommand_in_;
-    double t_MotorPosition_out_;
-    double t_MotorVelocity_out_;
+    double t_t_;
+    double q_t_;
+    double dq_t_;
 
     // head ports
     RTT::InputPort<double>      port_hp_q_in_;
@@ -78,18 +78,21 @@ using namespace RTT;
 
     TorsoSim::TorsoSim(std::string const& name)
         : TaskContext(name, RTT::TaskContext::PreOperational)
+        , port_t_MotorCurrentCommand_in_("t_MotorCurrentCommand_INPORT")
         , port_t_MotorPosition_out_("t_MotorPosition_OUTPORT", false)
         , port_t_MotorVelocity_out_("t_MotorVelocity_OUTPORT", false)
         , port_hp_q_out_("head_pan_motor_position_OUTPORT", false)
         , port_hp_v_out_("head_pan_motor_velocity_OUTPORT", false)
         , port_ht_q_out_("head_tilt_motor_position_OUTPORT", false)
         , port_ht_v_out_("head_tilt_motor_velocity_OUTPORT", false)
+        , q_t_(0.0)
+        , dq_t_(0.0)
+        , t_t_(0.0)
     {
         // torso ports
-        this->ports()->addPort("t_MotorCurrentCommand_INPORT",        port_t_MotorCurrentCommand_in_);
+        this->ports()->addPort(port_t_MotorCurrentCommand_in_);
         this->ports()->addPort(port_t_MotorPosition_out_);
         this->ports()->addPort(port_t_MotorVelocity_out_);
-        t_MotorCurrentCommand_in_ = 0.0;
 
         // head ports
         this->ports()->addPort("head_pan_motor_position_command_INPORT",        port_hp_q_in_);
@@ -110,13 +113,33 @@ using namespace RTT;
     }
 
     void TorsoSim::updateHook() {
-        t_MotorPosition_out_ = 0.0;
-        t_MotorVelocity_out_ = 0.0;
-        port_t_MotorPosition_out_.write(t_MotorPosition_out_);
-        port_t_MotorVelocity_out_.write(t_MotorVelocity_out_);
+        const double torso_gear = 158.0;
+        const double torso_trans_mult = 20000.0 * torso_gear / (M_PI * 2.0);
+        const double torso_motor_offset = -88524.0;
+        const double torso_joint_offset = 0;
+        const double torso_motor_constant = 0.00105;
 
-        if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_) == RTT::NewData) {
+        double t_MotorCurrentCommand_in;
+        if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in) != RTT::NewData) {
+            //t_MotorCurrentCommand_in_ = 0;
         }
+
+        t_t_ = t_MotorCurrentCommand_in * torso_gear * torso_motor_constant;
+
+        dq_t_ += t_t_ * 0.001;
+
+        // damping
+        dq_t_ *= 0.99;
+
+        // integrate velocity
+        q_t_ += dq_t_ * 0.001;
+
+        double t_MotorPosition_out = (q_t_ - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
+        double t_MotorVelocity_out = dq_t_ * torso_trans_mult;
+
+
+        port_t_MotorPosition_out_.write(t_MotorPosition_out);
+        port_t_MotorVelocity_out_.write(t_MotorVelocity_out);
 
         //
         // head
