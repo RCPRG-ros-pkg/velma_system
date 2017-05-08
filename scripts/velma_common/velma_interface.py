@@ -346,6 +346,53 @@ Class used as Velma robot Interface.
     def moveEffectorTrajRight(self, prefix, list_T_B_Trd, times, max_wrench, start_time=0.01, stamp=None):
         self.moveEffectorTraj("right", list_T_B_Trd, times, max_wrench, start_time=start_time, stamp=stamp)
 
+    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+        action_trajectory_goal = CartImpGoal()
+        if stamp != None:
+            action_trajectory_goal.pose_trj.header.stamp = stamp
+        else:
+            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+
+        if pose_list_T_B_Td:
+            i = 0
+            for T_B_Td in pose_list_T_B_Td:
+                wrist_pose = pm.toMsg(T_B_Td)
+                action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
+                rospy.Duration(pose_times[i]),
+                wrist_pose,
+                Twist()))
+                i += 1
+
+        if tool_list_T_W_T:
+            i = 0
+            for T_W_T in tool_list_T_W_T:
+                tool_pose = pm.toMsg(T_W_T)
+                action_trajectory_goal.tool_trj.points.append(CartesianTrajectoryPoint(
+                rospy.Duration(tool_times[i]),
+                tool_pose,
+                Twist()))
+                i += 1
+
+        if imp_list:
+            i = 0
+            for k in imp_list:
+                action_trajectory_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
+                rospy.Duration(imp_times[i]),
+                CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
+                i += 1
+
+        action_trajectory_goal.wrench_constraint = self.wrenchKDLtoROS(max_wrench)
+        self.current_max_wrench = max_wrench
+        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
+
+        return True
+
+    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+        return self.moveCartImp("right", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping)
+
+    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+        return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping)
+
     cartesian_trajectory_result_names = {
         CartImpResult.SUCCESSFUL:'SUCCESSFUL',
         CartImpResult.INVALID_GOAL:'INVALID_GOAL',
