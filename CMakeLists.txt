@@ -9,7 +9,6 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_subsystem_ports
   velma_core_cs_task_cs_msgs
   velma_core_cs_ve_body_msgs
-  kuka_lwr_fri
   eigen_conversions
   common_interfaces
   common_behavior
