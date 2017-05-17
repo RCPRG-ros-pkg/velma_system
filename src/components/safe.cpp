@@ -30,7 +30,9 @@
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
 #include <rtt/base/PortInterface.hpp>
-#include <kuka_lwr_fri/friComm.h>
+
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
 #include "eigen_conversions/eigen_msg.h"
 
@@ -122,20 +124,20 @@ private:
     RTT::InputPort<double > port_hp_motor_q_in_;
     RTT::InputPort<double > port_ht_motor_q_in_;
 
-    RTT::InputPort<tFriIntfState > port_rArm_fri_in_;
-    RTT::InputPort<tFriRobotState > port_rArm_rob_in_;
-    RTT::InputPort<tFriIntfState > port_lArm_fri_in_;
-    RTT::InputPort<tFriRobotState > port_lArm_rob_in_;
+    RTT::InputPort<lwr_msgs::FriIntfState > port_rArm_fri_in_;
+    RTT::InputPort<lwr_msgs::FriRobotState > port_rArm_rob_in_;
+    RTT::InputPort<lwr_msgs::FriIntfState > port_lArm_fri_in_;
+    RTT::InputPort<lwr_msgs::FriRobotState > port_lArm_rob_in_;
 
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
     ArmJoints rArm_dq_;
     ArmJoints lArm_dq_;
-    tFriIntfState       rArm_fri_state_;
-    tFriRobotState      rArm_robot_state_;
-    tFriIntfState       lArm_fri_state_;
-    tFriRobotState      lArm_robot_state_;
+    lwr_msgs::FriIntfState       rArm_fri_state_;
+    lwr_msgs::FriRobotState      rArm_robot_state_;
+    lwr_msgs::FriIntfState       lArm_fri_state_;
+    lwr_msgs::FriRobotState      lArm_robot_state_;
 
     bool rArm_valid_prev_;
     bool lArm_valid_prev_;
@@ -345,7 +347,7 @@ void SafeComponent::updateHook() {
         bool lwrOk = isLwrOk(rArm_robot_state_, rArm_fri_state_);
 
         // try to switch LWR mode
-        if (lwrOk && rArm_fri_state_.state == FRI_STATE_MON) {
+        if (lwrOk && rArm_fri_state_.state == lwr_msgs::FriIntfState::FRI_STATE_MON) {
             std_msgs::Int32 cmd;
             cmd.data = 1;
             port_rArm_fri_cmd_out_.write(cmd);
@@ -356,7 +358,7 @@ void SafeComponent::updateHook() {
         bool lwrOk = isLwrOk(lArm_robot_state_, lArm_fri_state_);
 
         // try to switch LWR mode
-        if (lwrOk && lArm_fri_state_.state == FRI_STATE_MON) {
+        if (lwrOk && lArm_fri_state_.state == lwr_msgs::FriIntfState::FRI_STATE_MON) {
             std_msgs::Int32 cmd;
             cmd.data = 1;
             port_lArm_fri_cmd_out_.write(cmd);

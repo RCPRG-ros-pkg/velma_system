@@ -10,8 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   common_interfaces
   common_behavior
-  kuka_lwr_fri
   controller_common
+  lwr_msgs
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)

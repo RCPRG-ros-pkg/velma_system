@@ -26,24 +26,23 @@
 */
 
 #include "common_predicates.h"
-#include <kuka_lwr_fri/friComm.h>
 
 using namespace velma_core_ve_body_types;
 
-bool isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf) {
+bool isLwrOk(const lwr_msgs::FriRobotState& friRobot, const lwr_msgs::FriIntfState& friIntf) {
     if (friRobot.power != 0x7F                           // error
         || friRobot.error != 0                           // error
         || friRobot.warning != 0                         // TODO: check if this is error
-        || friRobot.control != FRI_CTRL_JNT_IMP          // error
-        || friIntf.quality <= FRI_QUALITY_UNACCEPTABLE)    // error
+        || friRobot.control != lwr_msgs::FriRobotState::FRI_CTRL_JNT_IMP        // error
+        || friIntf.quality <= lwr_msgs::FriIntfState::FRI_QUALITY_UNACCEPTABLE) // error
     {
         return false;
     }
     return true;
 }
 
-bool isLwrInCmdState(const tFriIntfState& friIntf) {
-    return friIntf.state == FRI_STATE_CMD;
+bool isLwrInCmdState(const lwr_msgs::FriIntfState& friIntf) {
+    return friIntf.state == lwr_msgs::FriIntfState::FRI_STATE_CMD;
 }
 
 bool isNaN(double d) {

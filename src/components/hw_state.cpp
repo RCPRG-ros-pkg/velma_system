@@ -31,7 +31,9 @@
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
 #include <rtt/base/PortInterface.hpp>
-#include <kuka_lwr_fri/friComm.h>
+
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
 #include "../common_predicates.h"
 
@@ -54,17 +56,17 @@ public:
 private:
 
     // ports
-    tFriIntfState       rArm_fri_state_;
-    RTT::InputPort<tFriIntfState > port_rArm_fri_state_in_;
+    lwr_msgs::FriIntfState       rArm_fri_state_;
+    RTT::InputPort<lwr_msgs::FriIntfState > port_rArm_fri_state_in_;
 
-    tFriRobotState      rArm_robot_state_;
-    RTT::InputPort<tFriRobotState > port_rArm_robot_state_in_;
+    lwr_msgs::FriRobotState      rArm_robot_state_;
+    RTT::InputPort<lwr_msgs::FriRobotState > port_rArm_robot_state_in_;
 
-    tFriIntfState       lArm_fri_state_;
-    RTT::InputPort<tFriIntfState > port_lArm_fri_state_in_;
+    lwr_msgs::FriIntfState       lArm_fri_state_;
+    RTT::InputPort<lwr_msgs::FriIntfState > port_lArm_fri_state_in_;
 
-    tFriRobotState      lArm_robot_state_;
-    RTT::InputPort<tFriRobotState > port_lArm_robot_state_in_;
+    lwr_msgs::FriRobotState      lArm_robot_state_;
+    RTT::InputPort<lwr_msgs::FriRobotState > port_lArm_robot_state_in_;
 
 
     bool r_lwr_ok_;

@@ -31,10 +31,11 @@
 #include "velma_core_cs_ve_body_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
 #include "velma_core_ve_body/master.h"
-#include <kuka_lwr_fri/friComm.h>
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
-bool isLwrOk(const tFriRobotState& friRobot, const tFriIntfState& friIntf);
-bool isLwrInCmdState(const tFriIntfState& friIntf);
+bool isLwrOk(const lwr_msgs::FriRobotState& friRobot, const lwr_msgs::FriIntfState& friIntf);
+bool isLwrInCmdState(const lwr_msgs::FriIntfState& friIntf);
 bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
 bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd);
