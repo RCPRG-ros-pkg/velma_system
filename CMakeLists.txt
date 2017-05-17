@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(velma_sim)
 
-find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kdl_parser kuka_lwr_fri barrett_hand_common barrett_hand_controller_msgs)
+find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kdl_parser lwr_msgs barrett_hand_common barrett_hand_controller_msgs)
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )

@@ -34,8 +34,6 @@
 
 #include <geometry_msgs/Wrench.h>
 
-#include <kuka_lwr_fri/friComm.h>
-
 class FtSensorSim : public RTT::TaskContext
 {
 public:
@@ -101,7 +99,6 @@ FtSensorSim::FtSensorSim(std::string const& name)
     addProperty("transform_xyz", transform_xyz_);
     addProperty("transform_rpy", transform_rpy_);
 
-    // right KUKA FRI ports
     this->ports()->addPort(port_raw_wrench_out_);
     this->ports()->addPort(port_fast_filtered_wrench_out_);
     this->ports()->addPort(port_slow_filtered_wrench_out_);

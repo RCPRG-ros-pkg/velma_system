@@ -36,7 +36,8 @@
 
 #include <geometry_msgs/Wrench.h>
 
-#include <kuka_lwr_fri/friComm.h>
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
 typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 
@@ -51,8 +52,8 @@ public:
     // right KUKA FRI ports
     RTT::InputPort<Joints >                 port_JointTorqueCommand_in_;  // FRIx.JointTorqueCommand
     RTT::InputPort<std_msgs::Int32 >        port_KRL_CMD_in_;             // FRIx.KRL_CMD
-    RTT::OutputPort<tFriRobotState >        port_RobotState_out_;         // FRIx.RobotState
-    RTT::OutputPort<tFriIntfState >         port_FRIState_out_;           // FRIx.FRIState
+    RTT::OutputPort<lwr_msgs::FriRobotState >   port_RobotState_out_;     // FRIx.RobotState
+    RTT::OutputPort<lwr_msgs::FriIntfState >    port_FRIState_out_;       // FRIx.FRIState
     RTT::OutputPort<Joints >                port_JointPosition_out_;      // FRIx.JointPosition
     RTT::OutputPort<Joints >                port_JointVelocity_out_;      // FRIx.JointVelocity
     RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench_out_;    // FRIx.CartesianWrench
@@ -62,8 +63,8 @@ public:
 
     Joints                  JointTorqueCommand_in_;
     std_msgs::Int32         KRL_CMD_in_;
-    tFriRobotState          RobotState_out_;
-    tFriIntfState           FRIState_out_;
+    lwr_msgs::FriRobotState RobotState_out_;
+    lwr_msgs::FriIntfState  FRIState_out_;
     Joints                  JointPosition_out_;
     Joints                  JointVelocity_out_;
     geometry_msgs::Wrench   CartesianWrench_out_;
@@ -159,12 +160,12 @@ using namespace RTT;
         }
 
         // FRI comm state
-        FRIState_out_.quality = FRI_QUALITY_PERFECT;
+        FRIState_out_.quality = lwr_msgs::FriIntfState::FRI_QUALITY_PERFECT;
         if (command_mode_) {
-            FRIState_out_.state = FRI_STATE_CMD;
+            FRIState_out_.state = lwr_msgs::FriIntfState::FRI_STATE_CMD;
         }
         else {
-            FRIState_out_.state = FRI_STATE_MON;
+            FRIState_out_.state = lwr_msgs::FriIntfState::FRI_STATE_MON;
         }
         port_FRIState_out_.write(FRIState_out_);
         port_FRIState_out_.write(FRIState_out_);
@@ -173,7 +174,7 @@ using namespace RTT;
         RobotState_out_.power = 0x7F;
         RobotState_out_.error = 0;
         RobotState_out_.warning = 0;
-        RobotState_out_.control = FRI_CTRL_JNT_IMP;
+        RobotState_out_.control = lwr_msgs::FriRobotState::FRI_CTRL_JNT_IMP;
         port_RobotState_out_.write(RobotState_out_);
 
         port_CartesianWrench_out_.write(CartesianWrench_out_);
