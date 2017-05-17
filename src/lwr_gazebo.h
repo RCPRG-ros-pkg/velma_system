@@ -43,7 +43,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
-#include <kuka_lwr_fri/friComm.h>
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
 #include "manipulator_mass_matrix.h"
 
@@ -60,8 +61,8 @@ public:
     // right KUKA FRI ports
     RTT::InputPort<Joints >                 port_JointTorqueCommand_in_;  // FRIx.JointTorqueCommand
     RTT::InputPort<std_msgs::Int32 >        port_KRL_CMD_in_;             // FRIx.KRL_CMD
-    RTT::OutputPort<tFriRobotState >        port_RobotState_out_;         // FRIx.RobotState
-    RTT::OutputPort<tFriIntfState >         port_FRIState_out_;           // FRIx.FRIState
+    RTT::OutputPort<lwr_msgs::FriRobotState >   port_RobotState_out_;     // FRIx.RobotState
+    RTT::OutputPort<lwr_msgs::FriIntfState >    port_FRIState_out_;       // FRIx.FRIState
     RTT::OutputPort<Joints >                port_JointPosition_out_;      // FRIx.JointPosition
     RTT::OutputPort<Joints >                port_JointVelocity_out_;      // FRIx.JointVelocity
     RTT::OutputPort<geometry_msgs::Wrench > port_CartesianWrench_out_;    // FRIx.CartesianWrench
@@ -71,8 +72,8 @@ public:
 
     Joints                  JointTorqueCommand_in_;
     std_msgs::Int32         KRL_CMD_in_;
-    tFriRobotState          RobotState_out_;
-    tFriIntfState           FRIState_out_;
+    lwr_msgs::FriRobotState RobotState_out_;
+    lwr_msgs::FriIntfState  FRIState_out_;
     Joints                  JointPosition_out_;
     Joints                  JointVelocity_out_;
     geometry_msgs::Wrench   CartesianWrench_out_;
@@ -97,16 +98,14 @@ public:
 	std::vector<double> init_joint_positions_;
     geometry_msgs::Inertia tool_;
 
-    Joints                tmp_JointTorqueCommand_in_;
-    std_msgs::Int32       tmp_KRL_CMD_in_;
-    tFriRobotState        tmp_RobotState_out_;
-    tFriIntfState         tmp_FRIState_out_;
-    Joints                tmp_JointPosition_out_;
-    Joints                tmp_JointVelocity_out_;
-    geometry_msgs::Wrench tmp_CartesianWrench_out_;
-    Matrix77d             tmp_MassMatrix_out_;
-    Joints                tmp_JointTorque_out_;
-    Joints                tmp_GravityTorque_out_;
+    Joints                  tmp_JointTorqueCommand_in_;
+    std_msgs::Int32         tmp_KRL_CMD_in_;
+    Joints                  tmp_JointPosition_out_;
+    Joints                  tmp_JointVelocity_out_;
+    geometry_msgs::Wrench   tmp_CartesianWrench_out_;
+    Matrix77d               tmp_MassMatrix_out_;
+    Joints                  tmp_JointTorque_out_;
+    Joints                  tmp_GravityTorque_out_;
 
     bool data_valid_;
 

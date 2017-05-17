@@ -77,12 +77,12 @@ using namespace RTT;
 
 
         // FRI comm state
-        FRIState_out_.quality = FRI_QUALITY_PERFECT;
+        FRIState_out_.quality = lwr_msgs::FriIntfState::FRI_QUALITY_PERFECT;
         if (command_mode_) {
-            FRIState_out_.state = FRI_STATE_CMD;
+            FRIState_out_.state = lwr_msgs::FriIntfState::FRI_STATE_CMD;
         }
         else {
-            FRIState_out_.state = FRI_STATE_MON;
+            FRIState_out_.state = lwr_msgs::FriIntfState::FRI_STATE_MON;
         }
         port_FRIState_out_.write(FRIState_out_);
         port_FRIState_out_.write(FRIState_out_);
@@ -91,7 +91,7 @@ using namespace RTT;
         RobotState_out_.power = 0x7F;
         RobotState_out_.error = 0;
         RobotState_out_.warning = 0;
-        RobotState_out_.control = FRI_CTRL_JNT_IMP;
+        RobotState_out_.control = lwr_msgs::FriRobotState::FRI_CTRL_JNT_IMP;
         port_RobotState_out_.write(RobotState_out_);
 
         port_CartesianWrench_out_.write(CartesianWrench_out_);
