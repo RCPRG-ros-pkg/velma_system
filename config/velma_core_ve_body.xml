@@ -8,7 +8,6 @@
     <import package="rtt_std_msgs" />
     <import package="port_operations" />
     <import package="rtt_control_msgs" />
-    <import package="lwr_fri" />
     <import package="velma_controller" />
     <import package="rtt_cartesian_trajectory_msgs" />
     <import package="rtt_std_msgs" />
