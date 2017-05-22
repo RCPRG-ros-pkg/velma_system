@@ -29,95 +29,57 @@
 
 namespace velma_core_cs_types {
 
-bool graphSafe( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
-        const std::string& name = components[i]->getName();
-        RTT::TaskContext::TaskState state = components[i]->getTaskState();
-
-        if (state != RTT::TaskContext::Running) {
-            if (name == "safe" || name == "Mass" || name == "FK" || name == "JntImp") {
-                return false;
+        if (components[i]->getName() == component_name) {
+            const RTT::Attribute<bool >* attr = static_cast<const RTT::Attribute< bool >* >(components[i]->getAttribute(attribute_name));
+            if (!attr) {
+                RTT::log(RTT::Error) << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
             }
-        }
-        
-        if (state != RTT::TaskContext::Stopped && state != RTT::TaskContext::Running) {
-            return false;
+            return attr;
         }
     }
-    return true;
+    RTT::log(RTT::Error) << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+
+    return NULL;
 }
 
-bool graphCartImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    for (int i = 0; i < components.size(); ++i) {
-        const std::string& name = components[i]->getName();
-        RTT::TaskContext::TaskState state = components[i]->getTaskState();
+bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* inCollisionWristRight = getBoolAttribute("ColDetWrR", "inCollision", components);
+    static const RTT::Attribute< bool >* inCollisionWristLeft = getBoolAttribute("ColDetWrL", "inCollision", components);
+    static const RTT::Attribute< bool >* inCollision = getBoolAttribute("ColDet", "inCollision", components);
 
-        if (state != RTT::TaskContext::Running) {
-            if (name == "CImp" || name == "Mass" || name == "JntLimit" || name == "PoseIntLeft" || name == "PoseIntRight" || name == "FK") {
-                return false;
-            }
-        }
-        
-        if (state != RTT::TaskContext::Stopped && state != RTT::TaskContext::Running) {
-            return false;
-        }
-    }
-    return true;
+    return inCollisionWristRight->get() || inCollisionWristLeft->get() || inCollision->get();
 }
 
-bool graphJntImp( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    for (int i = 0; i < components.size(); ++i) {
-        const std::string& name = components[i]->getName();
-        RTT::TaskContext::TaskState state = components[i]->getTaskState();
-
-        if (state != RTT::TaskContext::Running) {
-            if (name == "TrajectoryGeneratorJoint" || name == "Mass" || name == "JntImp" || name == "FK") {
-                return false;
-            }
-        }
-        
-        if (state != RTT::TaskContext::Stopped && state != RTT::TaskContext::Running) {
-            return false;
-        }
-    }
-    return true;
-}
-
-bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->b_st.sc.safe_behavior;
 }
 
-bool veBodyInError( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->b_st.sc.error;
+bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid && in_data->b_st.hpMotor_valid && in_data->b_st.htMotor_valid;
 }
 
-bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid;
-}
-
-bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->cmd.cart_r.imp_valid || in_data->cmd.cart_r.pose_valid || in_data->cmd.cart_r.tool_valid ||
            in_data->cmd.cart_l.imp_valid || in_data->cmd.cart_l.pose_valid || in_data->cmd.cart_l.tool_valid;
 }
 
-bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->cmd.jnt_valid;
 }
 
-bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
+bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     unsigned int valid_count = 0;
-    valid_count += (recvCartImpCmd(in_data, components, prev_state_name) ? 1 : 0);
-    valid_count += (recvJntImpCmd(in_data, components, prev_state_name) ? 1 : 0);
+    valid_count += (recvCartImpCmd(in_data, components) ? 1 : 0);
+    valid_count += (recvJntImpCmd(in_data, components) ? 1 : 0);
     return valid_count == 1;
 }
 
 };  // namespace velma_core_cs_types
 
-REGISTER_PREDICATE( velma_core_cs_types::graphSafe );
-REGISTER_PREDICATE( velma_core_cs_types::graphCartImp );
-REGISTER_PREDICATE( velma_core_cs_types::graphJntImp );
+REGISTER_PREDICATE( velma_core_cs_types::inSelfCollision );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyInSafeState );
-REGISTER_PREDICATE( velma_core_cs_types::veBodyInError );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyStatusValid );
 REGISTER_PREDICATE( velma_core_cs_types::recvCartImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );

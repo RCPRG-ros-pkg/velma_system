@@ -33,6 +33,7 @@
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
 #include "velma_core_cs_ve_body_msgs/Status.h"
+#include "velma_core_cs_task_cs_msgs/Status.h"
 
 #include "eigen_conversions/eigen_msg.h"
 
@@ -58,22 +59,14 @@ public:
 
     bool startHook();
 
-    void stopHook();
-
     void updateHook();
-
-    std::string getDiag();
 
 private:
 
     typedef Eigen::Matrix<double, NUMBER_OF_JOINTS, 1>  VectorNd;
 
     // OROCOS ports
-//    velma_core_cs_ve_body_msgs::Command cmd_out_;
-//    RTT::OutputPort<velma_core_cs_ve_body_msgs::Command > port_cmd_out_;
-
-//    velma_core_ve_body_re_body_msgs::CommandSimple cmd_sc_out_;
-//    RTT::OutputPort<velma_core_ve_body_re_body_msgs::CommandSimple > port_cmd_sc_out_;
+    RTT::OutputPort<uint32_t > port_status_subsystem_state_out_;
 
     velma_core_cs_ve_body_msgs::Status status_in_;
     RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
@@ -95,7 +88,7 @@ SafeComponent::SafeComponent(const std::string &name)
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
     , port_joint_stiffness_command_("JointStiffnessCommand_OUTPORT")
     , port_status_in_("status_INPORT")
-//    , port_cmd_sc_out_("cmd_sc_OUTPORT")
+    , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
     , first_step_(true)
 {
 
@@ -103,15 +96,7 @@ SafeComponent::SafeComponent(const std::string &name)
     this->ports()->addPort(port_internal_space_position_measurement_in_);
     this->ports()->addPort(port_joint_stiffness_command_);
     this->ports()->addPort(port_status_in_);
-//    this->ports()->addPort(port_cmd_sc_out_);
-
-    // TODO
-    //this->addOperation("getDiag", &SafeComponent::getDiag, this, RTT::ClientThread);
-}
-
-std::string SafeComponent::getDiag() {
-// this method may not be RT-safe
-    return "TODO";
+    this->ports()->addPort(port_status_subsystem_state_out_);
 }
 
 bool SafeComponent::configureHook() {
@@ -127,9 +112,6 @@ bool SafeComponent::configureHook() {
 bool SafeComponent::startHook() {
     first_step_ = true;
     return true;
-}
-
-void SafeComponent::stopHook() {
 }
 
 void SafeComponent::updateHook() {
@@ -172,7 +154,7 @@ void SafeComponent::updateHook() {
 */
     // read current configuration
     if (first_step_) {
-        Logger::In in("SafeComponent::updateHook");
+//        Logger::In in("SafeComponent::updateHook");
         first_step_ = false;
         if (port_internal_space_position_measurement_in_.read(internal_space_position_) != RTT::NewData) {
             // the safety component cannot be started - there is a serious problem with subsystem structure
@@ -185,10 +167,10 @@ void SafeComponent::updateHook() {
             rArm(i) = status_in_.rArm.q[i];
             lArm(i) = status_in_.lArm.q[i];
         }
-        log(RTT::Error) << "first step " << internal_space_position_.transpose()
-            << " t: " << status_in_.tMotor.q
-            << " r: " << rArm.transpose()
-            << " l: " << lArm.transpose() << Logger::endl;
+//        log(RTT::Error) << "first step " << internal_space_position_.transpose()
+//            << " t: " << status_in_.tMotor.q
+//            << " r: " << rArm.transpose()
+//            << " l: " << lArm.transpose() << Logger::endl;
     }
 
 //    internal_space_position_.setZero();
@@ -196,9 +178,9 @@ void SafeComponent::updateHook() {
     port_joint_stiffness_command_.write(joint_stiffness_command_);
 
     //
-    // write commands
+    // write status
     //
-//    port_cmd_sc_out_.write(cmd_sc_out_);
+    port_status_subsystem_state_out_.write(velma_core_cs_task_cs_msgs::Status::STATE_SAFE);
 
 }
 

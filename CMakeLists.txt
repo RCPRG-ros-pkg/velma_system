@@ -5,16 +5,16 @@ project(velma_core_cs)
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
+  rtt_rosclock
   rtt_subsystem_ports
   velma_core_cs_task_cs_msgs
   velma_core_cs_ve_body_msgs
-  velma_core_cs_ve_hand_msgs
-  velma_core_ve_head_re_head_msgs
-  kuka_lwr_fri
   eigen_conversions
   common_interfaces
   common_behavior
   controller_common
+  planer_utils
+  common_core_cs_components
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -47,11 +47,17 @@ orocos_component(velma_core_cs
     src/predicates.cpp
     src/components/idle.cpp
     src/components/safe.cpp
+    src/components/cart_imp.cpp
+    src/components/jnt_imp.cpp
+    src/components/fcl.cpp
     src/components/cartesian_interpolator.cpp
     src/components/cartesian_impedance_interpolator.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
     src/components/vector_dummy.cpp
+    src/components/double_joint_constraint.cpp
+    src/components/collision_detector.cpp
+    src/components/double_joint_collision_detector.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
@@ -61,7 +67,7 @@ target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} 
 orocos_generate_package(
   INCLUDE_DIRS include
 #  LIBRARIES velma_core_cs
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs common_core_cs_components
 )
 
 #orocos_install_headers(
