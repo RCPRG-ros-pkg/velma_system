@@ -28,45 +28,20 @@
 #ifndef FT_SENSOR_GAZEBO_H__
 #define FT_SENSOR_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int32.h>
-
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-//#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
 
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
+#include <kdl/frames.hpp>
 
-#include "Eigen/Dense"
-
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
 
-//#include <geometry_msgs/Pose.h>
 #include <geometry_msgs/Wrench.h>
-//#include <geometry_msgs/Twist.h>
-
-#include <kuka_lwr_fri/friComm.h>
-
-typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
 
 class FtSensorGazebo : public RTT::TaskContext
 {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
     RTT::OutputPort<geometry_msgs::Wrench> port_raw_wrench_out_;
     RTT::OutputPort<geometry_msgs::Wrench> port_fast_filtered_wrench_out_;
     RTT::OutputPort<geometry_msgs::Wrench> port_slow_filtered_wrench_out_;
@@ -87,8 +62,6 @@ public:
   protected:
 
     void WrenchKDLToMsg(const KDL::Wrench &in, geometry_msgs::Wrench &out) const;
-
-    ros::NodeHandle *nh_;
 
     // ROS parameters
     std::string joint_name_;

@@ -26,18 +26,17 @@
 */
 
 #include "torso_gazebo.h"
-#include "rtt_rosclock/rtt_rosclock.h"
 #include <rtt/Logger.hpp>
 #include "velma_sim_conversion.h"
 
 using namespace RTT;
 
-void TorsoGazebo::getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq) {
-    q(0) = torso_joint_->GetAngle(0).Radian();
-    dq(0) = torso_joint_->GetVelocity(0);
+void TorsoGazebo::getJointPositionAndVelocity(double &q, double &dq) {
+    q = torso_joint_->GetAngle(0).Radian();
+    dq = torso_joint_->GetVelocity(0);
 }
 
-void TorsoGazebo::getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq) {
+void TorsoGazebo::getHeadJointPositionAndVelocity(TorsoGazebo::HeadJoints &q, TorsoGazebo::HeadJoints &dq) {
     q(0) = head_pan_joint_->GetAngle(0).Radian();
     dq(0) = head_pan_joint_->GetVelocity(0);
 
@@ -45,8 +44,8 @@ void TorsoGazebo::getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::Vec
     dq(1) = head_tilt_joint_->GetVelocity(0);
 }
 
-void TorsoGazebo::setForces(const Eigen::VectorXd &t) {
-    torso_joint_->SetForce(0, t(0));
+void TorsoGazebo::setForces(double t) {
+    torso_joint_->SetForce(0, t);
 }
 
 bool TorsoGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
@@ -70,8 +69,6 @@ bool TorsoGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     head_pan_scoped_name_ = head_pan_joint_->GetScopedName();
     head_tilt_scoped_name_ = head_tilt_joint_->GetScopedName();
 
-    rtt_rosclock::set_sim_clock_activity(this);
-
     return true;
 }
 
@@ -94,7 +91,11 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
     Logger::In in("TorsoGazebo::gazeboUpdateHook");
 
-    getJointPositionAndVelocity(q_, dq_);
+    //
+    // torso
+    //
+    double q_t, dq_t;
+    getJointPositionAndVelocity(q_t, dq_t);
 
     const double torso_gear = 158.0;
     const double torso_trans_mult = 20000.0 * torso_gear / (M_PI * 2.0);
@@ -102,19 +103,20 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     const double torso_joint_offset = 0;
     const double torso_motor_constant = 0.00105;
 
-    tmp_t_MotorPosition_out_ = (q_(0) - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
-    tmp_t_MotorVelocity_out_ = dq_(0) * torso_trans_mult;
+    tmp_t_MotorPosition_out_ = (q_t - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
+    tmp_t_MotorVelocity_out_ = dq_t * torso_trans_mult;
 
     //
     // head
     //
-    getHeadJointPositionAndVelocity(qh_, dqh_);
+    HeadJoints q_h, dq_h;
+    getHeadJointPositionAndVelocity(q_h, dq_h);
 
     const double head_trans = 8000.0 * 100.0 / (M_PI * 2.0);
-    tmp_hp_q_out_ = -qh_(0) * head_trans;
-    tmp_ht_q_out_ = qh_(1) * head_trans;
-    tmp_hp_v_out_ = dqh_(0);
-    tmp_ht_v_out_ = dqh_(1);
+    tmp_hp_q_out_ = -q_h(0) * head_trans;
+    tmp_ht_q_out_ = q_h(1) * head_trans;
+    tmp_hp_v_out_ = dq_h(0);
+    tmp_ht_v_out_ = dq_h(1);
 
     // exchange the data between Orocos and Gazebo
     {
@@ -136,9 +138,8 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         data_valid_ = true;
     }
 
-    Eigen::VectorXd grav(1);
-    grav.setZero();
-    grav(0) += tmp_t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant;
+    double grav;
+    grav = tmp_t_MotorCurrentCommand_in_ * torso_gear * torso_motor_constant;
 
     setForces(grav);
 

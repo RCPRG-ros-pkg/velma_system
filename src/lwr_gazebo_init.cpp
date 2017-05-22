@@ -26,6 +26,7 @@
 */
 
 #include "lwr_gazebo.h"
+#include <rtt/Component.hpp>
 
     LWRGazebo::LWRGazebo(std::string const& name)
         : TaskContext(name, RTT::TaskContext::PreOperational)
@@ -39,9 +40,6 @@
         , port_GravityTorque_out_("GravityTorque_OUTPORT", false)
         , port_JointPosition_out_("JointPosition_OUTPORT", false)
     {
-
-        nh_ = new ros::NodeHandle();
-
         addProperty("init_joint_names", init_joint_names_);
         addProperty("init_joint_positions", init_joint_positions_);
         addProperty("name", name_);

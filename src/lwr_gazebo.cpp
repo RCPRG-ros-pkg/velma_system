@@ -26,7 +26,6 @@
 */
 
 #include "lwr_gazebo.h"
-#include "rtt_rosclock/rtt_rosclock.h"
 #include <rtt/Logger.hpp>
 #include "velma_sim_conversion.h"
 
@@ -87,8 +86,6 @@ bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     model_ = model;
-
-    rtt_rosclock::set_sim_clock_activity(this);
 
     return true;
 }

@@ -63,6 +63,11 @@ double BarrettHandGazebo::getFingerAngle(int fidx) const {
 // Update the controller
 void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
+    if (disable_component_) {
+        data_valid_ = true;
+        return;
+    }
+
     Logger::In in("BarrettHandGazebo::gazeboUpdateHook");
 
     if (joints_.size() == 0) {

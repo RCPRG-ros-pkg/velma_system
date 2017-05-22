@@ -28,35 +28,14 @@
 #ifndef TORSO_GAZEBO_H__
 #define TORSO_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
-#include <std_msgs/Empty.h>
-#include <std_msgs/Int32.h>
-
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
 #include <gazebo/common/common.hh>
 
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
-
 #include "Eigen/Dense"
 
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
-
-#include <geometry_msgs/Wrench.h>
-
-#include <kuka_lwr_fri/friComm.h>
-
-typedef Eigen::Matrix<double, 7, 7> Matrix77d;
-
 
 class TorsoGazebo : public RTT::TaskContext
 {
@@ -106,6 +85,8 @@ public:
 
   protected:
 
+    typedef Eigen::Matrix<double, 2, 1 > HeadJoints;
+
     double tmp_t_MotorCurrentCommand_in_;
     double tmp_t_MotorPosition_out_;
     double tmp_t_MotorVelocity_out_;
@@ -123,8 +104,6 @@ public:
 
     void setJointsPID();
 
-    ros::NodeHandle *nh_;
-
     gazebo::physics::ModelPtr model_;
 
     // head
@@ -137,16 +116,14 @@ public:
 
     gazebo::physics::JointController *jc_;
 
-    void getJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
-    void getHeadJointPositionAndVelocity(Eigen::VectorXd &q, Eigen::VectorXd &dq);
-    void setForces(const Eigen::VectorXd &t);
+    void getJointPositionAndVelocity(double &q, double &dq);
+    void getHeadJointPositionAndVelocity(HeadJoints &q, HeadJoints &dq);
+    void setForces(double t);
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
 
     bool data_valid_;
-    Eigen::VectorXd q_, dq_;
-    Eigen::VectorXd qh_, dqh_;
 };
 
 #endif  // TORSO_GAZEBO_H__

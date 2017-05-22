@@ -28,36 +28,16 @@
 #ifndef BARRETT_HAND_GAZEBO_H__
 #define BARRETT_HAND_GAZEBO_H__
 
-#include <ros/callback_queue.h>
-#include <ros/advertise_options.h>
 #include <std_msgs/Empty.h>
-#include <std_msgs/Int32.h>
 
 #include <gazebo/gazebo.hh>
 #include <gazebo/physics/physics.hh>
-//#include <gazebo/physics/dart/DARTModel.hh>
-//#include <gazebo/physics/dart/DARTJoint.hh>
 #include <gazebo/common/common.hh>
-
-#include <ros/ros.h>
-#include <kdl/chain.hpp>
-#include <kdl/chaindynparam.hpp>
-#include <kdl/chainfksolverpos_recursive.hpp>
-#include <kdl/chainjnttojacsolver.hpp>
-#include <kdl_parser/kdl_parser.hpp>
 
 #include "Eigen/Dense"
 
-#include <rtt/Component.hpp>
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
-#include <rtt/Logger.hpp>
-
-//#include <geometry_msgs/Pose.h>
-#include <geometry_msgs/Wrench.h>
-//#include <geometry_msgs/Twist.h>
-
-#include <kuka_lwr_fri/friComm.h>
 
 class BarrettHandGazebo : public RTT::TaskContext
 {
@@ -114,8 +94,6 @@ public:
 
     std::string prefix_;
 
-    ros::NodeHandle *nh_;
-
     gazebo::physics::ModelPtr model_;
 //    gazebo::physics::DARTModelPtr model_dart_;
 //    dart::dynamics::Skeleton *dart_sk_;
@@ -142,6 +120,8 @@ public:
 
     //! Synchronization
     RTT::os::MutexRecursive gazebo_mutex_;
+
+    bool disable_component_;
 };
 
 #endif  // BARRETT_HAND_GAZEBO_H__

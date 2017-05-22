@@ -26,6 +26,7 @@
 */
 
 #include "ft_sensor_gazebo.h"
+#include <rtt/Component.hpp>
 
 FtSensorGazebo::FtSensorGazebo(std::string const& name)
     : TaskContext(name, RTT::TaskContext::PreOperational)
@@ -38,8 +39,6 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name)
     , port_fast_filtered_wrench_out_("fastFilteredWrench_OUTPORT", false)
     , port_slow_filtered_wrench_out_("slowFilteredWrench_OUTPORT", false)
 {
-    nh_ = new ros::NodeHandle();
-
     addProperty("joint_name", joint_name_);
     addProperty("transform_xyz", transform_xyz_);
     addProperty("transform_rpy", transform_rpy_);
