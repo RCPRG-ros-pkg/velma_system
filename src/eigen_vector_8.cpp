@@ -25,17 +25,10 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-
 #include "eigen_vector.h"
 #include "common_interfaces/data_conversion.h"
 #include "rtt/Component.hpp"
 
-REGISTER_DATA_CONVERSION(velma_core_ve_head_re_head_msgs, Command, q, (boost::array<double, 2 >), (Eigen::Matrix<double, 2, 1 >),
-{ ::convert<2>(ros, oro); }, { ::convert<2>(oro, ros); } )
-
-REGISTER_DATA_CONVERSION(velma_core_ve_head_re_head_msgs, Status, q, (boost::array<double, 2 >), (Eigen::Matrix<double, 2, 1 >),
-{ ::convert<2>(ros, oro); }, { ::convert<2>(oro, ros); } )
-
-REGISTER_DATA_CONVERSION(velma_core_ve_head_re_head_msgs, Status, dq, (boost::array<double, 2 >), (Eigen::Matrix<double, 2, 1 >),
-{ ::convert<2>(ros, oro); }, { ::convert<2>(oro, ros); } )
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusHand, q, (boost::array<double, 8 >), (Eigen::Matrix<double, 8, 1 >),
+{ ::convert<8>(ros, oro); }, { ::convert<8>(oro, ros); } )
 

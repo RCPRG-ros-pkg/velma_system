@@ -25,31 +25,17 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+
+#include "eigen_vector.h"
 #include "common_interfaces/data_conversion.h"
-#include "Eigen/Dense"
-#include <boost/array.hpp>
 #include "rtt/Component.hpp"
 
-void convert(   const Eigen::Matrix<double, 7, 7 >& data_oro,
-                boost::array<double, 28 >& data_ros) {
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, q, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 
-    for (int i = 0, idx = 0; i < 7; ++i) {
-        for (int j = i; j < 7; ++j) {
-            data_ros[idx++] = data_oro(i,j);
-        }
-    }
-}
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, dq, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 
-void convert(   const boost::array<double, 28 >& data_ros,
-                Eigen::Matrix<double, 7, 7 >& data_oro) {
-
-    for (int i = 0, idx = 0; i < 7; ++i) {
-        for (int j = i; j < 7; ++j) {
-            data_oro(i,j) = data_oro(j,i) = data_ros[idx++];
-        }
-    }
-}
-
-REGISTER_DATA_CONVERSION(velma_core_ve_body_re_body_msgs, StatusArm, mmx, (boost::array<double, 28 >), (Eigen::Matrix<double, 7, 7 >),
-{ ::convert(ros, oro); }, { ::convert(oro, ros); } )
+REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, CommandHand, max_i, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
+{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
 

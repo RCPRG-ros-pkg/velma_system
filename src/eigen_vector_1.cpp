@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+ Copyright (c) 2014-2017, Robot Control and Pattern Recognition Group, Warsaw University of Technology
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -25,17 +25,25 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "Eigen/Dense"
+#include "common_behavior/abstract_port_converter.h"
 
-#include "eigen_vector.h"
-#include "common_interfaces/data_conversion.h"
-#include "rtt/Component.hpp"
+class PortConverterEigen1ToDouble : public common_behavior::Converter<Eigen::Matrix<double, 1, 1>, double > {
+public:
 
-REGISTER_DATA_CONVERSION(velma_core_ve_hand_re_hand_msgs, CommandHand, q, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
-{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
+    virtual void convert(const Eigen::Matrix<double, 1, 1> &from, double &to) const {
+        to = from(0);
+    }
+};
 
-REGISTER_DATA_CONVERSION(velma_core_ve_hand_re_hand_msgs, CommandHand, dq, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
-{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
+class PortConverterDoubleToEigen1 : public common_behavior::Converter<double, Eigen::Matrix<double, 1, 1> > {
+public:
 
-REGISTER_DATA_CONVERSION(velma_core_ve_hand_re_hand_msgs, CommandHand, max_i, (boost::array<double, 4 >), (Eigen::Matrix<double, 4, 1 >),
-{ ::convert<4>(ros, oro); }, { ::convert<4>(oro, ros); } )
+    virtual void convert(const double &from, Eigen::Matrix<double, 1, 1> &to) const {
+        to(0) = from;
+    }
+};
+
+REGISTER_PORT_CONVERTER(PortConverterEigen1ToDouble);
+REGISTER_PORT_CONVERTER(PortConverterDoubleToEigen1);
 
