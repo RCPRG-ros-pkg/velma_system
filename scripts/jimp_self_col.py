@@ -52,6 +52,28 @@ if __name__ == "__main__":
     for joint_name in q_map:
         joint_names.append(joint_name)
 
+    print "moving to initial position"
+    q_dest = []
+    for joint_name in joint_names:
+        q_dest.append(q_map[joint_name])
+    velma.moveJoint(q_dest, joint_names, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+    rospy.sleep(1)
+
+    print "moving to self-collision position"
+    q_map_col = copy.copy(q_map)
+    q_map_col['right_arm_5_joint'] = 1.0
+    q_dest = []
+    for joint_name in joint_names:
+        q_dest.append(q_map_col[joint_name])
+    velma.moveJoint(q_dest, joint_names, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.waitForJoint()
+
+    rospy.sleep(2)
+
+    exit(0)
+
     print "moving to current position"
     js = velma.getLastJointState()
     q_map_current = js[1]

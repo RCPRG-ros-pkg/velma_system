@@ -1,18 +1,18 @@
-<subsystem>
-    <import>rtt_barrett_hand_controller_msgs</import>
-    <import>barrett_hand_move_action</import>
-    <import>eigen_typekit</import>
-    <import>rtt_control_msgs</import>
-    <import>rtt_rosclock</import>
-    <import>controller_common</import>
-    <import>velma_controller</import>
-    <import>rtt_cartesian_trajectory_msgs</import>
-    <import>rtt_std_msgs</import>
-    <import>rtt_tf</import>
-    <import>port_operations</import>
-    <import>force_control</import>
-    <import>rtt_force_control_msgs</import>
-    <import>rtt_velma_core_cs_task_cs_msgs</import>
+<subsystem_configuration>
+    <import package="rtt_barrett_hand_controller_msgs" />
+    <import package="barrett_hand_move_action" />
+    <import package="eigen_typekit" />
+    <import package="rtt_control_msgs" />
+    <import package="rtt_rosclock" />
+    <import package="controller_common" />
+    <import package="velma_controller" />
+    <import package="rtt_cartesian_trajectory_msgs" />
+    <import package="rtt_std_msgs" />
+    <import package="rtt_tf" />
+    <import package="port_operations" />
+    <import package="force_control" />
+    <import package="rtt_force_control_msgs" />
+    <import package="rtt_velma_core_cs_task_cs_msgs" />
 
     <component type="CartImpActionVelma"                            name="CartImpActionRight"   running="true" ros_action="/right_arm/cartesian_trajectory" />
     <component type="CartImpActionVelma"                            name="CartImpActionLeft"    running="true" ros_action="/left_arm/cartesian_trajectory" />
@@ -23,9 +23,15 @@
     <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
     <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
 
+<!--    <component type="TfPublisher"                                   name="TfPub"                running="true" />-->
+
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
-
+<!--
+    <connection from="stSplit.rToolInWristPose_OUTPORT"             to="TfPub.In0" />
+    <connection from="stSplit.lToolInWristPose_OUTPORT"             to="TfPub.In1" />
+    <ros_stream port="TfPub.OutTf"                  topic="/tf" />
+-->
     <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
     <connection from="CartImpActionRight.cart_tool_command_OUTPORT"                 to="cmdConcate.cart_r_tool_INPORT" />
     <connection from="CartImpActionRight.cart_imp_command_OUTPORT"                  to="cmdConcate.cart_r_imp_INPORT" />
@@ -45,20 +51,20 @@
     <connection from="stSplit.q_OUTPORT"             to="JntPub.JointPosition" />
     <connection from="stSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
     <ros_stream port="JntPub.joint_state"             topic="/joint_states" />
-    <connection from="LeftHandAction.q_OUTPORT"       to="cmdConcate.hand_l_hand_q_INPORT" />
-    <connection from="LeftHandAction.v_OUTPORT"       to="cmdConcate.hand_l_hand_dq_INPORT" />
-    <connection from="LeftHandAction.t_OUTPORT"       to="cmdConcate.hand_l_hand_max_i_INPORT" />
-    <connection from="LeftHandAction.mp_OUTPORT"      to="cmdConcate.hand_l_hand_max_p_INPORT" />
-    <connection from="LeftHandAction.hold_OUTPORT"    to="cmdConcate.hand_l_hand_hold_INPORT" />
+    <connection from="LeftHandAction.q_OUTPORT"       to="cmdConcate.hand_l_q_INPORT" />
+    <connection from="LeftHandAction.v_OUTPORT"       to="cmdConcate.hand_l_dq_INPORT" />
+    <connection from="LeftHandAction.t_OUTPORT"       to="cmdConcate.hand_l_max_i_INPORT" />
+    <connection from="LeftHandAction.mp_OUTPORT"      to="cmdConcate.hand_l_max_p_INPORT" />
+    <connection from="LeftHandAction.hold_OUTPORT"    to="cmdConcate.hand_l_hold_INPORT" />
     <connection from="stSplit.hand_l_s_OUTPORT"        to="LeftHandAction.status_INPORT" />
-    <connection from="RightHandAction.q_OUTPORT"      to="cmdConcate.hand_r_hand_q_INPORT" />
-    <connection from="RightHandAction.v_OUTPORT"      to="cmdConcate.hand_r_hand_dq_INPORT" />
-    <connection from="RightHandAction.t_OUTPORT"      to="cmdConcate.hand_r_hand_max_i_INPORT" />
-    <connection from="RightHandAction.mp_OUTPORT"     to="cmdConcate.hand_r_hand_max_p_INPORT" />
-    <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hand_hold_INPORT" />
+    <connection from="RightHandAction.q_OUTPORT"      to="cmdConcate.hand_r_q_INPORT" />
+    <connection from="RightHandAction.v_OUTPORT"      to="cmdConcate.hand_r_dq_INPORT" />
+    <connection from="RightHandAction.t_OUTPORT"      to="cmdConcate.hand_r_max_i_INPORT" />
+    <connection from="RightHandAction.mp_OUTPORT"     to="cmdConcate.hand_r_max_p_INPORT" />
+    <connection from="RightHandAction.hold_OUTPORT"   to="cmdConcate.hand_r_hold_INPORT" />
     <connection from="stSplit.hand_r_s_OUTPORT"        to="RightHandAction.status_INPORT" />
 
-    <ros_stream port="stRx.msg_OUTPORT"             topic="/stSplit" />
+    <ros_stream port="stRx.msg_OUTPORT"             topic="/velma_task_cs_ros_interface/st" />
 
 <!--
 #stream("cmdConcate.msg_OUTPORT", ros.comm.topic("/velma_task_cs_ros_interface/cmdConcate/msg_OUTPORT"));
@@ -66,5 +72,4 @@
 #connect("stSplit.hand_l_q_OUTPORT", "TODO", ConnPolicy());
 #connect("stSplit.hand_r_q_OUTPORT", "TODO", ConnPolicy());
 -->
-</subsystem>
-
+</subsystem_configuration>

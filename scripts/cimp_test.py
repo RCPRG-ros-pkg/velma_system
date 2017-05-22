@@ -24,10 +24,7 @@ if __name__ == "__main__":
 
     rospy.init_node('cimp_test', anonymous=True)
 
-    prefix = "right"
-
     rospy.sleep(1)
-
 
     velma = VelmaInterface("/velma_task_cs_ros_interface")
     print "waiting for init..."
@@ -37,9 +34,10 @@ if __name__ == "__main__":
 
     print "moving right arm to current pose"
     T_B_Trd = velma.getTf("B", "Wr")
-    velma.moveEffectorRight(T_B_Trd, 2.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    T_B_Trd_init = copy.copy(T_B_Trd)
+    T_B_Tld_init = copy.copy(velma.getTf("B", "Wl"))
+    velma.moveEffectorRight(T_B_Trd, 0.5, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
-    T_B_Trd_prev = T_B_Trd
 
     print "moving right arm to another pose"
     T_B_Trd = velma.getTf("B", "Wr")
@@ -48,18 +46,36 @@ if __name__ == "__main__":
     velma.waitForEffectorRight()
 
     print "moving right arm to initial pose"
-    velma.moveEffectorRight(T_B_Trd_prev, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorRight(T_B_Trd_init, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
-    T_B_Trd_prev = T_B_Trd
 
     print "moving right arm to another pose (error - too fast)"
     T_B_Trd = velma.getTf("B", "Wr")
     T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,1.1)) * T_B_Trd
-    velma.moveEffectorRight(T_B_Trd, 0.1, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.04, 0.04, 0.04), PyKDL.Vector(0.1, 0.1, 0.1)))
+    velma.moveEffectorRight(T_B_Trd, 0.1, PyKDL.Wrench(PyKDL.Vector(50,50,50), PyKDL.Vector(50,50,50)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.04, 0.04, 0.04), PyKDL.Vector(0.1, 0.1, 0.1)))
     velma.waitForEffectorRight()
 
+    print "waiting 2 seconds..."
+    rospy.sleep(2)
+
     print "moving right arm to initial pose"
-    velma.moveEffectorRight(T_B_Trd_prev, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorRight(T_B_Trd_init, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
     velma.waitForEffectorRight()
-    T_B_Trd_prev = T_B_Trd
+
+    print "moving arms to self-collision pose"
+    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0.4, 0.1, 1.2))
+    T_B_Tld = PyKDL.Frame(PyKDL.Rotation.RotZ(180.0/180.0*math.pi), PyKDL.Vector(0.4, -0.1, 1.2))
+    velma.moveEffectorRight(T_B_Trd, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorLeft(T_B_Tld, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+    velma.waitForEffectorLeft()
+
+    print "waiting 2 seconds..."
+    rospy.sleep(2)
+
+    print "moving arms to initial pose"
+    velma.moveEffectorRight(T_B_Trd_init, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.moveEffectorLeft(T_B_Tld_init, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+    velma.waitForEffectorRight()
+    velma.waitForEffectorLeft()
 
