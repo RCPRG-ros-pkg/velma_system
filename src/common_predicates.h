@@ -29,17 +29,18 @@
 #define VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_ve_body_re_body_msgs/Status.h"
+#include "velma_core_cs_ve_body_msgs/Status.h"
 #include "velma_core_ve_body/master.h"
+#include <lwr_msgs/FriRobotState.h>
+#include <lwr_msgs/FriIntfState.h>
 
-bool isLwrOk(const velma_core_ve_body_re_body_msgs::StatusArmFriRobot& friRobot, const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
-bool isLwrInCmdState(const velma_core_ve_body_re_body_msgs::StatusArmFriIntf& friIntf);
+bool isLwrOk(const lwr_msgs::FriRobotState& friRobot, const lwr_msgs::FriIntfState& friIntf);
+bool isLwrInCmdState(const lwr_msgs::FriIntfState& friIntf);
 bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
-bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd, velma_core_ve_body_types::ErrorCausePtr err = velma_core_ve_body_types::ErrorCausePtr());
-//bool isCmdValid(const velma_core_cs_ve_body_msgs::Command& cmd);
-bool isStatusValid(const velma_core_ve_body_re_body_msgs::Status &st, velma_core_ve_body_types::ErrorCausePtr err = velma_core_ve_body_types::ErrorCausePtr());
-std::string getErrorReasonStr(velma_core_ve_body_types::ErrorCauseConstPtr err);
+bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd);
+bool isCmdTorsoValid(double cmd_tMotor_i);
+bool isStatusValid(const velma_core_cs_ve_body_msgs::Status &st);
 
 #endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__
 

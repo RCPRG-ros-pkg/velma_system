@@ -25,45 +25,71 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include <rtt/Logger.hpp>
 #include "velma_core_ve_body/master.h"
 #include "common_predicates.h"
 
 namespace velma_core_ve_body_types {
 
-bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return isLwrOk(in_data->lo_st.rArmFriRobot, in_data->lo_st.rArmFriIntf);
+static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
+    for (int i = 0; i < components.size(); ++i) {
+        if (components[i]->getName() == component_name) {
+            const RTT::Attribute<bool >* attr = static_cast<const RTT::Attribute< bool >* >(components[i]->getAttribute(attribute_name));
+            if (!attr) {
+                RTT::log(RTT::Error) << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+            }
+            return attr;
+        }
+    }
+    RTT::log(RTT::Error) << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+
+    return NULL;
 }
 
-bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return isLwrInCmdState(in_data->lo_st.rArmFriIntf);
+bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* safeIterationsOver500_attrib = getBoolAttribute("safe", "safeIterationsOver500", components);
+    return safeIterationsOver500_attrib->get();
 }
 
-bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return isLwrOk(in_data->lo_st.lArmFriRobot, in_data->lo_st.lArmFriIntf);
+bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* rLwrOk_attrib = getBoolAttribute("hw_state", "rLwrOk", components);
+    return rLwrOk_attrib->get();
 }
 
-bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return isLwrInCmdState(in_data->lo_st.lArmFriIntf);
+bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* rLwrCmdState_attrib = getBoolAttribute("hw_state", "rLwrCmdState", components);
+    return rLwrCmdState_attrib->get();
 }
 
-bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.rArm_valid;
+bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* lLwrOk_attrib = getBoolAttribute("hw_state", "lLwrOk", components);
+    return lLwrOk_attrib->get();
 }
 
-bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.lArm_valid;
+bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* lLwrCmdState_attrib = getBoolAttribute("hw_state", "lLwrCmdState", components);
+    return lLwrCmdState_attrib->get();
 }
 
-bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.tMotor_valid;
+bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->hi_cmd.rArm_valid && isCmdArmValid(in_data->hi_cmd.rArm);
 }
 
-bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<RTT::TaskContext*> &components, const std::string& prev_state_name) {
-    return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc.cmd == 1);
+bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->hi_cmd.lArm_valid && isCmdArmValid(in_data->hi_cmd.lArm);
+}
+
+bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->hi_cmd.tMotor_i_valid && isCmdTorsoValid(in_data->hi_cmd.tMotor_i);
+}
+
+bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc == 1);
 }
 
 };  // namespace velma_core_ve_body_types
 
+REGISTER_PREDICATE( velma_core_ve_body_types::safeIterationsPassed500 );
 REGISTER_PREDICATE( velma_core_ve_body_types::rLwrOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::rLwrInCmdState );
 REGISTER_PREDICATE( velma_core_ve_body_types::lLwrOk );
