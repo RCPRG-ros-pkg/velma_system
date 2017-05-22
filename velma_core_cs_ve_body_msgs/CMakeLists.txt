@@ -3,12 +3,19 @@ cmake_minimum_required(VERSION 2.8.6)
 project(velma_core_cs_ve_body_msgs)
 
 find_package(catkin REQUIRED
-  COMPONENTS std_msgs geometry_msgs barrett_hand_controller_msgs common_interfaces message_generation actionlib_msgs velma_core_ve_body_re_body_msgs)
+  COMPONENTS std_msgs geometry_msgs barrett_hand_controller_msgs message_generation actionlib_msgs)
 
 add_message_files(FILES
   Command.msg
-  StatusSC.msg
+  CommandArm.msg
+  CommandHand.msg
+  CommandMotor.msg
   Status.msg
+  StatusArm.msg
+  StatusFT.msg
+  StatusHand.msg
+  StatusMotor.msg
+  StatusSC.msg
   )
   
 
@@ -17,9 +24,8 @@ generate_messages(
   std_msgs
   geometry_msgs
   barrett_hand_controller_msgs
-  velma_core_ve_body_re_body_msgs
   )
 
 
 catkin_package(
-  CATKIN_DEPENDS std_msgs geometry_msgs barrett_hand_controller_msgs message_runtime velma_core_ve_body_re_body_msgs)
+  CATKIN_DEPENDS std_msgs geometry_msgs barrett_hand_controller_msgs message_runtime)
