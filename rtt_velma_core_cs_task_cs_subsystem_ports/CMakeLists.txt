@@ -11,5 +11,5 @@ find_package(catkin REQUIRED COMPONENTS
 ros_generate_rtt_subsystem_ports(velma_core_cs_task_cs_msgs)
 
 orocos_generate_package(
-  DEPENDS velma_core_ve_body_re_body_msgs
+  DEPENDS velma_core_cs_ve_body_msgs
   DEPENDS_TARGETS rtt_subsystem_ports)
