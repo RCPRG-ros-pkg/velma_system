@@ -137,6 +137,8 @@ public:
 
     std::vector<gazebo::physics::JointPtr > joints_;
     std::vector<gazebo::physics::LinkPtr > links_;
+
+    int counter_;
 };
 
 #endif  // LWR_GAZEBO_H__

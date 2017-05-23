@@ -51,33 +51,33 @@
         init_joint_names: [right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint]
         init_joint_positions: [0,-1.57,1.57,1.57,0,-1.57,0]
         tool:
-          m: 1.3391
+          m: 1.52832
           com:
-            x: 0.1749
-            y: 0.0134
-            z: -0.0781
-          ixx: 0.1
-          ixy: 0.0
-          ixz: 0.0
-          iyy: 0.1
-          iyz: 0.0
-          izz: 0.1
+            x: 0.152207
+            y: 0.0108986
+            z: -0.0694205
+          ixx: 0.00818233
+          ixy: -0.000581708
+          ixz: 0.00126671
+          iyy: 0.00703382
+          iyz: 0.000167246
+          izz: 0.012285
       LWRlSim:
         name: left
         init_joint_names: [left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
         init_joint_positions: [0,1.57,-1.57,-1.57,0,1.57,0]
         tool:
-          m: 1.3391
+          m: 1.53858
           com:
-            x: -0.1749
-            y: 0.0134
-            z: -0.0781
-          ixx: 0.1
-          ixy: 0.0
-          ixz: 0.0
-          iyy: 0.1
-          iyz: 0.0
-          izz: 0.1
+            x: -0.15272
+            y: 0.0111521
+            z: -0.0687842
+          ixx: 0.00838618
+          ixy: 0.000596738
+          ixz: -0.0011774
+          iyy: 0.00702498
+          iyz: 0.000105634
+          izz: 0.012516
       RightHand:
         prefix: right
         disable_component: false

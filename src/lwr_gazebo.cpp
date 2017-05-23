@@ -28,6 +28,14 @@
 #include "lwr_gazebo.h"
 #include <rtt/Logger.hpp>
 #include "velma_sim_conversion.h"
+#include <gazebo/physics/dart/DARTModel.hh>
+
+//#define CALCULATE_TOOL_INERTIA
+
+#ifdef CALCULATE_TOOL_INERTIA
+#include <eigen_conversions/eigen_kdl.h>
+#include <kdl/rigidbodyinertia.hpp>
+#endif
 
 using namespace RTT;
 
@@ -87,6 +95,7 @@ bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 
     model_ = model;
 
+    counter_ = 0;
     return true;
 }
 
@@ -112,6 +121,99 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
+#ifdef CALCULATE_TOOL_INERTIA
+    //
+    // This code calculates and displays inertia of tool.
+    // It uses real mass matrix (taken from Gazebo).
+    //
+    dart::dynamics::Skeleton *sk = boost::dynamic_pointer_cast<gazebo::physics::DARTModel >(model)->GetDARTSkeleton();
+
+    Eigen::MatrixXd mm = sk->getMassMatrix();
+
+    Eigen::Matrix<int, 7, 1 > idx;
+
+    idx(0) = sk->getJoint(name_ + "_arm_0_joint")->getIndexInSkeleton(0);
+    idx(1) = sk->getJoint(name_ + "_arm_1_joint")->getIndexInSkeleton(0);
+    idx(2) = sk->getJoint(name_ + "_arm_2_joint")->getIndexInSkeleton(0);
+    idx(3) = sk->getJoint(name_ + "_arm_3_joint")->getIndexInSkeleton(0);
+    idx(4) = sk->getJoint(name_ + "_arm_4_joint")->getIndexInSkeleton(0);
+    idx(5) = sk->getJoint(name_ + "_arm_5_joint")->getIndexInSkeleton(0);
+    idx(6) = sk->getJoint(name_ + "_arm_6_joint")->getIndexInSkeleton(0);
+
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 7; j++) {
+            tmp_MassMatrix_out_(i,j) = mm(idx(i),idx(j));
+        }
+    }
+
+    if (counter_ < 1000) {
+        ++counter_;
+    }
+    else {
+        counter_ = 0;
+
+        dart::dynamics::BodyNode *b = sk->getJoint(name_ + "_arm_6_joint")->getChildBodyNode();
+
+        std::vector<dart::dynamics::BodyNode* > all;
+        std::vector<dart::dynamics::BodyNode* > to_check;
+        std::vector<dart::dynamics::BodyNode* > to_check_new;
+        to_check.push_back(b);
+        all.push_back(b);
+
+        KDL::Frame base_tf;
+        tf::transformEigenToKDL(b->getTransform(), base_tf);
+
+        while (to_check.size() > 0) {
+            to_check_new.clear();
+            for (int i = 0; i < to_check.size(); ++i) {
+                for (int j = 0; j < to_check[i]->getNumChildBodyNodes(); ++j) {
+                    b = to_check[i]->getChildBodyNode(j);
+                    to_check_new.push_back( b );
+                    all.push_back(b);
+                }
+            }
+            to_check = to_check_new;
+        }
+
+        std::cout << "links below joint " << name_ << "_arm_6_joint" << std::endl;
+        // calculate com
+        KDL::Vector COM;
+        double MASS = 0;
+        for (int i = 0; i < all.size(); ++i) {
+            std::cout << "    " << all[i]->getName() << std::endl;
+            KDL::Vector com;
+            tf::vectorEigenToKDL(all[i]->getLocalCOM(), com);
+            KDL::Frame tf;
+            tf::transformEigenToKDL(all[i]->getTransform(), tf);
+            COM = COM + (base_tf.Inverse() * tf) * com * all[i]->getMass();
+            MASS += all[i]->getMass();
+        }
+        COM = COM * (1.0 / MASS);
+        std::cout << "mass: " << MASS << ", com: " << COM.x() << " " << COM.y() << " " << COM.z() << std::endl;
+
+        KDL::Frame T_B_WI = base_tf * KDL::Frame(COM);
+        KDL::RigidBodyInertia RBI;
+        // calculate moment of inertia
+        for (int i = 0; i < all.size(); ++i) {
+            double Ixx, Iyy, Izz, Ixy, Ixz, Iyz;
+            all[i]->getMomentOfInertia(Ixx, Iyy, Izz, Ixy, Ixz, Iyz);
+            KDL::Vector com;
+            tf::vectorEigenToKDL(all[i]->getLocalCOM(), com);
+            KDL::RigidBodyInertia rbI(all[i]->getMass(), com,  KDL::RotationalInertia(Ixx, Iyy, Izz, Ixy, Ixz, Iyz));
+            KDL::Frame T_B_L;
+            tf::transformEigenToKDL(all[i]->getTransform(), T_B_L);
+            KDL::Frame T_B_LI = T_B_L * KDL::Frame(com);
+            KDL::RigidBodyInertia rbI_WI = (T_B_WI.Inverse() * T_B_LI) * rbI;
+            RBI = RBI + rbI_WI;
+        }
+        std::cout << "I: " << RBI.getRotationalInertia().data[0] << " " << RBI.getRotationalInertia().data[1] << " " << RBI.getRotationalInertia().data[2] << std::endl;
+        std::cout << "   " << RBI.getRotationalInertia().data[3] << " " << RBI.getRotationalInertia().data[4] << " " << RBI.getRotationalInertia().data[5] << std::endl;
+        std::cout << "   " << RBI.getRotationalInertia().data[6] << " " << RBI.getRotationalInertia().data[7] << " " << RBI.getRotationalInertia().data[8] << std::endl;
+    }
+#else
+    //
+    // Use fixed tool inertia.
+    //
     // mass matrix
     mm_->updatePoses(model);
     const Eigen::MatrixXd &mm = mm_->getMassMatrix();
@@ -121,6 +223,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             tmp_MassMatrix_out_(i,j) = mm(i,j);
         }
     }
+#endif
 
     // gravity forces
     Joints grav(7);
