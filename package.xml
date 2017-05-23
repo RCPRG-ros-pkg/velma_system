@@ -21,12 +21,14 @@
   <build_depend>common_behavior</build_depend>
   <build_depend>controller_common</build_depend>
   <build_depend>rtt_subsystem_ports</build_depend>
+  <build_depend>planner</build_depend>
 
   <run_depend>rtt</run_depend>
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_task_cs_msgs</run_depend>
   <run_depend>rtt_actionlib</run_depend>
+  <run_depend>planner</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>
