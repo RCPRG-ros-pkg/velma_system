@@ -38,15 +38,7 @@ if __name__ == "__main__":
         'left_arm_6_joint':0.0
         }
 
-    goal_constraint_1 = Constraints()
-    for joint_name in q_map_1:
-        constraint = JointConstraint()
-        constraint.joint_name = joint_name
-        constraint.position = q_map_1[ joint_name ]
-        constraint.tolerance_above = 0.01
-        constraint.tolerance_below = 0.01
-        constraint.weight = 1.0
-        goal_constraint_1.joint_constraints.append( constraint )
+    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
 
     print "moving right arm to initial pose (jimp)"
     js = velma.getLastJointState()

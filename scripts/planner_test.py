@@ -49,15 +49,7 @@ if __name__ == "__main__":
         'left_arm_6_joint':0.0
         }
 
-    goal_constraint_1 = Constraints()
-    for joint_name in q_map_1:
-        constraint = JointConstraint()
-        constraint.joint_name = joint_name
-        constraint.position = q_map_1[ joint_name ]
-        constraint.tolerance_above = 0.1
-        constraint.tolerance_below = 0.1
-        constraint.weight = 1.0
-        goal_constraint_1.joint_constraints.append( constraint )
+    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
 
     js = [None, q_map_2]
     traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
