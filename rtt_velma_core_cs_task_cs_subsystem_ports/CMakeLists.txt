@@ -8,7 +8,7 @@ find_package(catkin REQUIRED COMPONENTS
  velma_core_cs_task_cs_msgs
 )
 
-ros_generate_rtt_subsystem_ports(velma_core_cs_task_cs_msgs)
+ros_generate_rtt_subsystem_ports(PACKAGE velma_core_cs_task_cs_msgs MESSAGES Command Status)
 
 orocos_generate_package(
   DEPENDS velma_core_cs_ve_body_msgs
