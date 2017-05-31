@@ -51,7 +51,7 @@ orocos_component(velma_core_ve_body
     src/components/packet_counter.cpp
     src/components/vector_dummy.cpp
     src/components/hw_state.cpp
-    src/components/ec_msg_converter.cpp
+#    src/components/ec_msg_converter.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

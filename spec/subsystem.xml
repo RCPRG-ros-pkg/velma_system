@@ -1,10 +1,10 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"         side="top" />
-        <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"          side="top"/>
-        <in alias="lo_ec_st"   type="test_ec_msgs_gen::EcOutput"                   side="bottom"/>
-        <out alias="lo_ec_cmd"  type="test_ec_msgs_gen::EcInput"                   side="bottom"/>
+        <in alias="hi_cmd"      type="velma_core_cs_ve_body_msgs::Command"  side="top"/>
+        <out alias="hi_st"      type="velma_core_cs_ve_body_msgs::Status"   side="top"/>
+        <in alias="lo_ec_st"    type="test_ec_msgs_gen::EcOutput"           side="bottom"   converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
+        <out alias="lo_ec_cmd"  type="test_ec_msgs_gen::EcInput"            side="bottom"   converter="test_ec_msgs_gen::EcInputBufferConverter"/>
     </buffers>
 
     <trigger_methods>
