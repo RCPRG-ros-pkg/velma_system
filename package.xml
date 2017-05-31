@@ -22,6 +22,8 @@
   <build_depend>rtt_subsystem_ports</build_depend>
   <build_depend>controller_common</build_depend>
   <build_depend>lwr_msgs</build_depend>
+  <build_depend>test_ec_msgs_gen</build_depend>
+  <build_depend>rtt_test_ec_subsystem_ports</build_depend>
 
   <run_depend>rtt</run_depend>
   <run_depend>ocl</run_depend>
@@ -29,6 +31,8 @@
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
   <run_depend>rtt_velma_core_cs_ve_body_subsystem_ports</run_depend>
   <run_depend>subsystem_deployer</run_depend>
+  <run_depend>test_ec_msgs_gen</run_depend>
+  <run_depend>rtt_test_ec_subsystem_ports</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>
@@ -41,6 +45,7 @@
       <plugin_depend>rtt_lwr_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
       <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_test_ec_subsystem_ports</plugin_depend>
     </rtt_ros>
   </export>
 </package>
