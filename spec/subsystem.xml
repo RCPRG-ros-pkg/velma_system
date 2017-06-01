@@ -1,0 +1,30 @@
+<subsystem_definition>
+
+    <buffers>
+        <out alias="hi_ec_st"   type="test_ec_msgs_gen::EcInput"    side="top"  converter="test_ec_msgs_gen::EcInputBufferConverter"/>
+        <in alias="hi_ec_cmd"   type="test_ec_msgs_gen::EcOutput"   side="top"  converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
+    </buffers>
+
+    <trigger_methods>
+      <period value="0.001" />
+    </trigger_methods>
+
+    <predicates>
+    </predicates>
+
+    <behaviors>
+        <behavior name="normal"
+            stop_cond="FALSE"
+            err_cond="FALSE" >
+        </behavior>
+    </behaviors>
+
+    <states initial="normal">
+        <state name="normal">
+            <behavior name="normal" />
+        </state>
+    </states>
+
+    <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
+
+</subsystem_definition>

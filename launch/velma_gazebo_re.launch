@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<launch>
+
+  <arg name="world_name" default="$(find velma_scripts)/data/gazebo/worlds/blank.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+  <arg name="use_kinect" default="false"/>
+  <arg name="gui" default="false"/>
+  <arg name="debug" default="false"/>
+
+  <!-- Orocos target (gnulinux, xenomai, etc) -->
+  <arg name="OROCOS_TARGET" default="$(optenv OROCOS_TARGET)"/>
+  <!-- Path to look for dynamically-loaded plugins and components (something like /lib/orocos) -->
+  <arg name="RTT_COMPONENT_PATH" default="$(env RTT_COMPONENT_PATH)"/>
+  <arg name="ORO_LOGLEVEL" default="5"/>
+
+  <include file="$(find velma_sim_gazebo)/launch/empty_world.launch">
+    <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
+    <arg name="paused" value="false"/>
+    <arg name="use_sim_time" value="true"/>
+    <arg name="gui" value="$(arg gui)"/>
+    <arg name="verbose" value="true"/>
+    <arg name="headless" value="false"/>
+    <arg name="debug" value="$(arg debug)"/>
+    <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
+  </include>
+
+  <!-- load robot description-->
+  <param name="/use_sim_time" value="true"/>
+  <param name="/robot_description"
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'
+        subsystem_xml:=true
+        xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_re.xml'
+        use_gazebo_kinect:=$(arg use_kinect)" />
+<!--
+        collision_model_full:=false
+        collision_model_simplified:=true
+-->
+  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+  
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" output="screen" args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <param name="use_tf_static" value="false"/>
+  </node>
+
+  <node name="unpause_on_init" pkg="velma_sim_gazebo" type="unpause_on_init.py" output="screen" />
+
+  <group ns="/gazebo">
+    <rosparam>
+      LWRrSim:
+        name: right
+        init_joint_names: [right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint]
+        init_joint_positions: [0,-1.57,1.57,1.57,0,-1.57,0]
+        tool:
+          m: 1.52832
+          com:
+            x: 0.152207
+            y: 0.0108986
+            z: -0.0694205
+          ixx: 0.00818233
+          ixy: -0.000581708
+          ixz: 0.00126671
+          iyy: 0.00703382
+          iyz: 0.000167246
+          izz: 0.012285
+      LWRlSim:
+        name: left
+        init_joint_names: [left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
+        init_joint_positions: [0,1.57,-1.57,-1.57,0,1.57,0]
+        tool:
+          m: 1.53858
+          com:
+            x: -0.15272
+            y: 0.0111521
+            z: -0.0687842
+          ixx: 0.00838618
+          ixy: 0.000596738
+          ixz: -0.0011774
+          iyy: 0.00702498
+          iyz: 0.000105634
+          izz: 0.012516
+      RightHand:
+        prefix: right
+        disable_component: false
+      LeftHand:
+        prefix: left
+        disable_component: false
+      RightHandTactile:
+        prefix: right
+      LeftHandOptoforce:
+        device_name: gazebo_leftHand
+        n_sensors: 3
+        frame_id_vec: [left_HandFingerOneKnuckleThreeOptoforceBase, left_HandFingerTwoKnuckleThreeOptoforceBase, left_HandFingerThreeKnuckleThreeOptoforceBase]
+      RightFtSensor:
+        joint_name: rightFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
+      LeftFtSensor:
+        joint_name: leftFtSensorJoint
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [0, 0, 0]
+      TorsoPanTransmision:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+      TorsoPanTransmisionInv:
+        motor_offset: -88524
+        joint_offset: 0.0
+        gear: 158.0
+        encoder_res: 20000.0
+        motor_constant: 0.00105
+      HeadPanTransmision:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: -100.0
+        encoder_res: 8000.0
+      HeadPanTransmisionInv:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: -100.0
+        encoder_res: 8000.0
+        motor_constant: 0.0
+      HeadTiltTransmision:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: 100.0
+        encoder_res: 8000.0
+      HeadTiltTransmisionInv:
+        motor_offset: 0.0
+        joint_offset: 0.0
+        gear: 100.0
+        encoder_res: 8000.0
+        motor_constant: 0.0
+    </rosparam>
+  </group>
+</launch>

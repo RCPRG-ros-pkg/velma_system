@@ -6,12 +6,17 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 find_package(catkin REQUIRED COMPONENTS
     rtt_ros
+    rtt_subsystem_ports
     cmake_modules
     kdl_parser
     lwr_msgs
     barrett_hand_common
     barrett_hand_controller_msgs
     eigen_conversions
+    common_behavior
+    common_interfaces
+    test_ec_msgs_gen
+    shm_comm
 )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -51,6 +56,8 @@ orocos_use_package( rtt-typekit )
 
 #set(CMAKE_BUILD_TYPE Debug)
 
+ros_generate_rtt_master()
+
 ## Default component
 orocos_component(velma_sim_gazebo
     src/lwr_gazebo_init.cpp src/lwr_gazebo.cpp src/lwr_gazebo_orocos.cpp src/manipulator_mass_matrix.cpp
@@ -73,6 +80,7 @@ target_link_libraries(velma_sim_gazebo
   ${OROCOS-RTT_RTT-TRANSPORT-CORBA_LIBRARY}
   ${USE_OROCOS_LIBRARIES}
   ${Boost_LIBRARIES}
+  rtt-${PROJECT_NAME}-master
 #  ${DARTCore_LIBRARIES}
 #  ${FCL_LIBRARY}
 )
