@@ -33,7 +33,7 @@ orocos_component(velma_data_conversions
   src/eigen_vector_15.cpp
   src/eigen_vector_33.cpp
   src/eigen_matrix77.cpp
-#  src/fri.cpp
+  src/double_int.cpp
   src/velma_data_conversions.cpp
 )
 target_link_libraries(velma_data_conversions ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES})

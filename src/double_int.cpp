@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+ Copyright (c) 2014-2017, Robot Control and Pattern Recognition Group, Warsaw University of Technology
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -25,29 +25,43 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "Eigen/Dense"
 #include "common_behavior/abstract_port_converter.h"
 
-class PortConverterEigen7ToArray : public common_behavior::Converter<Eigen::Matrix<double, 7, 1>, boost::array<double, 7 > > {
+class PortConverterInt32ToDouble : public common_behavior::Converter<int32_t, double > {
 public:
 
-    virtual void convert(const Eigen::Matrix<double, 7, 1> &from, boost::array<double, 7 > &to) const {
-        for (int i = 0; i < 7; ++i) {
-            to[i] = from(i);
-        }
+    virtual void convert(const int32_t &from, double &to) const {
+        to = from;
     }
 };
 
-class PortConverterArrayToEigen7 : public common_behavior::Converter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1> > {
+class PortConverterDoubleToInt32 : public common_behavior::Converter<double, int32_t > {
 public:
 
-    virtual void convert(const boost::array<double, 7 > &from, Eigen::Matrix<double, 7, 1> &to) const {
-        for (int i = 0; i < 7; ++i) {
-            to(i) = from[i];
-        }
+    virtual void convert(const double &from, int32_t &to) const {
+        to = from;
     }
 };
 
-REGISTER_PORT_CONVERTER(PortConverterEigen7ToArray);
-REGISTER_PORT_CONVERTER(PortConverterArrayToEigen7);
+REGISTER_PORT_CONVERTER(PortConverterInt32ToDouble);
+REGISTER_PORT_CONVERTER(PortConverterDoubleToInt32);
+
+class PortConverterInt16ToDouble : public common_behavior::Converter<int16_t, double > {
+public:
+
+    virtual void convert(const int16_t &from, double &to) const {
+        to = from;
+    }
+};
+
+class PortConverterDoubleToInt16 : public common_behavior::Converter<double, int16_t > {
+public:
+
+    virtual void convert(const double &from, int16_t &to) const {
+        to = from;
+    }
+};
+
+REGISTER_PORT_CONVERTER(PortConverterInt16ToDouble);
+REGISTER_PORT_CONVERTER(PortConverterDoubleToInt16);
 

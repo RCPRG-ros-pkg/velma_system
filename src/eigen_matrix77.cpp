@@ -25,31 +25,33 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_interfaces/data_conversion.h"
 #include "Eigen/Dense"
-#include <boost/array.hpp>
-#include "rtt/Component.hpp"
+#include "common_behavior/abstract_port_converter.h"
 
-void convert(   const Eigen::Matrix<double, 7, 7 >& data_oro,
-                boost::array<double, 28 >& data_ros) {
+class PortConverterEigen77ToArray : public common_behavior::Converter<Eigen::Matrix<double, 7, 7>, boost::array<double, 28 > > {
+public:
 
-    for (int i = 0, idx = 0; i < 7; ++i) {
-        for (int j = i; j < 7; ++j) {
-            data_ros[idx++] = data_oro(i,j);
+    virtual void convert(const Eigen::Matrix<double, 7, 7> &from, boost::array<double, 28 > &to) const {
+        for (int i = 0, idx = 0; i < 7; ++i) {
+            for (int j = i; j < 7; ++j) {
+                to[idx++] = from(i,j);
+            }
         }
     }
-}
+};
 
-void convert(   const boost::array<double, 28 >& data_ros,
-                Eigen::Matrix<double, 7, 7 >& data_oro) {
+class PortConverterArrayToEigen77 : public common_behavior::Converter<boost::array<double, 28 >, Eigen::Matrix<double, 7, 7> > {
+public:
 
-    for (int i = 0, idx = 0; i < 7; ++i) {
-        for (int j = i; j < 7; ++j) {
-            data_oro(i,j) = data_oro(j,i) = data_ros[idx++];
+    virtual void convert(const boost::array<double, 28 > &from, Eigen::Matrix<double, 7, 7> &to) const {
+        for (int i = 0, idx = 0; i < 7; ++i) {
+            for (int j = i; j < 7; ++j) {
+                to(i,j) = to(j,i) = from[idx++];
+            }
         }
     }
-}
+};
 
-REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusArm, mmx, (boost::array<double, 28 >), (Eigen::Matrix<double, 7, 7 >),
-{ ::convert(ros, oro); }, { ::convert(oro, ros); } )
+REGISTER_PORT_CONVERTER(PortConverterEigen77ToArray);
+REGISTER_PORT_CONVERTER(PortConverterArrayToEigen77);
 
