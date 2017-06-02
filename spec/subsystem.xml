@@ -1,12 +1,18 @@
 <subsystem_definition>
 
     <buffers>
-        <out alias="hi_ec_st"   type="test_ec_msgs_gen::EcInput"    side="top"  converter="test_ec_msgs_gen::EcInputBufferConverter"/>
-        <in alias="hi_ec_cmd"   type="test_ec_msgs_gen::EcOutput"   side="top"  converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
+        <out alias="rLwr_st" type="lwr_msgs::LwrStatus"         side="top" />
+        <in alias="rLwr_cmd" type="lwr_msgs::LwrCmd"            side="top" />
+        <out alias="lLwr_st" type="lwr_msgs::LwrStatus"         side="top" />
+        <in alias="lLwr_cmd" type="lwr_msgs::LwrCmd"            side="top" />
+        <out alias="ec_st"   type="test_ec_msgs_gen::EcInput"   side="top"  converter="test_ec_msgs_gen::EcInputBufferConverter"/>
+        <in alias="ec_cmd"   type="test_ec_msgs_gen::EcOutput"  side="top"  converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
     </buffers>
 
     <trigger_methods>
-      <period value="0.001" />
+<!--      <period value="0.001" />-->
+        <new_data_on_buffer name="ec_cmd" min="0.001" />
+        <no_data_on_buffer name="ec_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
     </trigger_methods>
 
     <predicates>
@@ -16,6 +22,7 @@
         <behavior name="normal"
             stop_cond="FALSE"
             err_cond="FALSE" >
+            <running_component name="Y" />
         </behavior>
     </behaviors>
 

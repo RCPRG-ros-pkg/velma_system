@@ -43,36 +43,36 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
     // torso ports
-    RTT::InputPort<double >    port_t_MotorCurrentCommand_in_;
-    RTT::OutputPort<double >   port_t_MotorPosition_out_;
-    RTT::OutputPort<double >   port_t_MotorVelocity_out_;
+    RTT::InputPort<int16_t >    port_t_MotorCurrentCommand_in_;
+    RTT::OutputPort<int32_t >   port_t_MotorPosition_out_;
+    RTT::OutputPort<int32_t >   port_t_MotorVelocity_out_;
 
-    double t_MotorCurrentCommand_in_;
-    double t_MotorPosition_out_;
-    double t_MotorVelocity_out_;
+    int16_t t_MotorCurrentCommand_in_;
+    int32_t t_MotorPosition_out_;
+    int32_t t_MotorVelocity_out_;
 
     // head ports
-    RTT::InputPort<double>      port_hp_q_in_;
-    RTT::InputPort<double>      port_hp_v_in_;
-    RTT::InputPort<double>      port_hp_c_in_;
-    RTT::OutputPort<double>     port_hp_q_out_;
-    RTT::OutputPort<double>     port_hp_v_out_;
-    RTT::InputPort<double>      port_ht_q_in_;
-    RTT::InputPort<double>      port_ht_v_in_;
-    RTT::InputPort<double>      port_ht_c_in_;
-    RTT::OutputPort<double>     port_ht_q_out_;
-    RTT::OutputPort<double>     port_ht_v_out_;
+    RTT::InputPort<int32_t>      port_hp_q_in_;
+    RTT::InputPort<int32_t>      port_hp_v_in_;
+    RTT::InputPort<int32_t>      port_hp_c_in_;
+    RTT::OutputPort<int32_t>     port_hp_q_out_;
+    RTT::OutputPort<int32_t>     port_hp_v_out_;
+    RTT::InputPort<int32_t>      port_ht_q_in_;
+    RTT::InputPort<int32_t>      port_ht_v_in_;
+    RTT::InputPort<int32_t>      port_ht_c_in_;
+    RTT::OutputPort<int32_t>     port_ht_q_out_;
+    RTT::OutputPort<int32_t>     port_ht_v_out_;
 
-    double hp_q_in_;
-    double hp_v_in_;
-    double hp_c_in_;
-    double hp_q_out_;
-    double hp_v_out_;
-    double ht_q_in_;
-    double ht_v_in_;
-    double ht_c_in_;
-    double ht_q_out_;
-    double ht_v_out_;
+    int32_t hp_q_in_;
+    int32_t hp_v_in_;
+    int32_t hp_c_in_;
+    int32_t hp_q_out_;
+    int32_t hp_v_out_;
+    int32_t ht_q_in_;
+    int32_t ht_v_in_;
+    int32_t ht_c_in_;
+    int32_t ht_q_out_;
+    int32_t ht_v_out_;
 
     // public methods
     TorsoGazebo(std::string const& name);
@@ -87,20 +87,20 @@ public:
 
     typedef Eigen::Matrix<double, 2, 1 > HeadJoints;
 
-    double tmp_t_MotorCurrentCommand_in_;
-    double tmp_t_MotorPosition_out_;
-    double tmp_t_MotorVelocity_out_;
+    int16_t tmp_t_MotorCurrentCommand_in_;
+    int32_t tmp_t_MotorPosition_out_;
+    int32_t tmp_t_MotorVelocity_out_;
 
-    double tmp_hp_q_in_;
-    double tmp_hp_v_in_;
-    double tmp_hp_c_in_;
-    double tmp_hp_q_out_;
-    double tmp_hp_v_out_;
-    double tmp_ht_q_in_;
-    double tmp_ht_v_in_;
-    double tmp_ht_c_in_;
-    double tmp_ht_q_out_;
-    double tmp_ht_v_out_;
+    int32_t tmp_hp_q_in_;
+    int32_t tmp_hp_v_in_;
+    int32_t tmp_hp_c_in_;
+    int32_t tmp_hp_q_out_;
+    int32_t tmp_hp_v_out_;
+    int32_t tmp_ht_q_in_;
+    int32_t tmp_ht_v_in_;
+    int32_t tmp_ht_c_in_;
+    int32_t tmp_ht_q_out_;
+    int32_t tmp_ht_v_out_;
 
     void setJointsPID();
 

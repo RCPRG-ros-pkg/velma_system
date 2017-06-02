@@ -43,38 +43,18 @@ if __name__ == '__main__':
 
     rospy.init_node('unpause_on_init')
 
-#    print "waiting for service /gazebo/unpause_physics"
-#    rospy.wait_for_service('/gazebo/unpause_physics')
-#    srv_unpause_physics = rospy.ServiceProxy('/gazebo/unpause_physics', std_srvs.srv.Empty)
-
     print "waiting for service /gazebo/enable_sim"
     rospy.wait_for_service('/gazebo/enable_sim')
     srv_unpause_physics = rospy.ServiceProxy('/gazebo/enable_sim', std_srvs.srv.Empty)
 
-#    print "waiting for service /velma_core_ve_handright/getSubsystemInfo"
-#    rospy.wait_for_service('/velma_core_ve_handright/getSubsystemInfo')
-#    srv_info_velma_core_ve_handright = rospy.ServiceProxy('/velma_core_ve_handright/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
-
-#    print "waiting for service /velma_core_ve_handleft/getSubsystemInfo"
-#    rospy.wait_for_service('/velma_core_ve_handleft/getSubsystemInfo')
-#    srv_info_velma_core_ve_handleft = rospy.ServiceProxy('/velma_core_ve_handleft/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
-
-    print "waiting for service /velma_core_ve_body/getSubsystemInfo"
-    rospy.wait_for_service('/velma_core_ve_body/getSubsystemInfo')
-    srv_info_velma_core_ve_body = rospy.ServiceProxy('/velma_core_ve_body/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
-
-#    print "waiting for service /velma_core_ve_head/getSubsystemInfo"
-#    rospy.wait_for_service('/velma_core_ve_head/getSubsystemInfo')
-#    srv_info_velma_core_ve_head = rospy.ServiceProxy('/velma_core_ve_head/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
+    print "waiting for service /velma_sim_gazebo/getSubsystemInfo"
+    rospy.wait_for_service('/velma_sim_gazebo/getSubsystemInfo')
+    srv_info_velma_sim_gazebo = rospy.ServiceProxy('/velma_sim_gazebo/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
 
     print "waiting for init"
     while True:
-#        info_handright = srv_info_velma_core_ve_handright()
-#        info_handleft = srv_info_velma_core_ve_handleft()
-        info_body = srv_info_velma_core_ve_body()
-#        info_head = srv_info_velma_core_ve_head()
+        info_body = srv_info_velma_sim_gazebo()
 
-#        if info_handright.is_initialized and info_handleft.is_initialized and info_body.is_initialized and info_head.is_initialized:
         if info_body.is_initialized:
             srv_unpause_physics()
             print "unpaused gazebo"
