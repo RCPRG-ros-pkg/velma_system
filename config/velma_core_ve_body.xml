@@ -13,7 +13,9 @@
     <import package="rtt_std_msgs" />
     <import package="rtt_tf" />
     <import package="rtt_test_ec_subsystem_ports" />
+    <import package="rtt_test_ec_msgs" />
     <import package="rtt_lwr_subsystem_ports" />
+    <import package="rtt_lwr_msgs" />
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
@@ -42,6 +44,10 @@
     <ros_stream port="master_component.hi_cmd_OUTPORT"      topic="/velma_core_ve_body/hi_cmd" />
 
     <ros_stream port="hi_stConcate.msg_OUTPORT"             topic="/velma_core_ve_body/hi_st" />
+
+    <ros_stream port="master_component.lo_rLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_st" />
+    <ros_stream port="master_component.lo_lLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_lLwr_st" />
+    <ros_stream port="master_component.lo_ec_st_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st" />
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
 
