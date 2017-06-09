@@ -260,7 +260,7 @@
 
 <!-- existing connections -->
     <connection from="b_stRx.msg_OUTPORT" to="master_component.b_st_INPORT" latex="st_{b}" />
-    <connection from="b_stRx.no_data_OUTPORT" to="master_component.no_data_trigger_INPORT_" latex="tgr_{timeout}" />
+    <connection from="b_stRx.no_data_OUTPORT" to="master_component.b_st_no_data_INPORT_" latex="tgr_{timeout}" />
     <connection from="cmdRx.msg_OUTPORT" to="master_component.cmd_INPORT" latex="cmd_{task}" />
     <connection from="master_component.b_st_OUTPORT" to="b_stSplit.msg_INPORT" latex="st_{b}" />
     <connection from="master_component.cmd_OUTPORT" to="cmdSplit.msg_INPORT" latex="cmd_{task}" />
