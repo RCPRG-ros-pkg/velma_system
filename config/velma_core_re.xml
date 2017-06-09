@@ -14,7 +14,6 @@
     <import package="velma_sim_gazebo" />
     <import package="rtt_test_ec_subsystem_ports" />
     <import package="rtt_test_ec_msgs" />
-    <import package="rtt_lwr_subsystem_ports" />
     <import package="rtt_lwr_msgs" />
 
     <component name="TorsoSim" running="true" />
@@ -70,6 +69,10 @@ ec_cmdSplit.Outputs
     <ros_stream port="ec_stConcate.msg_OUTPORT"             topic="/velma_core_re/ec_st" />
     <ros_stream port="rLwr_stConcate.msg_OUTPORT"           topic="/velma_core_re/rLwr_st" />
     <ros_stream port="lLwr_stConcate.msg_OUTPORT"           topic="/velma_core_re/lLwr_st" />
+
+    <ros_stream port="master_component.rLwr_cmd_OUTPORT"    topic="/velma_core_re/rLwr_cmd" />
+    <ros_stream port="master_component.lLwr_cmd_OUTPORT"    topic="/velma_core_re/lLwr_cmd" />
+    <ros_stream port="master_component.ec_cmd_OUTPORT"    topic="/velma_core_re/ec_cmd" />
 
 <!--
 ec_stConcate.FTsensorleft

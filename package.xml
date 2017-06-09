@@ -27,6 +27,9 @@
   <build_depend>common_interfaces</build_depend>
 
   <run_depend>barrett_hand_controller_msgs</run_depend>
+
+  <build_depend>velma_core_ve_re_lwr_msgs</build_depend>
+  <run_depend>velma_core_ve_re_lwr_msgs</run_depend>
   
   <run_depend>gazebo</run_depend>
   <run_depend>gazebo_ros</run_depend>
@@ -49,7 +52,8 @@
       <plugin_depend>rtt_lwr_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
       <plugin_depend>rtt_test_ec_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_msgs</plugin_depend>
     </rtt_ros>
   </export>
 </package>
