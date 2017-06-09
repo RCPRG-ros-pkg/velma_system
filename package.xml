@@ -25,6 +25,9 @@
   <build_depend>test_ec_msgs_gen</build_depend>
   <build_depend>rtt_test_ec_subsystem_ports</build_depend>
 
+  <build_depend>velma_core_ve_re_lwr_msgs</build_depend>
+  <run_depend>velma_core_ve_re_lwr_msgs</run_depend>
+
   <run_depend>rtt</run_depend>
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
@@ -46,7 +49,8 @@
       <plugin_depend>velma_data_conversions</plugin_depend>
       <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
       <plugin_depend>rtt_test_ec_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_msgs</plugin_depend>
     </rtt_ros>
   </export>
 </package>

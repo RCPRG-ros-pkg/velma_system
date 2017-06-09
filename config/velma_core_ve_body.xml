@@ -14,7 +14,6 @@
     <import package="rtt_tf" />
     <import package="rtt_test_ec_subsystem_ports" />
     <import package="rtt_test_ec_msgs" />
-    <import package="rtt_lwr_subsystem_ports" />
     <import package="rtt_lwr_msgs" />
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
@@ -28,6 +27,9 @@
     <component name="safe" type="velma_core_ve_body_types::SafeComponent" />
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" running="true" />
     <component name="hw_state" type="velma_core_ve_body_types::HwState" running="true" />
+
+    <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" running="true" />
+    <component name="Zero"  type="ScalarZeroUInt32" latex="\text{Zero}" running="true" />
 
     <io_buffer alias="hi_st" name="velma_core_cs_ve_body_msgs_Status" />
     <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_msgs_Command" />
@@ -48,6 +50,7 @@
     <ros_stream port="master_component.lo_rLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_st" />
     <ros_stream port="master_component.lo_lLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_lLwr_st" />
     <ros_stream port="master_component.lo_ec_st_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st" />
+    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                           topic="/velma_core_ve_body/lo_ec_stRx" />
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
 
@@ -162,6 +165,10 @@ TODO:
     <connection from="LeftHand.q_OUTPORT"               to="hi_stConcate.lHand_q_INPORT" />
     <connection from="LeftHand.status_OUTPORT"          to="hi_stConcate.lHand_s_INPORT" />
 -->
+    <connection from="ZeroVec8.vector_OUTPORT" to="hi_stConcate.rHand_q_INPORT" name="0" />
+    <connection from="Zero.zero_OUTPORT"       to="hi_stConcate.rHand_s_INPORT" />
+    <connection from="ZeroVec8.vector_OUTPORT" to="hi_stConcate.lHand_q_INPORT" name="0" />
+    <connection from="Zero.zero_OUTPORT"       to="hi_stConcate.lHand_s_INPORT" />
 
 <!--
     <latched_connections>

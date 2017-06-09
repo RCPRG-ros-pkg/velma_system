@@ -29,11 +29,11 @@
  */
 
 #include "rtt/Component.hpp"
-#include <controller_common/vector_dummy.h>
+#include <controller_common/scalar_zero.h>
 
-typedef VectorDummy<8> VectorDummy8;
-ORO_LIST_COMPONENT_TYPE(VectorDummy8)
+typedef ScalarZero<uint32_t > ScalarZeroUInt32;
+ORO_LIST_COMPONENT_TYPE(ScalarZeroUInt32)
 
-typedef VectorDummy<2> VectorDummy2;
-ORO_LIST_COMPONENT_TYPE(VectorDummy2)
+typedef ScalarZero<double > ScalarZeroDouble;
+ORO_LIST_COMPONENT_TYPE(ScalarZeroDouble)
 

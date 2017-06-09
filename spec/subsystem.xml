@@ -5,16 +5,22 @@
         <out alias="hi_st"          type="velma_core_cs_ve_body_msgs::Status"   side="top"/>
         <in alias="lo_ec_st"        type="test_ec_msgs_gen::EcInput"            side="bottom"   converter="test_ec_msgs_gen::EcInputBufferConverter"/>
         <out alias="lo_ec_cmd"      type="test_ec_msgs_gen::EcOutput"           side="bottom"   converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
-        <in alias="lo_rLwr_st"      type="lwr_msgs::LwrStatus"                  side="bottom" />
-        <out alias="lo_rLwr_cmd"    type="lwr_msgs::LwrCmd"                     side="bottom" />
-        <in alias="lo_lLwr_st"      type="lwr_msgs::LwrStatus"                  side="bottom" />
-        <out alias="lo_lLwr_cmd"    type="lwr_msgs::LwrCmd"                     side="bottom" />
+        <in alias="lo_rLwr_st"      type="velma_core_ve_re_lwr_msgs::Status"    side="bottom" />
+        <out alias="lo_rLwr_cmd"    type="velma_core_ve_re_lwr_msgs::Command"   side="bottom" />
+        <in alias="lo_lLwr_st"      type="velma_core_ve_re_lwr_msgs::Status"    side="bottom" />
+        <out alias="lo_lLwr_cmd"    type="velma_core_ve_re_lwr_msgs::Command"   side="bottom" />
 
     </buffers>
 
     <trigger_methods>
         <new_data_on_buffer name="hi_cmd" min="0.001" />
         <no_data_on_buffer name="hi_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+        <new_data_on_buffer name="lo_ec_st" min="0.001" />
+        <no_data_on_buffer name="lo_ec_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+        <new_data_on_buffer name="lo_rLwr_st" min="0.001" />
+        <no_data_on_buffer name="lo_rLwr_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+        <new_data_on_buffer name="lo_lLwr_st" min="0.001" />
+        <no_data_on_buffer name="lo_lLwr_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
     </trigger_methods>
 
     <predicates>
@@ -60,6 +66,6 @@
         </state>
     </states>
 
-    <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
+    <simulation use_ros_sim_clock="true" use_sim_clock="true" />
 
 </subsystem_definition>

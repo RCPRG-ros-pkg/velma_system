@@ -7,6 +7,7 @@ find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   rtt_subsystem_ports
   velma_core_cs_ve_body_msgs
+  velma_core_ve_re_lwr_msgs
   eigen_conversions
   common_interfaces
   common_behavior
@@ -50,6 +51,7 @@ orocos_component(velma_core_ve_body
     src/components/safe.cpp
     src/components/packet_counter.cpp
     src/components/vector_dummy.cpp
+    src/components/scalar_zero.cpp
     src/components/hw_state.cpp
 #    src/components/ec_msg_converter.cpp
 )
