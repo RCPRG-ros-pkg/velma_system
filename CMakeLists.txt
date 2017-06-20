@@ -8,7 +8,6 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   eigen_conversions
-  common_interfaces
   common_behavior
 )
 

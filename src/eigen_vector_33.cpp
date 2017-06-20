@@ -25,13 +25,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "eigen_vector.h"
-#include "common_interfaces/data_conversion.h"
-#include "rtt/Component.hpp"
+#include "Eigen/Dense"
+#include "common_behavior/abstract_port_converter.h"
 
-REGISTER_DATA_CONVERSION(velma_core_cs_task_cs_msgs, Status, q, (boost::array<double, 33 >), (Eigen::Matrix<double, 33, 1 >),
-{ ::convert<33>(ros, oro); }, { ::convert<33>(oro, ros); } )
+class PortConverterEigen33ToArray : public common_behavior::Converter<Eigen::Matrix<double, 33, 1>, boost::array<double, 33 > > {
+public:
 
-REGISTER_DATA_CONVERSION(velma_core_cs_task_cs_msgs, Status, dq, (boost::array<double, 33 >), (Eigen::Matrix<double, 33, 1 >),
-{ ::convert<33>(ros, oro); }, { ::convert<33>(oro, ros); } )
+    virtual void convert(const Eigen::Matrix<double, 33, 1> &from, boost::array<double, 33 > &to) const {
+        for (int i = 0; i < 33; ++i) {
+            to[i] = from(i);
+        }
+    }
+};
+
+class PortConverterArrayToEigen33 : public common_behavior::Converter<boost::array<double, 33 >, Eigen::Matrix<double, 33, 1> > {
+public:
+
+    virtual void convert(const boost::array<double, 33 > &from, Eigen::Matrix<double, 33, 1> &to) const {
+        for (int i = 0; i < 33; ++i) {
+            to(i) = from[i];
+        }
+    }
+};
+
+REGISTER_PORT_CONVERTER(PortConverterEigen33ToArray);
+REGISTER_PORT_CONVERTER(PortConverterArrayToEigen33);
 

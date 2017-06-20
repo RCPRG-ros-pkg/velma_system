@@ -25,10 +25,29 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "eigen_vector.h"
-#include "common_interfaces/data_conversion.h"
-#include "rtt/Component.hpp"
+#include "Eigen/Dense"
+#include "common_behavior/abstract_port_converter.h"
 
-REGISTER_DATA_CONVERSION(velma_core_cs_ve_body_msgs, StatusHand, q, (boost::array<double, 8 >), (Eigen::Matrix<double, 8, 1 >),
-{ ::convert<8>(ros, oro); }, { ::convert<8>(oro, ros); } )
+class PortConverterEigen8ToArray : public common_behavior::Converter<Eigen::Matrix<double, 8, 1>, boost::array<double, 8 > > {
+public:
+
+    virtual void convert(const Eigen::Matrix<double, 8, 1> &from, boost::array<double, 8 > &to) const {
+        for (int i = 0; i < 8; ++i) {
+            to[i] = from(i);
+        }
+    }
+};
+
+class PortConverterArrayToEigen8 : public common_behavior::Converter<boost::array<double, 8 >, Eigen::Matrix<double, 8, 1> > {
+public:
+
+    virtual void convert(const boost::array<double, 8 > &from, Eigen::Matrix<double, 8, 1> &to) const {
+        for (int i = 0; i < 8; ++i) {
+            to(i) = from[i];
+        }
+    }
+};
+
+REGISTER_PORT_CONVERTER(PortConverterEigen8ToArray);
+REGISTER_PORT_CONVERTER(PortConverterArrayToEigen8);
 

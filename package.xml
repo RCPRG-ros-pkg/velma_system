@@ -12,7 +12,6 @@
   <!-- Build deps are queried automatically with orocos_use_package() -->
   <build_depend>rtt</build_depend>
   <build_depend>rtt_ros</build_depend>
-  <build_depend>common_interfaces</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>common_behavior</build_depend>
 
