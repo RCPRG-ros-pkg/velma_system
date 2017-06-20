@@ -2,7 +2,24 @@
 cmake_minimum_required(VERSION 2.8.3)
 project(velma_sim)
 
-find_package(catkin REQUIRED COMPONENTS rtt_ros cmake_modules kdl_parser lwr_msgs barrett_hand_common barrett_hand_controller_msgs)
+find_package(catkin REQUIRED COMPONENTS
+    rtt_ros
+    rtt_subsystem_ports
+    cmake_modules
+    kdl_parser
+    lwr_msgs
+    barrett_hand_common
+    barrett_hand_controller_msgs
+    velma_core_ve_re_lwr_msgs
+    eigen_conversions
+    common_behavior
+    common_interfaces
+    test_ec_msgs_gen
+    shm_comm
+    ec_can_queue
+    barrett_hand_controller
+    barrett_hand_hw_sim
+)
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
 include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
@@ -10,6 +27,8 @@ include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 find_package(orocos_kdl REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost COMPONENTS thread REQUIRED)
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
 link_directories(
   ${orocos_kdl_LIBRARY_DIRS}
@@ -29,6 +48,8 @@ orocos_use_package( orocos-rtt-corba )
 orocos_use_package( rtt-typekit )
 
 #set(CMAKE_BUILD_TYPE Debug)
+
+ros_generate_rtt_master()
 
 ## Default component
 orocos_component(velma_sim

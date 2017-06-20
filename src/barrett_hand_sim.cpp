@@ -36,6 +36,8 @@
 
 #include <rtt/Logger.hpp>
 
+#include <barrett_hand_hw_sim/barrett_hand_hw_can.h>
+
 using namespace RTT;
 
 class BarrettHandSim : public RTT::TaskContext
@@ -47,22 +49,6 @@ protected:
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    // orocos ports
-    RTT::InputPort<Dofs>  port_q_in_;
-    RTT::InputPort<Dofs>  port_v_in_;
-    RTT::InputPort<Dofs>  port_t_in_;
-    RTT::InputPort<double>           port_mp_in_;
-    RTT::InputPort<int32_t>          port_hold_in_;
-    RTT::InputPort<Dofs > port_max_measured_pressure_in_;
-    RTT::InputPort<std_msgs::Empty>  port_reset_in_;
-    RTT::OutputPort<uint32_t>        port_status_out_;
-    RTT::OutputPort<Joints> port_q_out_;
-    RTT::OutputPort<Joints> port_t_out_;
-    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_temp_out_;
-
-    Dofs q_in_;
-    Dofs v_in_;
-    Dofs t_in_;
     double          mp_in_;
     int32_t         hold_in_;
     Dofs max_measured_pressure_in_;
@@ -89,7 +75,9 @@ public:
     double clip(double n, double lower, double upper) const;
     double getFingerAngle(int fidx) const;
 
+    // parameters
     std::string prefix_;
+    int can_id_base_;
 
     bool data_valid_;
 
@@ -108,40 +96,25 @@ public:
     double finger_int_[3];
 
     bool disable_component_;
+
+    BarrettHandHwCAN hw_can_;
 };
 
     BarrettHandSim::BarrettHandSim(std::string const& name)
         : TaskContext(name, RTT::TaskContext::PreOperational)
         , too_big_force_counter_(3, 0)
         , data_valid_(false)
-        , port_q_out_("q_OUTPORT", false)
-        , port_t_out_("t_OUTPORT", false)
-        , port_status_out_("status_OUTPORT", false)
         , disable_component_(false)
+        , can_id_base_(-1)
     {
         addProperty("prefix", prefix_);
+        addProperty("can_id_base", can_id_base_);
         addProperty("disable_component", disable_component_);
 
-        // right hand ports
-        this->ports()->addPort("q_INPORT",      port_q_in_);
-        this->ports()->addPort("v_INPORT",      port_v_in_);
-        this->ports()->addPort("t_INPORT",      port_t_in_);
-        this->ports()->addPort("mp_INPORT",     port_mp_in_);
-        this->ports()->addPort("hold_INPORT",   port_hold_in_);
-        this->ports()->addPort(port_q_out_);
-        this->ports()->addPort(port_t_out_);
-        this->ports()->addPort(port_status_out_);
-        //this->ports()->addPort("BHTemp",        port_temp_out_);
-        this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
-        this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
-        q_in_.setZero();
-        v_in_.setZero();
-        t_in_.setZero();
         mp_in_ = 0.0;
         hold_in_ = 0;    // false
         max_measured_pressure_in_.setZero();
         //temp_out_.temp.resize(8);
-        //port_temp_out_.setDataSample(temp_out_);
         status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
         clutch_break_[0] = clutch_break_[1] = clutch_break_[2] = false;
         move_hand_ = false;
@@ -157,16 +130,16 @@ public:
         //
         q_out_.setZero();
         t_out_.setZero();
-        port_q_out_.write(q_out_);
-        port_t_out_.write(t_out_);
 
-        port_status_out_.write(status_out_);
+        hw_can_.jp_[0] = q_out_(1)*50.0*4096.0/2.0/M_PI;
+        hw_can_.p_[0] = (q_out_(2) + q_out_(1)) * 4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
+        hw_can_.jp_[1] = q_out_(4)*4096.0*50.0/2.0/M_PI;
+        hw_can_.p_[1] = (q_out_(5) + q_out_(4))*4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
+        hw_can_.jp_[2] = q_out_(6)*4096.0*50.0/2.0/M_PI;
+        hw_can_.p_[2] = (q_out_(7) + q_out_(6))*4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
+        hw_can_.p_[3] = q_out_(0)*35840.0/M_PI;
 
-        if (port_q_in_.read(q_in_) == RTT::NewData) {
-//            move_hand_ = true;
-        }
-        port_v_in_.read(v_in_);
-        port_t_in_.read(t_in_);
+        hw_can_.processPuckMsgs();
     }
 
     bool BarrettHandSim::startHook() {
@@ -179,6 +152,13 @@ public:
             Logger::log() << Logger::Error << "param 'prefix' is empty" << Logger::endl;
             return false;
         }
+
+        if (can_id_base_ < 0) {
+            Logger::log() << Logger::Error << "param 'can_id_base' is not set" << Logger::endl;
+            return false;
+        }
+
+        hw_can_.configure(this, can_id_base_);
 
         for (int i = 0; i < 3; i++) {
             clutch_break_[i] = false;

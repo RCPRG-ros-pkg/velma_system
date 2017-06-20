@@ -35,36 +35,36 @@ class TorsoSim : public RTT::TaskContext
 public:
 
     // torso ports
-    RTT::InputPort<double >    port_t_MotorCurrentCommand_in_;
-    RTT::OutputPort<double >   port_t_MotorPosition_out_;
-    RTT::OutputPort<double >   port_t_MotorVelocity_out_;
+    RTT::InputPort<int16_t >    port_t_MotorCurrentCommand_in_;
+    RTT::OutputPort<int32_t >   port_t_MotorPosition_out_;
+    RTT::OutputPort<int32_t >   port_t_MotorVelocity_out_;
 
     double t_t_;
     double q_t_;
     double dq_t_;
 
     // head ports
-    RTT::InputPort<double>      port_hp_q_in_;
-    RTT::InputPort<double>      port_hp_v_in_;
-    RTT::InputPort<double>      port_hp_c_in_;
-    RTT::OutputPort<double>     port_hp_q_out_;
-    RTT::OutputPort<double>     port_hp_v_out_;
-    RTT::InputPort<double>      port_ht_q_in_;
-    RTT::InputPort<double>      port_ht_v_in_;
-    RTT::InputPort<double>      port_ht_c_in_;
-    RTT::OutputPort<double>     port_ht_q_out_;
-    RTT::OutputPort<double>     port_ht_v_out_;
+    RTT::InputPort<int32_t>      port_hp_q_in_;
+    RTT::InputPort<int32_t>      port_hp_v_in_;
+    RTT::InputPort<int32_t>      port_hp_c_in_;
+    RTT::OutputPort<int32_t>     port_hp_q_out_;
+    RTT::OutputPort<int32_t>     port_hp_v_out_;
+    RTT::InputPort<int32_t>      port_ht_q_in_;
+    RTT::InputPort<int32_t>      port_ht_v_in_;
+    RTT::InputPort<int32_t>      port_ht_c_in_;
+    RTT::OutputPort<int32_t>     port_ht_q_out_;
+    RTT::OutputPort<int32_t>     port_ht_v_out_;
 
-    double hp_q_in_;
-    double hp_v_in_;
-    double hp_c_in_;
-    double hp_q_out_;
-    double hp_v_out_;
-    double ht_q_in_;
-    double ht_v_in_;
-    double ht_c_in_;
-    double ht_q_out_;
-    double ht_v_out_;
+    int32_t hp_q_in_;
+    int32_t hp_v_in_;
+    int32_t hp_c_in_;
+    int32_t hp_q_out_;
+    int32_t hp_v_out_;
+    int32_t ht_q_in_;
+    int32_t ht_v_in_;
+    int32_t ht_c_in_;
+    int32_t ht_q_out_;
+    int32_t ht_v_out_;
 
     // public methods
     TorsoSim(std::string const& name);
@@ -119,7 +119,7 @@ using namespace RTT;
         const double torso_joint_offset = 0;
         const double torso_motor_constant = 0.00105;
 
-        double t_MotorCurrentCommand_in;
+        int16_t t_MotorCurrentCommand_in;
         if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in) != RTT::NewData) {
             //t_MotorCurrentCommand_in_ = 0;
         }
@@ -134,9 +134,8 @@ using namespace RTT;
         // integrate velocity
         q_t_ += dq_t_ * 0.001;
 
-        double t_MotorPosition_out = (q_t_ - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
-        double t_MotorVelocity_out = dq_t_ * torso_trans_mult;
-
+        int32_t t_MotorPosition_out = (q_t_ - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
+        int32_t t_MotorVelocity_out = dq_t_ * torso_trans_mult;
 
         port_t_MotorPosition_out_.write(t_MotorPosition_out);
         port_t_MotorVelocity_out_.write(t_MotorVelocity_out);

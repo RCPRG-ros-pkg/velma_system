@@ -13,19 +13,16 @@
 
   <node
     launch-prefix="$(arg LAUNCH_PREFIX)"
-    name="velma_core_ve_body"
+    name="velma_sim"
     pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_core_ve_body -l $(arg LOG_LEVEL) -x $(find velma_sim)/config/velma_core_ve_body.xml -m velma_core_ve_body --" output="screen">
+    args="--DeployerName velma_sim -l $(arg LOG_LEVEL) -x $(find velma_sim)/config/velma_core_re.xml -m velma_sim --" output="screen">
 <!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
 <!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
   </node>
 
   <param name="/robot_description"
-    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'
-        subsystem_xml:=true
-        xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_ve_body.xml'
-        use_gazebo_kinect:=false" />
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
   <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
   
 
@@ -33,7 +30,9 @@
     <param name="use_tf_static" value="false"/>
   </node>
 
-  <group ns="velma_core_ve_body">
+  <param name="/use_sim_time" value="false" />
+
+  <group ns="velma_sim">
     <rosparam>
       LWRrSim:
         name: right
@@ -70,9 +69,11 @@
       RightHand:
         prefix: right
         disable_component: false
+        can_id_base: 11
       LeftHand:
         prefix: left
         disable_component: false
+        can_id_base: 15
       RightHandTactile:
         prefix: right
       LeftHandOptoforce:
