@@ -5,9 +5,6 @@ import rospy
 from velma_common.velma_interface import *
 from planner.planner import *
 
-from moveit_msgs.msg import *
-from moveit_msgs.srv import *
-
 if __name__ == "__main__":
 
     rospy.init_node('wrists_test', anonymous=True)
