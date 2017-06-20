@@ -64,6 +64,14 @@
         gear: 100.0
         encoder_res: 8000.0
         motor_constant: 0.0
+      rHand:
+        device_name: TODO
+        prefix: right
+        can_id_base: 11
+      lHand:
+        device_name: TODO
+        prefix: left
+        can_id_base: 15
     </rosparam>
   </group>
 
