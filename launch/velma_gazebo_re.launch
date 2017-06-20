@@ -81,9 +81,11 @@
       RightHand:
         prefix: right
         disable_component: false
+        can_id_base: 11
       LeftHand:
         prefix: left
         disable_component: false
+        can_id_base: 15
       RightHandTactile:
         prefix: right
       LeftHandOptoforce:

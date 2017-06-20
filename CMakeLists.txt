@@ -11,6 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
     kdl_parser
     lwr_msgs
     barrett_hand_common
+    barrett_hand_controller
     barrett_hand_controller_msgs
     velma_core_ve_re_lwr_msgs
     eigen_conversions
@@ -18,6 +19,8 @@ find_package(catkin REQUIRED COMPONENTS
     common_interfaces
     test_ec_msgs_gen
     shm_comm
+    ec_can_queue
+    barrett_hand_hw_sim
 )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)

@@ -17,6 +17,7 @@
   <build_depend>rtt_gazebo_deployer</build_depend>
   <build_depend>rtt_actionlib</build_depend>
   <build_depend>barrett_hand_common</build_depend>
+  <build_depend>barrett_hand_controller</build_depend>
   <build_depend>barrett_hand_controller_msgs</build_depend>
   <build_depend>subsystem_msgs</build_depend>
   <build_depend>eigen_conversions</build_depend>
@@ -25,6 +26,8 @@
   <build_depend>test_ec_msgs_gen</build_depend>
   <build_depend>shm_comm</build_depend>
   <build_depend>common_interfaces</build_depend>
+  <build_depend>ec_can_queue</build_depend>
+  <build_depend>barrett_hand_hw_sim</build_depend>
 
   <run_depend>barrett_hand_controller_msgs</run_depend>
 
@@ -38,12 +41,15 @@
   <run_depend>lwr_msgs</run_depend>
   <run_depend>rtt_gazebo_deployer</run_depend>
   <run_depend>barrett_hand_common</run_depend>
+  <run_depend>barrett_hand_controller</run_depend>
   <run_depend>subsystem_msgs</run_depend>
   <run_depend>common_behavior</run_depend>
   <run_depend>rtt_subsystem_ports</run_depend>
   <run_depend>test_ec_msgs_gen</run_depend>
   <run_depend>shm_comm</run_depend>
   <run_depend>common_interfaces</run_depend>
+  <run_depend>ec_can_queue</run_depend>
+  <run_depend>barrett_hand_hw_sim</run_depend>
 
   <export>
     <rtt_ros>

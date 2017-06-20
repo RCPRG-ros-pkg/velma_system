@@ -39,6 +39,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
+#include <barrett_hand_hw_sim/barrett_hand_hw_can.h>
+
 class BarrettHandGazebo : public RTT::TaskContext
 {
 protected:
@@ -48,27 +50,9 @@ protected:
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 
-    // orocos ports
-    RTT::InputPort<Dofs>  port_q_in_;
-    RTT::InputPort<Dofs>  port_v_in_;
-    RTT::InputPort<Dofs>  port_t_in_;
-    RTT::InputPort<double>           port_mp_in_;
-    RTT::InputPort<int32_t>          port_hold_in_;
-    RTT::InputPort<Dofs > port_max_measured_pressure_in_;
-    RTT::InputPort<std_msgs::Empty>  port_reset_in_;
-    RTT::OutputPort<uint32_t>        port_status_out_;
-    RTT::OutputPort<Joints> port_q_out_;
-    RTT::OutputPort<Joints> port_t_out_;
-    //RTT::OutputPort<barrett_hand_controller_msgs::BHTemp> port_temp_out_;
-
-    Dofs q_in_;
-    Dofs v_in_;
-    Dofs t_in_;
     double          mp_in_;
     int32_t         hold_in_;
     Dofs max_measured_pressure_in_;
-    std_msgs::Empty reset_in_;
-    uint32_t        status_out_;
     Joints q_out_;
     Joints t_out_;
     //barrett_hand_controller_msgs::BHTemp temp_out_;
@@ -90,9 +74,11 @@ public:
         STATUS_IDLE1 = 0x1000, STATUS_IDLE2 = 0x2000, STATUS_IDLE3 = 0x4000, STATUS_IDLE4 = 0x8000 };
 
     double clip(double n, double lower, double upper) const;
-    double getFingerAngle(int fidx) const;
+    double getFingerAngle(unsigned int fidx) const;
 
+    // parameters
     std::string prefix_;
+    int can_id_base_;
 
     gazebo::physics::ModelPtr model_;
 //    gazebo::physics::DARTModelPtr model_dart_;
@@ -108,13 +94,12 @@ public:
 //    std::vector<dart::dynamics::Joint*>  joints_dart_;
 
     std::vector<int > too_big_force_counter_;
-    bool move_hand_;
+    bool status_overcurrent_[4];
 
     bool clutch_break_[3];
     double clutch_break_angle_[3];
 
-    double spread_int_;
-    double finger_int_[3];
+    double finger_int_[4];
 
     gazebo::physics::JointController *jc_;
 
@@ -122,6 +107,9 @@ public:
     RTT::os::MutexRecursive gazebo_mutex_;
 
     bool disable_component_;
+
+
+    BarrettHandHwCAN hw_can_;
 };
 
 #endif  // BARRETT_HAND_GAZEBO_H__

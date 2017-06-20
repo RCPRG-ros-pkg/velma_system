@@ -32,41 +32,47 @@
         : TaskContext(name, RTT::TaskContext::PreOperational)
         , too_big_force_counter_(3, 0)
         , data_valid_(false)
-        , port_q_out_("q_OUTPORT", false)
-        , port_t_out_("t_OUTPORT", false)
-        , port_status_out_("status_OUTPORT", false)
+//        , port_q_out_("q_OUTPORT", false)
+//        , port_t_out_("t_OUTPORT", false)
+//        , port_status_out_("status_OUTPORT", false)
         , disable_component_(false)
+        , can_id_base_(-1)
     {
         addProperty("prefix", prefix_);
         addProperty("disable_component", disable_component_);
+        addProperty("can_id_base", can_id_base_);
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&BarrettHandGazebo::gazeboConfigureHook,this,RTT::ClientThread);
         this->provides("gazebo")->addOperation("update",&BarrettHandGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
         // right hand ports
-        this->ports()->addPort("q_INPORT",      port_q_in_);
-        this->ports()->addPort("v_INPORT",      port_v_in_);
-        this->ports()->addPort("t_INPORT",      port_t_in_);
-        this->ports()->addPort("mp_INPORT",     port_mp_in_);
-        this->ports()->addPort("hold_INPORT",   port_hold_in_);
-        this->ports()->addPort(port_q_out_);
-        this->ports()->addPort(port_t_out_);
-        this->ports()->addPort(port_status_out_);
+//        this->ports()->addPort("q_INPORT",      port_q_in_);
+//        this->ports()->addPort("v_INPORT",      port_v_in_);
+//        this->ports()->addPort("t_INPORT",      port_t_in_);
+//        this->ports()->addPort("mp_INPORT",     port_mp_in_);
+//        this->ports()->addPort("hold_INPORT",   port_hold_in_);
+//        this->ports()->addPort(port_q_out_);
+//        this->ports()->addPort(port_t_out_);
+//        this->ports()->addPort(port_status_out_);
         //this->ports()->addPort("BHTemp",        port_temp_out_);
-        this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
-        this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
-        q_in_.setZero();
-        v_in_.setZero();
-        t_in_.setZero();
+//        this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
+//        this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
+//        q_in_.setZero();
+//        v_in_.setZero();
+//        t_in_.setZero();
         mp_in_ = 0.0;
         hold_in_ = 0;    // false
         max_measured_pressure_in_.setZero();
         //temp_out_.temp.resize(8);
         //port_temp_out_.setDataSample(temp_out_);
-        status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
+//        status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
+        for (int i = 0; i < 4; ++i) {
+//            status_idle_[i] = true;
+            status_overcurrent_[i] = false;
+//            move_hand_[i] = false;
+        }
         clutch_break_[0] = clutch_break_[1] = clutch_break_[2] = false;
-        move_hand_ = false;
     }
 
     BarrettHandGazebo::~BarrettHandGazebo() {
