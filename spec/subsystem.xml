@@ -10,7 +10,7 @@
 
     <trigger_methods>
         <new_data_on_buffer name="b_st" min="0.0008" />
-        <no_data_on_buffer name="b_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+        <no_data_on_buffer name="b_st" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" />
     </trigger_methods>
 
     <predicates>
