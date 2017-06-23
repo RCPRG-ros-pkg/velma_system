@@ -1,5 +1,5 @@
 <subsystem_configuration>
-    <import package="rtt_barrett_hand_controller_msgs" />
+    <import package="rtt_barrett_hand_msgs" />
     <import package="eigen_typekit" />
     <import package="rtt_control_msgs" />
     <import package="controller_common" />
@@ -15,6 +15,7 @@
     <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
     <import package="rtt_velma_core_cs_task_cs_msgs" />
     <import package="rtt_velma_core_cs_task_cs_subsystem_ports" />
+    <import package="rtt_barrett_hand_msgs" />
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,r}" />
@@ -250,10 +251,12 @@
     <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
     <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
-    <connection from="cmdSplit.hand_r_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
-    <connection from="cmdSplit.hand_l_OUTPORT" to="b_cmdConcate.lHand_INPORT" latex="cmd_{hand,l}" />
-    <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.hand_r_INPORT" latex="st_{hand,r}" />
-    <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.hand_l_INPORT" latex="st_{hand,l}" />
+    <connection from="cmdSplit.handRight_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
+    <connection from="cmdSplit.handRightReset_OUTPORT" to="b_cmdConcate.rHandReset_INPORT" latex="rst_{hand,r}" />
+    <connection from="cmdSplit.handLeft_OUTPORT" to="b_cmdConcate.lHand_INPORT" latex="cmd_{hand,l}" />
+    <connection from="cmdSplit.handLeftReset_OUTPORT" to="b_cmdConcate.lHandReset_INPORT" latex="rst_{hand,l}" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="stConcate.handRight_INPORT" latex="st_{hand,r}" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.handLeft_INPORT" latex="st_{hand,l}" />
     <connection from="b_stSplit.p_OUTPORT" to="stConcate.p_INPORT" latex="st_{tact}" />
     <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" latex="st_{of}" />
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
@@ -272,25 +275,9 @@
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
     <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
-<!-- this is unnecessary, as the wrist pose is calculated in ROS
-    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lWristPose_INPORT" />
-    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rWristPose_INPORT" />-->
-
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput2" />
-#    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_q_all.In2" />
-#    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_q_all.In3" />
-#    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_dq_all.In2" />
-#    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_dq_all.In3" />
-#    <connection from="b_stSplit.rArm_t_OUTPORT" to="TorquePubRight.InJointTorque" />
-#    <connection from="b_stSplit.rArm_gt_OUTPORT" to="TorquePubRight.InGravityTorque" />
-#    <connection from="b_stSplit.lArm_t_OUTPORT" to="TorquePubLeft.InJointTorque" />
-#    <connection from="b_stSplit.lArm_gt_OUTPORT" to="TorquePubLeft.InGravityTorque" />
-#    <connection from="b_stSplit.lArm_gt_OUTPORT" to="VG.GravTrqLeft" />
-#    <connection from="b_stSplit.rArm_gt_OUTPORT" to="VG.GravTrqRight" />
-#    <ros_stream port="b_stSplit.rArm_w_OUTPORT" topic="/right_arm/wrench" />
-#    <ros_stream port="b_stSplit.lArm_w_OUTPORT" topic="/left_arm/wrench" />
 #    <ros_stream port="TJ.Joy_INPORT" topic="/joy" />
 #    <ros_stream port="TGR.TriggerStamp" topic="/camera_trigger_stamp" />
 #    <connection from="FK.RightPosition_OUTPORT" to="TfPub.In4" />
