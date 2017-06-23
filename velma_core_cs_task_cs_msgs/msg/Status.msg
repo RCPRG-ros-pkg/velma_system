@@ -25,13 +25,13 @@ bool rToolInWristPose_valid
 geometry_msgs/Pose lToolInWristPose                 # subsystem_buffer{type: port; validity: lToolInWristPose_valid}
 bool lToolInWristPose_valid
 
-velma_core_cs_ve_body_msgs/StatusHand hand_r   # subsystem_buffer{type: container; validity: hand_r_valid}
-bool hand_r_valid
+barrett_hand_msgs/StatusHand handRight     # subsystem_buffer{type: container; validity: handRight_valid}
+bool handRight_valid
 
-velma_core_cs_ve_body_msgs/StatusHand hand_l   # subsystem_buffer{type: container; validity: hand_l_valid}
-bool hand_l_valid
+barrett_hand_msgs/StatusHand handLeft      # subsystem_buffer{type: container; validity: handLeft_valid}
+bool handLeft_valid
 
-barrett_hand_controller_msgs/BHPressureState p      # subsystem_buffer{type: port; validity: p_valid}
+barrett_hand_msgs/BHPressureState p      # subsystem_buffer{type: port; validity: p_valid}
 bool p_valid
 
 geometry_msgs/Wrench[3] f                           # subsystem_buffer{type: port; validity: f_valid}
