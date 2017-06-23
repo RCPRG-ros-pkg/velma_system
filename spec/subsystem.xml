@@ -5,8 +5,8 @@
         <in alias="rLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
         <out alias="lLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
         <in alias="lLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
-        <out alias="ec_st"   type="test_ec_msgs_gen::EcInput"           side="top"  converter="test_ec_msgs_gen::EcInputBufferConverter"/>
-        <in alias="ec_cmd"   type="test_ec_msgs_gen::EcOutput"          side="top"  converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
+        <out alias="ec_st"   type="velma_ec_gen_msgs::EcInput"          side="top"  converter="velma_ec_gen_msgs::EcInputBufferConverter"/>
+        <in alias="ec_cmd"   type="velma_ec_gen_msgs::EcOutput"         side="top"  converter="velma_ec_gen_msgs::EcOutputBufferConverter"/>
     </buffers>
 
     <trigger_methods>

@@ -12,10 +12,11 @@
     <import package="rtt_std_msgs" />
     <import package="rtt_tf" />
     <import package="velma_sim" />
-    <import package="rtt_test_ec_subsystem_ports" />
-    <import package="rtt_test_ec_msgs" />
+    <import package="rtt_velma_ec_gen_subsystem_ports" />
+    <import package="rtt_velma_ec_gen_msgs" />
     <import package="rtt_lwr_msgs" />
-    <import package="ec_can_queue" />
+    <import package="velma_common_components" />
+    <import package="rtt_barrett_hand_msgs" />
 
     <component name="TorsoSim" type="TorsoSim" running="true" />
     <component name="LWRrSim" type="LWRSim" running="true" />
@@ -32,7 +33,7 @@
     <component name="RightHandTactile" type="BarrettTactileSim" running="true" />
 
 
-    <component name="can_queue_tx" type="ec_can_queue::CanQueueTxComponent" running="true" />
+    <component name="can_queue_tx" type="CanQueueTxComponent10" running="true" />
 
     <io_buffer alias="rLwr_st" name="rLwr_st" />
     <io_buffer alias="rLwr_cmd" name="rLwr_cmd" />
