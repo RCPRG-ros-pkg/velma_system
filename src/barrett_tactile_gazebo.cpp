@@ -26,7 +26,7 @@
 */
 
 #include "barrett_tactile_gazebo.h"
-#include "barrett_hand_common/tactile_geometry.h"
+#include "barrett_hand_tactile/tactile_geometry.h"
 #include "rtt_rosclock/rtt_rosclock.h"
 #include <rtt/Logger.hpp>
 #include <rtt/Component.hpp>

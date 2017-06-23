@@ -55,7 +55,7 @@ public:
     Dofs max_measured_pressure_in_;
     Joints q_out_;
     Joints t_out_;
-    //barrett_hand_controller_msgs::BHTemp temp_out_;
+    //barrett_hand_msgs::BHTemp temp_out_;
 
     // public methods
     BarrettHandGazebo(std::string const& name);

@@ -40,7 +40,7 @@ import tf
 from std_msgs.msg import *
 from sensor_msgs.msg import *
 from geometry_msgs.msg import *
-from barrett_hand_controller_msgs.msg import *
+from barrett_hand_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from visualization_msgs.msg import *
 import actionlib
