@@ -32,7 +32,8 @@ import geometry_msgs.msg
 from std_msgs.msg import *
 from geometry_msgs.msg import *
 from sensor_msgs.msg import *
-from barrett_hand_controller_msgs.msg import *
+from barrett_hand_msgs.msg import *
+from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from visualization_msgs.msg import *
 import actionlib
@@ -658,6 +659,7 @@ Class used as Velma robot Interface.
         action_goal.v = v
         action_goal.t = t
         action_goal.maxPressure = maxPressure
+        action_goal.reset = False
         if hold == True:
             action_goal.hold = 1
         else:
@@ -669,6 +671,17 @@ Class used as Velma robot Interface.
 
     def moveHandRight(self, q, v, t, maxPressure, hold=False):
         self.moveHand(q, v, t, maxPressure, hold=hold, prefix="right")
+
+    def resetHand(self, prefix="right"):
+        action_goal = BHMoveGoal()
+        action_goal.reset = True
+        self.action_move_hand_client[prefix].send_goal(action_goal)
+
+    def resetHandLeft(self):
+        self.resetHand(prefix="left")
+
+    def resetHandRight(self):
+        self.resetHand(prefix="right")
 
     def waitForHand(self, prefix="right"):
         self.action_move_hand_client[prefix].wait_for_result()

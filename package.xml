@@ -23,7 +23,7 @@
   <run_depend>rosgraph_msgs</run_depend>
   <run_depend>std_srvs</run_depend> 
   <run_depend>rtt_std_srvs</run_depend> 
-  <run_depend>rtt_barrett_hand_controller_msgs</run_depend>
+  <run_depend>rtt_barrett_hand_msgs</run_depend>
   <run_depend>velma_description</run_depend>
   <run_depend>barrett_hand_defs</run_depend>
   <run_depend>lwr_defs</run_depend>
