@@ -72,7 +72,7 @@ bool isCommandValidHeadTilt(const velma_core_ve_body_re_body_msgs::CommandMotor 
     return true;
 }
 
-bool isCommandValid(const velma_core_ve_body_re_body_msgs::CommandHand &cmd) {
+bool isCommandValid(const barrett_hand_msgs::CommandHand &cmd) {
 // TODO
     return true;
 }
@@ -136,7 +136,7 @@ bool isStatusValid(const velma_core_cs_ve_body_msgs::StatusArm &st) {
     return true;
 }
 
-//bool isStatusValid(const velma_core_ve_body_re_body_msgs::StatusHand &st) {
+//bool isStatusValid(const barrett_hand_msgs::StatusHand &st) {
 // TODO
 //    return true;
 //}

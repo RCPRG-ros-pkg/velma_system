@@ -78,6 +78,9 @@ private:
     RTT::InputPort<int32_t > port_cmd_rHand_hold_in_;
     RTT::InputPort<int32_t > port_cmd_lHand_hold_in_;
 
+    RTT::InputPort<uint8_t > port_cmd_rHandReset_in_;
+    RTT::InputPort<uint8_t > port_cmd_lHandReset_in_;
+
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
 
@@ -104,6 +107,8 @@ BypassComponent::BypassComponent(const std::string &name)
     , port_cmd_lHand_max_i_in_("lHand_max_i_INPORT")
     , port_cmd_rHand_hold_in_("rHand_hold_INPORT")
     , port_cmd_lHand_hold_in_("lHand_hold_INPORT")
+    , port_cmd_rHandReset_in_("rHandReset_INPORT")
+    , port_cmd_lHandReset_in_("lHandReset_INPORT")
 {
     this->ports()->addPort(port_cmd_tMotor_i_in_);
     this->ports()->addPort(port_cmd_rArm_t_in_);
@@ -121,6 +126,8 @@ BypassComponent::BypassComponent(const std::string &name)
     this->ports()->addPort(port_cmd_lHand_max_i_in_);
     this->ports()->addPort(port_cmd_rHand_hold_in_);
     this->ports()->addPort(port_cmd_lHand_hold_in_);
+    this->ports()->addPort(port_cmd_rHandReset_in_);
+    this->ports()->addPort(port_cmd_lHandReset_in_);
 
     RTT::DataFlowInterface::Ports ports = this->ports()->getPorts();
     for (int i = 0; i < ports.size(); ++i) {

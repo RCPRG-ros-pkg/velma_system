@@ -3,8 +3,8 @@
     <buffers>
         <in alias="hi_cmd"          type="velma_core_cs_ve_body_msgs::Command"  side="top"/>
         <out alias="hi_st"          type="velma_core_cs_ve_body_msgs::Status"   side="top"/>
-        <in alias="lo_ec_st"        type="test_ec_msgs_gen::EcInput"            side="bottom"   converter="test_ec_msgs_gen::EcInputBufferConverter"/>
-        <out alias="lo_ec_cmd"      type="test_ec_msgs_gen::EcOutput"           side="bottom"   converter="test_ec_msgs_gen::EcOutputBufferConverter"/>
+        <in alias="lo_ec_st"        type="velma_ec_gen_msgs::EcInput"           side="bottom"   converter="velma_ec_gen_msgs::EcInputBufferConverter"/>
+        <out alias="lo_ec_cmd"      type="velma_ec_gen_msgs::EcOutput"          side="bottom"   converter="velma_ec_gen_msgs::EcOutputBufferConverter"/>
         <in alias="lo_rLwr_st"      type="velma_core_ve_re_lwr_msgs::Status"    side="bottom" />
         <out alias="lo_rLwr_cmd"    type="velma_core_ve_re_lwr_msgs::Command"   side="bottom" />
         <in alias="lo_lLwr_st"      type="velma_core_ve_re_lwr_msgs::Status"    side="bottom" />

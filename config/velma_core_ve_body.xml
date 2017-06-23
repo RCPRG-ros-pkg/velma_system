@@ -1,6 +1,8 @@
 <subsystem_configuration>
     <import package="controller_common" />
     <import package="rtt_geometry_msgs" />
+    <import package="rtt_barrett_hand_msgs" />
+    <import package="rtt_barrett_hand_subsystem_ports" />
     <import package="rtt_velma_core_cs_ve_body_msgs" />
     <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
     <import package="velma_core_ve_body" />
@@ -12,11 +14,11 @@
     <import package="rtt_cartesian_trajectory_msgs" />
     <import package="rtt_std_msgs" />
     <import package="rtt_tf" />
-    <import package="rtt_test_ec_subsystem_ports" />
-    <import package="rtt_test_ec_msgs" />
+    <import package="rtt_velma_ec_gen_subsystem_ports" />
+    <import package="rtt_velma_ec_gen_msgs" />
     <import package="rtt_lwr_msgs" />
     <import package="barrett_hand_controller" />
-    <import package="ec_can_queue" />
+    <import package="velma_common_components" />
 
     <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
@@ -38,7 +40,7 @@
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx" type="ec_can_queue::CanQueueTxComponent" running="true" />
+    <component name="can_queue_tx" type="CanQueueTxComponent10" running="true" />
 
     <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" running="true" />
     <component name="Zero"  type="ScalarZeroUInt32" latex="\text{Zero}" running="true" />
@@ -105,28 +107,12 @@
     <connection from="bypass.hpMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
     <connection from="bypass.htMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
 
-<!--
-TODO:
-    <connection from="bypass.lHand_q_OUTPORT"       to="LeftHand.q_INPORT" />
-    <connection from="bypass.lHand_dq_OUTPORT"      to="LeftHand.v_INPORT" />
-    <connection from="bypass.lHand_max_i_OUTPORT"   to="LeftHand.t_INPORT" />
-    <connection from="bypass.lHand_max_p_OUTPORT"   to="LeftHand.mp_INPORT" />
-    <connection from="bypass.lHand_hold_OUTPORT"    to="LeftHand.hold_INPORT" />-->
-
-
-<!--
-TODO:
-        this->ports()->addPort("t_OUTPORT", port_t_out_);
-        this->ports()->addPort("BHTemp", port_temp_out_);
-        this->ports()->addPort("max_measured_pressure_INPORT", port_max_measured_pressure_in_);
-        this->ports()->addPort("reset_fingers_INPORT", port_reset_in_);
--->
-
     <connection from="bypass.rHand_q_OUTPORT"       to="rHand.q_INPORT" />
     <connection from="bypass.rHand_dq_OUTPORT"      to="rHand.v_INPORT" />
     <connection from="bypass.rHand_max_i_OUTPORT"   to="rHand.t_INPORT" />
     <connection from="bypass.rHand_max_p_OUTPORT"   to="rHand.mp_INPORT" />
     <connection from="bypass.rHand_hold_OUTPORT"    to="rHand.hold_INPORT" />
+    <connection from="bypass.rHandReset_OUTPORT"    to="rHand.reset_INPORT" />
     <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" />
     <connection from="rHand.tx_OUTPORT"             to="can_queue_tx.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
@@ -138,7 +124,7 @@ TODO:
     <connection from="bypass.lHand_dq_OUTPORT"      to="lHand.v_INPORT" />
     <connection from="bypass.lHand_max_i_OUTPORT"   to="lHand.t_INPORT" />
     <connection from="bypass.lHand_max_p_OUTPORT"   to="lHand.mp_INPORT" />
-    <connection from="bypass.lHand_hold_OUTPORT"    to="lHand.hold_INPORT" />
+    <connection from="bypass.lHandReset_OUTPORT"    to="lHand.reset_INPORT" />
     <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="lHand.rx_queue_INPORT" />
     <connection from="lHand.tx_OUTPORT"             to="can_queue_tx.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
@@ -157,11 +143,13 @@ TODO:
     <connection from="hi_cmdSplit.rHand_max_i_OUTPORT"              to="bypass.rHand_max_i_INPORT" />
     <connection from="hi_cmdSplit.rHand_max_p_OUTPORT"              to="bypass.rHand_max_p_INPORT" />
     <connection from="hi_cmdSplit.rHand_hold_OUTPORT"               to="bypass.rHand_hold_INPORT" />
+    <connection from="hi_cmdSplit.rHandReset_OUTPORT"               to="bypass.rHandReset_INPORT" />
     <connection from="hi_cmdSplit.lHand_q_OUTPORT"                  to="bypass.lHand_q_INPORT" />
     <connection from="hi_cmdSplit.lHand_dq_OUTPORT"                 to="bypass.lHand_dq_INPORT" />
     <connection from="hi_cmdSplit.lHand_max_i_OUTPORT"              to="bypass.lHand_max_i_INPORT" />
     <connection from="hi_cmdSplit.lHand_max_p_OUTPORT"              to="bypass.lHand_max_p_INPORT" />
     <connection from="hi_cmdSplit.lHand_hold_OUTPORT"               to="bypass.lHand_hold_INPORT" />
+    <connection from="hi_cmdSplit.lHandReset_OUTPORT"               to="bypass.lHandReset_INPORT" />
     <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"  to="bypass.hpMotor_q_INPORT" />
     <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="bypass.htMotor_q_INPORT" />
 
@@ -187,39 +175,8 @@ TODO:
     <connection from="TorsoPanTransmision.JointPosition_OUTPORT"        to="hi_stConcate.tMotor_q_INPORT" name="q" />
     <connection from="TorsoPanTransmision.JointVelocity_OUTPORT"        to="hi_stConcate.tMotor_dq_INPORT" name="dq" />
 
-<!--
-TODO:
-    <connection from="RightFtSensor.rawWrench_OUTPORT"                  to="hi_stConcate.rFt_rw_INPORT" name="raw_wr" />
-    <connection from="RightFtSensor.fastFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_ffw_INPORT" name="fast_wr" />
-    <connection from="RightFtSensor.slowFilteredWrench_OUTPORT"         to="hi_stConcate.rFt_sfw_INPORT" name="slow_wr" />
-    <connection from="LeftFtSensor.rawWrench_OUTPORT"                   to="hi_stConcate.lFt_rw_INPORT" name="raw_wr" />
-    <connection from="LeftFtSensor.fastFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_ffw_INPORT" name="fast_wr" />
-    <connection from="LeftFtSensor.slowFilteredWrench_OUTPORT"          to="hi_stConcate.lFt_sfw_INPORT" name="slow_wr" />
--->
-
     <connection from="lo_rLwr_stSplit.iState_OUTPORT"                         to="hw_state.rArm_fri_state_INPORT" />
     <connection from="lo_rLwr_stSplit.rState_OUTPORT"                       to="hw_state.rArm_robot_state_INPORT" />
     <connection from="lo_lLwr_stSplit.iState_OUTPORT"                         to="hw_state.lArm_fri_state_INPORT" />
     <connection from="lo_lLwr_stSplit.rState_OUTPORT"                       to="hw_state.lArm_robot_state_INPORT" />
-<!--
-TODO:
-
-    <connection from="LeftHand.q_OUTPORT"               to="hi_stConcate.lHand_q_INPORT" />
-    <connection from="LeftHand.status_OUTPORT"          to="hi_stConcate.lHand_s_INPORT" />
--->
-<!--
-TODO: remove:
-    <connection from="ZeroVec8.vector_OUTPORT" to="hi_stConcate.rHand_q_INPORT" name="0" />
-    <connection from="Zero.zero_OUTPORT"       to="hi_stConcate.rHand_s_INPORT" />
-    <connection from="ZeroVec8.vector_OUTPORT" to="hi_stConcate.lHand_q_INPORT" name="0" />
-    <connection from="Zero.zero_OUTPORT"       to="hi_stConcate.lHand_s_INPORT" />
--->
-
-<!--
-    <latched_connections>
-        <components from="LWRrSim" to="safe" />
-        <components from="LWRlSim" to="safe" />
-        <components from="TorsoSim" to="safe" />
-    </latched_connections>
--->
 </subsystem_configuration>

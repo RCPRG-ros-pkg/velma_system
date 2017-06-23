@@ -13,7 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_behavior
   controller_common
   lwr_msgs
-  test_ec_msgs_gen
+  velma_ec_gen_msgs
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -42,8 +42,6 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ros_generate_rtt_master()
 
 orocos_component(velma_core_ve_body
-#    src/behavior_idle.cpp
-#    src/behavior_safe.cpp
     src/common_predicates.cpp
     src/predicates.cpp
     src/velma_core_ve_body.cpp
@@ -53,7 +51,6 @@ orocos_component(velma_core_ve_body
     src/components/vector_dummy.cpp
     src/components/scalar_zero.cpp
     src/components/hw_state.cpp
-#    src/components/ec_msg_converter.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
