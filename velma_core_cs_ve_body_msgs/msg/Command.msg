@@ -21,9 +21,15 @@ bool sc_valid
 int32 tact              # subsystem_buffer{type: port; validity: tact_valid}
 bool tact_valid
 
-CommandHand lHand       # subsystem_buffer{type: container; validity: lHand_valid}
+barrett_hand_msgs/CommandHand lHand       # subsystem_buffer{type: container; validity: lHand_valid}
 bool lHand_valid
 
-CommandHand rHand       # subsystem_buffer{type: container; validity: rHand_valid}
+bool lHandReset         # subsystem_buffer{type: port; validity: lHandReset_valid}
+bool lHandReset_valid
+
+barrett_hand_msgs/CommandHand rHand       # subsystem_buffer{type: container; validity: rHand_valid}
 bool rHand_valid
+
+bool rHandReset         # subsystem_buffer{type: port; validity: rHandReset_valid}
+bool rHandReset_valid
 

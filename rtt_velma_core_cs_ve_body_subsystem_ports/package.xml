@@ -33,6 +33,7 @@
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
   <export>
     <rtt_ros>
+      <plugin_depend>rtt_barrett_hand_subsystem_ports</plugin_depend>
     </rtt_ros>
   </export>
 
