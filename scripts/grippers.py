@@ -43,11 +43,23 @@ if __name__ == "__main__":
     velma.moveHandRight([90.0/180.0*math.pi,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
     velma.waitForHandRight()
 
-    print "move left"
-    velma.moveHandLeft([0,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+    print "move right"
+    velma.moveHandRight([90.0/180.0*math.pi,0,0,180.0/180.0*math.pi], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+    velma.waitForHandRight()
+
+    print "reset left"
+    velma.resetHandLeft()
     velma.waitForHandLeft()
 
-    print "move right"
-    velma.moveHandRight([0,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+    print "reset right"
+    velma.resetHandRight()
     velma.waitForHandRight()
+
+#    print "move left"
+#    velma.moveHandLeft([0,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+#    velma.waitForHandLeft()
+
+#    print "move right"
+#    velma.moveHandRight([0,0,0,0], [1,1,1,1], [2000,2000,2000,2000], 1000, hold=True)
+#    velma.waitForHandRight()
 
