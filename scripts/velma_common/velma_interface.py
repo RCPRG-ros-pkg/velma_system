@@ -27,38 +27,23 @@
 
 import rospy
 import tf
-
-import geometry_msgs.msg
-from std_msgs.msg import *
-from geometry_msgs.msg import *
-from sensor_msgs.msg import *
-from barrett_hand_msgs.msg import *
-from barrett_hand_action_msgs.msg import *
-from cartesian_trajectory_msgs.msg import *
-from visualization_msgs.msg import *
-import actionlib
-from actionlib_msgs.msg import *
-from trajectory_msgs.msg import *
-from control_msgs.msg import *
+import math
+import time
+import copy
 from threading import Lock
 from functools import partial
 
-import tf
-from tf import *
-from tf.transformations import * 
+from geometry_msgs.msg import Wrench, Vector3, Twist
+from sensor_msgs.msg import JointState
+from barrett_hand_msgs.msg import *
+from barrett_hand_action_msgs.msg import *
+from cartesian_trajectory_msgs.msg import *
+import actionlib
+from trajectory_msgs.msg import *
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTolerance
 import tf_conversions.posemath as pm
-from tf2_msgs.msg import *
-import controller_manager_msgs.srv
-
 
 import PyKDL
-import math
-from numpy import *
-import numpy as np
-
-import copy
-
-import velma_fk_ik
 
 # reference frames:
 # WO - world
@@ -124,16 +109,56 @@ Class used as Velma robot Interface.
         self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(self.js_pos))
         self.joint_states_lock.release()
 
-    def waitForInit(self):
+    def getHandCurrentConfiguration(self, prefix):
+        js = self.getLastJointState()
+        q = [ js[1][prefix+'_HandFingerOneKnuckleOneJoint'],
+            js[1][prefix+'_HandFingerOneKnuckleTwoJoint'],
+            js[1][prefix+'_HandFingerOneKnuckleThreeJoint'],
+            js[1][prefix+'_HandFingerTwoKnuckleOneJoint'],
+            js[1][prefix+'_HandFingerTwoKnuckleTwoJoint'],
+            js[1][prefix+'_HandFingerTwoKnuckleThreeJoint'],
+            js[1][prefix+'_HandFingerThreeKnuckleTwoJoint'],
+            js[1][prefix+'_HandFingerThreeKnuckleThreeJoint'] ]
+        return q
+
+    def getHandLeftCurrentConfiguration(self):
+        return self.getHandCurrentConfiguration("left")
+
+    def getHandRightCurrentConfiguration(self):
+        return self.getHandCurrentConfiguration("right")
+
+    def allActionsConnected(self):
+        allConnected = True
+        for side in ("right", "left"):
+            if not self.action_move_hand_client_connected[side]:
+                self.action_move_hand_client_connected[side] = self.action_move_hand_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            if not self.action_cart_traj_client_connected[side]:
+                self.action_cart_traj_client_connected[side] = self.action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            if not self.action_joint_traj_client_connected[side]:
+                self.action_joint_traj_client_connected[side] = self.action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self.action_move_hand_client_connected[side] and\
+                self.action_cart_traj_client_connected[side] and self.action_joint_traj_client_connected[side]
+        return allConnected
+
+    def waitForInit(self, timeout_s = None):
+        time_start = time.time()
+        can_break = False
         while not rospy.is_shutdown():
-            can_break = False
             self.joint_states_lock.acquire()
             if self.js_pos_history_idx >= 0:
                 can_break = True
             self.joint_states_lock.release()
-            if can_break:
+            if can_break and self.allActionsConnected():
                 break
             rospy.sleep(0.1)
+            time_now = time.time()
+            if timeout_s and (time_now-time_start) > timeout_s:
+                print "ERROR: waitForInit: ", can_break, self.action_move_hand_client_connected["right"],\
+                    self.action_move_hand_client_connected["left"], self.action_cart_traj_client_connected["right"],\
+                    self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected["right"],\
+                    self.action_joint_traj_client_connected["left"]
+                return False
+        return True
 
     def getBodyJointLowerLimits(self):
         return self.body_joint_lower_limits
@@ -193,6 +218,10 @@ Class used as Velma robot Interface.
 
         self.emergency_stop_active = False
 
+        self.action_move_hand_client_connected = {'right':False, 'left':False}
+        self.action_cart_traj_client_connected = {'right':False, 'left':False}
+        self.action_joint_traj_client_connected = {'right':False, 'left':False}
+
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartImpAction),
@@ -219,9 +248,8 @@ Class used as Velma robot Interface.
         self.action_move_hand_client = {
             'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
             'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
-        self.action_move_hand_client["right"].wait_for_server()
-        self.action_move_hand_client["left"].wait_for_server()
-
+#        self.action_move_hand_client["right"].wait_for_server()    # this check is done in waitForInit
+#        self.action_move_hand_client["left"].wait_for_server()     # this check is done in waitForInit
 
 #        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
 #        self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
@@ -431,87 +459,89 @@ Class used as Velma robot Interface.
 #    def isActiveEffectorLeft(self):
 #        return self.isActiveEffector("left")
 
-    def moveTool(self, prefix, T_W_T, t, stamp=None):
-        ros_T_W_T = pm.toMsg(T_W_T)
+#TODO: remove moveTool methods
+#    def moveTool(self, prefix, T_W_T, t, stamp=None):
+#        ros_T_W_T = pm.toMsg(T_W_T)
 
-        action_tool_goal = CartImpGoal()
-        if stamp != None:
-            action_tool_goal.tool_trj.header.stamp = stamp
-        else:
-            action_tool_goal.tool_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.01)
-        action_tool_goal.tool_trj.points.append(CartesianTrajectoryPoint(
-        rospy.Duration(t),
-        ros_T_W_T,
-        Twist()))
-        self.action_tool_client[prefix].send_goal(action_tool_goal)
+#        action_tool_goal = CartImpGoal()
+#        if stamp != None:
+#            action_tool_goal.tool_trj.header.stamp = stamp
+#        else:
+#            action_tool_goal.tool_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.01)
+#        action_tool_goal.tool_trj.points.append(CartesianTrajectoryPoint(
+#        rospy.Duration(t),
+#        ros_T_W_T,
+#        Twist()))
+#        self.action_tool_client[prefix].send_goal(action_tool_goal)
 
-    def moveToolLeft(self, T_Wl_Tl, t, stamp=None):
-        self.moveTool("left", T_Wl_Tl, t, stamp=stamp)
+#    def moveToolLeft(self, T_Wl_Tl, t, stamp=None):
+#        self.moveTool("left", T_Wl_Tl, t, stamp=stamp)
 
-    def moveToolRight(self, T_Wr_Tr, t, stamp=None):
-        self.moveTool("right", T_Wr_Tr, t, stamp=stamp)
+#    def moveToolRight(self, T_Wr_Tr, t, stamp=None):
+#        self.moveTool("right", T_Wr_Tr, t, stamp=stamp)
 
-    def waitForTool(self, prefix):
-        self.action_tool_client[prefix].wait_for_result()
-        result = self.action_tool_client[prefix].get_result()
-        if result.error_code != 0:
-            print "waitForTool(" + prefix + "): action failed with error_code=" + str(result.error_code)
-        return result.error_code
+#    def waitForTool(self, prefix):
+#        self.action_tool_client[prefix].wait_for_result()
+#        result = self.action_tool_client[prefix].get_result()
+#        if result.error_code != 0:
+#            print "waitForTool(" + prefix + "): action failed with error_code=" + str(result.error_code)
+#        return result.error_code
 
-    def waitForToolLeft(self):
-        return self.waitForTool("left")
+#    def waitForToolLeft(self):
+#        return self.waitForTool("left")
 
-    def waitForToolRight(self):
-        return self.waitForTool("right")
+#    def waitForToolRight(self):
+#        return self.waitForTool("right")
 
-    def moveImpedance(self, prefix, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        action_impedance_goal = CartesianImpedanceGoal()
-        if stamp != None:
-            action_impedance_goal.imp_trj.header.stamp = stamp
-        else:
-            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
-        action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
-        rospy.Duration(t),
-        CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
-        self.action_impedance_client[prefix].send_goal(action_impedance_goal)
+#TODO: remove moveImpedance methods
+#    def moveImpedance(self, prefix, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        action_impedance_goal = CartesianImpedanceGoal()
+#        if stamp != None:
+#            action_impedance_goal.imp_trj.header.stamp = stamp
+#        else:
+#            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
+#        action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
+#        rospy.Duration(t),
+#        CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
+#        self.action_impedance_client[prefix].send_goal(action_impedance_goal)
 
-    def moveImpedanceLeft(self, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        self.moveImpedance("left", k, t, stamp=stamp, damping=damping)
+#    def moveImpedanceLeft(self, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        self.moveImpedance("left", k, t, stamp=stamp, damping=damping)
 
-    def moveImpedanceRight(self, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        self.moveImpedance("right", k, t, stamp=stamp, damping=damping)
+#    def moveImpedanceRight(self, k, t, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        self.moveImpedance("right", k, t, stamp=stamp, damping=damping)
 
-    def moveImpedanceTraj(self, prefix, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        action_impedance_goal = CartesianImpedanceGoal()
-        if stamp != None:
-            action_impedance_goal.imp_trj.header.stamp = stamp
-        else:
-            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
-        i = 0
-        for k in k_n:
-            action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
-            rospy.Duration(t_n[i]),
-            CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
-        self.action_impedance_client[prefix].send_goal(action_impedance_goal)
+#    def moveImpedanceTraj(self, prefix, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        action_impedance_goal = CartesianImpedanceGoal()
+#        if stamp != None:
+#            action_impedance_goal.imp_trj.header.stamp = stamp
+#        else:
+#            action_impedance_goal.imp_trj.header.stamp = rospy.Time.now() + rospy.Duration(0.2)
+#        i = 0
+#        for k in k_n:
+#            action_impedance_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
+#            rospy.Duration(t_n[i]),
+#            CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
+#        self.action_impedance_client[prefix].send_goal(action_impedance_goal)
 
-    def moveImpedanceTrajLeft(self, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        self.moveImpedanceTraj(self, "left", k_n, t_n, stamp=stamp, damping=damping)
+#    def moveImpedanceTrajLeft(self, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        self.moveImpedanceTraj(self, "left", k_n, t_n, stamp=stamp, damping=damping)
 
-    def moveImpedanceTrajRight(self, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        self.moveImpedanceTraj(self, "right", k_n, t_n, stamp=stamp, damping=damping)
+#    def moveImpedanceTrajRight(self, k_n, t_n, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+#        self.moveImpedanceTraj(self, "right", k_n, t_n, stamp=stamp, damping=damping)
 
-    def waitForImpedance(self, prefix):
-        self.action_impedance_client[prefix].wait_for_result()
-        result = self.action_impedance_client[prefix].get_result()
-        if result.error_code != 0:
-            print "waitForImpedance(" + prefix + "): action failed with error_code=" + str(result.error_code)
-        return result.error_code
+#    def waitForImpedance(self, prefix):
+#        self.action_impedance_client[prefix].wait_for_result()
+#        result = self.action_impedance_client[prefix].get_result()
+#        if result.error_code != 0:
+#            print "waitForImpedance(" + prefix + "): action failed with error_code=" + str(result.error_code)
+#        return result.error_code
 
-    def waitForImpedanceLeft(self):
-        return self.waitForImpedance("left")
+#    def waitForImpedanceLeft(self):
+#        return self.waitForImpedance("left")
 
-    def waitForImpedanceRight(self):
-        return self.waitForImpedance("right")
+#    def waitForImpedanceRight(self):
+#        return self.waitForImpedance("right")
 
     def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
 
@@ -590,10 +620,6 @@ Class used as Velma robot Interface.
             self.action_cart_traj_client[prefix].cancel_goal()
         except:
             pass
-        try:
-            self.action_tool_client[prefix].cancel_goal()
-        except:
-            pass
 
     def stopArmLeft(self):
         self.stopArm("left")
@@ -602,7 +628,6 @@ Class used as Velma robot Interface.
         self.stopArm("right")
 
     def emergencyStop(self):
-        self.moveImpedance(self.k_error, 0.5)
         self.stopArmLeft()
         self.stopArmRight()
         self.emergency_stop_active = True
@@ -652,6 +677,14 @@ Class used as Velma robot Interface.
 #        except rospy.ServiceException, e:
 #            print "Service call failed: %s"%e
 
+    moveHand_action_error_codes_names = {
+        0:"SUCCESSFUL",
+        -1:"INVALID_DOF_NAME",
+        -2:"INVALID_GOAL",
+        -3:"CURRENT_LIMIT",
+        -4:"PRESSURE_LIMIT",
+        -5:"RESET_IS_ACTIVE"}
+
     def moveHand(self, q, v, t, maxPressure, hold=False, prefix="right"):
         action_goal = BHMoveGoal()
         action_goal.name = [prefix+"_HandFingerOneKnuckleTwoJoint", prefix+"_HandFingerTwoKnuckleTwoJoint", prefix+"_HandFingerThreeKnuckleTwoJoint", prefix+"_HandFingerOneKnuckleOneJoint"]
@@ -685,7 +718,10 @@ Class used as Velma robot Interface.
 
     def waitForHand(self, prefix="right"):
         self.action_move_hand_client[prefix].wait_for_result()
-        return self.action_move_hand_client[prefix].get_result()
+        result = self.action_move_hand_client[prefix].get_result()
+        if result.error_code != 0:
+            print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.moveHand_action_error_codes_names[result.error_code] + ")"
+        return result.error_code
 
     def waitForHandLeft(self):
         return self.waitForHand(prefix="left")
