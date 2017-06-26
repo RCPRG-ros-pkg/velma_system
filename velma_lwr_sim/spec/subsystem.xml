@@ -1,0 +1,32 @@
+<subsystem_definition>
+
+    <buffers>
+        <out alias="lwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
+        <in alias="lwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
+    </buffers>
+
+    <trigger_methods>
+        <new_data_on_buffer name="lwr_cmd" min="0.001" />
+        <no_data_on_buffer name="lwr_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+    </trigger_methods>
+
+    <predicates>
+    </predicates>
+
+    <behaviors>
+        <behavior name="normal"
+            stop_cond="FALSE"
+            err_cond="FALSE" >
+            <running_component name="Y" />
+        </behavior>
+    </behaviors>
+
+    <states initial="normal">
+        <state name="normal">
+            <behavior name="normal" />
+        </state>
+    </states>
+
+    <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="false" />
+
+</subsystem_definition>
