@@ -96,39 +96,6 @@
         arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
         arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
         arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
-      TorsoPanTransmision:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-      TorsoPanTransmisionInv:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-        motor_constant: 0.00105
-      HeadPanTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-      HeadPanTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: -100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
-      HeadTiltTransmision:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-      HeadTiltTransmisionInv:
-        motor_offset: 0.0
-        joint_offset: 0.0
-        gear: 100.0
-        encoder_res: 8000.0
-        motor_constant: 0.0
     </rosparam>
   </group>
 </launch>

@@ -8,17 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
     cmake_modules
     kdl_parser
     lwr_msgs
-    barrett_hand_tactile
-    barrett_hand_msgs
     velma_core_ve_re_lwr_msgs
     eigen_conversions
     common_behavior
     common_interfaces
-    velma_ec_gen_msgs
     shm_comm
     velma_common_components
-    barrett_hand_controller
-    barrett_hand_hw_sim
 )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
