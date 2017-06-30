@@ -47,8 +47,16 @@ using namespace RTT;
         port_t_MotorPosition_out_.write(t_MotorPosition_out_);
         port_t_MotorVelocity_out_.write(t_MotorVelocity_out_);
 
-        if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_) == RTT::NewData) {
-        }
+// TODO: implement motor status codes
+        uint16_t t_MotorStatus_out = 0;
+        port_t_MotorStatus_out_.write(t_MotorStatus_out);
+
+        uint16_t hp_status_out = 0;
+        uint16_t ht_status_out = 0;
+        port_hp_status_out_.write(hp_status_out);
+        port_ht_status_out_.write(ht_status_out);
+
+        port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_);
 
         //
         // head

@@ -46,10 +46,12 @@ public:
     RTT::InputPort<int16_t >    port_t_MotorCurrentCommand_in_;
     RTT::OutputPort<int32_t >   port_t_MotorPosition_out_;
     RTT::OutputPort<int32_t >   port_t_MotorVelocity_out_;
+    RTT::OutputPort<uint16_t >  port_t_MotorStatus_out_;
 
     int16_t t_MotorCurrentCommand_in_;
     int32_t t_MotorPosition_out_;
     int32_t t_MotorVelocity_out_;
+//    uint16_t t_MotorStatus_out_;
 
     // head ports
     RTT::InputPort<int32_t>      port_hp_q_in_;
@@ -57,22 +59,28 @@ public:
     RTT::InputPort<int32_t>      port_hp_c_in_;
     RTT::OutputPort<int32_t>     port_hp_q_out_;
     RTT::OutputPort<int32_t>     port_hp_v_out_;
+    RTT::OutputPort<uint16_t >   port_hp_status_out_;
+
     RTT::InputPort<int32_t>      port_ht_q_in_;
     RTT::InputPort<int32_t>      port_ht_v_in_;
     RTT::InputPort<int32_t>      port_ht_c_in_;
     RTT::OutputPort<int32_t>     port_ht_q_out_;
     RTT::OutputPort<int32_t>     port_ht_v_out_;
+    RTT::OutputPort<uint16_t >   port_ht_status_out_;
 
     int32_t hp_q_in_;
     int32_t hp_v_in_;
     int32_t hp_c_in_;
     int32_t hp_q_out_;
     int32_t hp_v_out_;
+//    uint16_t hp_status_out_;
+
     int32_t ht_q_in_;
     int32_t ht_v_in_;
     int32_t ht_c_in_;
     int32_t ht_q_out_;
     int32_t ht_v_out_;
+//    uint16_t ht_status_out_;
 
     // public methods
     TorsoGazebo(std::string const& name);
@@ -96,6 +104,7 @@ public:
     int32_t tmp_hp_c_in_;
     int32_t tmp_hp_q_out_;
     int32_t tmp_hp_v_out_;
+
     int32_t tmp_ht_q_in_;
     int32_t tmp_ht_v_in_;
     int32_t tmp_ht_c_in_;

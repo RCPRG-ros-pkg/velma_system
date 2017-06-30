@@ -11,8 +11,17 @@
 
     <trigger_methods>
 <!--      <period value="0.001" />-->
-        <new_data_on_buffer name="ec_cmd" min="0.001" />
+
+<!--        <new_data_on_buffer name="ec_cmd" min="0.001" />
         <no_data_on_buffer name="ec_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+-->
+
+        <read_buffers min_period="0.0008" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" >
+            <obligatory name="ec_cmd" />
+            <obligatory name="rLwr_cmd" />
+            <obligatory name="lLwr_cmd" />
+        </read_buffers>
+
     </trigger_methods>
 
     <predicates>

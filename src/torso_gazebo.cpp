@@ -98,8 +98,8 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     getJointPositionAndVelocity(q_t, dq_t);
 
     const double torso_gear = 158.0;
-    const double torso_trans_mult = 20000.0 * torso_gear / (M_PI * 2.0);
-    const double torso_motor_offset = -88524.0;
+    const double torso_trans_mult = 131072.0 * torso_gear / (M_PI * 2.0);
+    const double torso_motor_offset = 270119630.0;
     const double torso_joint_offset = 0;
     const double torso_motor_constant = 0.00105;
 

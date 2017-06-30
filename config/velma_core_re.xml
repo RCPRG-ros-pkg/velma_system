@@ -33,7 +33,8 @@
     <component name="RightHandTactile" running="true" />
     <component name="gazebo" running="true" />
 
-    <component name="can_queue_tx" type="CanQueueTxComponent10" running="true" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent10" running="true" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent10" running="true" />
 
     <io_buffer alias="rLwr_st" name="rLwr_st" />
     <io_buffer alias="rLwr_cmd" name="rLwr_cmd" />
@@ -44,17 +45,18 @@
     <io_buffer alias="ec_st" name="EC_Status" />
     <io_buffer alias="ec_cmd" name="EC_Command" />
 
-    <connection from="ec_cmdSplit.CANleft_Box10CANInterfaceOUT_TxQueue_OUTPORT" to="RightHand.rx_queue_INPORT" />
-    <connection from="RightHand.tx_OUTPORT"     to="can_queue_tx.tx_INPORT" >
+    <connection from="ec_cmdSplit.CANright_Box11CANInterfaceOUT_TxQueue_OUTPORT" to="RightHand.rx_queue_INPORT" />
+    <connection from="RightHand.tx_OUTPORT"     to="can_queue_tx_r.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
 
     <connection from="ec_cmdSplit.CANleft_Box10CANInterfaceOUT_TxQueue_OUTPORT" to="LeftHand.rx_queue_INPORT" />
-    <connection from="LeftHand.tx_OUTPORT"      to="can_queue_tx.tx_INPORT" >
+    <connection from="LeftHand.tx_OUTPORT"      to="can_queue_tx_l.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
 
-    <connection from="can_queue_tx.tx_queue_OUTPORT" to="ec_stConcate.CANleft_Box10CANInterfaceIN_RxQueue_INPORT" />
+    <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="ec_stConcate.CANright_Box11CANInterfaceIN_RxQueue_INPORT" />
+    <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="ec_stConcate.CANleft_Box10CANInterfaceIN_RxQueue_INPORT" />
 
 <!--
 ec_cmdSplit.FTsensorleft
@@ -107,12 +109,15 @@ ec_stConcate.SyncUnits
 
     <connection from="TorsoSim.head_tilt_motor_position_OUTPORT"        to="ec_stConcate.HeadTilt_Inputs_Positionactualvalue_INPORT" />
     <connection from="TorsoSim.head_tilt_motor_velocity_OUTPORT"        to="ec_stConcate.HeadTilt_Inputs_Velocityactualvalue_INPORT" />
+    <connection from="TorsoSim.head_tilt_motor_status_OUTPORT"          to="ec_stConcate.HeadTilt_Inputs_Statusword_INPORT" />
 
-    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"        to="ec_stConcate.HeadPan_Inputs_Positionactualvalue_INPORT" />
-    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"        to="ec_stConcate.HeadPan_Inputs_Velocityactualvalue_INPORT" />
+    <connection from="TorsoSim.head_pan_motor_position_OUTPORT"         to="ec_stConcate.HeadPan_Inputs_Positionactualvalue_INPORT" />
+    <connection from="TorsoSim.head_pan_motor_velocity_OUTPORT"         to="ec_stConcate.HeadPan_Inputs_Velocityactualvalue_INPORT" />
+    <connection from="TorsoSim.head_pan_motor_status_OUTPORT"           to="ec_stConcate.HeadPan_Inputs_Statusword_INPORT" />
 
     <connection from="TorsoSim.t_MotorPosition_OUTPORT" to="ec_stConcate.TorsoPan_Inputs_Positionactualvalue_INPORT" />
     <connection from="TorsoSim.t_MotorVelocity_OUTPORT" to="ec_stConcate.TorsoPan_Inputs_Velocityactualvalue_INPORT" />
+    <connection from="TorsoSim.t_MotorStatus_OUTPORT"   to="ec_stConcate.TorsoPan_Inputs_Statusword_INPORT" />
 
 <!--
     <connection from="safe.rArm_t_OUTPORT"          to="LWRrSim.JointTorqueCommand_INPORT" />
