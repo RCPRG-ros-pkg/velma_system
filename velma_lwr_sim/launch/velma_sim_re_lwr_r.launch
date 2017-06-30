@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="LOG_LEVEL" default="Info"/>
+  <arg name="debug" default="false"/>
+
+  <arg unless="$(arg debug)" name="LAUNCH_PREFIX" value=""/>
+  <arg     if="$(arg debug)" name="LAUNCH_PREFIX" value="gdb -ex run --args "/>
+
+  <node
+    launch-prefix="$(arg LAUNCH_PREFIX)"
+    name="velma_lwr_sim_r"
+    pkg="subsystem_deployer" type="deployer"
+    args="--DeployerName velma_lwr_sim_r -l $(arg LOG_LEVEL) -x $(find velma_lwr_sim)/config/velma_core_re_lwr_r.xml -m velma_lwr_sim --" output="screen">
+<!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
+    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
+<!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
+  </node>
+<!--
+  <param name="/robot_description"
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
+  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+  
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <param name="use_tf_static" value="false"/>
+  </node>
+
+  <param name="/use_sim_time" value="false" />
+-->
+  <group ns="velma_lwr_sim_r">
+    <rosparam>
+      LWRSim:
+        init_joint_positions: [0,-1.57,1.57,1.57,0,-1.57,0]
+    </rosparam>
+  </group>
+</launch>
