@@ -86,8 +86,8 @@
     <component name="stConcate"     latex="\text{Conc}_{task,st}" />
     <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
 
-    <component name="b_stRx"        latex="\text{x}_{b,st}" />
-    <component name="cmdRx"         latex="\text{x}_{task,cmd}" />
+<!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
+    <component name="cmdRx"         latex="\text{x}_{task,cmd}" />-->
 <!--    <component name="stTx"          latex="\text{y}_{task,st}" />
     <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />-->
     <component name="master_component"      latex="\text{MC}" />
@@ -262,9 +262,9 @@
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!-- existing connections -->
-    <connection from="b_stRx.msg_OUTPORT" to="master_component.b_st_INPORT" latex="st_{b}" />
+<!--    <connection from="b_stRx.msg_OUTPORT" to="master_component.b_st_INPORT" latex="st_{b}" />
     <connection from="b_stRx.no_data_OUTPORT" to="master_component.b_st_no_data_INPORT_" latex="tgr_{timeout}" />
-    <connection from="cmdRx.msg_OUTPORT" to="master_component.cmd_INPORT" latex="cmd_{task}" />
+    <connection from="cmdRx.msg_OUTPORT" to="master_component.cmd_INPORT" latex="cmd_{task}" />-->
     <connection from="master_component.b_st_OUTPORT" to="b_stSplit.msg_INPORT" latex="st_{b}" />
     <connection from="master_component.cmd_OUTPORT" to="cmdSplit.msg_INPORT" latex="cmd_{task}" />
     <connection from="b_cmdConcate.msg_OUTPORT" to="Y.b_cmd_INPORT" latex="cmd_{b}" />

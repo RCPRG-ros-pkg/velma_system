@@ -57,7 +57,7 @@ bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<cons
 }
 
 bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid && in_data->b_st.hpMotor_valid && in_data->b_st.htMotor_valid;
+    return in_data->b_st_valid && in_data->b_st.sc_valid && in_data->b_st.rArm_valid && in_data->b_st.lArm_valid && in_data->b_st.tMotor_valid && in_data->b_st.hpMotor_valid && in_data->b_st.htMotor_valid;
 }
 
 bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {

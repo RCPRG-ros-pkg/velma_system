@@ -21,6 +21,17 @@
 <!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
   </node>
 
+  <param name="/robot_description"
+    command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
+  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+  
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
+    <param name="use_tf_static" value="false"/>
+  </node>
+
+<!--  <param name="/use_sim_time" value="false" />-->
+
   <group ns="velma_core_cs">
     <rosparam>
       RightForceTransformation:
@@ -136,42 +147,6 @@
         joint1_idx: 14
         constraint_polygon: [0.397855401039 , 2.90307354927 ,-1.79 , 2.91307354927 ,-1.78 , 1.43123674393 ,-0.77621114254 , 1.39720571041 ,-0.36 , 1.00585031509 ,-0.35 , -0.414940297604 ,-0.8 , -0.942419290543 ,-1.8 , -1.01898884773 ,-1.81 , -2.88 ,0.4 , -2.89 ,0.81 , -2.27813267708 ,1.82 , -2.29514837265 ,1.83 , 1.66945314407 ,0.84 , 1.73751521111 ,0.423378348351 , 2.09483933449]
     </rosparam>
-
-<!--
-      TorsoPanTransmision:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-      TorsoPanTransmisionInv:
-        motor_offset: -88524
-        joint_offset: 0.0
-        gear: 158.0
-        encoder_res: 20000.0
-        motor_constant: 0.00105
-
-      rightHandMoveAction:
-        prefix: right
-      leftHandMoveAction:
-        prefix: left
-      LWRlDiag:
-        prefix: left_arm_
-      LWRrDiag:
-        prefix: right_arm_
-
-      SplineTrajectoryActionJoint:
-        joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint]
-        lower_limits: [-2.0, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96, -2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
-        upper_limits: [2.0, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96, 2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
-      HeadSplineTrajectoryActionJoint:
-        joint_names: [head_pan_joint, head_tilt_joint]
-        lower_limits: [-1.57, -1]
-        upper_limits: [1.57, 1]
-
-      TfPub:
-        frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
-        child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]
--->
   </group>
 
 </launch>

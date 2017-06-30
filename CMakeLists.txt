@@ -6,7 +6,7 @@ project(velma_core_cs)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   rtt_rosclock
-  rtt_subsystem_ports
+  rtt_subsystem
   velma_core_cs_task_cs_msgs
   velma_core_cs_ve_body_msgs
   eigen_conversions

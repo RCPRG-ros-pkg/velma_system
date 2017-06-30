@@ -20,7 +20,7 @@
   <build_depend>common_behavior</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>controller_common</build_depend>
-  <build_depend>rtt_subsystem_ports</build_depend>
+  <build_depend>rtt_subsystem</build_depend>
   <build_depend>planer_utils</build_depend>
   <build_depend>common_core_cs_components</build_depend>
 

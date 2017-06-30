@@ -9,8 +9,15 @@
     </buffers>
 
     <trigger_methods>
-        <new_data_on_buffer name="b_st" min="0.0008" />
-        <no_data_on_buffer name="b_st" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" />
+<!--        <new_data_on_buffer name="b_st" min="0.0005" />
+        <no_data_on_buffer name="b_st" first_timeout="0.005" next_timeout="0.001" first_timeout_sim="1.0" />
+-->
+
+        <read_buffers min_period="0.0008" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" >
+            <obligatory name="b_st" />
+            <optional name="cmd" />
+        </read_buffers>
+
     </trigger_methods>
 
     <predicates>
