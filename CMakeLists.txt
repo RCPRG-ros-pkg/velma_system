@@ -5,7 +5,7 @@ project(velma_core_ve_body)
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
-  rtt_subsystem_ports
+  rtt_subsystem
   velma_core_cs_ve_body_msgs
   velma_core_ve_re_lwr_msgs
   eigen_conversions
@@ -13,6 +13,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_behavior
   controller_common
   lwr_msgs
+  geometry_msgs
   velma_ec_gen_msgs
   )
 
@@ -47,10 +48,13 @@ orocos_component(velma_core_ve_body
     src/velma_core_ve_body.cpp
     src/components/bypass.cpp
     src/components/safe.cpp
+    src/components/safe_elmo.cpp
+    src/components/safe_lwr.cpp
     src/components/packet_counter.cpp
     src/components/vector_dummy.cpp
     src/components/scalar_zero.cpp
     src/components/hw_state.cpp
+    src/components/lwr_status_sync.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

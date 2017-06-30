@@ -18,14 +18,15 @@
   <build_depend>common_interfaces</build_depend>
   <build_depend>common_behavior</build_depend>
   <build_depend>eigen_conversions</build_depend>
-  <build_depend>rtt_velma_core_cs_ve_body_subsystem_ports</build_depend>
-  <build_depend>rtt_subsystem_ports</build_depend>
+<!--  <build_depend>rtt_velma_core_cs_ve_body_subsystem_ports</build_depend>-->
+  <build_depend>rtt_subsystem</build_depend>
   <build_depend>controller_common</build_depend>
   <build_depend>lwr_msgs</build_depend>
   <build_depend>velma_ec_gen_msgs</build_depend>
-  <build_depend>rtt_velma_ec_gen_subsystem_ports</build_depend>
+<!--  <build_depend>rtt_velma_ec_gen_subsystem_ports</build_depend>-->
   <build_depend>velma_common_components</build_depend>
   <run_depend>velma_common_components</run_depend>
+  <run_depend>geometry_msgs</run_depend>
 
   <build_depend>velma_core_ve_re_lwr_msgs</build_depend>
   <run_depend>velma_core_ve_re_lwr_msgs</run_depend>
@@ -34,10 +35,11 @@
   <run_depend>ocl</run_depend>
   <run_depend>rtt_ros</run_depend>
   <run_depend>velma_core_cs_ve_body_msgs</run_depend>
-  <run_depend>rtt_velma_core_cs_ve_body_subsystem_ports</run_depend>
+<!--  <run_depend>rtt_velma_core_cs_ve_body_subsystem_ports</run_depend>-->
   <run_depend>subsystem_deployer</run_depend>
   <run_depend>velma_ec_gen_msgs</run_depend>
-  <run_depend>rtt_velma_ec_gen_subsystem_ports</run_depend>
+<!--  <run_depend>rtt_velma_ec_gen_subsystem_ports</run_depend>-->
+  <run_depend>geometry_msgs</run_depend>
 
   <!-- ROS Msg Typekits and Srv Proxies -->
   <build_depend>rtt_std_msgs</build_depend>

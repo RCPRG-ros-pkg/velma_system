@@ -30,7 +30,6 @@
 #include <rtt/RTT.hpp>
 #include <rtt/Component.hpp>
 #include <rtt/Logger.hpp>
-#include <rtt/base/PortInterface.hpp>
 
 #include <lwr_msgs/FriRobotState.h>
 #include <lwr_msgs/FriIntfState.h>
@@ -51,8 +50,6 @@ public:
 
     void updateHook();
 
-    std::string getDiag();
-
 private:
 
     // ports
@@ -67,7 +64,6 @@ private:
 
     lwr_msgs::FriRobotState      lArm_robot_state_;
     RTT::InputPort<lwr_msgs::FriRobotState > port_lArm_robot_state_in_;
-
 
     bool r_lwr_ok_;
     bool l_lwr_ok_;
@@ -120,6 +116,10 @@ void HwState::updateHook() {
 
     r_lwr_cmd_ = (rFri_read && rRob_read && isLwrInCmdState(rArm_fri_state_));
     l_lwr_cmd_ = (lFri_read && lRob_read && isLwrInCmdState(lArm_fri_state_));
+
+//    std::cout << (rFri_read?"t":"f") << (lFri_read?"t":"f") << (rRob_read?"t":"f") << (lRob_read?"t":"f") <<
+//        (r_lwr_ok_?"t":"f") << (l_lwr_ok_?"t":"f") << (r_lwr_cmd_?"t":"f") << (l_lwr_cmd_?"t":"f") << " " <<
+//        rArm_robot_state_.power << " " << lArm_robot_state_.power << std::endl;
 }
 
 }   // velma_core_ve_body_types

@@ -31,16 +31,41 @@
         arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
         arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
         arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
+      safe_lwr_r:
+        damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+        dq_limits: [2, 2, 2, 2, 2, 2, 2]
+        t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
+      safe_lwr_l:
+        damping_factors: [10, 10, 5, 5, 2, 1, 1]
+        q_limits_lo: [-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96]
+        q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
+        dq_limits: [2, 2, 2, 2, 2, 2, 2]
+        t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
+      safe_t:
+        control_mode: torque
+        damping_factor: 20
+        gear: 158.0
+        encoder_resolution: 131072.0
+        motor_constant: 0.00105
+        homing_done: true
+      safe_hp:
+        control_mode: position
+        homing_done: false
+      safe_ht:
+        control_mode: position
+        homing_done: false
       TorsoPanTransmision:
-        motor_offset: -88524
+        motor_offset: 270119630
         joint_offset: 0.0
         gear: 158.0
-        encoder_res: 20000.0
+        encoder_res: 131072.0
       TorsoPanTransmisionInv:
-        motor_offset: -88524
+        motor_offset: 270119630
         joint_offset: 0.0
         gear: 158.0
-        encoder_res: 20000.0
+        encoder_res: 131072.0
         motor_constant: 0.00105
       HeadPanTransmision:
         motor_offset: 0.0
@@ -71,7 +96,7 @@
       lHand:
         device_name: TODO
         prefix: left
-        can_id_base: 15
+        can_id_base: 11
     </rosparam>
   </group>
 

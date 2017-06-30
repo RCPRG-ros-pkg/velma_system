@@ -13,14 +13,12 @@
     </buffers>
 
     <trigger_methods>
-        <new_data_on_buffer name="hi_cmd" min="0.001" />
-        <no_data_on_buffer name="hi_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
-        <new_data_on_buffer name="lo_ec_st" min="0.001" />
-        <no_data_on_buffer name="lo_ec_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
-        <new_data_on_buffer name="lo_rLwr_st" min="0.001" />
-        <no_data_on_buffer name="lo_rLwr_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
-        <new_data_on_buffer name="lo_lLwr_st" min="0.001" />
-        <no_data_on_buffer name="lo_lLwr_st" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+        <read_buffers min_period="0.0008" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" >
+            <obligatory name="hi_cmd" />
+            <obligatory name="lo_ec_st" />
+            <optional name="lo_rLwr_st" />
+            <optional name="lo_lLwr_st" />
+        </read_buffers>
     </trigger_methods>
 
     <predicates>
@@ -40,6 +38,11 @@
             stop_cond="rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"
             err_cond="FALSE" >
             <running_component name="safe" />
+            <running_component name="safe_lwr_r" />
+            <running_component name="safe_lwr_l" />
+            <running_component name="safe_t" />
+            <running_component name="safe_hp" />
+            <running_component name="safe_ht" />
             <running_component name="Y" />
         </behavior>
 

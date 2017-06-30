@@ -27,10 +27,18 @@
     <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
     <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" />
 
-    <component name="bypass" type="velma_core_ve_body_types::BypassComponent" />
-    <component name="safe" type="velma_core_ve_body_types::SafeComponent" />
+    <component name="lwr_sync_r"       type="velma_core_ve_body_types::LwrStatusSync" running="true" />
+    <component name="lwr_sync_l"       type="velma_core_ve_body_types::LwrStatusSync" running="true" />
+
+    <component name="bypass"        type="velma_core_ve_body_types::BypassComponent" />
+    <component name="safe"          type="velma_core_ve_body_types::SafeComponent" />
+    <component name="safe_lwr_r"    type="velma_core_ve_body_types::SafeLWR" />
+    <component name="safe_lwr_l"    type="velma_core_ve_body_types::SafeLWR" />
+    <component name="safe_t"        type="velma_core_ve_body_types::SafeElmo" />
+    <component name="safe_hp"       type="velma_core_ve_body_types::SafeElmo" />
+    <component name="safe_ht"       type="velma_core_ve_body_types::SafeElmo" />
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" running="true" />
-    <component name="hw_state" type="velma_core_ve_body_types::HwState" running="true" />
+    <component name="hw_state"      type="velma_core_ve_body_types::HwState" running="true" />
 
     <component name="rHand" type="BarrettHand" running="true" >
         <service name="can_queue" />
@@ -40,7 +48,8 @@
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx" type="CanQueueTxComponent10" running="true" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent10" running="true" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent10" running="true" />
 
     <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" running="true" />
     <component name="Zero"  type="ScalarZeroUInt32" latex="\text{Zero}" running="true" />
@@ -64,7 +73,11 @@
     <ros_stream port="master_component.lo_rLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_st" />
     <ros_stream port="master_component.lo_lLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_lLwr_st" />
     <ros_stream port="master_component.lo_ec_st_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st" />
-    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                           topic="/velma_core_ve_body/lo_ec_stRx" />
+<!--    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                           topic="/velma_core_ve_body/lo_ec_stRx" />
+
+    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st2" />
+-->
+    <ros_stream port="lo_ec_cmdConcate.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_cmd" />
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
 
@@ -83,23 +96,53 @@
     <connection from="lo_ec_stSplit.TorsoPan_Inputs_Positionactualvalue_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" />
     <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" />
 
+    <connection from="lo_rLwr_stSplit.q_OUTPORT"            to="lwr_sync_r.q_INPORT" name="q" />
+    <connection from="lo_rLwr_stSplit.dq_OUTPORT"           to="lwr_sync_r.dq_INPORT" name="dq" />
+    <connection from="lo_rLwr_stSplit.t_OUTPORT"            to="lwr_sync_r.t_INPORT" name="t" />
+    <connection from="lo_rLwr_stSplit.gt_OUTPORT"           to="lwr_sync_r.gt_INPORT" name="gt" />
+    <connection from="lo_rLwr_stSplit.w_OUTPORT"            to="lwr_sync_r.w_INPORT" name="wr" />
+    <connection from="lo_rLwr_stSplit.mmx_OUTPORT"          to="lwr_sync_r.mmx_INPORT" name="M" />
+    <connection from="lo_rLwr_stSplit.iState_OUTPORT"       to="lwr_sync_r.fri_INPORT" />
+    <connection from="lo_rLwr_stSplit.rState_OUTPORT"       to="lwr_sync_r.rob_INPORT" />
+
+    <connection from="lo_lLwr_stSplit.q_OUTPORT"            to="lwr_sync_l.q_INPORT" name="q" />
+    <connection from="lo_lLwr_stSplit.dq_OUTPORT"           to="lwr_sync_l.dq_INPORT" name="dq" />
+    <connection from="lo_lLwr_stSplit.t_OUTPORT"            to="lwr_sync_l.t_INPORT" name="t" />
+    <connection from="lo_lLwr_stSplit.gt_OUTPORT"           to="lwr_sync_l.gt_INPORT" name="gt" />
+    <connection from="lo_lLwr_stSplit.w_OUTPORT"            to="lwr_sync_l.w_INPORT" name="wr" />
+    <connection from="lo_lLwr_stSplit.mmx_OUTPORT"          to="lwr_sync_l.mmx_INPORT" name="M" />
+    <connection from="lo_lLwr_stSplit.iState_OUTPORT"       to="lwr_sync_l.fri_INPORT" />
+    <connection from="lo_lLwr_stSplit.rState_OUTPORT"       to="lwr_sync_l.rob_INPORT" />
+
+    <ros_stream port="lwr_sync_r.rob_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_rob_sync" />
+
     <connection from="safe.sc_OUTPORT"              to="hi_stConcate.sc_INPORT" />
-    <connection from="safe.rArm_t_OUTPORT"          to="lo_rLwr_cmdConcate.t_INPORT" />
-    <connection from="safe.rArmFri_OUTPORT"         to="lo_rLwr_cmdConcate.krlCmd_INPORT" />
-    <connection from="safe.lArm_t_OUTPORT"          to="lo_lLwr_cmdConcate.t_INPORT" />
-    <connection from="safe.lArmFri_OUTPORT"         to="lo_lLwr_cmdConcate.krlCmd_INPORT" />
-    <connection from="safe.tMotor_i_OUTPORT"        to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
-    <connection from="safe.hpMotor_q_OUTPORT"       to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
-    <connection from="safe.htMotor_q_OUTPORT"       to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
-    <connection from="lo_rLwr_stSplit.dq_OUTPORT"                    to="safe.rArm_dq_INPORT" name="dq" />
-    <connection from="lo_rLwr_stSplit.iState_OUTPORT"                         to="safe.rArmFriIntf_INPORT" />
-    <connection from="lo_rLwr_stSplit.rState_OUTPORT"                       to="safe.rArmFriRobot_INPORT" />
-    <connection from="lo_lLwr_stSplit.dq_OUTPORT"                    to="safe.lArm_dq_INPORT" name="dq" />
-    <connection from="lo_lLwr_stSplit.iState_OUTPORT"                         to="safe.lArmFriIntf_INPORT" />
-    <connection from="lo_lLwr_stSplit.rState_OUTPORT"                       to="safe.lArmFriRobot_INPORT" />
-    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT"                 to="safe.tMotor_dq_INPORT" name="dq_t" />
-    <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"         to="safe.hpMotor_q_INPORT" name="q_hp" />
-    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"        to="safe.htMotor_q_INPORT" name="q_ht" />
+    <connection from="safe_lwr_r.t_OUTPORT"          to="lo_rLwr_cmdConcate.t_INPORT" />
+    <connection from="safe_lwr_r.fri_OUTPORT"         to="lo_rLwr_cmdConcate.krlCmd_INPORT" />
+    <connection from="safe_lwr_l.t_OUTPORT"          to="lo_lLwr_cmdConcate.t_INPORT" />
+    <connection from="safe_lwr_l.fri_OUTPORT"         to="lo_lLwr_cmdConcate.krlCmd_INPORT" />
+    <connection from="safe_t.i_OUTPORT"                 to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
+    <connection from="safe_t.controlWord_OUTPORT"       to="lo_ec_cmdConcate.TorsoPan_Outputs_Controlword_INPORT" />
+    <connection from="safe_t.modeOfOperation_OUTPORT"   to="lo_ec_cmdConcate.TorsoPan_Outputs1_Modeofoperation_INPORT" />
+    <connection from="safe_hp.q_OUTPORT"                to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
+    <connection from="safe_hp.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_Controlword_INPORT" />
+    <connection from="safe_hp.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadPan_Outputs1_Modeofoperation_INPORT" />
+    <connection from="safe_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
+    <connection from="safe_ht.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadTilt_Outputs_Controlword_INPORT" />
+    <connection from="safe_ht.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadTilt_Outputs1_Modeofoperation_INPORT" />
+    <connection from="lwr_sync_r.dq_OUTPORT"    to="safe_lwr_r.dq_INPORT" name="dq" />
+    <connection from="lwr_sync_r.fri_OUTPORT"   to="safe_lwr_r.friIntf_INPORT" />
+    <connection from="lwr_sync_r.rob_OUTPORT"   to="safe_lwr_r.friRobot_INPORT" />
+    <connection from="lwr_sync_l.dq_OUTPORT"    to="safe_lwr_l.dq_INPORT" name="dq" />
+    <connection from="lwr_sync_l.fri_OUTPORT"   to="safe_lwr_l.friIntf_INPORT" />
+    <connection from="lwr_sync_l.rob_OUTPORT"   to="safe_lwr_l.friRobot_INPORT" />
+    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT"    to="safe_t.dq_INPORT" name="dq_t" />
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"     to="safe_hp.q_INPORT" name="q_hp" />
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"    to="safe_ht.q_INPORT" name="q_ht" />
+
+    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Statusword_OUTPORT"     to="safe_t.statusWord_INPORT"  name="st_t" />
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Statusword_OUTPORT"      to="safe_hp.statusWord_INPORT" name="st_hp" />
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Statusword_OUTPORT"     to="safe_ht.statusWord_INPORT" name="st_ht" />
 
     <connection from="bypass.rArm_t_OUTPORT"        to="lo_rLwr_cmdConcate.t_INPORT" />
     <connection from="bypass.lArm_t_OUTPORT"        to="lo_lLwr_cmdConcate.t_INPORT" />
@@ -113,8 +156,8 @@
     <connection from="bypass.rHand_max_p_OUTPORT"   to="rHand.mp_INPORT" />
     <connection from="bypass.rHand_hold_OUTPORT"    to="rHand.hold_INPORT" />
     <connection from="bypass.rHandReset_OUTPORT"    to="rHand.reset_INPORT" />
-    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" />
-    <connection from="rHand.tx_OUTPORT"             to="can_queue_tx.tx_INPORT" >
+    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" />
+    <connection from="rHand.tx_OUTPORT"             to="can_queue_tx_r.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
     <connection from="rHand.q_OUTPORT"              to="hi_stConcate.rHand_q_INPORT" />
@@ -126,13 +169,14 @@
     <connection from="bypass.lHand_max_p_OUTPORT"   to="lHand.mp_INPORT" />
     <connection from="bypass.lHandReset_OUTPORT"    to="lHand.reset_INPORT" />
     <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="lHand.rx_queue_INPORT" />
-    <connection from="lHand.tx_OUTPORT"             to="can_queue_tx.tx_INPORT" >
+    <connection from="lHand.tx_OUTPORT"             to="can_queue_tx_l.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
     <connection from="lHand.q_OUTPORT"              to="hi_stConcate.lHand_q_INPORT" />
     <connection from="lHand.status_OUTPORT"         to="hi_stConcate.lHand_s_INPORT" />
 
-    <connection from="can_queue_tx.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" />
+    <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" />
+    <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANright_Box11CANInterfaceOUT_TxQueue_INPORT" />
 
     <connection from="bypass.sc_OUTPORT"            to="hi_stConcate.sc_INPORT" />
     <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_i_INPORT" />
@@ -153,30 +197,29 @@
     <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"  to="bypass.hpMotor_q_INPORT" />
     <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="bypass.htMotor_q_INPORT" />
 
-
     <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
 
     <connection from="packet_counter.packet_counter_OUTPORT"            to="hi_stConcate.test_INPORT" />
 
-    <connection from="lo_rLwr_stSplit.q_OUTPORT"           to="hi_stConcate.rArm_q_INPORT" name="q" />
-    <connection from="lo_rLwr_stSplit.dq_OUTPORT"          to="hi_stConcate.rArm_dq_INPORT" name="dq" />
-    <connection from="lo_rLwr_stSplit.t_OUTPORT"           to="hi_stConcate.rArm_t_INPORT" name="t" />
-    <connection from="lo_rLwr_stSplit.gt_OUTPORT"          to="hi_stConcate.rArm_gt_INPORT" name="gt" />
-    <connection from="lo_rLwr_stSplit.w_OUTPORT"           to="hi_stConcate.rArm_w_INPORT" name="wr" />
-    <connection from="lo_rLwr_stSplit.mmx_OUTPORT"         to="hi_stConcate.rArm_mmx_INPORT" name="M" />
+    <connection from="lwr_sync_r.q_OUTPORT"            to="hi_stConcate.rArm_q_INPORT" name="q" />
+    <connection from="lwr_sync_r.dq_OUTPORT"           to="hi_stConcate.rArm_dq_INPORT" name="dq" />
+    <connection from="lwr_sync_r.t_OUTPORT"            to="hi_stConcate.rArm_t_INPORT" name="t" />
+    <connection from="lwr_sync_r.gt_OUTPORT"           to="hi_stConcate.rArm_gt_INPORT" name="gt" />
+    <connection from="lwr_sync_r.w_OUTPORT"            to="hi_stConcate.rArm_w_INPORT" name="wr" />
+    <connection from="lwr_sync_r.mmx_OUTPORT"          to="hi_stConcate.rArm_mmx_INPORT" name="M" />
 
-    <connection from="lo_lLwr_stSplit.q_OUTPORT"           to="hi_stConcate.lArm_q_INPORT" name="q" />
-    <connection from="lo_lLwr_stSplit.dq_OUTPORT"          to="hi_stConcate.lArm_dq_INPORT" name="dq" />
-    <connection from="lo_lLwr_stSplit.t_OUTPORT"           to="hi_stConcate.lArm_t_INPORT" name="t" />
-    <connection from="lo_lLwr_stSplit.gt_OUTPORT"          to="hi_stConcate.lArm_gt_INPORT" name="gt" />
-    <connection from="lo_lLwr_stSplit.w_OUTPORT"           to="hi_stConcate.lArm_w_INPORT" name="wr" />
-    <connection from="lo_lLwr_stSplit.mmx_OUTPORT"         to="hi_stConcate.lArm_mmx_INPORT" name="M" />
+    <connection from="lwr_sync_l.q_OUTPORT"            to="hi_stConcate.lArm_q_INPORT" name="q" />
+    <connection from="lwr_sync_l.dq_OUTPORT"           to="hi_stConcate.lArm_dq_INPORT" name="dq" />
+    <connection from="lwr_sync_l.t_OUTPORT"            to="hi_stConcate.lArm_t_INPORT" name="t" />
+    <connection from="lwr_sync_l.gt_OUTPORT"           to="hi_stConcate.lArm_gt_INPORT" name="gt" />
+    <connection from="lwr_sync_l.w_OUTPORT"            to="hi_stConcate.lArm_w_INPORT" name="wr" />
+    <connection from="lwr_sync_l.mmx_OUTPORT"          to="hi_stConcate.lArm_mmx_INPORT" name="M" />
 
     <connection from="TorsoPanTransmision.JointPosition_OUTPORT"        to="hi_stConcate.tMotor_q_INPORT" name="q" />
     <connection from="TorsoPanTransmision.JointVelocity_OUTPORT"        to="hi_stConcate.tMotor_dq_INPORT" name="dq" />
 
-    <connection from="lo_rLwr_stSplit.iState_OUTPORT"                         to="hw_state.rArm_fri_state_INPORT" />
-    <connection from="lo_rLwr_stSplit.rState_OUTPORT"                       to="hw_state.rArm_robot_state_INPORT" />
-    <connection from="lo_lLwr_stSplit.iState_OUTPORT"                         to="hw_state.lArm_fri_state_INPORT" />
-    <connection from="lo_lLwr_stSplit.rState_OUTPORT"                       to="hw_state.lArm_robot_state_INPORT" />
+    <connection from="lwr_sync_r.fri_OUTPORT"       to="hw_state.rArm_fri_state_INPORT" />
+    <connection from="lwr_sync_r.rob_OUTPORT"       to="hw_state.rArm_robot_state_INPORT" />
+    <connection from="lwr_sync_l.fri_OUTPORT"       to="hw_state.lArm_fri_state_INPORT" />
+    <connection from="lwr_sync_l.rob_OUTPORT"       to="hw_state.lArm_robot_state_INPORT" />
 </subsystem_configuration>
