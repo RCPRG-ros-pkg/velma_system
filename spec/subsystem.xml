@@ -1,0 +1,46 @@
+<subsystem_definition>
+
+    <buffers>
+        <out alias="rLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
+        <in alias="rLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
+        <out alias="lLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
+        <in alias="lLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
+        <out alias="ec_st"   type="velma_ec_gen_msgs::EcInput"          side="top"  converter="velma_ec_gen_msgs::EcInputBufferConverter"/>
+        <in alias="ec_cmd"   type="velma_ec_gen_msgs::EcOutput"         side="top"  converter="velma_ec_gen_msgs::EcOutputBufferConverter"/>
+    </buffers>
+
+    <trigger_methods>
+<!--      <period value="0.001" />-->
+
+<!--        <new_data_on_buffer name="ec_cmd" min="0.001" />
+        <no_data_on_buffer name="ec_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+-->
+
+        <read_buffers min_period="0.0008" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" >
+            <obligatory name="ec_cmd" />
+            <obligatory name="rLwr_cmd" />
+            <obligatory name="lLwr_cmd" />
+        </read_buffers>
+
+    </trigger_methods>
+
+    <predicates>
+    </predicates>
+
+    <behaviors>
+        <behavior name="normal"
+            stop_cond="FALSE"
+            err_cond="FALSE" >
+            <running_component name="Y" />
+        </behavior>
+    </behaviors>
+
+    <states initial="normal">
+        <state name="normal">
+            <behavior name="normal" />
+        </state>
+    </states>
+
+    <simulation use_ros_sim_clock="false" use_sim_clock="false" trigger_gazebo="true" />
+
+</subsystem_definition>
