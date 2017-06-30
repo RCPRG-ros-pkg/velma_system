@@ -22,7 +22,7 @@
   <build_depend>subsystem_msgs</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>common_behavior</build_depend>
-  <build_depend>rtt_subsystem_ports</build_depend>
+  <build_depend>rtt_subsystem</build_depend>
   <build_depend>velma_ec_gen_msgs</build_depend>
   <build_depend>shm_comm</build_depend>
   <build_depend>common_interfaces</build_depend>

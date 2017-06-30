@@ -6,7 +6,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake")
 
 find_package(catkin REQUIRED COMPONENTS
     rtt_ros
-    rtt_subsystem_ports
+    rtt_subsystem
     cmake_modules
     kdl_parser
     lwr_msgs
