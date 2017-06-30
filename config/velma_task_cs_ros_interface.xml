@@ -68,6 +68,6 @@
     <connection from="RightHandAction.reset_OUTPORT"  to="cmdConcate.handRightReset_INPORT" />
     <connection from="stSplit.handRight_s_OUTPORT"    to="RightHandAction.status_INPORT" />
 
-    <ros_stream port="stRx.msg_OUTPORT"             topic="/velma_task_cs_ros_interface/st" />
+<!--    <ros_stream port="stRx.msg_OUTPORT"             topic="/velma_task_cs_ros_interface/st" />-->
 
 </subsystem_configuration>

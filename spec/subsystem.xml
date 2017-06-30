@@ -6,7 +6,12 @@
     </buffers>
 
     <trigger_methods>
-        <period value="0.01"/>
+<!--        <period value="0.01"/>-->
+
+        <read_buffers min_period="0.01" first_timeout="0.02" next_timeout="0.02" first_timeout_sim="1.0" >
+            <obligatory name="st" />
+        </read_buffers>
+
     </trigger_methods>
 
     <predicates>
