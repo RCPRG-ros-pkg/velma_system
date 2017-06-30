@@ -20,8 +20,7 @@
 
     <component name="TorsoSim" type="TorsoSim" running="true" />
 <!--    <component name="LWRrSim" type="LWRSim" running="true" />
-    <component name="LWRlSim" type="LWRSim" running="true" />
--->
+    <component name="LWRlSim" type="LWRSim" running="true" />-->
     <component name="LeftFtSensor" type="FtSensorSim" running="true" />
     <component name="RightFtSensor" type="FtSensorSim" running="true" />
     <component name="LeftHand" type="BarrettHandSim" running="true" >
@@ -36,8 +35,8 @@
 
     <component name="can_queue_tx_r" type="CanQueueTxComponent10" running="true" />
     <component name="can_queue_tx_l" type="CanQueueTxComponent10" running="true" />
-<!--
-    <io_buffer alias="rLwr_st" name="rLwr_st" />
+
+<!--    <io_buffer alias="rLwr_st" name="rLwr_st" />
     <io_buffer alias="rLwr_cmd" name="rLwr_cmd" />
 
     <io_buffer alias="lLwr_st" name="lLwr_st" />

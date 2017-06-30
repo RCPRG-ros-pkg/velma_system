@@ -1,18 +1,25 @@
 <subsystem_definition>
 
     <buffers>
-        <out alias="rLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
+<!--        <out alias="rLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
         <in alias="rLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
         <out alias="lLwr_st" type="velma_core_ve_re_lwr_msgs::Status"   side="top" />
         <in alias="lLwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
+-->
         <out alias="ec_st"   type="velma_ec_gen_msgs::EcInput"          side="top"  converter="velma_ec_gen_msgs::EcInputBufferConverter"/>
         <in alias="ec_cmd"   type="velma_ec_gen_msgs::EcOutput"         side="top"  converter="velma_ec_gen_msgs::EcOutputBufferConverter"/>
     </buffers>
 
     <trigger_methods>
-<!--      <period value="0.001" />-->
-        <new_data_on_buffer name="ec_cmd" min="0.001" />
+<!--        <new_data_on_buffer name="ec_cmd" min="0.001" />
         <no_data_on_buffer name="ec_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+-->
+<!--        <period value="0.001" />-->
+
+        <read_buffers min_period="0.001" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="0.001" >
+            <optional name="ec_cmd" />
+        </read_buffers>
+
     </trigger_methods>
 
     <predicates>

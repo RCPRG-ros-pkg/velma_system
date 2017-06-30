@@ -6,8 +6,15 @@
     </buffers>
 
     <trigger_methods>
-        <new_data_on_buffer name="lwr_cmd" min="0.001" />
+<!--        <period value="0.001" />-->
+<!--        <new_data_on_buffer name="lwr_cmd" min="0.001" />
         <no_data_on_buffer name="lwr_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
+-->
+
+        <read_buffers min_period="0.001" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="0.001" >
+            <optional name="lwr_cmd" />
+        </read_buffers>
+
     </trigger_methods>
 
     <predicates>
