@@ -233,6 +233,13 @@
     <connection from="JTG_body.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+
+    <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
+    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
+    <connection from="JTG_head.generator_status_OUTPORT" to="stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
+
     <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" name="M" latex="M" />
@@ -270,10 +277,6 @@
     <connection from="b_cmdConcate.msg_OUTPORT" to="Y.b_cmd_INPORT" latex="cmd_{b}" />
     <connection from="stConcate.msg_OUTPORT" to="Y.st_INPORT" latex="st_{task}" />
 
-
-    <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
-    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
-    <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />

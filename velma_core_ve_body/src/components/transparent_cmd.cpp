@@ -27,19 +27,18 @@
 
 #include <rtt/RTT.hpp>
 #include <rtt/Component.hpp>
-#include <rtt/Logger.hpp>
 
 #include "velma_core_cs_ve_body_msgs/StatusSC.h"
 
+using namespace RTT;
+
 namespace velma_core_ve_body_types {
 
-class SafeComponent: public RTT::TaskContext {
+class TransparentCmdComponent: public RTT::TaskContext {
 public:
-    explicit SafeComponent(const std::string &name);
+    explicit TransparentCmdComponent(const std::string &name);
 
     bool startHook();
-
-    void stopHook();
 
     void updateHook();
 
@@ -48,57 +47,29 @@ private:
     // ports
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
     RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
-
-    uint32_t safe_iterations_;
-    bool safe_iterations_over_500_;
 };
 
-SafeComponent::SafeComponent(const std::string &name)
+TransparentCmdComponent::TransparentCmdComponent(const std::string &name)
     : TaskContext(name)
-    , safe_iterations_over_500_(false)
 {
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
-
-    addAttribute("safeIterationsOver500", safe_iterations_over_500_);
 }
 
-bool SafeComponent::startHook() {
-    safe_iterations_ = 0;
-    safe_iterations_over_500_ = false;
+bool TransparentCmdComponent::startHook() {
     return true;
 }
 
-void SafeComponent::stopHook() {
-    safe_iterations_ = 0;
-    safe_iterations_over_500_ = false;
-}
-
-void SafeComponent::updateHook() {
-    //
-    // write diagnostics information for other subsystems
-    //
-    sc_out_.safe_behavior = true;
-
+void TransparentCmdComponent::updateHook() {
+    // no error
+    sc_out_.safe_behavior = false;
+    sc_out_.error = false;
     sc_out_.fault_type = 0;
+    sc_out_.faulty_module_id = 0;
 
-    sc_out_.error = (sc_out_.fault_type != 0);
-
-    // write diagnostic data
     port_sc_out_.write(sc_out_);
-
-    if (safe_iterations_ < numeric_limits<uint32_t>::max()) {
-        ++safe_iterations_;
-    }
-
-    if (safe_iterations_ > 1000) {  // it is '1000' because this component runs twice in every status/command cycle
-        safe_iterations_over_500_ = true;
-    }
-    else {
-        safe_iterations_over_500_ = false;
-    }
 }
 
 }   // velma_core_ve_body_types
 
-ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::SafeComponent)
+ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::TransparentCmdComponent)
 

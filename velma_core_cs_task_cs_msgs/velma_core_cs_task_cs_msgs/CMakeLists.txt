@@ -17,6 +17,7 @@ add_message_files(FILES
   Status.msg
   StatusCartImp.msg
   StatusJntImp.msg
+  StatusHead.msg
 )
   
 

@@ -363,12 +363,12 @@ void SafeElmo::updateHook() {
     int32_t q_in;
     int32_t dq_in;
     if (port_statusWord_in_.read( statusWord_in ) != RTT::NewData) {
-        Logger::log() << Logger::Error << getName() << " could not read statusWord" << Logger::endl;
+//        Logger::log() << Logger::Error << getName() << " could not read statusWord" << Logger::endl;
         // TODO: verify this
         return;
     }
     if (control_mode_ == CYCLIC_POSITION && port_q_in_.read(q_in) != RTT::NewData) {
-        Logger::log() << Logger::Error << getName() << " could not read position" << Logger::endl;
+//        Logger::log() << Logger::Error << getName() << " could not read position" << Logger::endl;
         // TODO: verify this
         return;
     }

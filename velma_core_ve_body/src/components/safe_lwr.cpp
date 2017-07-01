@@ -114,7 +114,7 @@ private:
     lwr_msgs::FriIntfState       fri_state_;
     lwr_msgs::FriRobotState      robot_state_;
 
-    bool valid_prev_;
+//    bool valid_prev_;
 
 //    uint32_t safe_iterations_;
 //    bool safe_iterations_over_500_;
@@ -196,7 +196,7 @@ bool SafeLWR::configureHook() {
 bool SafeLWR::startHook() {
 //    safe_iterations_ = 0;
 //    safe_iterations_over_500_ = false;
-    valid_prev_ = false;
+//    valid_prev_ = false;
     return true;
 }
 
@@ -227,7 +227,7 @@ void SafeLWR::updateHook() {
     //
 
     // generate safe outputs for all operational devices
-    if (valid || valid_prev_) {
+    if (valid) {// || valid_prev_) {
         ArmJoints t;
         calculateArmDampingTorque(dq_, damping_factors_, t);
         port_t_out_.write(t);
@@ -289,7 +289,7 @@ void SafeLWR::updateHook() {
         safe_iterations_over_500_ = false;
     }
 */
-    valid_prev_ = valid;
+//    valid_prev_ = valid;
 }
 
 }   // velma_core_ve_body_types

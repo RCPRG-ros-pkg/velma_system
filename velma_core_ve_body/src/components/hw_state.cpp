@@ -90,18 +90,18 @@ HwState::HwState(const std::string &name)
 }
 
 bool HwState::startHook() {
-    r_lwr_ok_ = false;
-    l_lwr_ok_ = false;
-    r_lwr_cmd_ = false;
-    l_lwr_cmd_ = false;
+//    r_lwr_ok_ = false;
+//    l_lwr_ok_ = false;
+//    r_lwr_cmd_ = false;
+//    l_lwr_cmd_ = false;
     return true;
 }
 
 void HwState::stopHook() {
-    r_lwr_ok_ = false;
-    l_lwr_ok_ = false;
-    r_lwr_cmd_ = false;
-    l_lwr_cmd_ = false;
+//    r_lwr_ok_ = false;
+//    l_lwr_ok_ = false;
+//    r_lwr_cmd_ = false;
+//    l_lwr_cmd_ = false;
 }
 
 void HwState::updateHook() {

@@ -20,39 +20,37 @@
     <import package="barrett_hand_controller" />
     <import package="velma_common_components" />
 
-    <component name="TorsoPanTransmision"       type="SimpleTransmision" running="true" />
+    <component name="TorsoPanTransmision"       type="SimpleTransmision" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
-    <component name="HeadPanTransmision"        type="SimpleTransmision" running="true" />
+    <component name="HeadPanTransmision"        type="SimpleTransmision" />
     <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" />
-    <component name="HeadTiltTransmision"       type="SimpleTransmision" running="true" />
+    <component name="HeadTiltTransmision"       type="SimpleTransmision" />
     <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" />
 
-    <component name="lwr_sync_r"       type="velma_core_ve_body_types::LwrStatusSync" running="true" />
-    <component name="lwr_sync_l"       type="velma_core_ve_body_types::LwrStatusSync" running="true" />
+    <component name="lwr_sync_r"        type="velma_core_ve_body_types::LwrStatusSync" />
+    <component name="lwr_sync_l"        type="velma_core_ve_body_types::LwrStatusSync" />
 
-    <component name="bypass"        type="velma_core_ve_body_types::BypassComponent" />
+    <component name="transparent_cmd"   type="velma_core_ve_body_types::TransparentCmdComponent" />
+    <component name="bypass"        type="velma_core_ve_body_types::BypassCommand" />
     <component name="safe"          type="velma_core_ve_body_types::SafeComponent" />
     <component name="safe_lwr_r"    type="velma_core_ve_body_types::SafeLWR" />
     <component name="safe_lwr_l"    type="velma_core_ve_body_types::SafeLWR" />
     <component name="safe_t"        type="velma_core_ve_body_types::SafeElmo" />
     <component name="safe_hp"       type="velma_core_ve_body_types::SafeElmo" />
     <component name="safe_ht"       type="velma_core_ve_body_types::SafeElmo" />
-    <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" running="true" />
-    <component name="hw_state"      type="velma_core_ve_body_types::HwState" running="true" />
+    <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" />
+    <component name="hw_state"      type="velma_core_ve_body_types::HwState" />
 
-    <component name="rHand" type="BarrettHand" running="true" >
+    <component name="rHand" type="BarrettHand" >
         <service name="can_queue" />
     </component>
 
-    <component name="lHand" type="BarrettHand" running="true" >
+    <component name="lHand" type="BarrettHand" >
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx_l" type="CanQueueTxComponent10" running="true" />
-    <component name="can_queue_tx_r" type="CanQueueTxComponent10" running="true" />
-
-    <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" running="true" />
-    <component name="Zero"  type="ScalarZeroUInt32" latex="\text{Zero}" running="true" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent10" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent10" />
 
     <io_buffer alias="hi_st" name="velma_core_cs_ve_body_msgs_Status" />
     <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_msgs_Command" />
@@ -146,9 +144,6 @@
 
     <connection from="bypass.rArm_t_OUTPORT"        to="lo_rLwr_cmdConcate.t_INPORT" />
     <connection from="bypass.lArm_t_OUTPORT"        to="lo_lLwr_cmdConcate.t_INPORT" />
-    <connection from="bypass.tMotor_i_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
-    <connection from="bypass.hpMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
-    <connection from="bypass.htMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
 
     <connection from="bypass.rHand_q_OUTPORT"       to="rHand.q_INPORT" />
     <connection from="bypass.rHand_dq_OUTPORT"      to="rHand.v_INPORT" />
@@ -178,8 +173,8 @@
     <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" />
     <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANright_Box11CANInterfaceOUT_TxQueue_INPORT" />
 
-    <connection from="bypass.sc_OUTPORT"            to="hi_stConcate.sc_INPORT" />
-    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_i_INPORT" />
+    <connection from="transparent_cmd.sc_OUTPORT"            to="hi_stConcate.sc_INPORT" />
+
     <connection from="hi_cmdSplit.lArm_t_OUTPORT"                   to="bypass.lArm_t_INPORT" />
     <connection from="hi_cmdSplit.rArm_t_OUTPORT"                   to="bypass.rArm_t_INPORT" />
     <connection from="hi_cmdSplit.rHand_q_OUTPORT"                  to="bypass.rHand_q_INPORT" />
@@ -194,8 +189,18 @@
     <connection from="hi_cmdSplit.lHand_max_p_OUTPORT"              to="bypass.lHand_max_p_INPORT" />
     <connection from="hi_cmdSplit.lHand_hold_OUTPORT"               to="bypass.lHand_hold_INPORT" />
     <connection from="hi_cmdSplit.lHandReset_OUTPORT"               to="bypass.lHandReset_INPORT" />
-    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"  to="bypass.hpMotor_q_INPORT" />
+
+<!--
     <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT" to="bypass.htMotor_q_INPORT" />
+    <connection from="bypass.htMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
+    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"  to="bypass.hpMotor_q_INPORT" />
+    <connection from="bypass.hpMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_i_INPORT" />
+    <connection from="bypass.tMotor_i_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
+-->
+    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
+    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
 
     <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
 

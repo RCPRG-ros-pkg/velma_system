@@ -53,22 +53,22 @@ bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector
 
 bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* rLwrOk_attrib = getBoolAttribute("hw_state", "rLwrOk", components);
-    return rLwrOk_attrib->get();
+    return in_data->lo_rLwr_st_valid && rLwrOk_attrib->get();
 }
 
 bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* rLwrCmdState_attrib = getBoolAttribute("hw_state", "rLwrCmdState", components);
-    return rLwrCmdState_attrib->get();
+    return in_data->lo_rLwr_st_valid && rLwrCmdState_attrib->get();
 }
 
 bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* lLwrOk_attrib = getBoolAttribute("hw_state", "lLwrOk", components);
-    return lLwrOk_attrib->get();
+    return in_data->lo_lLwr_st_valid && lLwrOk_attrib->get();
 }
 
 bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* lLwrCmdState_attrib = getBoolAttribute("hw_state", "lLwrCmdState", components);
-    return lLwrCmdState_attrib->get();
+    return in_data->lo_lLwr_st_valid && lLwrCmdState_attrib->get();
 }
 
 bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
@@ -87,6 +87,14 @@ bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<const
     return in_data->hi_cmd.sc_valid && (in_data->hi_cmd.sc == 1);
 }
 
+bool recvStatus( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->lo_ec_st_valid;
+}
+
+bool recvCommand( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->hi_cmd_valid;
+}
+
 };  // namespace velma_core_ve_body_types
 
 REGISTER_PREDICATE( velma_core_ve_body_types::safeIterationsPassed500 );
@@ -98,4 +106,6 @@ REGISTER_PREDICATE( velma_core_ve_body_types::rLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::lLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::tCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::cmdExitSafeState );
+REGISTER_PREDICATE( velma_core_ve_body_types::recvStatus );
+REGISTER_PREDICATE( velma_core_ve_body_types::recvCommand );
 

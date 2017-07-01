@@ -134,10 +134,14 @@ Class used as Velma robot Interface.
                 self.action_move_hand_client_connected[side] = self.action_move_hand_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
             if not self.action_cart_traj_client_connected[side]:
                 self.action_cart_traj_client_connected[side] = self.action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
-            if not self.action_joint_traj_client_connected[side]:
-                self.action_joint_traj_client_connected[side] = self.action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
             allConnected = allConnected and self.action_move_hand_client_connected[side] and\
-                self.action_cart_traj_client_connected[side] and self.action_joint_traj_client_connected[side]
+                self.action_cart_traj_client_connected[side]
+        if not self.action_joint_traj_client_connected:
+            self.action_joint_traj_client_connected = self.action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self.action_joint_traj_client_connected
+        if not self.action_head_joint_traj_client_connected:
+            self.action_head_joint_traj_client_connected = self.action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self.action_head_joint_traj_client_connected
         return allConnected
 
     def waitForInit(self, timeout_s = None):
@@ -155,8 +159,8 @@ Class used as Velma robot Interface.
             if timeout_s and (time_now-time_start) > timeout_s:
                 print "ERROR: waitForInit: ", can_break, self.action_move_hand_client_connected["right"],\
                     self.action_move_hand_client_connected["left"], self.action_cart_traj_client_connected["right"],\
-                    self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected["right"],\
-                    self.action_joint_traj_client_connected["left"]
+                    self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected,\
+                    self.action_head_joint_traj_client_connected
                 return False
         return True
 
@@ -220,7 +224,8 @@ Class used as Velma robot Interface.
 
         self.action_move_hand_client_connected = {'right':False, 'left':False}
         self.action_cart_traj_client_connected = {'right':False, 'left':False}
-        self.action_joint_traj_client_connected = {'right':False, 'left':False}
+        self.action_joint_traj_client_connected = False
+        self.action_head_joint_traj_client_connected = False
 
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
@@ -228,8 +233,11 @@ Class used as Velma robot Interface.
             'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartImpAction)
             }
 
-        # joint trajectory for right arm
+        # joint trajectory for arms and torso
         self.action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
+
+        # joint trajectory for head
+        self.action_head_joint_traj_client = actionlib.SimpleActionClient("/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         # cartesian tool trajectory for arms in the wrist frames
 #        self.action_tool_client = {
@@ -320,8 +328,6 @@ Class used as Velma robot Interface.
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-
-        self.joint_traj_active = False
         wrist_pose = pm.toMsg(T_B_Td)
 #        self.br.sendTransform([wrist_pose.position.x, wrist_pose.position.y, wrist_pose.position.z], [wrist_pose.orientation.x, wrist_pose.orientation.y, wrist_pose.orientation.z, wrist_pose.orientation.w], rospy.Time.now(), "dest", "torso_base")
 
@@ -543,33 +549,30 @@ Class used as Velma robot Interface.
 #    def waitForImpedanceRight(self):
 #        return self.waitForImpedance("right")
 
-    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
+#    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
+#        goal = FollowJointTrajectoryGoal()
+#        goal.trajectory.joint_names = self.body_joint_names
+#
+#        vel = []
+#        q_dest_all = []
+#        for joint_name in self.body_joint_names:
+#            if joint_name in joint_names:
+#                q_idx = joint_names.index(joint_name)
+#                q_dest_all.append(q_dest[q_idx])
+#                vel.append(0)
+#            else:
+#                q_dest_all.append(self.js_pos[joint_name])
+#                vel.append(0)
+#
+#        goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel, [], [], rospy.Duration(time)))
+#        #velocity_tol = 5.0/180.0 * math.pi
+#        #acceleration_tol = 1.0/180.0 * math.pi
+#        for joint_name in goal.trajectory.joint_names:
+#            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, 0, 0))#velocity_tol, acceleration_tol))
+#        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+#        self.action_joint_traj_client.send_goal(goal)
 
-        goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = self.body_joint_names
-
-        vel = []
-        q_dest_all = []
-        for joint_name in self.body_joint_names:
-            if joint_name in joint_names:
-                q_idx = joint_names.index(joint_name)
-                q_dest_all.append(q_dest[q_idx])
-                vel.append(0)
-            else:
-                q_dest_all.append(self.js_pos[joint_name])
-                vel.append(0)
-
-        goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel, [], [], rospy.Duration(time)))
-        #velocity_tol = 5.0/180.0 * math.pi
-        #acceleration_tol = 1.0/180.0 * math.pi
-        for joint_name in goal.trajectory.joint_names:
-            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, 0, 0))#velocity_tol, acceleration_tol))
-        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        self.joint_traj_active = True
-        self.action_joint_traj_client.send_goal(goal)
-
-    def moveJointTraj(self, traj, joint_names, start_time=0.2):
-
+    def moveJointTraj(self, traj, joint_names, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
 
@@ -598,21 +601,74 @@ Class used as Velma robot Interface.
 
             goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
 
-        position_tol = 5.0/180.0 * math.pi
+        position_tol = position_tol
         velocity_tol = 5.0/180.0 * math.pi
         acceleration_tol = 5.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
             goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
         goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        self.joint_traj_active = True
         self.action_joint_traj_client.send_goal(goal)
         return True
+
+    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        return self.moveJointTraj(([q_dest], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
 
     def waitForJoint(self):
         self.action_joint_traj_client.wait_for_result()
         result = self.action_joint_traj_client.get_result()
         if result.error_code != 0:
             print "waitForJoint(): action failed with error_code=" + str(result.error_code)
+        return result.error_code
+
+    def moveHeadTraj(self, traj, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        goal = FollowJointTrajectoryGoal()
+        goal.trajectory.joint_names = ["head_pan_joint", "head_tilt_joint"]
+
+        pos = traj[0]
+        vel = traj[1]
+        acc = traj[2]
+        dti = traj[3]
+        time = 0.0
+
+        for node_idx in range(0, len(pos)):
+            time += dti[node_idx]
+#            q_dest_all = []
+#            vel_dest_all = []
+#            for joint_name in self.body_joint_names:
+#                if joint_name in joint_names:
+#                    q_idx = joint_names.index(joint_name)
+#                    q_dest_all.append(pos[node_idx][q_idx])
+#                    if vel != None:
+#                        vel_dest_all.append(vel[node_idx][q_idx])
+#                    else:
+#                        vel_dest_all.append(0)
+#                else:
+#                    q_dest_all.append(self.js_pos[joint_name])
+#                    vel_dest_all.append(0)
+            q_dest_all = pos[node_idx]
+            if vel != None:
+                vel_dest_all = vel[node_idx]
+            else:
+                vel_dest_all = []
+            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
+
+        position_tol = position_tol
+        velocity_tol = velocity_tol
+        acceleration_tol = 5.0/180.0 * math.pi
+        for joint_name in goal.trajectory.joint_names:
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
+        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        self.action_head_joint_traj_client.send_goal(goal)
+        return True
+
+    def moveHead(self, q_dest, time, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        return self.moveHeadTraj(([q_dest], None, None, [time]), start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
+
+    def waitForHead(self):
+        self.action_head_joint_traj_client.wait_for_result()
+        result = self.action_head_joint_traj_client.get_result()
+        if result.error_code != 0:
+            print "waitForHead(): action failed with error_code=" + str(result.error_code)
         return result.error_code
 
     def stopArm(self, prefix):

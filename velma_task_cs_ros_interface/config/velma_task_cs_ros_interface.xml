@@ -21,6 +21,7 @@
     <component type="VectorSplit15_2_8_8"                           name="q_splitAll"           running="true" />
     <component type="VectorSplit15_2_8_8"                           name="dq_splitAll"          running="true" />
     <component type="InternalSpaceSplineTrajectoryActionVelmaBody"  name="JntImpAction"         running="true" ros_action="/spline_trajectory_action_joint" />
+    <component type="InternalSpaceSplineTrajectoryActionVelmaHead"  name="HeadAction"           running="true" ros_action="/head_spline_trajectory_action_joint" />
     <component type="JointStatePublisher33"                         name="JntPub"               running="true" />
     <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
     <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
@@ -50,6 +51,12 @@
     <connection from="q_splitAll.Out0"                to="JntImpAction.JointPosition_INPORT" />
     <connection from="stSplit.jnt_q_desired_OUTPORT" to="JntImpAction.JointPositionCommand_INPORT" />
     <connection from="stSplit.jnt_status_OUTPORT"    to="JntImpAction.generator_status_INPORT" />
+
+    <connection from="HeadAction.jnt_OUTPORT"           to="cmdConcate.head_INPORT" />
+    <connection from="q_splitAll.Out1"                  to="HeadAction.JointPosition_INPORT" />
+    <connection from="stSplit.head_q_desired_OUTPORT"   to="HeadAction.JointPositionCommand_INPORT" />
+    <connection from="stSplit.head_status_OUTPORT"      to="HeadAction.generator_status_INPORT" />
+
     <connection from="stSplit.q_OUTPORT"             to="JntPub.JointPosition" />
     <connection from="stSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
     <ros_stream port="JntPub.joint_state"             topic="/joint_states" />

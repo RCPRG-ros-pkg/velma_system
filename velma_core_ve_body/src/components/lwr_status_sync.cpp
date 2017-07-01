@@ -109,11 +109,12 @@ LwrStatusSync::LwrStatusSync(const std::string &name)
     this->ports()->addPort("mmx_OUTPORT", port_mmx_out_);
     this->ports()->addPort("fri_OUTPORT", port_fri_out_);
     this->ports()->addPort("rob_OUTPORT", port_rob_out_);
+
+    valid_prev_ = false;
+    valid_prev2_ = false;
 }
 
 bool LwrStatusSync::startHook() {
-    valid_prev_ = false;
-    valid_prev2_ = false;
     return true;
 }
 
@@ -142,7 +143,7 @@ void LwrStatusSync::updateHook() {
         port_rob_out_.write(rob_);
     }
     else {
-        Logger::log() << Logger::Info << getName() << ": lost data " << Logger::endl;
+//        Logger::log() << Logger::Info << getName() << ": lost data " << Logger::endl;
     }
 
 //    if (!valid_prev_) {
