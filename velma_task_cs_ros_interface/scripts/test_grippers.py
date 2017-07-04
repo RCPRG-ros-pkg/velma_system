@@ -54,6 +54,7 @@ if __name__ == "__main__":
         exitError(6)
     rospy.sleep(0.5)
     if not isConfigurationClose( velma.getHandLeftCurrentConfiguration(), dest_q):
+        print velma.getHandLeftCurrentConfiguration(), dest_q
         exitError(7)
 
     dest_q = [90.0/180.0*math.pi,0,0,0]

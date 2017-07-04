@@ -76,11 +76,11 @@ void TorsoGazebo::setJointsPID() {
     jc_->Reset();
 
     jc_->AddJoint(head_pan_joint_);
-    jc_->SetPositionPID(head_pan_scoped_name_, gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
+    jc_->SetPositionPID(head_pan_scoped_name_, gazebo::common::PID(2.0, 1.0, 0.0, 0.5, -0.5, 10.0,-10.0));
     jc_->SetPositionTarget(head_pan_scoped_name_, head_pan_joint_->GetAngle(0).Radian());
 
     jc_->AddJoint(head_tilt_joint_);
-    jc_->SetPositionPID(head_tilt_scoped_name_, gazebo::common::PID(1.0, 0.5, 0.0, 0.1, -0.1, 1.0,-1.0));
+    jc_->SetPositionPID(head_tilt_scoped_name_, gazebo::common::PID(2.0, 1.0, 0.0, 0.5, -0.5, 10.0,-10.0));
     jc_->SetPositionTarget(head_tilt_scoped_name_, head_tilt_joint_->GetAngle(0).Radian());
 
 }

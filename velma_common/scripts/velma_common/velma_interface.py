@@ -127,6 +127,12 @@ Class used as Velma robot Interface.
     def getHandRightCurrentConfiguration(self):
         return self.getHandCurrentConfiguration("right")
 
+    def getHeadCurrentConfiguration(self):
+        js = self.getLastJointState()
+        q = [ js[1]["head_pan_joint"],
+            js[1]["head_tilt_joint"] ]
+        return q
+
     def allActionsConnected(self):
         allConnected = True
         for side in ("right", "left"):

@@ -40,6 +40,7 @@
     <component name="safe_ht"       type="velma_core_ve_body_types::SafeElmo" />
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" />
     <component name="hw_state"      type="velma_core_ve_body_types::HwState" />
+    <component name="cmd_buffer"    type="velma_core_ve_body_types::CommandBuffer" />
 
     <component name="rHand" type="BarrettHand" >
         <service name="can_queue" />
@@ -76,6 +77,8 @@
     <ros_stream port="lo_ec_stRx.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st2" />
 -->
     <ros_stream port="lo_ec_cmdConcate.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_cmd" />
+
+    <connection from="hi_cmdSplit._OUTPORT" to="cmd_buffer.cmd_INPORT" />
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
 

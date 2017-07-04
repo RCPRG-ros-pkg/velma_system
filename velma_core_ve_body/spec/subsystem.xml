@@ -13,13 +13,13 @@
     </buffers>
 
     <trigger_methods>
-        <read_buffers min_period="0.0008" first_timeout="0.0015" next_timeout="0.001" first_timeout_sim="1.0" >
+        <read_buffers min_period="0.0006" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
             <obligatory name="lo_ec_st" />
             <optional name="lo_rLwr_st" />
             <optional name="lo_lLwr_st" />
         </read_buffers>
 
-        <read_buffers min_period="0" first_timeout="0.0005" next_timeout="0.0001" first_timeout_sim="1.0" >
+        <read_buffers min_period="0.0006" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
             <obligatory name="hi_cmd" />
         </read_buffers>
     </trigger_methods>
@@ -33,6 +33,9 @@
         <predicate name="rLwrCmdOk" />
         <predicate name="lLwrCmdOk" />
         <predicate name="tCmdOk" />
+        <predicate name="rLwrLastCmdOk" />
+        <predicate name="lLwrLastCmdOk" />
+        <predicate name="tLastCmdOk" />
         <predicate name="cmdExitSafeState" />
         <predicate name="recvStatus" />
         <predicate name="recvCommand" />
@@ -59,7 +62,26 @@
             <running_component name="lo_ec_cmdConcate" />
             <running_component name="lo_rLwr_cmdConcate" />
             <running_component name="lo_lLwr_cmdConcate" />
+            <running_component name="cmd_buffer" />
 <!--            <running_component name="hi_cmdSplit" />-->
+            <running_component name="Y" />
+        </behavior>
+
+        <behavior name="safe_status"
+            stop_cond="TRUE"
+            err_cond="FALSE" >
+            <running_component name="safe" />
+            <running_component name="TorsoPanTransmision" />
+            <running_component name="HeadPanTransmision" />
+            <running_component name="HeadTiltTransmision" />
+            <running_component name="lwr_sync_r" />
+            <running_component name="lwr_sync_l" />
+            <running_component name="hi_stConcate" />
+            <running_component name="lo_ec_stSplit" />
+            <running_component name="lo_rLwr_stSplit" />
+            <running_component name="lo_lLwr_stSplit" />
+            <running_component name="packet_counter" />
+            <running_component name="hw_state" />
             <running_component name="Y" />
         </behavior>
 
@@ -67,7 +89,7 @@
             stop_cond="recvStatus"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk) or recvCommand" >
 -->
-        <behavior name="transparent_cmd"
+        <behavior name="transp"
             stop_cond="TRUE"
             err_cond="FALSE" >
             <running_component name="bypass" />
@@ -83,6 +105,7 @@
             <running_component name="lo_rLwr_cmdConcate" />
             <running_component name="lo_lLwr_cmdConcate" />
             <running_component name="hi_cmdSplit" />
+            <running_component name="cmd_buffer" />
             <running_component name="Y" />
         </behavior>
 
@@ -90,26 +113,9 @@
             stop_cond="recvCommand"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not rLwrOk) or (not rLwrInCmdState) or (not lLwrOk) or (not lLwrInCmdState) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk) or recvStatus" >
 -->
-        <behavior name="transparent_status"
+        <behavior name="transp_status"
             stop_cond="TRUE"
             err_cond="FALSE" >
-            <running_component name="TorsoPanTransmision" />
-            <running_component name="HeadPanTransmision" />
-            <running_component name="HeadTiltTransmision" />
-            <running_component name="lwr_sync_r" />
-            <running_component name="lwr_sync_l" />
-            <running_component name="hi_stConcate" />
-            <running_component name="lo_ec_stSplit" />
-            <running_component name="lo_rLwr_stSplit" />
-            <running_component name="lo_lLwr_stSplit" />
-            <running_component name="packet_counter" />
-            <running_component name="hw_state" />
-            <running_component name="Y" />
-        </behavior>
-        <behavior name="safe_status"
-            stop_cond="TRUE"
-            err_cond="FALSE" >
-            <running_component name="safe" />
             <running_component name="TorsoPanTransmision" />
             <running_component name="HeadPanTransmision" />
             <running_component name="HeadTiltTransmision" />
@@ -128,31 +134,24 @@
     <states initial="safe">
         <state name="safe">
             <behavior name="safe" />
-            <next_state name="safe_status" init_cond="(not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState) or (not safeIterationsPassed500)"/>
-            <next_state name="transparent_status" init_cond="rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState and safeIterationsPassed500"/>
-
-        </state>
-        <state name="transparent_cmd">
-            <behavior name="transparent_cmd" />
-            <next_state name="safe_status" init_cond="(not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState)"/>
-            <next_state name="transparent_status" init_cond="rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState"/>
-        </state>
-        <state name="transparent_status">
-            <behavior name="transparent_status" />
-            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"/>
-            <next_state name="transparent_cmd" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk"/>
+            <next_state name="safe_status" init_cond="(not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState) or (not safeIterationsPassed500) or (not rLwrLastCmdOk) or (not lLwrLastCmdOk) or (not tLastCmdOk)"/>
+            <next_state name="transp_status" init_cond="rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState and safeIterationsPassed500 and rLwrLastCmdOk and lLwrLastCmdOk and tLastCmdOk"/>
         </state>
         <state name="safe_status">
             <behavior name="safe_status" />
-<!--            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not rLwrCmdOk) or (not lLwrInCmdState) or (not lLwrCmdOk) or (not tCmdOk) or (not cmdExitSafeState) or (not safeIterationsPassed500)"/>
-            <next_state name="transparent_cmd" init_cond="recvCommand and rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"/>
--->
-<!--
-            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not rLwrCmdOk) or (not lLwrInCmdState) or (not lLwrCmdOk) or (not tCmdOk) or (not cmdExitSafeState)"/>
-            <next_state name="transparent_cmd" init_cond="recvCommand and rLwrOk and lLwrOk and rLwrInCmdState and rLwrCmdOk and lLwrInCmdState and lLwrCmdOk and tCmdOk and cmdExitSafeState"/>
--->
-            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk) or (not cmdExitSafeState) or (not safeIterationsPassed500)"/>
-            <next_state name="transparent_cmd" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"/>
+            <next_state name="safe" init_cond="TRUE"/>
+<!--            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk) or (not cmdExitSafeState) or (not safeIterationsPassed500)"/>
+            <next_state name="transparent_cmd" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"/>-->
+        </state>
+        <state name="transp">
+            <behavior name="transp" />
+            <next_state name="safe_status" init_cond="(not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState)"/>
+            <next_state name="transp_status" init_cond="rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState"/>
+        </state>
+        <state name="transp_status">
+            <behavior name="transp_status" />
+            <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"/>
+            <next_state name="transp" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk"/>
         </state>
     </states>
 

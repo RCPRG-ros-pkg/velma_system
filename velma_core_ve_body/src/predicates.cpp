@@ -53,22 +53,26 @@ bool safeIterationsPassed500(const InputDataConstPtr& in_data, const std::vector
 
 bool rLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* rLwrOk_attrib = getBoolAttribute("hw_state", "rLwrOk", components);
-    return in_data->lo_rLwr_st_valid && rLwrOk_attrib->get();
+//    return in_data->lo_rLwr_st_valid && rLwrOk_attrib->get();
+    return rLwrOk_attrib->get();
 }
 
 bool rLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* rLwrCmdState_attrib = getBoolAttribute("hw_state", "rLwrCmdState", components);
-    return in_data->lo_rLwr_st_valid && rLwrCmdState_attrib->get();
+//    return in_data->lo_rLwr_st_valid && rLwrCmdState_attrib->get();
+    return rLwrCmdState_attrib->get();
 }
 
 bool lLwrOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* lLwrOk_attrib = getBoolAttribute("hw_state", "lLwrOk", components);
-    return in_data->lo_lLwr_st_valid && lLwrOk_attrib->get();
+//    return in_data->lo_lLwr_st_valid && lLwrOk_attrib->get();
+    return lLwrOk_attrib->get();
 }
 
 bool lLwrInCmdState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     static const RTT::Attribute< bool >* lLwrCmdState_attrib = getBoolAttribute("hw_state", "lLwrCmdState", components);
-    return in_data->lo_lLwr_st_valid && lLwrCmdState_attrib->get();
+//    return in_data->lo_lLwr_st_valid && lLwrCmdState_attrib->get();
+    return lLwrCmdState_attrib->get();
 }
 
 bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
@@ -81,6 +85,21 @@ bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::T
 
 bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     return in_data->hi_cmd.tMotor_i_valid && isCmdTorsoValid(in_data->hi_cmd.tMotor_i);
+}
+
+bool rLwrLastCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* rLwrCmdOk_attrib = getBoolAttribute("cmd_buffer", "rLwrCmdOk", components);
+    return rLwrCmdOk_attrib->get();
+}
+
+bool lLwrLastCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* lLwrCmdOk_attrib = getBoolAttribute("cmd_buffer", "lLwrCmdOk", components);
+    return lLwrCmdOk_attrib->get();
+}
+
+bool tLastCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    static const RTT::Attribute< bool >* tCmdOk_attrib = getBoolAttribute("cmd_buffer", "tCmdOk", components);
+    return tCmdOk_attrib->get();
 }
 
 bool cmdExitSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
@@ -105,6 +124,9 @@ REGISTER_PREDICATE( velma_core_ve_body_types::lLwrInCmdState );
 REGISTER_PREDICATE( velma_core_ve_body_types::rLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::lLwrCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::tCmdOk );
+REGISTER_PREDICATE( velma_core_ve_body_types::rLwrLastCmdOk );
+REGISTER_PREDICATE( velma_core_ve_body_types::lLwrLastCmdOk );
+REGISTER_PREDICATE( velma_core_ve_body_types::tLastCmdOk );
 REGISTER_PREDICATE( velma_core_ve_body_types::cmdExitSafeState );
 REGISTER_PREDICATE( velma_core_ve_body_types::recvStatus );
 REGISTER_PREDICATE( velma_core_ve_body_types::recvCommand );

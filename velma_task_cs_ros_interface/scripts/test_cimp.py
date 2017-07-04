@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
 
-    print "moving right arm to initial pose (jimp)"
+    print "moving whole body to initial pose (jimp)"
     js = velma.getLastJointState()
     traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
     velma.moveJointTraj(traj, jn, start_time=0.5)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     print "waiting 2 seconds..."
     rospy.sleep(2)
 
-    print "moving right arm to initial pose (jimp)"
+    print "moving whole body to initial pose (jimp)"
     js = velma.getLastJointState()
     traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
     velma.moveJointTraj(traj, jn, start_time=0.5)
