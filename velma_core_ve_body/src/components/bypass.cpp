@@ -26,6 +26,7 @@
 */
 
 #include <controller_common/bypass.h>
+#include <barrett_hand_msgs/CommandHand.h>
 
 #include <rtt/Component.hpp>
 #include <Eigen/Dense>
@@ -39,8 +40,8 @@ public:
     explicit BypassCommand(const std::string &name);
 
 private:
-    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
-    typedef Eigen::Matrix<double, 4, 1 > HandDofs;
+//    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
+    typedef boost::array<double, 7 > ArmJoints;
 };
 
 BypassCommand::BypassCommand(const std::string &name)
@@ -49,7 +50,9 @@ BypassCommand::BypassCommand(const std::string &name)
     addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("lArm_t_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("rArm_t_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<int32_t > >("tact_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("rHand_q_INPORT") );
+    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("rHand_INPORT") );
+    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("lHand_INPORT") );
+/*    addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("rHand_q_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("lHand_q_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("rHand_dq_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("lHand_dq_INPORT") );
@@ -58,7 +61,7 @@ BypassCommand::BypassCommand(const std::string &name)
     addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("rHand_max_i_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<HandDofs > >("lHand_max_i_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<int32_t > >("rHand_hold_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<int32_t > >("lHand_hold_INPORT") );
+    addInputPort( std::make_shared< RTT::InputPort<int32_t > >("lHand_hold_INPORT") );*/
     addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("rHandReset_INPORT") );
     addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("lHandReset_INPORT") );
 }

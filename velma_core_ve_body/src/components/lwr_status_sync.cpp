@@ -54,8 +54,10 @@ public:
     void updateHook();
 
 private:
-    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
-    typedef Eigen::Matrix<double, 7, 7 > ArmMassMatrix;
+//    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
+//    typedef Eigen::Matrix<double, 7, 7 > ArmMassMatrix;
+    typedef boost::array<double, 7 > ArmJoints;
+    typedef boost::array<double, 28 > ArmMassMatrix;
 
     // ports
     RTT::InputPort<ArmJoints > port_q_in_;

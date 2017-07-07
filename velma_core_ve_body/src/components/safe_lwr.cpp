@@ -35,7 +35,6 @@
 #include <lwr_msgs/FriIntfState.h>
 
 #include <Eigen/Dense>
-//#include "velma_core_cs_ve_body_msgs/StatusSC.h"
 
 #include <math.h>
 
@@ -44,23 +43,7 @@
 #include <std_msgs/Int32.h>
 
 using namespace RTT;
-/*
-static int setBit(int bitfield, int bit_num, bool value) {
-    if (value) {
-        // set
-        bitfield |= (1 << bit_num);
-    }
-    else {
-        // clear
-        bitfield &= ~(1 << bit_num);
-    }
-    return bitfield;
-}
 
-static bool getBit(int bitfield, int bit_num) {
-    return ((bitfield & (1 << bit_num)) != 0)?true:false;
-}
-*/
 namespace velma_core_ve_body_types {
 
 class SafeLWR: public RTT::TaskContext {

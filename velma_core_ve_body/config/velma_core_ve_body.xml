@@ -173,11 +173,7 @@
     <connection from="bypass.rArm_t_OUTPORT"        to="lo_rLwr_cmdConcate.t_INPORT" />
     <connection from="bypass.lArm_t_OUTPORT"        to="lo_lLwr_cmdConcate.t_INPORT" />
 
-    <connection from="bypass.rHand_q_OUTPORT"       to="rHand.q_INPORT" />
-    <connection from="bypass.rHand_dq_OUTPORT"      to="rHand.v_INPORT" />
-    <connection from="bypass.rHand_max_i_OUTPORT"   to="rHand.t_INPORT" />
-    <connection from="bypass.rHand_max_p_OUTPORT"   to="rHand.mp_INPORT" />
-    <connection from="bypass.rHand_hold_OUTPORT"    to="rHand.hold_INPORT" />
+    <connection from="bypass.rHand_OUTPORT"         to="rHand.cmd_INPORT" />
     <connection from="bypass.rHandReset_OUTPORT"    to="rHand.reset_INPORT" />
     <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" />
     <connection from="rHand.tx_OUTPORT"             to="can_queue_tx_r.tx_INPORT" >
@@ -186,10 +182,7 @@
     <connection from="rHand.q_OUTPORT"              to="hi_stConcate.rHand_q_INPORT" />
     <connection from="rHand.status_OUTPORT"         to="hi_stConcate.rHand_s_INPORT" />
 
-    <connection from="bypass.lHand_q_OUTPORT"       to="lHand.q_INPORT" />
-    <connection from="bypass.lHand_dq_OUTPORT"      to="lHand.v_INPORT" />
-    <connection from="bypass.lHand_max_i_OUTPORT"   to="lHand.t_INPORT" />
-    <connection from="bypass.lHand_max_p_OUTPORT"   to="lHand.mp_INPORT" />
+    <connection from="bypass.lHand_OUTPORT"         to="lHand.cmd_INPORT" />
     <connection from="bypass.lHandReset_OUTPORT"    to="lHand.reset_INPORT" />
     <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="lHand.rx_queue_INPORT" />
     <connection from="lHand.tx_OUTPORT"             to="can_queue_tx_l.tx_INPORT" >
@@ -205,17 +198,9 @@
 
     <connection from="hi_cmdSplit.lArm_t_OUTPORT"                   to="bypass.lArm_t_INPORT" />
     <connection from="hi_cmdSplit.rArm_t_OUTPORT"                   to="bypass.rArm_t_INPORT" />
-    <connection from="hi_cmdSplit.rHand_q_OUTPORT"                  to="bypass.rHand_q_INPORT" />
-    <connection from="hi_cmdSplit.rHand_dq_OUTPORT"                 to="bypass.rHand_dq_INPORT" />
-    <connection from="hi_cmdSplit.rHand_max_i_OUTPORT"              to="bypass.rHand_max_i_INPORT" />
-    <connection from="hi_cmdSplit.rHand_max_p_OUTPORT"              to="bypass.rHand_max_p_INPORT" />
-    <connection from="hi_cmdSplit.rHand_hold_OUTPORT"               to="bypass.rHand_hold_INPORT" />
+    <connection from="hi_cmdSplit.rHand_OUTPORT"                    to="bypass.rHand_INPORT" />
     <connection from="hi_cmdSplit.rHandReset_OUTPORT"               to="bypass.rHandReset_INPORT" />
-    <connection from="hi_cmdSplit.lHand_q_OUTPORT"                  to="bypass.lHand_q_INPORT" />
-    <connection from="hi_cmdSplit.lHand_dq_OUTPORT"                 to="bypass.lHand_dq_INPORT" />
-    <connection from="hi_cmdSplit.lHand_max_i_OUTPORT"              to="bypass.lHand_max_i_INPORT" />
-    <connection from="hi_cmdSplit.lHand_max_p_OUTPORT"              to="bypass.lHand_max_p_INPORT" />
-    <connection from="hi_cmdSplit.lHand_hold_OUTPORT"               to="bypass.lHand_hold_INPORT" />
+    <connection from="hi_cmdSplit.lHand_OUTPORT"                    to="bypass.lHand_INPORT" />
     <connection from="hi_cmdSplit.lHandReset_OUTPORT"               to="bypass.lHandReset_INPORT" />
 
 <!--
