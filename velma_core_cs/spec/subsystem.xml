@@ -9,7 +9,7 @@
     </buffers>
 
     <trigger_methods>
-        <read_buffers min_period="0.0006" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
+        <read_buffers min_period="0.0003" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
             <obligatory name="b_st" />
             <optional name="cmd" />
         </read_buffers>
@@ -41,8 +41,6 @@
             <running_component name="C_dq_all" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="b_stRx" />
-            <running_component name="cmdRx" />
             <running_component name="Y" />
         </behavior>
 
@@ -54,7 +52,6 @@
             <running_component name="b_stSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="b_stRx" />
             <running_component name="Y" />
         </behavior>
 
@@ -74,7 +71,6 @@
             <running_component name="b_stSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="b_stRx" />
             <running_component name="ColDet" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
@@ -98,7 +94,6 @@
             <running_component name="wcc_r" />
             <running_component name="wcc_l" />
             <running_component name="S_t_body" />
-            <running_component name="ColDet" />
             <running_component name="C_q_body" />
             <running_component name="C_dq_body" />
             <running_component name="C_q_all" />
@@ -108,8 +103,6 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="b_stRx" />
-            <running_component name="cmdRx" />
             <running_component name="ColDet" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
@@ -125,7 +118,6 @@
 <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
-            <running_component name="ColDet" />
             <running_component name="C_q_body" />
             <running_component name="C_dq_body" />
             <running_component name="C_q_all" />
@@ -135,8 +127,6 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="b_stRx" />
-            <running_component name="cmdRx" />
             <running_component name="ColDet" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />

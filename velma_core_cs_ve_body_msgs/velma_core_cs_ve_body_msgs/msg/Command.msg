@@ -1,7 +1,11 @@
-uint32 test             # subsystem_buffer{type: port; data_type: uint32_t}
+uint32 test             # subsystem_buffer{type: port; validity: test_valid}
+bool test_valid
 
 float64 tMotor_i        # subsystem_buffer{type: port; validity: tMotor_i_valid}
 bool tMotor_i_valid
+
+bool tMotor_enable      # subsystem_buffer{type: port; validity: tMotor_enable_valid}
+bool tMotor_enable_valid
 
 CommandArm lArm         # subsystem_buffer{type: container; validity: lArm_valid}
 bool lArm_valid

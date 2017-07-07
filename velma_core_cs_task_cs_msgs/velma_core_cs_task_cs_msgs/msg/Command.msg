@@ -20,3 +20,15 @@ bool handLeft_valid
 bool handLeftReset      # subsystem_buffer{type: port; validity: handLeftReset_valid}
 bool handLeftReset_valid
 
+CommandServo hp         # subsystem_buffer{type: container}
+
+CommandServo ht         # subsystem_buffer{type: container}
+
+CommandServo t          # subsystem_buffer{type: container}
+
+#bool homing_start_hp    # subsystem_buffer{type: port; validity: homing_start_hp_valid}
+#bool homing_start_hp_valid
+
+#bool homing_start_ht    # subsystem_buffer{type: port; validity: homing_start_ht_valid}
+#bool homing_start_ht_valid
+

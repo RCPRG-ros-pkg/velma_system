@@ -1,5 +1,5 @@
 time start
-cartesian_trajectory_msgs/CartesianTrajectoryPoint[50] trj
+cartesian_trajectory_msgs/CartesianTrajectoryPoint[20] trj
 uint32 count
 
 cartesian_trajectory_msgs/CartesianTolerance path_tolerance

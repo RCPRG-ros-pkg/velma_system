@@ -38,6 +38,7 @@ from sensor_msgs.msg import JointState
 from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
+from motor_action_msgs.msg import *
 import actionlib
 from trajectory_msgs.msg import *
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTolerance
@@ -135,7 +136,7 @@ Class used as Velma robot Interface.
 
     def allActionsConnected(self):
         allConnected = True
-        for side in ("right", "left"):
+        for side in self.action_move_hand_client_connected:
             if not self.action_move_hand_client_connected[side]:
                 self.action_move_hand_client_connected[side] = self.action_move_hand_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
             if not self.action_cart_traj_client_connected[side]:
@@ -145,9 +146,12 @@ Class used as Velma robot Interface.
         if not self.action_joint_traj_client_connected:
             self.action_joint_traj_client_connected = self.action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
         allConnected = allConnected and self.action_joint_traj_client_connected
-        if not self.action_head_joint_traj_client_connected:
-            self.action_head_joint_traj_client_connected = self.action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self.action_head_joint_traj_client_connected
+
+        for motor in self.action_motor_client_connected:
+            if not self.action_motor_client_connected[motor]:
+                self.action_motor_client_connected[motor] = self.action_motor_client[motor].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self.action_motor_client_connected[motor]
+
         return allConnected
 
     def waitForInit(self, timeout_s = None):
@@ -166,7 +170,7 @@ Class used as Velma robot Interface.
                 print "ERROR: waitForInit: ", can_break, self.action_move_hand_client_connected["right"],\
                     self.action_move_hand_client_connected["left"], self.action_cart_traj_client_connected["right"],\
                     self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected,\
-                    self.action_head_joint_traj_client_connected
+                    self.action_head_joint_traj_client_connected, self.action_motor_client_connected
                 return False
         return True
 
@@ -233,6 +237,8 @@ Class used as Velma robot Interface.
         self.action_joint_traj_client_connected = False
         self.action_head_joint_traj_client_connected = False
 
+        self.action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
+
         # cartesian wrist trajectory for right arm
         self.action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartImpAction),
@@ -244,6 +250,13 @@ Class used as Velma robot Interface.
 
         # joint trajectory for head
         self.action_head_joint_traj_client = actionlib.SimpleActionClient("/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
+
+        # motor actions for head
+        self.action_motor_client = {
+            'hp':actionlib.SimpleActionClient("/motors/hp", MotorAction),
+            'ht':actionlib.SimpleActionClient("/motors/ht", MotorAction),
+            't':actionlib.SimpleActionClient("/motors/t", MotorAction)
+            }
 
         # cartesian tool trajectory for arms in the wrist frames
 #        self.action_tool_client = {
@@ -332,6 +345,51 @@ Class used as Velma robot Interface.
 
     def wrenchROStoKDL(self, wrROS):
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
+
+    def enableMotor(self, motor):
+        goal = MotorGoal()
+        goal.action = MotorGoal.ACTION_ENABLE
+        self.action_motor_client[motor].send_goal(goal)
+
+    def startHomingMotor(self, motor):
+        goal = MotorGoal()
+        goal.action = MotorGoal.ACTION_START_HOMING
+        self.action_motor_client[motor].send_goal(goal)
+
+    def waitForMotor(self, motor, timeout_s=0):
+        if not self.action_motor_client[motor].wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
+        result = self.action_motor_client[motor].get_result()
+        if result.error_code != 0:
+            print "waitForMotor('" + motor + "'): action failed with error_code=" + str(result.error_code)
+        return result.error_code
+
+    def enableHP(self):
+        self.enableMotor("hp")
+
+    def enableHT(self):
+        self.enableMotor("ht")
+
+    def enableT(self):
+        self.enableMotor("t")
+
+    def startHomingHP(self):
+        self.startHomingMotor("hp")
+
+    def startHomingHT(self):
+        self.startHomingMotor("ht")
+
+    def startHomingT(self):
+        self.startHomingMotor("t")
+
+    def waitForHP(self, timeout_s=0):
+        return self.waitForMotor("hp", timeout_s=timeout_s)
+
+    def waitForHT(self, timeout_s=0):
+        return self.waitForMotor("ht", timeout_s=timeout_s)
+
+    def waitForT(self, timeout_s=0):
+        return self.waitForMotor("t", timeout_s=timeout_s)
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
         wrist_pose = pm.toMsg(T_B_Td)
@@ -638,19 +696,6 @@ Class used as Velma robot Interface.
 
         for node_idx in range(0, len(pos)):
             time += dti[node_idx]
-#            q_dest_all = []
-#            vel_dest_all = []
-#            for joint_name in self.body_joint_names:
-#                if joint_name in joint_names:
-#                    q_idx = joint_names.index(joint_name)
-#                    q_dest_all.append(pos[node_idx][q_idx])
-#                    if vel != None:
-#                        vel_dest_all.append(vel[node_idx][q_idx])
-#                    else:
-#                        vel_dest_all.append(0)
-#                else:
-#                    q_dest_all.append(self.js_pos[joint_name])
-#                    vel_dest_all.append(0)
             q_dest_all = pos[node_idx]
             if vel != None:
                 vel_dest_all = vel[node_idx]

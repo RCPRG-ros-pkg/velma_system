@@ -30,6 +30,26 @@ if __name__ == "__main__":
         exitError(1)
     print "init ok"
 
+    print "sending head pan ENABLE command"
+    velma.enableHP()
+    if velma.waitForHP() != 0:
+        exitError(16)
+
+    print "sending head pan START_HOMING command"
+    velma.startHomingHP()
+    if velma.waitForHP() != 0:
+        exitError(14)
+
+    print "sending head tilt ENABLE command"
+    velma.enableHT()
+    if velma.waitForHT() != 0:
+        exitError(17)
+
+    print "sending head tilt START_HOMING command"
+    velma.startHomingHT()
+    if velma.waitForHT() != 0:
+        exitError(15)
+
     print "moving head to position: 0"
     q_dest = (0,0)
     velma.moveHead(q_dest, 2.0, start_time=0.5)

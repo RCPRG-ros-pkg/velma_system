@@ -18,11 +18,10 @@
 
     <io_buffer alias="lwr_st" name="rLwr_st" />
     <io_buffer alias="lwr_cmd" name="rLwr_cmd" />
-
+<!--
     <ros_stream port="lwr_stConcate.msg_OUTPORT"           topic="/velma_core_re_lwr_r/lwr_st" />
-
     <ros_stream port="master_component.lwr_cmd_OUTPORT"    topic="/velma_core_re_lwr_r/lwr_cmd" />
-
+-->
     <connection from="lwr_cmdSplit.t_OUTPORT"          to="LWRSim.JointTorqueCommand_INPORT" />
     <connection from="lwr_cmdSplit.krlCmd_OUTPORT"     to="LWRSim.KRL_CMD_INPORT" />
     <connection from="LWRSim.JointPosition_OUTPORT"    to="lwr_stConcate.q_INPORT" name="q" />

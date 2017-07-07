@@ -49,6 +49,7 @@ orocos_component(velma_core_ve_body
     src/components/bypass.cpp
     src/components/safe.cpp
     src/components/safe_elmo.cpp
+    src/components/elmo_driver.cpp
     src/components/safe_lwr.cpp
     src/components/packet_counter.cpp
     src/components/vector_dummy.cpp
@@ -56,7 +57,6 @@ orocos_component(velma_core_ve_body
     src/components/hw_state.cpp
     src/components/lwr_status_sync.cpp
     src/components/transparent_cmd.cpp
-    src/components/command_buffer.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

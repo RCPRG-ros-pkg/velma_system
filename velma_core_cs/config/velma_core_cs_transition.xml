@@ -99,6 +99,26 @@
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
 
+
+
+    <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="stConcate.hp_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT"            to="stConcate.hp_enabled_INPORT" />
+    <connection from="cmdSplit.hp_homing_start_OUTPORT"             to="b_cmdConcate.hpMotor_homing_start_INPORT" />
+    <connection from="cmdSplit.hp_enable_OUTPORT"                   to="b_cmdConcate.hpMotor_enable_INPORT" />
+
+    <connection from="b_stSplit.htMotor_homing_required_OUTPORT"    to="stConcate.ht_homing_required_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="stConcate.ht_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.htMotor_enabled_OUTPORT"            to="stConcate.ht_enabled_INPORT" />
+    <connection from="cmdSplit.ht_homing_start_OUTPORT"             to="b_cmdConcate.htMotor_homing_start_INPORT" />
+    <connection from="cmdSplit.ht_enable_OUTPORT"                   to="b_cmdConcate.htMotor_enable_INPORT" />
+
+    <connection from="b_stSplit.tMotor_homing_required_OUTPORT"     to="stConcate.t_homing_required_INPORT" />
+    <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="stConcate.t_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="stConcate.t_enabled_INPORT" />
+    <connection from="cmdSplit.t_enable_OUTPORT"                    to="b_cmdConcate.tMotor_enable_INPORT" />
+
+
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDet.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
@@ -254,8 +274,6 @@
     <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
-    <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
-    <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
     <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="cmdSplit.handRight_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
@@ -266,17 +284,16 @@
     <connection from="b_stSplit.lHand_OUTPORT" to="stConcate.handLeft_INPORT" latex="st_{hand,l}" />
     <connection from="b_stSplit.p_OUTPORT" to="stConcate.p_INPORT" latex="st_{tact}" />
     <connection from="b_stSplit.f_OUTPORT" to="stConcate.f_INPORT" latex="st_{of}" />
-    <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
-<!-- existing connections -->
-<!--    <connection from="b_stRx.msg_OUTPORT" to="master_component.b_st_INPORT" latex="st_{b}" />
-    <connection from="b_stRx.no_data_OUTPORT" to="master_component.b_st_no_data_INPORT_" latex="tgr_{timeout}" />
-    <connection from="cmdRx.msg_OUTPORT" to="master_component.cmd_INPORT" latex="cmd_{task}" />-->
     <connection from="master_component.b_st_OUTPORT" to="b_stSplit.msg_INPORT" latex="st_{b}" />
     <connection from="master_component.cmd_OUTPORT" to="cmdSplit.msg_INPORT" latex="cmd_{task}" />
     <connection from="b_cmdConcate.msg_OUTPORT" to="Y.b_cmd_INPORT" latex="cmd_{b}" />
     <connection from="stConcate.msg_OUTPORT" to="Y.st_INPORT" latex="st_{task}" />
-
+<!--
+    <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
+    <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
+    <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
+-->
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />

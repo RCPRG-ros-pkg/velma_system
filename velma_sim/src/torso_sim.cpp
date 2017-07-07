@@ -30,30 +30,41 @@
 #include <rtt/TaskContext.hpp>
 #include <rtt/Logger.hpp>
 
+#include <controller_common/elmo_servo_state.h>
+
+using namespace controller_common::elmo_servo;
+
 class TorsoSim : public RTT::TaskContext
 {
 public:
 
     // torso ports
     RTT::InputPort<int16_t >    port_t_MotorCurrentCommand_in_;
+    RTT::InputPort<uint16_t >   port_t_MotorControlWord_in_;
     RTT::OutputPort<int32_t >   port_t_MotorPosition_out_;
     RTT::OutputPort<int32_t >   port_t_MotorVelocity_out_;
+    RTT::OutputPort<uint16_t >  port_t_MotorStatus_out_;
 
-    double t_t_;
-    double q_t_;
-    double dq_t_;
+    int16_t t_MotorCurrentCommand_in_;
+    int32_t t_MotorPosition_out_;
+    int32_t t_MotorVelocity_out_;
 
     // head ports
     RTT::InputPort<int32_t>      port_hp_q_in_;
     RTT::InputPort<int32_t>      port_hp_v_in_;
     RTT::InputPort<int32_t>      port_hp_c_in_;
+    RTT::InputPort<uint16_t >    port_hp_controlWord_in_;
     RTT::OutputPort<int32_t>     port_hp_q_out_;
     RTT::OutputPort<int32_t>     port_hp_v_out_;
+    RTT::OutputPort<uint16_t >   port_hp_status_out_;
+
     RTT::InputPort<int32_t>      port_ht_q_in_;
     RTT::InputPort<int32_t>      port_ht_v_in_;
     RTT::InputPort<int32_t>      port_ht_c_in_;
+    RTT::InputPort<uint16_t >    port_ht_controlWord_in_;
     RTT::OutputPort<int32_t>     port_ht_q_out_;
     RTT::OutputPort<int32_t>     port_ht_v_out_;
+    RTT::OutputPort<uint16_t >   port_ht_status_out_;
 
     int32_t hp_q_in_;
     int32_t hp_v_in_;
@@ -66,12 +77,31 @@ public:
     int32_t ht_q_out_;
     int32_t ht_v_out_;
 
+    bool hp_homing_done_;
+    bool hp_homing_in_progress_;
+
+    bool ht_homing_done_;
+    bool ht_homing_in_progress_;
+
+    controller_common::elmo_servo::ServoState t_servo_state_;
+    controller_common::elmo_servo::ServoState hp_servo_state_;
+    controller_common::elmo_servo::ServoState ht_servo_state_;
+
+    double q_t_;
+    double dq_t_;
+    double t_t_;
+
+    double q_hp_;
+    double q_ht_;
+
     // public methods
     TorsoSim(std::string const& name);
     ~TorsoSim();
     void updateHook();
     bool startHook();
     bool configureHook();
+
+    ServoState getNextServoState(ServoState current_state, uint16_t controlWord) const;
 };
 
 using namespace RTT;
@@ -88,11 +118,22 @@ using namespace RTT;
         , q_t_(0.0)
         , dq_t_(0.0)
         , t_t_(0.0)
+        , q_hp_(0.0)
+        , q_ht_(0.0)
+        , hp_homing_done_(false)
+        , hp_homing_in_progress_(false)
+        , ht_homing_done_(false)
+        , ht_homing_in_progress_(false)
+        , t_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
+        , hp_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
+        , ht_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
     {
         // torso ports
+        this->ports()->addPort("t_MotorControlWord_INPORT",         port_t_MotorControlWord_in_);
         this->ports()->addPort(port_t_MotorCurrentCommand_in_);
         this->ports()->addPort(port_t_MotorPosition_out_);
         this->ports()->addPort(port_t_MotorVelocity_out_);
+        this->ports()->addPort("t_MotorStatus_OUTPORT", port_t_MotorStatus_out_);
 
         // head ports
         this->ports()->addPort("head_pan_motor_position_command_INPORT",        port_hp_q_in_);
@@ -100,16 +141,40 @@ using namespace RTT;
         this->ports()->addPort("head_pan_motor_current_command_INPORT",         port_hp_c_in_);
         this->ports()->addPort(port_hp_q_out_);
         this->ports()->addPort(port_hp_v_out_);
+        this->ports()->addPort("head_pan_motor_controlWord_INPORT",             port_hp_controlWord_in_);
+        this->ports()->addPort("head_pan_motor_status_OUTPORT", port_hp_status_out_);
         hp_q_in_ = hp_v_in_ = hp_c_in_ = hp_q_out_ = hp_v_out_ = 0.0;
         this->ports()->addPort("head_tilt_motor_position_command_INPORT",       port_ht_q_in_);
         this->ports()->addPort("head_tilt_motor_velocity_command_INPORT",       port_ht_v_in_);
         this->ports()->addPort("head_tilt_motor_current_command_INPORT",        port_ht_c_in_);
         this->ports()->addPort(port_ht_q_out_);
         this->ports()->addPort(port_ht_v_out_);
+        this->ports()->addPort("head_tilt_motor_controlWord_INPORT",            port_ht_controlWord_in_);
+        this->ports()->addPort("head_tilt_motor_status_OUTPORT", port_ht_status_out_);
         ht_q_in_ = ht_v_in_ = ht_c_in_ = ht_q_out_ = ht_v_out_ = 0.0;
     }
 
     TorsoSim::~TorsoSim() {
+    }
+
+    ServoState TorsoSim::getNextServoState(ServoState current_state, uint16_t controlWord) const {
+        ServoState next_state;
+        if ( current_state == ServoState::NOT_READY_TO_SWITCH_ON && (controlWord&0x000F) == 0x0000 ) {
+            return ServoState::SWITCH_ON_DISABLED;
+        }
+        else if ( current_state == ServoState::SWITCH_ON_DISABLED && (controlWord&0x000F) == 0x0006 ) {
+            return ServoState::READY_TO_SWITCH_ON;
+        }
+        else if ( current_state == ServoState::READY_TO_SWITCH_ON && (controlWord&0x000F) == 0x0007 ) {
+            return ServoState::SWITCH_ON;
+        }
+        else if ( current_state == ServoState::SWITCH_ON && (controlWord&0x000F) == 0x000F ) {
+            return ServoState::OPERATION_ENABLED;
+        }
+        else if ( current_state == ServoState::OPERATION_ENABLED && (controlWord&0x000F) == 0x0007 ) {
+            return ServoState::SWITCH_ON;
+        }
+        return current_state;
     }
 
     void TorsoSim::updateHook() {
@@ -119,9 +184,9 @@ using namespace RTT;
         const double torso_joint_offset = 0;
         const double torso_motor_constant = 0.00105;
 
-        int16_t t_MotorCurrentCommand_in;
+        int16_t t_MotorCurrentCommand_in = 0;
         if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in) != RTT::NewData) {
-            //t_MotorCurrentCommand_in_ = 0;
+            std::cout << "could not read t motor current" << std::endl;
         }
 
         t_t_ = t_MotorCurrentCommand_in * torso_gear * torso_motor_constant;
@@ -133,6 +198,8 @@ using namespace RTT;
 
         // integrate velocity
         q_t_ += dq_t_ * 0.001;
+
+//        std::cout << t_MotorCurrentCommand_in << " " << q_t_ << std::endl;
 
         int32_t t_MotorPosition_out = (q_t_ - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
         int32_t t_MotorVelocity_out = dq_t_ * torso_trans_mult;
@@ -153,6 +220,118 @@ using namespace RTT;
         port_ht_c_in_.read(ht_c_in_);
         port_ht_q_out_.write(ht_q_out_);
         port_ht_v_out_.write(ht_v_out_);
+
+        const double head_trans = 8000.0 * 100.0 / (M_PI * 2.0);
+
+        if (hp_homing_in_progress_) {
+            if (q_hp_ > 0.1) {
+                q_hp_ -= 0.0005;
+            }
+            else if (q_hp_ < -0.1) {
+                q_hp_ += 0.0005;
+            }
+            else {
+                hp_homing_in_progress_ = false;
+                hp_homing_done_ = true;
+            }
+        }
+        else {
+            q_hp_ = hp_q_in_ / head_trans;
+        }
+        hp_q_out_ = q_hp_ * head_trans;
+
+        if (ht_homing_in_progress_) {
+            if (q_ht_ > 0.1) {
+                q_ht_ -= 0.0005;
+            }
+            else if (q_ht_ < -0.1) {
+                q_ht_ += 0.0005;
+            }
+            else {
+                ht_homing_in_progress_ = false;
+                ht_homing_done_ = true;
+            }
+        }
+        else {
+            q_ht_ = ht_q_in_ / head_trans;
+        }
+        ht_q_out_ = q_ht_ * head_trans;
+
+
+
+
+        // copied from velma_sim_gazebo/src/torso_gazebo_orocos.cpp
+        uint16_t hp_controlWord_in;
+        if (port_hp_controlWord_in_.read(hp_controlWord_in) == RTT::NewData) {
+            if ( (hp_controlWord_in&0x10) != 0 && !hp_homing_in_progress_) {
+                if (hp_homing_done_) {
+                    std::cout << "Running homing second time for head pan motor!" << std::endl;
+                }
+                else {
+                    hp_homing_in_progress_ = true;
+                    std::cout << "Running homing head pan motor" << std::endl;
+                }
+            }
+            ServoState prev_state = hp_servo_state_;
+            hp_servo_state_ = getNextServoState(hp_servo_state_, hp_controlWord_in);
+            if (prev_state != hp_servo_state_) {
+                std::cout << "hp motor state: " << getServoStateStr(hp_servo_state_) << std::endl;
+            }
+        }
+        else {
+            hp_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
+            std::cout << "hp motor state: " << getServoStateStr(hp_servo_state_) << std::endl;
+        }
+
+        uint16_t ht_controlWord_in;
+        if (port_ht_controlWord_in_.read(ht_controlWord_in) == RTT::NewData) {
+            if ( (ht_controlWord_in&0x10) != 0 && !ht_homing_in_progress_) {
+                if (ht_homing_done_) {
+                    std::cout << "Running homing second time for head tilt motor!" << std::endl;
+                }
+                else {
+                    ht_homing_in_progress_ = true;
+                    std::cout << "Running homing head tilt motor" << std::endl;
+                }
+            }
+            ServoState prev_state = ht_servo_state_;
+            ht_servo_state_ = getNextServoState(ht_servo_state_, ht_controlWord_in);
+            if (prev_state != ht_servo_state_) {
+                std::cout << "ht motor state: " << getServoStateStr(ht_servo_state_) << std::endl;
+            }
+        }
+        else {
+            ht_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
+            std::cout << "ht motor state: " << getServoStateStr(ht_servo_state_) << std::endl;
+        }
+
+        uint16_t t_controlWord_in;
+        if (port_t_MotorControlWord_in_.read(t_controlWord_in) == RTT::NewData) {
+            ServoState prev_state = t_servo_state_;
+            t_servo_state_ = getNextServoState(t_servo_state_, t_controlWord_in);
+            if (prev_state != t_servo_state_) {
+                std::cout << "t motor state: " << getServoStateStr(t_servo_state_) << std::endl;
+            }
+        }
+        else {
+            t_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
+            std::cout << "t motor state: " << getServoStateStr(t_servo_state_) << std::endl;
+        }
+
+        uint16_t t_status_out = getStatusWord(t_servo_state_);
+        uint16_t hp_status_out = getStatusWord(hp_servo_state_);
+        uint16_t ht_status_out = getStatusWord(ht_servo_state_);
+
+        if (hp_homing_done_) {
+            hp_status_out |= 0x1400;
+        }
+        if (ht_homing_done_) {
+            ht_status_out |= 0x1400;
+        }
+
+        port_t_MotorStatus_out_.write(t_status_out);
+        port_hp_status_out_.write(hp_status_out);
+        port_ht_status_out_.write(ht_status_out);
     }
 
     bool TorsoSim::startHook() {

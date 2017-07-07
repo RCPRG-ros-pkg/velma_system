@@ -1,5 +1,5 @@
 time start
-VelmaJointTrajectoryPoint[50] trj
+VelmaJointTrajectoryPoint[20] trj
 uint32 count_trj
 
 float64[15] path_tolerance

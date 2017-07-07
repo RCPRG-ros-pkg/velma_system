@@ -43,6 +43,8 @@
       <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
       <plugin_depend>rtt_barrett_hand_subsystem_ports</plugin_depend>
       <plugin_depend>rtt_barrett_hand_msgs</plugin_depend>
+      <plugin_depend>rtt_motor_action_msgs</plugin_depend>
+      <plugin_depend>motor_action</plugin_depend>
     </rtt_ros>
   </export>
 </package>

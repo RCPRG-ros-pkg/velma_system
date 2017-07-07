@@ -144,8 +144,37 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     setForces(grav);
 
     // joint controller for the head
-    jc_->SetPositionTarget(head_pan_scoped_name_, -tmp_hp_q_in_ / head_trans);
-    jc_->SetPositionTarget(head_tilt_scoped_name_, tmp_ht_q_in_ / head_trans);
+    if (hp_homing_in_progress_) {
+        if (q_h(0) > 0.1) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)-0.0005);
+        }
+        else if (q_h(0) < -0.1) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)+0.0005);
+        }
+        else {
+            hp_homing_in_progress_ = false;
+            hp_homing_done_ = true;
+        }
+    }
+    else {
+        jc_->SetPositionTarget(head_pan_scoped_name_, -tmp_hp_q_in_ / head_trans);
+    }
+
+    if (ht_homing_in_progress_) {
+        if (q_h(1) > 0.1) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)-0.0005);
+        }
+        else if (q_h(1) < -0.1) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)+0.0005);
+        }
+        else {
+            ht_homing_in_progress_ = false;
+            ht_homing_done_ = true;
+        }
+    }
+    else {
+        jc_->SetPositionTarget(head_tilt_scoped_name_, tmp_ht_q_in_ / head_trans);
+    }
 
     jc_->Update();
 }

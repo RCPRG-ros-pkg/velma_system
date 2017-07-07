@@ -14,10 +14,8 @@
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
     name="velma_core_cs"
     pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_core_cs -l $(arg LOG_LEVEL) -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -c 3 --" output="screen">
-<!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
-    <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
-<!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
+    args="--DeployerName velma_core_cs -l $(arg LOG_LEVEL) -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -p 80 -c 2 --" output="screen">
+    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />
   </node>
 
   <param name="/robot_description"

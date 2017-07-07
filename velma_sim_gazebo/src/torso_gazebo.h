@@ -37,6 +37,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
+#include <controller_common/elmo_servo_state.h>
+
 class TorsoGazebo : public RTT::TaskContext
 {
 public:
@@ -44,6 +46,7 @@ public:
 
     // torso ports
     RTT::InputPort<int16_t >    port_t_MotorCurrentCommand_in_;
+    RTT::InputPort<uint16_t >   port_t_MotorControlWord_in_;
     RTT::OutputPort<int32_t >   port_t_MotorPosition_out_;
     RTT::OutputPort<int32_t >   port_t_MotorVelocity_out_;
     RTT::OutputPort<uint16_t >  port_t_MotorStatus_out_;
@@ -51,12 +54,12 @@ public:
     int16_t t_MotorCurrentCommand_in_;
     int32_t t_MotorPosition_out_;
     int32_t t_MotorVelocity_out_;
-//    uint16_t t_MotorStatus_out_;
 
     // head ports
     RTT::InputPort<int32_t>      port_hp_q_in_;
     RTT::InputPort<int32_t>      port_hp_v_in_;
     RTT::InputPort<int32_t>      port_hp_c_in_;
+    RTT::InputPort<uint16_t >    port_hp_controlWord_in_;
     RTT::OutputPort<int32_t>     port_hp_q_out_;
     RTT::OutputPort<int32_t>     port_hp_v_out_;
     RTT::OutputPort<uint16_t >   port_hp_status_out_;
@@ -64,6 +67,7 @@ public:
     RTT::InputPort<int32_t>      port_ht_q_in_;
     RTT::InputPort<int32_t>      port_ht_v_in_;
     RTT::InputPort<int32_t>      port_ht_c_in_;
+    RTT::InputPort<uint16_t >    port_ht_controlWord_in_;
     RTT::OutputPort<int32_t>     port_ht_q_out_;
     RTT::OutputPort<int32_t>     port_ht_v_out_;
     RTT::OutputPort<uint16_t >   port_ht_status_out_;
@@ -73,14 +77,22 @@ public:
     int32_t hp_c_in_;
     int32_t hp_q_out_;
     int32_t hp_v_out_;
-//    uint16_t hp_status_out_;
 
     int32_t ht_q_in_;
     int32_t ht_v_in_;
     int32_t ht_c_in_;
     int32_t ht_q_out_;
     int32_t ht_v_out_;
-//    uint16_t ht_status_out_;
+
+    bool hp_homing_done_;
+    bool hp_homing_in_progress_;
+
+    bool ht_homing_done_;
+    bool ht_homing_in_progress_;
+
+    controller_common::elmo_servo::ServoState t_servo_state_;
+    controller_common::elmo_servo::ServoState hp_servo_state_;
+    controller_common::elmo_servo::ServoState ht_servo_state_;
 
     // public methods
     TorsoGazebo(std::string const& name);
@@ -92,6 +104,8 @@ public:
     void gazeboUpdateHook(gazebo::physics::ModelPtr model);
 
   protected:
+
+    controller_common::elmo_servo::ServoState getNextServoState(controller_common::elmo_servo::ServoState current_state, uint16_t controlWord) const;
 
     typedef Eigen::Matrix<double, 2, 1 > HeadJoints;
 

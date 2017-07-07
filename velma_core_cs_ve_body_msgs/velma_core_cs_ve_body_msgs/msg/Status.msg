@@ -1,6 +1,7 @@
-uint32 test             # subsystem_buffer{type: port; data_type: uint32_t}
+uint32 test             # subsystem_buffer{type: port; validity: test_valid}
+bool test_valid
 
-StatusSC sc             # subsystem_buffer{type: port; data_type: StatusSC; validity: sc_valid}
+StatusSC sc             # subsystem_buffer{type: port; validity: sc_valid}
 bool sc_valid
 
 StatusArm rArm          # subsystem_buffer{type: container; validity: rArm_valid}
@@ -35,3 +36,4 @@ bool p_valid
 
 geometry_msgs/Wrench[3] f                       # subsystem_buffer{type: port; validity: f_valid}
 bool f_valid
+

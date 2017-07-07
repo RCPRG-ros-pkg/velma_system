@@ -14,8 +14,8 @@
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
     name="velma_core_ve_body"
     pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_core_ve_body -l $(arg LOG_LEVEL) -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -c 2 --" output="screen">
-<!--    <env name="LD_PRELOAD" value="libmalloc_hook.so" />-->
+    args="--DeployerName velma_core_ve_body -l $(arg LOG_LEVEL) -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 60 -c 3 --" output="screen">
+<!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
   </node>
 
   <group ns="velma_core_ve_body">
@@ -46,11 +46,17 @@
         gear: 158.0
         encoder_resolution: 131072.0
         motor_constant: 0.00105
-        homing_done: true
       safe_hp:
         control_mode: position
-        homing_done: false
       safe_ht:
+        control_mode: position
+      driver_t:
+        control_mode: torque
+        homing_done: true
+      driver_hp:
+        control_mode: position
+        homing_done: false
+      driver_ht:
         control_mode: position
         homing_done: false
       TorsoPanTransmision:
@@ -58,34 +64,43 @@
         joint_offset: 0.0
         gear: 158.0
         encoder_res: 131072.0
+        enable_position: true
+        enable_velocity: true
       TorsoPanTransmisionInv:
         motor_offset: 270119630
         joint_offset: 0.0
         gear: 158.0
         encoder_res: 131072.0
         motor_constant: 0.00105
+        enable_torque: true
       HeadPanTransmision:
         motor_offset: 0.0
         joint_offset: 0.0
         gear: -100.0
         encoder_res: 8000.0
+        enable_position: true
+        enable_velocity: true
       HeadPanTransmisionInv:
         motor_offset: 0.0
         joint_offset: 0.0
         gear: -100.0
         encoder_res: 8000.0
         motor_constant: 0.0
+        enable_position: true
       HeadTiltTransmision:
         motor_offset: 0.0
         joint_offset: 0.0
         gear: 100.0
         encoder_res: 8000.0
+        enable_position: true
+        enable_velocity: true
       HeadTiltTransmisionInv:
         motor_offset: 0.0
         joint_offset: 0.0
         gear: 100.0
         encoder_res: 8000.0
         motor_constant: 0.0
+        enable_position: true
       rHand:
         device_name: TODO
         prefix: right

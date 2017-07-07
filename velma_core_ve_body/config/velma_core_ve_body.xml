@@ -38,9 +38,14 @@
     <component name="safe_t"        type="velma_core_ve_body_types::SafeElmo" />
     <component name="safe_hp"       type="velma_core_ve_body_types::SafeElmo" />
     <component name="safe_ht"       type="velma_core_ve_body_types::SafeElmo" />
+
+    <component name="driver_t"      type="velma_core_ve_body_types::ElmoDriver" />
+    <component name="driver_hp"     type="velma_core_ve_body_types::ElmoDriver" />
+    <component name="driver_ht"     type="velma_core_ve_body_types::ElmoDriver" />
+
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" />
     <component name="hw_state"      type="velma_core_ve_body_types::HwState" />
-    <component name="cmd_buffer"    type="velma_core_ve_body_types::CommandBuffer" />
+<!--    <component name="cmd_buffer"    type="velma_core_ve_body_types::CommandBuffer" />-->
 
     <component name="rHand" type="BarrettHand" >
         <service name="can_queue" />
@@ -64,21 +69,24 @@
 
     <io_buffer alias="lo_ec_st" name="EC_Status" />
     <io_buffer alias="lo_ec_cmd" name="EC_Command" />
-
+<!--
     <ros_stream port="master_component.hi_cmd_OUTPORT"      topic="/velma_core_ve_body/hi_cmd" />
-
     <ros_stream port="hi_stConcate.msg_OUTPORT"             topic="/velma_core_ve_body/hi_st" />
-
     <ros_stream port="master_component.lo_rLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_st" />
     <ros_stream port="master_component.lo_lLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_lLwr_st" />
     <ros_stream port="master_component.lo_ec_st_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st" />
-<!--    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                           topic="/velma_core_ve_body/lo_ec_stRx" />
-
-    <ros_stream port="lo_ec_stRx.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st2" />
--->
     <ros_stream port="lo_ec_cmdConcate.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_cmd" />
+    <ros_stream port="lwr_sync_r.rob_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_rob_sync" />
+-->
 
-    <connection from="hi_cmdSplit._OUTPORT" to="cmd_buffer.cmd_INPORT" />
+    <connection from="safe_t.i_OUTPORT" to="driver_t.desired_i_INPORT" />
+
+    <connection from="safe_hp.q_OUTPORT" to="driver_hp.desired_q_INPORT" />
+
+    <connection from="safe_ht.q_OUTPORT" to="driver_ht.desired_q_INPORT" />
+
+
+<!--    <connection from="hi_cmdSplit._OUTPORT" to="cmd_buffer.cmd_INPORT" />-->
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
 
@@ -115,22 +123,37 @@
     <connection from="lo_lLwr_stSplit.iState_OUTPORT"       to="lwr_sync_l.fri_INPORT" />
     <connection from="lo_lLwr_stSplit.rState_OUTPORT"       to="lwr_sync_l.rob_INPORT" />
 
-    <ros_stream port="lwr_sync_r.rob_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_rob_sync" />
-
     <connection from="safe.sc_OUTPORT"              to="hi_stConcate.sc_INPORT" />
-    <connection from="safe_lwr_r.t_OUTPORT"          to="lo_rLwr_cmdConcate.t_INPORT" />
-    <connection from="safe_lwr_r.fri_OUTPORT"         to="lo_rLwr_cmdConcate.krlCmd_INPORT" />
-    <connection from="safe_lwr_l.t_OUTPORT"          to="lo_lLwr_cmdConcate.t_INPORT" />
-    <connection from="safe_lwr_l.fri_OUTPORT"         to="lo_lLwr_cmdConcate.krlCmd_INPORT" />
-    <connection from="safe_t.i_OUTPORT"                 to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
-    <connection from="safe_t.controlWord_OUTPORT"       to="lo_ec_cmdConcate.TorsoPan_Outputs_Controlword_INPORT" />
-    <connection from="safe_t.modeOfOperation_OUTPORT"   to="lo_ec_cmdConcate.TorsoPan_Outputs1_Modeofoperation_INPORT" />
-    <connection from="safe_hp.q_OUTPORT"                to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
-    <connection from="safe_hp.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_Controlword_INPORT" />
-    <connection from="safe_hp.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadPan_Outputs1_Modeofoperation_INPORT" />
-    <connection from="safe_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
-    <connection from="safe_ht.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadTilt_Outputs_Controlword_INPORT" />
-    <connection from="safe_ht.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadTilt_Outputs1_Modeofoperation_INPORT" />
+    <connection from="safe_lwr_r.t_OUTPORT"         to="lo_rLwr_cmdConcate.t_INPORT" />
+    <connection from="safe_lwr_r.fri_OUTPORT"       to="lo_rLwr_cmdConcate.krlCmd_INPORT" />
+    <connection from="safe_lwr_l.t_OUTPORT"         to="lo_lLwr_cmdConcate.t_INPORT" />
+    <connection from="safe_lwr_l.fri_OUTPORT"       to="lo_lLwr_cmdConcate.krlCmd_INPORT" />
+    <connection from="driver_t.i_OUTPORT"                 to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
+    <connection from="driver_t.controlWord_OUTPORT"       to="lo_ec_cmdConcate.TorsoPan_Outputs_Controlword_INPORT" />
+    <connection from="driver_t.modeOfOperation_OUTPORT"   to="lo_ec_cmdConcate.TorsoPan_Outputs1_Modeofoperation_INPORT" />
+    <connection from="driver_hp.q_OUTPORT"                to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
+    <connection from="driver_hp.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_Controlword_INPORT" />
+    <connection from="driver_hp.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadPan_Outputs1_Modeofoperation_INPORT" />
+    <connection from="driver_hp.homing_required_OUTPORT"        to="hi_stConcate.hpMotor_homing_required_INPORT" />
+    <connection from="driver_hp.homing_in_progress_OUTPORT"     to="hi_stConcate.hpMotor_homing_in_progress_INPORT" />
+    <connection from="driver_hp.enabled_OUTPORT"                to="hi_stConcate.hpMotor_enabled_INPORT" />
+    <connection from="hi_cmdSplit.hpMotor_homing_start_OUTPORT" to="driver_hp.homing_start_INPORT" />
+    <connection from="hi_cmdSplit.hpMotor_enable_OUTPORT"       to="driver_hp.enable_INPORT" />
+
+    <connection from="driver_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
+    <connection from="driver_ht.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadTilt_Outputs_Controlword_INPORT" />
+    <connection from="driver_ht.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadTilt_Outputs1_Modeofoperation_INPORT" />
+    <connection from="driver_ht.homing_required_OUTPORT"        to="hi_stConcate.htMotor_homing_required_INPORT" />
+    <connection from="driver_ht.homing_in_progress_OUTPORT"     to="hi_stConcate.htMotor_homing_in_progress_INPORT" />
+    <connection from="driver_ht.enabled_OUTPORT"                to="hi_stConcate.htMotor_enabled_INPORT" />
+    <connection from="hi_cmdSplit.htMotor_homing_start_OUTPORT" to="driver_ht.homing_start_INPORT" />
+    <connection from="hi_cmdSplit.htMotor_enable_OUTPORT"       to="driver_ht.enable_INPORT" />
+
+    <connection from="driver_t.homing_required_OUTPORT"        to="hi_stConcate.tMotor_homing_required_INPORT" />
+    <connection from="driver_t.homing_in_progress_OUTPORT"     to="hi_stConcate.tMotor_homing_in_progress_INPORT" />
+    <connection from="driver_t.enabled_OUTPORT"                to="hi_stConcate.tMotor_enabled_INPORT" />
+    <connection from="hi_cmdSplit.tMotor_enable_OUTPORT"       to="driver_t.enable_INPORT" />
+
     <connection from="lwr_sync_r.dq_OUTPORT"    to="safe_lwr_r.dq_INPORT" name="dq" />
     <connection from="lwr_sync_r.fri_OUTPORT"   to="safe_lwr_r.friIntf_INPORT" />
     <connection from="lwr_sync_r.rob_OUTPORT"   to="safe_lwr_r.friRobot_INPORT" />
@@ -138,12 +161,14 @@
     <connection from="lwr_sync_l.fri_OUTPORT"   to="safe_lwr_l.friIntf_INPORT" />
     <connection from="lwr_sync_l.rob_OUTPORT"   to="safe_lwr_l.friRobot_INPORT" />
     <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT"    to="safe_t.dq_INPORT" name="dq_t" />
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"     to="driver_hp.q_INPORT" name="q_hp" />
     <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"     to="safe_hp.q_INPORT" name="q_hp" />
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"    to="driver_ht.q_INPORT" name="q_ht" />
     <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"    to="safe_ht.q_INPORT" name="q_ht" />
 
-    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Statusword_OUTPORT"     to="safe_t.statusWord_INPORT"  name="st_t" />
-    <connection from="lo_ec_stSplit.HeadPan_Inputs_Statusword_OUTPORT"      to="safe_hp.statusWord_INPORT" name="st_hp" />
-    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Statusword_OUTPORT"     to="safe_ht.statusWord_INPORT" name="st_ht" />
+    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Statusword_OUTPORT"     to="driver_t.statusWord_INPORT"  name="st_t" />
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Statusword_OUTPORT"      to="driver_hp.statusWord_INPORT" name="st_hp" />
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Statusword_OUTPORT"     to="driver_ht.statusWord_INPORT" name="st_ht" />
 
     <connection from="bypass.rArm_t_OUTPORT"        to="lo_rLwr_cmdConcate.t_INPORT" />
     <connection from="bypass.lArm_t_OUTPORT"        to="lo_lLwr_cmdConcate.t_INPORT" />
@@ -201,9 +226,9 @@
     <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_i_INPORT" />
     <connection from="bypass.tMotor_i_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
 -->
-    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
-    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
-    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
+    <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT"     to="driver_ht.desired_q_INPORT" />
+    <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"      to="driver_hp.desired_q_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"      to="driver_t.desired_i_INPORT" />
 
     <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
 

@@ -25,6 +25,9 @@
     <component type="JointStatePublisher33"                         name="JntPub"               running="true" />
     <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
     <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
+    <component type="MotorActionServer"                             name="hpAction"             running="true" ros_action="/motors/hp" />
+    <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/motors/ht" />
+    <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/motors/t" />
 
 <!--    <component type="TfPublisher"                                   name="TfPub"                running="true" />-->
 
@@ -35,6 +38,28 @@
     <connection from="stSplit.lToolInWristPose_OUTPORT"             to="TfPub.In1" />
     <ros_stream port="TfPub.OutTf"                  topic="/tf" />
 -->
+
+
+    <connection from="stSplit.hp_homing_required_OUTPORT"       to="hpAction.homing_required_INPORT" />
+    <connection from="stSplit.hp_homing_in_progress_OUTPORT"    to="hpAction.homing_in_progress_INPORT" />
+    <connection from="stSplit.hp_enabled_OUTPORT"               to="hpAction.enabled_INPORT" />
+    <connection from="hpAction.homing_start_OUTPORT"            to="cmdConcate.hp_homing_start_INPORT" />
+    <connection from="hpAction.enable_OUTPORT"                  to="cmdConcate.hp_enable_INPORT" />
+
+    <connection from="stSplit.ht_homing_required_OUTPORT"       to="htAction.homing_required_INPORT" />
+    <connection from="stSplit.ht_homing_in_progress_OUTPORT"    to="htAction.homing_in_progress_INPORT" />
+    <connection from="stSplit.ht_enabled_OUTPORT"               to="htAction.enabled_INPORT" />
+    <connection from="htAction.homing_start_OUTPORT"            to="cmdConcate.ht_homing_start_INPORT" />
+    <connection from="htAction.enable_OUTPORT"                  to="cmdConcate.ht_enable_INPORT" />
+
+    <connection from="stSplit.t_homing_required_OUTPORT"        to="tAction.homing_required_INPORT" />
+    <connection from="stSplit.t_homing_in_progress_OUTPORT"     to="tAction.homing_in_progress_INPORT" />
+    <connection from="stSplit.t_enabled_OUTPORT"                to="tAction.enabled_INPORT" />
+    <connection from="tAction.enable_OUTPORT"                   to="cmdConcate.t_enable_INPORT" />
+
+
+    <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
+
     <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
     <connection from="CartImpActionRight.cart_tool_command_OUTPORT"                 to="cmdConcate.cart_r_tool_INPORT" />
     <connection from="CartImpActionRight.cart_imp_command_OUTPORT"                  to="cmdConcate.cart_r_imp_INPORT" />
