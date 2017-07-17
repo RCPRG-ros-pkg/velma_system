@@ -25,37 +25,48 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <controller_common/bypass.h>
-#include <barrett_hand_msgs/CommandHand.h>
+#include <common_behavior/abstract_port_converter.h>
 
 #include <rtt/Component.hpp>
 #include <Eigen/Dense>
 
 using namespace RTT;
 
-namespace velma_core_ve_body_types {
+namespace velma_core_cs_types {
 
-class BypassCommand: public controller_common::BypassComponent {
+class InputConverter: public common_behavior::MultiConverterComponent {
 public:
-    explicit BypassCommand(const std::string &name);
+    explicit InputConverter(const std::string &name);
 
 private:
     typedef boost::array<double, 7 > ArmJoints;
 };
 
-BypassCommand::BypassCommand(const std::string &name)
-    : BypassComponent(name)
+InputConverter::InputConverter(const std::string &name)
+    : common_behavior::MultiConverterComponent(name)
 {
-    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("lArm_t_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("rArm_t_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<int32_t > >("tact_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("rHand_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("lHand_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("rHandReset_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("lHandReset_INPORT") );
+    addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "rArm_q" );
+    addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "lArm_q" );
+    addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "rArm_dq" );
+    addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "lArm_dq" );
+
+    addConverter<boost::array<double, 28 >, Eigen::Matrix<double, 7, 7 > >( "rArm_mmx" );
+    addConverter<boost::array<double, 28 >, Eigen::Matrix<double, 7, 7 > >( "lArm_mmx" );
+
+    addConverter<boost::array<double, 8 >, Eigen::Matrix<double, 8, 1 > >( "rHand_q" );
+    addConverter<boost::array<double, 8 >, Eigen::Matrix<double, 8, 1 > >( "lHand_q" );
+
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "tMotor_q" );
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "tMotor_dq" );
+
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "hpMotor_q" );
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "hpMotor_dq" );
+
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "htMotor_q" );
+    addConverter<double, Eigen::Matrix<double, 1, 1 > >( "htMotor_dq" );
 }
 
-}   //namespace velma_core_ve_body_types
+}   //namespace velma_core_cs_types
 
-ORO_LIST_COMPONENT_TYPE(velma_core_ve_body_types::BypassCommand)
+ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::InputConverter)
 

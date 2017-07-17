@@ -62,7 +62,8 @@ public:
 
 private:
 
-    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
+//    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
+    typedef boost::array<double, 7 > ArmJoints;
 
     const int joints_count_;
 
@@ -192,7 +193,7 @@ void SafeLWR::calculateArmDampingTorque(const ArmJoints &joint_velocity,
     const std::vector<double> &damping_factors, SafeLWR::ArmJoints &joint_torque_command)
 {
     for (int i = 0; i < joints_count_; ++i) {
-        joint_torque_command(i) = -damping_factors[i] * joint_velocity(i);
+        joint_torque_command[i] = -damping_factors[i] * joint_velocity[i];
     }
 }
 

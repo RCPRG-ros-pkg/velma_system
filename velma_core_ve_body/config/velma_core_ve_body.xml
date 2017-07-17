@@ -20,12 +20,12 @@
     <import package="barrett_hand_controller" />
     <import package="velma_common_components" />
 
-    <component name="TorsoPanTransmision"       type="SimpleTransmision" />
-    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInv" />
-    <component name="HeadPanTransmision"        type="SimpleTransmision" />
-    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInv" />
-    <component name="HeadTiltTransmision"       type="SimpleTransmision" />
-    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInv" />
+    <component name="TorsoPanTransmision"       type="SimpleTransmisionInt" />
+    <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInvInt" />
+    <component name="HeadPanTransmision"        type="SimpleTransmisionInt" />
+    <component name="HeadPanTransmisionInv"     type="SimpleTransmisionInvInt" />
+    <component name="HeadTiltTransmision"       type="SimpleTransmisionInt" />
+    <component name="HeadTiltTransmisionInv"    type="SimpleTransmisionInvInt" />
 
     <component name="lwr_sync_r"        type="velma_core_ve_body_types::LwrStatusSync" />
     <component name="lwr_sync_l"        type="velma_core_ve_body_types::LwrStatusSync" />

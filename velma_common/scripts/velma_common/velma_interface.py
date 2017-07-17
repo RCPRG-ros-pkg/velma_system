@@ -360,9 +360,18 @@ Class used as Velma robot Interface.
         if not self.action_motor_client[motor].wait_for_result(timeout=rospy.Duration(timeout_s)):
             return None
         result = self.action_motor_client[motor].get_result()
-        if result.error_code != 0:
+
+        error_code = result.error_code
+
+        if error_code == MotorResult.ERROR_ALREADY_ENABLED:
+            print "waitForMotor('" + motor + "'): ERROR_ALREADY_ENABLED (no error)"
+            error_code = 0
+        elif error_code == MotorResult.ERROR_HOMING_DONE:
+            print "waitForMotor('" + motor + "'): ERROR_HOMING_DONE (no error)"
+            error_code = 0
+        if error_code != 0:
             print "waitForMotor('" + motor + "'): action failed with error_code=" + str(result.error_code)
-        return result.error_code
+        return error_code
 
     def enableHP(self):
         self.enableMotor("hp")
@@ -380,7 +389,7 @@ Class used as Velma robot Interface.
         self.startHomingMotor("ht")
 
     def startHomingT(self):
-        self.startHomingMotor("t")
+        print "startHomingT: ERROR: torso motor should not be homed"
 
     def waitForHP(self, timeout_s=0):
         return self.waitForMotor("hp", timeout_s=timeout_s)

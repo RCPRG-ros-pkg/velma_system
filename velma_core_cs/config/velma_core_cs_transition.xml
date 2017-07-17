@@ -78,13 +78,17 @@
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{JIMP}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
-    <component name="wcc_r"           type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
-    <component name="wcc_l"           type="DoubleJointConstraint15" latex="\text{WCC}_{l}" />
+    <component name="wcc_r"         type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
+    <component name="wcc_l"         type="DoubleJointConstraint15" latex="\text{WCC}_{l}" />
+
+    <component name="input_conv"    type="velma_core_cs_types::InputConverter" running="true" />
+    <component name="output_conv"    type="velma_core_cs_types::OutputConverter" running="true" />
 
     <component name="b_stSplit"     latex="\text{Split}_{b,st}" />
     <component name="cmdSplit"      latex="\text{Split}_{task,cmd}" />
     <component name="stConcate"     latex="\text{Conc}_{task,st}" />
     <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
+
 
 <!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
     <component name="cmdRx"         latex="\text{x}_{task,cmd}" />-->
@@ -98,7 +102,6 @@
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
-
 
 
     <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
@@ -143,14 +146,12 @@
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
 
-    <connection from="b_stSplit.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t" latex="q_t" />
-
-<!--    <connection from="b_stSplit.tMotor_q_OUTPORT" to="TorsoPosConcate.InputPort_0" />-->
-<!--    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="TorsoVelConcate.InputPort_0" />-->
-<!--    <connection from="TorsoTrqSplit.OutputPort_0" to="b_cmdConcate.tMotor_i_INPORT" />-->
-
-    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="C_q_head.In0" name="q_hp" latex="q_{hp}" />
-    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="C_dq_head.In0" name="dq_hp" latex="\dot{q}_{hp}" />
+    <connection from="b_stSplit.tMotor_q_OUTPORT" to="input_conv.tMotor_q_INPORT" name="q_t" latex="q_t" />
+    <connection from="input_conv.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t" latex="q_t" />
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="input_conv.hpMotor_q_INPORT" name="q_hp" latex="q_{hp}" />
+    <connection from="input_conv.hpMotor_q_OUTPORT" to="C_q_head.In0" name="q_hp" latex="q_{hp}" />
+    <connection from="b_stSplit.hpMotor_dq_OUTPORT" to="input_conv.hpMotor_dq_INPORT" name="dq_hp" latex="\dot{q}_{hp}" />
+    <connection from="input_conv.hpMotor_dq_OUTPORT" to="C_dq_head.In0" name="dq_hp" latex="\dot{q}_{hp}" />
 
 <!--    <connection from="Vd2.vector_OUTPORT" to="S_q_head.InputPort" />-->
 
@@ -158,29 +159,44 @@
     <connection from="S_q_head.OutputPort_0" to="VL_hp.Position_INPORT" name="q_hp" latex="q_{hp}" />
 
 
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="VL_ht.PositionMsr_INPORT" name="q_ht" latex="q_{ht}" />
+    <connection from="input_conv.htMotor_q_OUTPORT" to="VL_ht.PositionMsr_INPORT" name="q_ht" latex="q_{ht}" />
 
-    <connection from="b_stSplit.htMotor_q_OUTPORT" to="C_q_head.In1" name="q_ht" latex="q_{ht}" />
-    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="C_dq_head.In1" name="dq_ht" latex="\dot{q}_{ht}" />
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="input_conv.htMotor_q_INPORT" name="q_ht" latex="q_{ht}" />
+    <connection from="input_conv.htMotor_q_OUTPORT" to="C_q_head.In1" name="q_ht" latex="q_{ht}" />
+    <connection from="b_stSplit.htMotor_dq_OUTPORT" to="input_conv.htMotor_dq_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
+    <connection from="input_conv.htMotor_dq_OUTPORT" to="C_dq_head.In1" name="dq_ht" latex="\dot{q}_{ht}" />
     <connection from="S_q_head.OutputPort_1" to="VL_ht.Position_INPORT" name="q_ht" latex="q_{ht}" />
 <!--    <connection from="S_q_head.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
 
-    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="VL_hp.PositionMsr_INPORT" name="q_hp" latex="q_{hp}" />
+    <connection from="input_conv.hpMotor_q_OUTPORT" to="VL_hp.PositionMsr_INPORT" name="q_hp" latex="q_{hp}" />
     <connection from="VL_hp.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="VL_ht.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
 
-    <connection from="b_stSplit.rArm_q_OUTPORT" to="C_q_body.In1" latex="q_{ra}" />
-    <connection from="b_stSplit.lArm_q_OUTPORT" to="C_q_body.In2" latex="q_{la}" />
-    <connection from="b_stSplit.rArm_dq_OUTPORT" to="C_dq_body.In1" latex="\dot{q}_{ra}" />
-    <connection from="b_stSplit.lArm_dq_OUTPORT" to="C_dq_body.In2" latex="\dot{q}_{la}" />
-    <connection from="b_stSplit.rHand_q_OUTPORT" to="C_q_all.In2" latex="q_{rh}" />
-    <connection from="b_stSplit.lHand_q_OUTPORT" to="C_q_all.In3" latex="q_{lh}" />
+    <connection from="b_stSplit.rArm_q_OUTPORT" to="input_conv.rArm_q_INPORT" latex="q_{ra}" />
+    <connection from="b_stSplit.lArm_q_OUTPORT" to="input_conv.lArm_q_INPORT" latex="q_{la}" />
+    <connection from="b_stSplit.rArm_dq_OUTPORT" to="input_conv.rArm_dq_INPORT" latex="\dot{q}_{ra}" />
+    <connection from="b_stSplit.lArm_dq_OUTPORT" to="input_conv.lArm_dq_INPORT" latex="\dot{q}_{la}" />
+
+    <connection from="input_conv.rArm_q_OUTPORT" to="C_q_body.In1" latex="q_{ra}" />
+    <connection from="input_conv.lArm_q_OUTPORT" to="C_q_body.In2" latex="q_{la}" />
+    <connection from="input_conv.rArm_dq_OUTPORT" to="C_dq_body.In1" latex="\dot{q}_{ra}" />
+    <connection from="input_conv.lArm_dq_OUTPORT" to="C_dq_body.In2" latex="\dot{q}_{la}" />
+
+
+    <connection from="b_stSplit.rHand_q_OUTPORT" to="input_conv.rHand_q_INPORT" latex="q_{rh}" />
+    <connection from="input_conv.rHand_q_OUTPORT" to="C_q_all.In2" latex="q_{rh}" />
+    <connection from="b_stSplit.lHand_q_OUTPORT" to="input_conv.lHand_q_INPORT" latex="q_{lh}" />
+    <connection from="input_conv.lHand_q_OUTPORT" to="C_q_all.In3" latex="q_{lh}" />
     <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In2" name="0" />
     <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In3" name="0" />
-    <connection from="S_t_body.Out1" to="b_cmdConcate.rArm_t_INPORT" name="t_ra" latex="t_{ra,cmd}" />
-    <connection from="S_t_body.Out2" to="b_cmdConcate.lArm_t_INPORT" name="t_la" latex="t_{la,cmd}" />
-    <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" latex="M_{la}" />
-    <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" latex="M_{ra}" />
+    <connection from="S_t_body.Out1" to="output_conv.rArm_t_INPORT" name="t_ra" latex="t_{ra,cmd}" />
+    <connection from="output_conv.rArm_t_OUTPORT" to="b_cmdConcate.rArm_t_INPORT" name="t_ra" latex="t_{ra,cmd}" />
+    <connection from="S_t_body.Out2" to="output_conv.lArm_t_INPORT" name="t_la" latex="t_{la,cmd}" />
+    <connection from="output_conv.lArm_t_OUTPORT" to="b_cmdConcate.lArm_t_INPORT" name="t_la" latex="t_{la,cmd}" />
+    <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="input_conv.lArm_mmx_INPORT" latex="M_{la}" />
+    <connection from="input_conv.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" latex="M_{la}" />
+    <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="input_conv.rArm_mmx_INPORT" latex="M_{ra}" />
+    <connection from="input_conv.rArm_mmx_OUTPORT"  to="Mass.MassMatrixRight_INPORT" latex="M_{ra}" />
     <connection from="C_q_body.Out" to="Mass.JointPosition_INPORT"  name="q_body" latex="q_{body}" />
 
     <connection from="C_q_head.Out" to="C_q_all.In1" name="q_head" latex="q_{head}" />
@@ -190,13 +206,15 @@
     <connection from="Vd2.vector_OUTPORT" to="C_dq_all.In1" />-->
 <!--    <connection from="TorsoPosConcate.OutputPort" to="C_q_body.In0" />-->
 
-    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="C_dq_body.In0" name="dq_t" latex="\dot{q}_{t}" />
+    <connection from="b_stSplit.tMotor_dq_OUTPORT" to="input_conv.tMotor_dq_INPORT" name="dq_t" latex="\dot{q}_{t}" />
+    <connection from="input_conv.tMotor_dq_OUTPORT" to="C_dq_body.In0" name="dq_t" latex="\dot{q}_{t}" />
 
 <!--    <connection from="TorsoVelConcate.OutputPort" to="C_dq_body.In0" />-->
     <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{b}" />
 <!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
-    <connection from="S_t_body.Out0" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
+    <connection from="S_t_body.Out0" to="output_conv.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
+    <connection from="output_conv.tMotor_i_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
 <!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
     <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
 
@@ -249,14 +267,16 @@
 -->
     <connection from="C_q_body.Out" to="JTG_body.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="JTG_body.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
-    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="output_conv.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="output_conv.jnt_q_desired_OUTPORT" to="stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
     <connection from="JTG_body.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
-    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
+    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="output_conv.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
+    <connection from="output_conv.head_q_desired_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
     <connection from="JTG_head.generator_status_OUTPORT" to="stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
@@ -274,8 +294,10 @@
     <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
-    <connection from="C_q_all.Out" to="stConcate.q_INPORT" name="q" latex="q" />
-    <connection from="C_dq_all.Out" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="C_q_all.Out" to="output_conv.q_INPORT" name="q" latex="q" />
+    <connection from="output_conv.q_OUTPORT" to="stConcate.q_INPORT" name="q" latex="q" />
+    <connection from="C_dq_all.Out" to="output_conv.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="output_conv.dq_OUTPORT" to="stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="cmdSplit.handRight_OUTPORT" to="b_cmdConcate.rHand_INPORT" latex="cmd_{hand,r}" />
     <connection from="cmdSplit.handRightReset_OUTPORT" to="b_cmdConcate.rHandReset_INPORT" latex="rst_{hand,r}" />
     <connection from="cmdSplit.handLeft_OUTPORT" to="b_cmdConcate.lHand_INPORT" latex="cmd_{hand,l}" />

@@ -47,6 +47,7 @@ orocos_component(velma_task_cs_ros_interface
     src/components/cart_imp_action.cpp
     src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/components/HeadInternalSpaceSplineTrajectoryAction.cpp
+    src/components/vector_split15_2_8_8.cpp
 )
 target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

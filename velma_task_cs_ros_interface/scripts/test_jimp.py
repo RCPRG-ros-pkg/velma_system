@@ -32,6 +32,10 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
+    velma.enableT()
+    if velma.waitForT() != 0:
+        print "ERROR: could not enable torso motor"
+        exit(1)
 
     print "moving to current position"
     js = velma.getLastJointState()

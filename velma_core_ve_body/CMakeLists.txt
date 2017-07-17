@@ -57,6 +57,7 @@ orocos_component(velma_core_ve_body
     src/components/hw_state.cpp
     src/components/lwr_status_sync.cpp
     src/components/transparent_cmd.cpp
+    src/components/transmissions.cpp
 )
 target_link_libraries(velma_core_ve_body ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

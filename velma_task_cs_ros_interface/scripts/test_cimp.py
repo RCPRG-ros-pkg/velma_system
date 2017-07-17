@@ -18,6 +18,11 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
+    velma.enableT()
+    if velma.waitForT() != 0:
+        print "ERROR: could not enable torso motor"
+        exit(1)
+
     q_map_1 = {'torso_0_joint':0.0,
         'right_arm_0_joint':-0.3,
         'right_arm_1_joint':-1.57,
