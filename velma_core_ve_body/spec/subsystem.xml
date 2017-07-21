@@ -9,20 +9,18 @@
         <out alias="lo_rLwr_cmd"    type="velma_core_ve_re_lwr_msgs::Command"   side="bottom" />
         <in alias="lo_lLwr_st"      type="velma_core_ve_re_lwr_msgs::Status"    side="bottom" />
         <out alias="lo_lLwr_cmd"    type="velma_core_ve_re_lwr_msgs::Command"   side="bottom" />
-
     </buffers>
 
-    <trigger_methods>
-        <read_buffers min_period="0.0008" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
+    <buffer_groups>
+        <buffer_group name="command" >
+            <obligatory name="hi_cmd" />
+        </buffer_group>
+        <buffer_group name="status" >
             <obligatory name="lo_ec_st" />
             <optional name="lo_rLwr_st" />
             <optional name="lo_lLwr_st" />
-        </read_buffers>
-
-        <read_buffers min_period="0.0008" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
-            <obligatory name="hi_cmd" />
-        </read_buffers>
-    </trigger_methods>
+        </buffer_group>
+    </buffer_groups>
 
     <predicates>
         <predicate name="safeIterationsPassed500" />
@@ -141,30 +139,36 @@
             <next_state name="safe_st" init_cond="recvStatus and ((not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState) or (not tMotorOk) or (not hpMotorOk) or (not htMotorOk))"/>
             <next_state name="safe_st_ok" init_cond="recvStatus and rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState and tMotorOk and hpMotorOk and htMotorOk"/>
             <next_state name="idle" init_cond="(not recvStatus)"/>
+            <buffer_group name="status" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
         <state name="safe_st">
             <behavior name="safe_st" />
             <next_state name="safe" init_cond="TRUE"/>
+            <buffer_group name="command" min_period="0" first_timeout="0.0006" next_timeout="0.0006" first_timeout_sim="1.0" />
         </state>
         <state name="safe_st_ok">
             <behavior name="safe_st" />
             <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk) or (not cmdExitSafeState) or (not safeIterationsPassed500)"/>
             <next_state name="transp" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk and cmdExitSafeState and safeIterationsPassed500"/>
+            <buffer_group name="command" min_period="0" first_timeout="0.0006" next_timeout="0.0006" first_timeout_sim="1.0" />
         </state>
         <state name="transp">
             <behavior name="transp" />
             <next_state name="safe_st" init_cond="recvStatus and ((not rLwrOk) or (not lLwrOk) or (not rLwrInCmdState) or (not lLwrInCmdState) or (not tMotorOk) or (not hpMotorOk) or (not htMotorOk))"/>
             <next_state name="transp_st" init_cond="recvStatus and rLwrOk and lLwrOk and rLwrInCmdState and lLwrInCmdState and tMotorOk and hpMotorOk and htMotorOk"/>
             <next_state name="idle" init_cond="(not recvStatus)"/>
+            <buffer_group name="status" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
         <state name="transp_st">
             <behavior name="transp_st" />
             <next_state name="transp" init_cond="recvCommand and rLwrCmdOk and lLwrCmdOk and tCmdOk"/>
             <next_state name="safe" init_cond="(not recvCommand) or (not rLwrCmdOk) or (not lLwrCmdOk) or (not tCmdOk)"/>
+            <buffer_group name="command" min_period="0" first_timeout="0.0006" next_timeout="0.0006" first_timeout_sim="1.0" />
         </state>
         <state name="idle">
             <behavior name="idle" />
             <next_state name="safe_st" init_cond="recvStatus"/>
+            <buffer_group name="status" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
     </states>
 

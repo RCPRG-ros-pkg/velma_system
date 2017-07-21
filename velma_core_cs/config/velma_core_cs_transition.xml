@@ -311,11 +311,11 @@
     <connection from="master_component.cmd_OUTPORT" to="cmdSplit.msg_INPORT" latex="cmd_{task}" />
     <connection from="b_cmdConcate.msg_OUTPORT" to="Y.b_cmd_INPORT" latex="cmd_{b}" />
     <connection from="stConcate.msg_OUTPORT" to="Y.st_INPORT" latex="st_{task}" />
-<!--
+
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
     <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
--->
+
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />

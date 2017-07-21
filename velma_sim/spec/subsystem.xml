@@ -10,17 +10,11 @@
         <in alias="ec_cmd"   type="velma_ec_gen_msgs::EcOutput"         side="top"  converter="velma_ec_gen_msgs::EcOutputBufferConverter"/>
     </buffers>
 
-    <trigger_methods>
-<!--        <new_data_on_buffer name="ec_cmd" min="0.001" />
-        <no_data_on_buffer name="ec_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
--->
-<!--        <period value="0.001" />-->
-
-        <read_buffers min_period="0.001" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="0.001" >
+    <buffer_groups>
+        <buffer_group name="command" >
             <optional name="ec_cmd" />
-        </read_buffers>
-
-    </trigger_methods>
+        </buffer_group>
+    </buffer_groups>
 
     <predicates>
     </predicates>
@@ -36,6 +30,7 @@
     <states initial="normal">
         <state name="normal">
             <behavior name="normal" />
+            <buffer_group name="command" min_period="0.001" first_timeout="0" next_timeout="0" first_timeout_sim="0" />
         </state>
     </states>
 

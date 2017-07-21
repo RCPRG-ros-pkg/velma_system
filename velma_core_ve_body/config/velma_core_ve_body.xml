@@ -45,7 +45,6 @@
 
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" />
     <component name="hw_state"      type="velma_core_ve_body_types::HwState" />
-<!--    <component name="cmd_buffer"    type="velma_core_ve_body_types::CommandBuffer" />-->
 
     <component name="rHand" type="BarrettHand" >
         <service name="can_queue" />
@@ -69,15 +68,15 @@
 
     <io_buffer alias="lo_ec_st" name="EC_Status" />
     <io_buffer alias="lo_ec_cmd" name="EC_Command" />
-<!--
+
     <ros_stream port="master_component.hi_cmd_OUTPORT"      topic="/velma_core_ve_body/hi_cmd" />
-    <ros_stream port="hi_stConcate.msg_OUTPORT"             topic="/velma_core_ve_body/hi_st" />
+<!--    <ros_stream port="hi_stConcate.msg_OUTPORT"             topic="/velma_core_ve_body/hi_st" />-->
     <ros_stream port="master_component.lo_rLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_st" />
+    <ros_stream port="lo_rLwr_cmdConcate.msg_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_cmd" />
     <ros_stream port="master_component.lo_lLwr_st_OUTPORT"              topic="/velma_core_ve_body/lo_lLwr_st" />
     <ros_stream port="master_component.lo_ec_st_OUTPORT"                topic="/velma_core_ve_body/lo_ec_st" />
     <ros_stream port="lo_ec_cmdConcate.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_cmd" />
     <ros_stream port="lwr_sync_r.rob_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_rob_sync" />
--->
 
     <connection from="safe_t.i_OUTPORT" to="driver_t.desired_i_INPORT" />
 
@@ -190,6 +189,9 @@
     </connection>
     <connection from="lHand.q_OUTPORT"              to="hi_stConcate.lHand_q_INPORT" />
     <connection from="lHand.status_OUTPORT"         to="hi_stConcate.lHand_s_INPORT" />
+
+    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_l.rx_queue_INPORT" />
+    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_r.rx_queue_INPORT" />
 
     <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" />
     <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANright_Box11CANInterfaceOUT_TxQueue_INPORT" />

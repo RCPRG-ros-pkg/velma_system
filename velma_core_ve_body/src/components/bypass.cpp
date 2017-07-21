@@ -46,13 +46,13 @@ private:
 BypassCommand::BypassCommand(const std::string &name)
     : BypassComponent(name)
 {
-    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("lArm_t_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("rArm_t_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<int32_t > >("tact_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("rHand_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("lHand_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("rHandReset_INPORT") );
-    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("lHandReset_INPORT") );
+    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("lArm_t") );
+    addInputPort( std::make_shared< RTT::InputPort<ArmJoints > >("rArm_t") );
+    addInputPort( std::make_shared< RTT::InputPort<int32_t > >("tact") );
+    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("rHand") );
+    addInputPort( std::make_shared< RTT::InputPort<barrett_hand_msgs::CommandHand > >("lHand") );
+    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("rHandReset") );
+    addInputPort( std::make_shared< RTT::InputPort<uint8_t > >("lHandReset") );
 }
 
 }   //namespace velma_core_ve_body_types

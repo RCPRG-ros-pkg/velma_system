@@ -100,6 +100,10 @@
         joint_name: leftFtSensorJoint
         transform_xyz: [0, 0, 0]
         transform_rpy: [0, 0, 0]
+      can_queue_tx_r:
+        invert_rx_tx: true
+      can_queue_tx_l:
+        invert_rx_tx: true
     </rosparam>
   </group>
 </launch>

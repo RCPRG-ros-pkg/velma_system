@@ -59,6 +59,9 @@
     <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="ec_stConcate.CANright_Box11CANInterfaceIN_RxQueue_INPORT" />
     <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="ec_stConcate.CANleft_Box10CANInterfaceIN_RxQueue_INPORT" />
 
+    <connection from="ec_cmdSplit.CANleft_Box10CANInterfaceOUT_TxQueue_OUTPORT" to="can_queue_tx_l.rx_queue_INPORT" />
+    <connection from="ec_cmdSplit.CANright_Box11CANInterfaceOUT_TxQueue_OUTPORT" to="can_queue_tx_r.rx_queue_INPORT" />
+
 <!--
 ec_cmdSplit.FTsensorleft
 ec_cmdSplit.FTsensorright

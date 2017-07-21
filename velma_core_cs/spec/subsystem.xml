@@ -8,13 +8,12 @@
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"/>
     </buffers>
 
-    <trigger_methods>
-        <read_buffers min_period="0.0003" first_timeout="0.0018" next_timeout="0.0011" first_timeout_sim="1.0" >
+    <buffer_groups>
+        <buffer_group name="all_inputs" >
             <obligatory name="b_st" />
             <optional name="cmd" />
-        </read_buffers>
-
-    </trigger_methods>
+        </buffer_group>
+    </buffer_groups>
 
     <predicates>
         <predicate name="veBodyInSafeState" />
@@ -155,6 +154,7 @@
         <state name="idle">
             <behavior name="idle" />
             <next_state name="safe" init_cond="veBodyStatusValid and (not veBodyInSafeState)"/>
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 
         <state name="safe">
@@ -163,6 +163,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 
         <state name="cart_imp">
@@ -171,6 +172,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 
         <state name="jnt_imp">
@@ -179,6 +181,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
     </states>
 

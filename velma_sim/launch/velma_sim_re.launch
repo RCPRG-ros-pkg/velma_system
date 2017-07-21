@@ -15,7 +15,7 @@
     name="velma_sim"
     pkg="subsystem_deployer" type="deployer"
     args="-l $(arg LOG_LEVEL) -x $(find velma_sim)/config/velma_core_re.xml -m velma_sim -p 10 -c 1 --" output="screen">
-    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />
+<!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
   </node>
 
   <param name="/robot_description"
@@ -92,6 +92,10 @@
         arm_q_limits_hi: [2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96]
         arm_dq_limits: [2, 2, 2, 2, 2, 2, 2]
         arm_t_limits: [100.0, 100.0, 100.0, 100.0, 100.0, 60.0, 60.0]
+      can_queue_tx_r:
+        invert_rx_tx: true
+      can_queue_tx_l:
+        invert_rx_tx: true
     </rosparam>
   </group>
 </launch>

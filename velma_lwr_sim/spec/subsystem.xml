@@ -5,17 +5,11 @@
         <in alias="lwr_cmd" type="velma_core_ve_re_lwr_msgs::Command"  side="top" />
     </buffers>
 
-    <trigger_methods>
-<!--        <period value="0.001" />-->
-<!--        <new_data_on_buffer name="lwr_cmd" min="0.001" />
-        <no_data_on_buffer name="lwr_cmd" first_timeout="0.0012" next_timeout="0.001" first_timeout_sim="1.0" />
--->
-
-        <read_buffers min_period="0.001" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="0.001" >
-            <optional name="lwr_cmd" />
-        </read_buffers>
-
-    </trigger_methods>
+    <buffer_groups>
+        <buffer_group name="command" >
+            <obligatory name="lwr_cmd" />
+        </buffer_group>
+    </buffer_groups>
 
     <predicates>
     </predicates>
@@ -31,6 +25,7 @@
     <states initial="normal">
         <state name="normal">
             <behavior name="normal" />
+            <buffer_group name="command" min_period="0.001" first_timeout="0" next_timeout="0" first_timeout_sim="1.0" />
         </state>
     </states>
 

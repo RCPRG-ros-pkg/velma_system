@@ -55,7 +55,6 @@ public:
     std_msgs::Empty reset_in_;
     uint32_t        status_out_;
     Joints q_out_;
-    Joints t_out_;
     //barrett_hand_msgs::BHTemp temp_out_;
 
     // public methods
@@ -84,16 +83,10 @@ public:
     // BarrettHand
     std::vector<std::string> joint_scoped_names_;
 
-//    std::vector<dart::dynamics::Joint*>  joints_dart_;
-
     std::vector<int > too_big_force_counter_;
     bool move_hand_;
 
-    bool clutch_break_[3];
-    double clutch_break_angle_[3];
-
-    double spread_int_;
-    double finger_int_[3];
+    double finger_int_[4];
 
     bool disable_component_;
 
@@ -116,7 +109,6 @@ public:
         max_measured_pressure_in_.setZero();
         //temp_out_.temp.resize(8);
         status_out_ = STATUS_IDLE1 | STATUS_IDLE2 | STATUS_IDLE3 | STATUS_IDLE4;
-        clutch_break_[0] = clutch_break_[1] = clutch_break_[2] = false;
         move_hand_ = false;
     }
 
@@ -128,21 +120,89 @@ public:
         //
         // BarrettHand
         //
-        q_out_.setZero();
-        t_out_.setZero();
 
-        hw_can_.jp_[0] = q_out_(1)*50.0*4096.0/2.0/M_PI;
+        hw_can_.jp_[0] = q_out_(1)*4096.0*50.0/2.0/M_PI;
         hw_can_.p_[0] = (q_out_(2) + q_out_(1)) * 4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
         hw_can_.jp_[1] = q_out_(4)*4096.0*50.0/2.0/M_PI;
-        hw_can_.p_[1] = (q_out_(5) + q_out_(4))*4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
+        hw_can_.p_[1] = (q_out_(5) + q_out_(4)) * 4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
         hw_can_.jp_[2] = q_out_(6)*4096.0*50.0/2.0/M_PI;
-        hw_can_.p_[2] = (q_out_(7) + q_out_(6))*4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
+        hw_can_.p_[2] = (q_out_(7) + q_out_(6)) * 4096.0/(1.0/125.0 + 1.0/375.0)/2.0/M_PI;
         hw_can_.p_[3] = q_out_(0)*35840.0/M_PI;
 
         hw_can_.processPuckMsgs();
+
+        int k2_idx_tab[] = {1, 4, 6, 0};
+        for (int i = 0; i < 4; ++i) {
+            if (hw_can_.move_hand_[i]) {
+                hw_can_.move_hand_[i] = false;
+                finger_int_[i] = q_out_(k2_idx_tab[i]);
+                hw_can_.status_idle_[i] = false;
+                Logger::log() << Logger::Info <<  "move hand " << i << Logger::endl;
+            }
+        }
+
+        std::cout << "int: " << finger_int_[0] << " " << finger_int_[1] << " " << finger_int_[2] << " " << finger_int_[3]
+                << "  pos: " << q_out_(k2_idx_tab[0]) << " " << q_out_(k2_idx_tab[1]) << " " << q_out_(k2_idx_tab[2]) << " " << q_out_(k2_idx_tab[3])
+                << "  dst: " << hw_can_.q_in_[0] << " " << hw_can_.q_in_[1] << " " << hw_can_.q_in_[2] << " " << hw_can_.q_in_[3] << std::endl;
+        if (!hw_can_.status_idle_[3]) {
+            // spread joints
+            if (finger_int_[3] > hw_can_.q_in_[3]) {
+                finger_int_[3] -= hw_can_.v_in_[3];
+                if (finger_int_[3] <= hw_can_.q_in_[3]) {
+                    hw_can_.status_idle_[3] = true;
+                    Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
+                }
+            }
+            else if (finger_int_[3] < hw_can_.q_in_[3]) {
+                finger_int_[3] += hw_can_.v_in_[3];
+                if (finger_int_[3] >= hw_can_.q_in_[3]) {
+                    hw_can_.status_idle_[3] = true;
+                    Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
+                }
+            }
+        }
+
+        // finger joints
+        const int k2_dof_tab[3] = {0, 1, 2};
+        const int k2_jnt_tab[3] = {1, 4, 6};
+        const int k3_jnt_tab[3] = {2, 5, 7};
+        for (int fidx = 0; fidx < 3; fidx++) {
+            int k2_dof = k2_dof_tab[fidx];
+            int k2_jnt = k2_jnt_tab[fidx];
+            int k3_jnt = k3_jnt_tab[fidx];
+            if (!hw_can_.status_idle_[fidx]) {
+                if (finger_int_[fidx] > hw_can_.q_in_[k2_dof]) {
+                    finger_int_[fidx] -= hw_can_.v_in_[k2_dof];
+                    if (finger_int_[fidx] <= hw_can_.q_in_[k2_dof]) {
+                        hw_can_.status_idle_[fidx] = true;
+                        Logger::log() << Logger::Info << "finger " << fidx << " idle -- opening" << Logger::endl;
+                    }
+                }
+                else {
+                    finger_int_[fidx] += hw_can_.v_in_[k2_dof];
+                    if (finger_int_[fidx] >= hw_can_.q_in_[k2_dof]) {
+                        hw_can_.status_idle_[fidx] = true;
+                        Logger::log() << Logger::Info << "finger " << fidx << " idle -- closing" << Logger::endl;
+                    }
+                }
+            }
+        }
+
+        for (int i = 0; i < 4; ++i) {
+            q_out_(k2_idx_tab[i]) = finger_int_[i];
+        }
+        q_out_(2) = q_out_(1)/3.0;
+        q_out_(5) = q_out_(4)/3.0;
+        q_out_(7) = q_out_(6)/3.0;
+        q_out_(3) = q_out_(0);
+
     }
 
     bool BarrettHandSim::startHook() {
+      for (int i = 0; i < 4; ++i) {
+          finger_int_[i] = 0;
+      }
+
       return true;
     }
 
@@ -159,10 +219,6 @@ public:
         }
 
         hw_can_.configure(this, can_id_base_);
-
-        for (int i = 0; i < 3; i++) {
-            clutch_break_[i] = false;
-        }
 
         return true;
     }
