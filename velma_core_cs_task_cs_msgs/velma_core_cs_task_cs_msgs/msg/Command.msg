@@ -8,6 +8,9 @@ bool jnt_valid
 CommandHead head        # subsystem_buffer{type: port; validity: head_valid}
 bool head_valid
 
+bool safe_col           # subsystem_buffer{type: port; validity: safe_col_valid}
+bool safe_col_valid
+
 barrett_hand_msgs/CommandHand handRight    # subsystem_buffer{type: container; validity: handRight_valid}
 bool handRight_valid
 

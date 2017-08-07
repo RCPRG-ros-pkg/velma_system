@@ -31,6 +31,19 @@ if __name__ == "__main__":
         exitError(1)
     print "init ok"
 
+    if velma.enableMotors() != 0:
+        exitError(14)
+
+    print "sending head pan START_HOMING command"
+    velma.startHomingHP()
+    if velma.waitForHP() != 0:
+        exitError(14)
+
+    print "sending head tilt START_HOMING command"
+    velma.startHomingHT()
+    if velma.waitForHT() != 0:
+        exitError(15)
+
     print "reset left"
     velma.resetHandLeft()
     if velma.waitForHandLeft() != 0:

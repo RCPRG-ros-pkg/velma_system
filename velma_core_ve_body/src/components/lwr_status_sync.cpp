@@ -35,16 +35,12 @@
 #include <lwr_msgs/FriIntfState.h>
 #include <geometry_msgs/Wrench.h>
 
-#include <Eigen/Dense>
-
 using namespace RTT;
 
 namespace velma_core_ve_body_types {
 
 class LwrStatusSync: public RTT::TaskContext {
 public:
-    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
     explicit LwrStatusSync(const std::string &name);
 
     bool startHook();
@@ -54,8 +50,6 @@ public:
     void updateHook();
 
 private:
-//    typedef Eigen::Matrix<double, 7, 1 > ArmJoints;
-//    typedef Eigen::Matrix<double, 7, 7 > ArmMassMatrix;
     typedef boost::array<double, 7 > ArmJoints;
     typedef boost::array<double, 28 > ArmMassMatrix;
 

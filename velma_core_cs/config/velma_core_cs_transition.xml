@@ -18,6 +18,7 @@
     <import package="rtt_barrett_hand_msgs" />
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
+    <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
     <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,r}" />
     <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,l}" />
 
@@ -122,12 +123,21 @@
     <connection from="cmdSplit.t_enable_OUTPORT"                    to="b_cmdConcate.tMotor_enable_INPORT" />
 
 
+    <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRep.mInv_INPORT" name="M" latex="M" />
+    <connection from="C_q_all.Out" to="ColDetRep.q_INPORT" name="q" latex="q" />
+    <connection from="C_dq_all.Out" to="ColDetRep.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRep.Nt_INPORT" name="t" latex="t" />
+<!--    <connection from="ColDetRep.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
+    <connection from="ColDetRep.t_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+
+    <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="ColDetRep.Nt_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDet.dq_INPORT" name="dq" latex="\dot{q}" />
     <connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_q_body.Out" to="ColDetWrL.JointPosition_INPORT" name="q_body" latex="q_{b}" />
 
-    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+<!--Cimp has lower priority than JntLimit    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />-->
     <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="wcc_r.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_r.MassMatrixInv_INPORT" name="M" latex="M" />
@@ -283,11 +293,31 @@
     <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntLimit.MassMatrix_INPORT" name="M" latex="M" />
+
+<!-- Cimp has lower priority than JntLimit
     <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="CImp.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{b,cmd}" />
+-->
+    <connection from="CImp.JointTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+<!-- JntLimit has lower priority than ColDetRep
+    <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{b,cmd}" />
+-->
+
     <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" latex="st_{b}" />
     <connection from="C_q_body.Out" to="safe.JointPosition_INPORT" name="q_body" latex="q_{body}" />
     <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b, cmd}" />
     <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
+
+    <connection from="b_stSplit.htMotor_q_OUTPORT" to="safe.ht_q_INPORT" />
+    <connection from="b_stSplit.hpMotor_q_OUTPORT" to="safe.hp_q_INPORT" />
+    <connection from="b_stSplit.htMotor_enabled_OUTPORT" to="safe.ht_enabled_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="safe.ht_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT" to="safe.hp_enabled_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="safe.hp_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT" to="safe.hp_enabled_INPORT" />
+
+    <connection from="safe.ht_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
+    <connection from="safe.hp_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
+
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
     <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" latex="st_{b}" />
     <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />

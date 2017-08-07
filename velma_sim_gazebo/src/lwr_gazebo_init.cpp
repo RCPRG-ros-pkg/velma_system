@@ -67,7 +67,10 @@
         this->ports()->addPort(port_JointTorque_out_);
         this->ports()->addPort(port_GravityTorque_out_);
         this->ports()->addPort(port_JointPosition_out_);
-        JointTorqueCommand_in_.setZero();
+
+        for (int i = 0; i < 7; ++i) {
+            JointTorqueCommand_in_[i] = 0;
+        }
 
         command_mode_ = false;
     }

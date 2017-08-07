@@ -47,7 +47,9 @@ private:
 
     // ports
     velma_core_cs_ve_body_msgs::StatusSC sc_out_;
-    RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC> port_sc_out_;
+    RTT::OutputPort<velma_core_cs_ve_body_msgs::StatusSC > port_sc_out_;
+
+    RTT::OutputPort<uint32_t > port_safe_iterations_out_;
 
     uint32_t safe_iterations_;
     bool safe_iterations_over_500_;
@@ -58,6 +60,7 @@ SafeComponent::SafeComponent(const std::string &name)
     , safe_iterations_over_500_(false)
 {
     this->ports()->addPort("sc_OUTPORT", port_sc_out_);
+    this->ports()->addPort("safe_iterations_OUTPORT", port_safe_iterations_out_);
 
     addAttribute("safeIterationsOver500", safe_iterations_over_500_);
 }
@@ -96,6 +99,8 @@ void SafeComponent::updateHook() {
     else {
         safe_iterations_over_500_ = false;
     }
+
+    port_safe_iterations_out_.write(safe_iterations_);
 }
 
 }   // velma_core_ve_body_types

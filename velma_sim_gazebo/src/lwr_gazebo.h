@@ -53,7 +53,7 @@ typedef Eigen::Matrix<double, 7, 7> Matrix77d;
 class LWRGazebo : public RTT::TaskContext
 {
 protected:
-    typedef Eigen::Matrix<double, 7, 1> Joints;
+    typedef boost::array<double, 7 > Joints;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

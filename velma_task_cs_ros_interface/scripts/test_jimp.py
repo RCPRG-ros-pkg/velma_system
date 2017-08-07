@@ -32,10 +32,21 @@ if __name__ == "__main__":
     velma.waitForInit()
     print "init ok"
 
-    velma.enableT()
-    if velma.waitForT() != 0:
-        print "ERROR: could not enable torso motor"
-        exit(1)
+#
+#
+#
+    if velma.enableMotors() != 0:
+        exitError(14)
+
+    print "sending head pan START_HOMING command"
+    velma.startHomingHP()
+    if velma.waitForHP() != 0:
+        exitError(14)
+
+    print "sending head tilt START_HOMING command"
+    velma.startHomingHT()
+    if velma.waitForHT() != 0:
+        exitError(15)
 
     print "moving to current position"
     js = velma.getLastJointState()
@@ -55,6 +66,11 @@ if __name__ == "__main__":
 
     velma.moveJoint(q_dest_0, joint_names, 0.1, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
+
+    rospy.sleep(2.0)
+
+    if velma.enableMotors() != 0:
+        exitError(14)
 
     print "waiting 2 seconds..."
     rospy.sleep(2)

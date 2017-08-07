@@ -57,6 +57,9 @@
     <component name="can_queue_tx_l" type="CanQueueTxComponent10" />
     <component name="can_queue_tx_r" type="CanQueueTxComponent10" />
 
+    <component name="FtSensorLeft" type="FtSensor" />
+    <component name="FtSensorRight" type="FtSensor" />
+
     <io_buffer alias="hi_st" name="velma_core_cs_ve_body_msgs_Status" />
     <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_msgs_Command" />
 
@@ -78,12 +81,44 @@
     <ros_stream port="lo_ec_cmdConcate.msg_OUTPORT"                topic="/velma_core_ve_body/lo_ec_cmd" />
     <ros_stream port="lwr_sync_r.rob_OUTPORT"              topic="/velma_core_ve_body/lo_rLwr_rob_sync" />
 
+    <connection from="safe.safe_iterations_OUTPORT"     to="safe_hp.cycle_counter_INPORT" />
+    <connection from="safe.safe_iterations_OUTPORT"     to="safe_ht.cycle_counter_INPORT" />
+
     <connection from="safe_t.i_OUTPORT" to="driver_t.desired_i_INPORT" />
 
     <connection from="safe_hp.q_OUTPORT" to="driver_hp.desired_q_INPORT" />
 
     <connection from="safe_ht.q_OUTPORT" to="driver_ht.desired_q_INPORT" />
 
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FxGage0_OUTPORT"          to="FtSensorLeft.FxGage0_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FyGage1_OUTPORT"          to="FtSensorLeft.FyGage1_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FzGage2_OUTPORT"          to="FtSensorLeft.FzGage2_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TxGage3_OUTPORT"          to="FtSensorLeft.TxGage3_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TyGage4_OUTPORT"          to="FtSensorLeft.TyGage4_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TzGage5_OUTPORT"          to="FtSensorLeft.TzGage5_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_StatusCode_OUTPORT"       to="FtSensorLeft.StatusCode_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_SampleCounter_OUTPORT"    to="FtSensorLeft.SampleCounter_INPORT" />
+    <connection from="FtSensorLeft.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control1_INPORT" />
+    <connection from="FtSensorLeft.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control2_INPORT" />
+
+    <connection from="FtSensorLeft.w_OUTPORT" to="hi_stConcate.lFt_rw_INPORT" />
+    <connection from="FtSensorLeft.fw_OUTPORT" to="hi_stConcate.lFt_sfw_INPORT" />
+    <connection from="FtSensorLeft.ffw_OUTPORT" to="hi_stConcate.lFt_ffw_INPORT" />
+
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FxGage0_OUTPORT"          to="FtSensorRight.FxGage0_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FyGage1_OUTPORT"          to="FtSensorRight.FyGage1_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FzGage2_OUTPORT"          to="FtSensorRight.FzGage2_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TxGage3_OUTPORT"          to="FtSensorRight.TxGage3_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TyGage4_OUTPORT"          to="FtSensorRight.TyGage4_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TzGage5_OUTPORT"          to="FtSensorRight.TzGage5_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_StatusCode_OUTPORT"       to="FtSensorRight.StatusCode_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_SampleCounter_OUTPORT"    to="FtSensorRight.SampleCounter_INPORT" />
+    <connection from="FtSensorRight.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control1_INPORT" />
+    <connection from="FtSensorRight.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control2_INPORT" />
+
+    <connection from="FtSensorRight.w_OUTPORT" to="hi_stConcate.rFt_rw_INPORT" />
+    <connection from="FtSensorRight.fw_OUTPORT" to="hi_stConcate.rFt_sfw_INPORT" />
+    <connection from="FtSensorRight.ffw_OUTPORT" to="hi_stConcate.rFt_ffw_INPORT" />
 
 <!--    <connection from="hi_cmdSplit._OUTPORT" to="cmd_buffer.cmd_INPORT" />-->
 
@@ -138,6 +173,7 @@
     <connection from="driver_hp.enabled_OUTPORT"                to="hi_stConcate.hpMotor_enabled_INPORT" />
     <connection from="hi_cmdSplit.hpMotor_homing_start_OUTPORT" to="driver_hp.homing_start_INPORT" />
     <connection from="hi_cmdSplit.hpMotor_enable_OUTPORT"       to="driver_hp.enable_INPORT" />
+    <connection from="safe_hp.disable_OUTPORT"                  to="driver_hp.disable_INPORT" />
 
     <connection from="driver_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
     <connection from="driver_ht.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadTilt_Outputs_Controlword_INPORT" />
@@ -147,11 +183,13 @@
     <connection from="driver_ht.enabled_OUTPORT"                to="hi_stConcate.htMotor_enabled_INPORT" />
     <connection from="hi_cmdSplit.htMotor_homing_start_OUTPORT" to="driver_ht.homing_start_INPORT" />
     <connection from="hi_cmdSplit.htMotor_enable_OUTPORT"       to="driver_ht.enable_INPORT" />
+    <connection from="safe_ht.disable_OUTPORT"                  to="driver_ht.disable_INPORT" />
 
     <connection from="driver_t.homing_required_OUTPORT"        to="hi_stConcate.tMotor_homing_required_INPORT" />
     <connection from="driver_t.homing_in_progress_OUTPORT"     to="hi_stConcate.tMotor_homing_in_progress_INPORT" />
     <connection from="driver_t.enabled_OUTPORT"                to="hi_stConcate.tMotor_enabled_INPORT" />
     <connection from="hi_cmdSplit.tMotor_enable_OUTPORT"       to="driver_t.enable_INPORT" />
+    <connection from="safe_t.disable_OUTPORT"                  to="driver_t.disable_INPORT" />
 
     <connection from="lwr_sync_r.dq_OUTPORT"    to="safe_lwr_r.dq_INPORT" name="dq" />
     <connection from="lwr_sync_r.fri_OUTPORT"   to="safe_lwr_r.friIntf_INPORT" />

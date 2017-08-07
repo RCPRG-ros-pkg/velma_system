@@ -29,6 +29,8 @@
     <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/motors/ht" />
     <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/motors/t" />
 
+    <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/safe_col_action" />
+
 <!--    <component type="TfPublisher"                                   name="TfPub"                running="true" />-->
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
@@ -39,6 +41,7 @@
     <ros_stream port="TfPub.OutTf"                  topic="/tf" />
 -->
 
+    <connection from="SafeColAction.cmd_OUTPORT"                to="cmdConcate.safe_col_INPORT" />
 
     <connection from="stSplit.hp_homing_required_OUTPORT"       to="hpAction.homing_required_INPORT" />
     <connection from="stSplit.hp_homing_in_progress_OUTPORT"    to="hpAction.homing_in_progress_INPORT" />

@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_behavior
   controller_common
   planner
+  behavior_switch_action_msgs
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
@@ -48,6 +49,7 @@ orocos_component(velma_task_cs_ros_interface
     src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/components/HeadInternalSpaceSplineTrajectoryAction.cpp
     src/components/vector_split15_2_8_8.cpp
+    src/components/safe_col_action.cpp
 )
 target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

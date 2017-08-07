@@ -65,7 +65,6 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
 // Update the controller
 void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
-
     if (joint_.get() == NULL) {
         return;
     }
@@ -81,42 +80,43 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(force.x, force.y, force.z), -KDL::Vector(torque.x, torque.y, torque.z) );
     KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
 
-    slow_filtered_wrench_ = KDL::Wrench();
-    for (int i = 0; i < slow_buffer_size_; i++) {
-        slow_filtered_wrench_ += slow_buffer_[i];
-    }
-    slow_filtered_wrench_ = slow_filtered_wrench_ / slow_buffer_size_;
+//    slow_filtered_wrench_ = KDL::Wrench();
+//    for (int i = 0; i < slow_buffer_size_; i++) {
+//        slow_filtered_wrench_ += slow_buffer_[i];
+//    }
+//    slow_filtered_wrench_ = slow_filtered_wrench_ / slow_buffer_size_;
 
-//        slow_filtered_wrench_ = slow_filtered_wrench_
-//            + wr_S / slow_buffer_size_
-//            - slow_buffer_[slow_buffer_index_] / slow_buffer_size_;
-
-    slow_buffer_[slow_buffer_index_] = wr_S;
-    if ((++slow_buffer_index_) == slow_buffer_size_) {
-        slow_buffer_index_ = 0;
-    }
+//    slow_buffer_[slow_buffer_index_] = wr_S;
+//    if ((++slow_buffer_index_) == slow_buffer_size_) {
+//        slow_buffer_index_ = 0;
+//    }
 
 
-    fast_filtered_wrench_ = KDL::Wrench();
-    for (int i = 0; i < fast_buffer_size_; i++) {
-        fast_filtered_wrench_ += fast_buffer_[i];
-    }
-    fast_filtered_wrench_ = fast_filtered_wrench_ / fast_buffer_size_;
+//    fast_filtered_wrench_ = KDL::Wrench();
+//    for (int i = 0; i < fast_buffer_size_; i++) {
+//        fast_filtered_wrench_ += fast_buffer_[i];
+//    }
+//    fast_filtered_wrench_ = fast_filtered_wrench_ / fast_buffer_size_;
 
-//        fast_filtered_wrench_ = fast_filtered_wrench_
-//            + wr_S / fast_buffer_size_
-//            - fast_buffer_[fast_buffer_index_] / fast_buffer_size_;
-
-    fast_buffer_[fast_buffer_index_] = wr_S;
-    if ((++fast_buffer_index_) == fast_buffer_size_) {
-        fast_buffer_index_ = 0;
-    }
+//    fast_buffer_[fast_buffer_index_] = wr_S;
+//    if ((++fast_buffer_index_) == fast_buffer_size_) {
+//        fast_buffer_index_ = 0;
+//    }
 
     {
         RTT::os::MutexLock lock(gazebo_mutex_);
-        WrenchKDLToMsg(wr_S, raw_wrench_out_);
-        WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
-        WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
+//        WrenchKDLToMsg(wr_S, raw_wrench_out_);
+//        WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
+//        WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
+
+// TODO: data conversion:
+        double mult = 1000000.0;
+        FxGage0_out_ = wr_S.force.x() * mult;
+        FyGage1_out_ = wr_S.force.y() * mult;
+        FzGage2_out_ = wr_S.force.z() * mult;
+        TxGage3_out_ = wr_S.torque.x() * mult;
+        TyGage4_out_ = wr_S.torque.y() * mult;
+        TzGage5_out_ = wr_S.torque.z() * mult;
         data_valid_ = true;
     }
 }

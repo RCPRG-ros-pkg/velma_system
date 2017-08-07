@@ -39,12 +39,15 @@ from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from motor_action_msgs.msg import *
+from behavior_switch_action_msgs.msg import *
 import actionlib
 from trajectory_msgs.msg import *
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTolerance
 import tf_conversions.posemath as pm
 
 import PyKDL
+
+import xml.dom.minidom as minidom
 
 # reference frames:
 # WO - world
@@ -64,6 +67,17 @@ class VelmaInterface:
     """
 Class used as Velma robot Interface.
 """
+
+    class VisualMesh:
+        def __init__(self):
+            self.type = "mesh"
+            self.origin = None
+            self.filename = None
+
+    class Link:
+        def __init__(self):
+            self.name = None
+            self.visuals = []
 
     def getLastJointState(self):
         result = None
@@ -147,6 +161,14 @@ Class used as Velma robot Interface.
             self.action_joint_traj_client_connected = self.action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
         allConnected = allConnected and self.action_joint_traj_client_connected
 
+        if not self.action_head_joint_traj_client_connected:
+            self.action_head_joint_traj_client_connected = self.action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self.action_head_joint_traj_client_connected
+
+        if not self.action_safe_col_client_connected:
+            self.action_safe_col_client_connected = self.action_safe_col_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self.action_safe_col_client_connected
+
         for motor in self.action_motor_client_connected:
             if not self.action_motor_client_connected[motor]:
                 self.action_motor_client_connected[motor] = self.action_motor_client[motor].wait_for_server(rospy.Duration.from_sec(0.001))
@@ -170,7 +192,8 @@ Class used as Velma robot Interface.
                 print "ERROR: waitForInit: ", can_break, self.action_move_hand_client_connected["right"],\
                     self.action_move_hand_client_connected["left"], self.action_cart_traj_client_connected["right"],\
                     self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected,\
-                    self.action_head_joint_traj_client_connected, self.action_motor_client_connected
+                    self.action_head_joint_traj_client_connected, self.action_motor_client_connected,\
+                    self.action_safe_col_client_connected
                 return False
         return True
 
@@ -201,7 +224,49 @@ Class used as Velma robot Interface.
 
         self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
-        print "self.all_joint_names", self.all_joint_names
+        self.all_links = []
+
+        robot_description_xml = rospy.get_param("/robot_description")
+        print robot_description_xml
+
+        dom = minidom.parseString(robot_description_xml)
+        robot = dom.getElementsByTagName("robot")
+        if len(robot) != 1:
+            raise Exception("Could not parse robot_description xml: wrong number of 'robot' elements.")
+        links = robot[0].getElementsByTagName("link")
+        for l in links:
+            name = l.getAttribute("name")
+            if name == None:
+                raise Exception("Could not parse robot_description xml: link element has no name.")
+
+            obj_link = self.Link()
+            obj_link.name = name
+
+            visual = l.getElementsByTagName("visual")
+            for v in visual:
+                origin = v.getElementsByTagName("origin")
+                if len(origin) != 1:
+                    raise Exception("Could not parse robot_description xml: wrong number of origin elements in link " + name)
+                rpy = origin[0].getAttribute("rpy").split()
+                xyz = origin[0].getAttribute("xyz").split()
+                frame = PyKDL.Frame(PyKDL.Rotation.RPY(float(rpy[0]), float(rpy[1]), float(rpy[2])), PyKDL.Vector(float(xyz[0]), float(xyz[1]), float(xyz[2])))
+                geometry = v.getElementsByTagName("geometry")
+                if len(geometry) != 1:
+                    raise Exception("Could not parse robot_description xml: wrong number of geometry elements in link " + name)
+                mesh = geometry[0].getElementsByTagName("mesh")
+                if len(mesh) == 1:
+                    obj_visual = self.VisualMesh()
+                    obj_visual.filename = mesh[0].getAttribute("filename")
+                    print "link:", name, " mesh:", obj_visual.filename
+                    obj_visual.origin = frame
+                    obj_link.visuals.append( obj_visual )
+                else:
+                    print "link:", name, " other visual"
+
+            self.all_links.append(obj_link)
+
+        #print "self.all_links", self.all_links
+        #print "self.all_joint_names", self.all_joint_names
 
         self.js_pos = {}
         self.js_pos_history = []
@@ -236,6 +301,7 @@ Class used as Velma robot Interface.
         self.action_cart_traj_client_connected = {'right':False, 'left':False}
         self.action_joint_traj_client_connected = False
         self.action_head_joint_traj_client_connected = False
+        self.action_safe_col_client_connected = False
 
         self.action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
 
@@ -250,6 +316,8 @@ Class used as Velma robot Interface.
 
         # joint trajectory for head
         self.action_head_joint_traj_client = actionlib.SimpleActionClient("/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
+
+        self.action_safe_col_client = actionlib.SimpleActionClient("/safe_col_action", BehaviorSwitchAction)
 
         # motor actions for head
         self.action_motor_client = {
@@ -346,6 +414,11 @@ Class used as Velma robot Interface.
     def wrenchROStoKDL(self, wrROS):
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
+    def switchToSafeColBehavior(self):
+        goal = BehaviorSwitchGoal()
+        goal.command = 1
+        self.action_safe_col_client.send_goal(goal)
+
     def enableMotor(self, motor):
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_ENABLE
@@ -382,6 +455,19 @@ Class used as Velma robot Interface.
     def enableT(self):
         self.enableMotor("t")
 
+    def enableMotors(self, timeout=0):
+        self.enableHP()
+        self.enableHT()
+        self.enableT()
+        r_hp = self.waitForHP(timeout_s=timeout)
+        r_ht = self.waitForHT(timeout_s=timeout)
+        r_t = self.waitForT(timeout_s=timeout)
+        if r_hp != 0:
+            return r_hp
+        if r_ht != 0:
+            return r_ht
+        return r_t
+
     def startHomingHP(self):
         self.startHomingMotor("hp")
 
@@ -417,6 +503,8 @@ Class used as Velma robot Interface.
         if path_tol != None:
             action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
             action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
+            action_trajectory_goal.goal_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+            action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
         self.current_max_wrench = self.wrenchKDLtoROS(max_wrench)
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self.action_right_cart_traj_feedback_cb)
         return True
@@ -645,6 +733,9 @@ Class used as Velma robot Interface.
 #        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
 #        self.action_joint_traj_client.send_goal(goal)
 
+    def maxJointTrajLen(self):
+        return 50
+
     def moveJointTraj(self, traj, joint_names, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self.body_joint_names
@@ -851,12 +942,17 @@ Class used as Velma robot Interface.
         return False
 
     def getKDLtf(self, base_frame, frame):
-#        try:
         pose = self.listener.lookupTransform(base_frame, frame, rospy.Time(0))
-#        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
-#            print "could not transform: ", base_frame, frame
-#            return None
         return pm.fromTf(pose)
+
+    def getAllLinksTf(self, base_frame):
+        result = {}
+        for l in self.all_links:
+            try:
+                result[l.name] = self.getKDLtf(base_frame, l.name)
+            except:
+                result[l.name] = None
+        return result
 
     fingers_links = {
         (0,0):'_HandFingerOneKnuckleOneLink',

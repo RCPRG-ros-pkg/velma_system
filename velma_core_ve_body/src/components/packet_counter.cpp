@@ -38,11 +38,7 @@ class PacketCounterComponent: public RTT::TaskContext {
 public:
     explicit PacketCounterComponent(const std::string &name);
 
-    bool configureHook();
-
     bool startHook();
-
-    void stopHook();
 
     void updateHook();
 
@@ -55,7 +51,7 @@ private:
 };
 
 PacketCounterComponent::PacketCounterComponent(const std::string &name) :
-    TaskContext(name, PreOperational),
+    TaskContext(name),
     port_packet_counter_out_("packet_counter_OUTPORT"),
     packet_counter_(1)
 {
@@ -70,15 +66,8 @@ std::string PacketCounterComponent::getDiag() {
     return ss.str();
 }
 
-bool PacketCounterComponent::configureHook() {
-    return true;
-}
-
 bool PacketCounterComponent::startHook() {
     return true;
-}
-
-void PacketCounterComponent::stopHook() {
 }
 
 void PacketCounterComponent::updateHook() {

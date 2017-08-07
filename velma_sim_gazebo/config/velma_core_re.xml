@@ -61,6 +61,30 @@
     <connection from="ec_cmdSplit.CANleft_Box10CANInterfaceOUT_TxQueue_OUTPORT" to="can_queue_tx_l.rx_queue_INPORT" />
     <connection from="ec_cmdSplit.CANright_Box11CANInterfaceOUT_TxQueue_OUTPORT" to="can_queue_tx_r.rx_queue_INPORT" />
 
+    <connection from="ec_cmdSplit.CANleft_Box10CANInterfaceOUT_TxQueue_OUTPORT" to="LeftHand.rx_queue_INPORT" />
+
+    <connection from="LeftFtSensor.FxGage0_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_FxGage0_INPORT" />
+    <connection from="LeftFtSensor.FyGage1_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_FyGage1_INPORT" />
+    <connection from="LeftFtSensor.FzGage2_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_FzGage2_INPORT" />
+    <connection from="LeftFtSensor.TxGage3_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_TxGage3_INPORT" />
+    <connection from="LeftFtSensor.TyGage4_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_TyGage4_INPORT" />
+    <connection from="LeftFtSensor.TzGage5_OUTPORT"         to="ec_stConcate.FTsensorleft_Data_TzGage5_INPORT" />
+    <connection from="LeftFtSensor.StatusCode_OUTPORT"      to="ec_stConcate.FTsensorleft_Data_StatusCode_INPORT" />
+    <connection from="LeftFtSensor.SampleCounter_OUTPORT"   to="ec_stConcate.FTsensorleft_Data_SampleCounter_INPORT" />
+    <connection from="ec_cmdSplit.FTsensorleft_Control_Control1_OUTPORT" to="LeftFtSensor.Control1_INPORT" />
+    <connection from="ec_cmdSplit.FTsensorleft_Control_Control2_OUTPORT" to="LeftFtSensor.Control2_INPORT" />
+
+    <connection from="RightFtSensor.FxGage0_OUTPORT"        to="ec_stConcate.FTsensorright_Data_FxGage0_INPORT" />
+    <connection from="RightFtSensor.FyGage1_OUTPORT"        to="ec_stConcate.FTsensorright_Data_FyGage1_INPORT" />
+    <connection from="RightFtSensor.FzGage2_OUTPORT"        to="ec_stConcate.FTsensorright_Data_FzGage2_INPORT" />
+    <connection from="RightFtSensor.TxGage3_OUTPORT"        to="ec_stConcate.FTsensorright_Data_TxGage3_INPORT" />
+    <connection from="RightFtSensor.TyGage4_OUTPORT"        to="ec_stConcate.FTsensorright_Data_TyGage4_INPORT" />
+    <connection from="RightFtSensor.TzGage5_OUTPORT"        to="ec_stConcate.FTsensorright_Data_TzGage5_INPORT" />
+    <connection from="RightFtSensor.StatusCode_OUTPORT"     to="ec_stConcate.FTsensorright_Data_StatusCode_INPORT" />
+    <connection from="RightFtSensor.SampleCounter_OUTPORT"  to="ec_stConcate.FTsensorright_Data_SampleCounter_INPORT" />
+    <connection from="ec_cmdSplit.FTsensorright_Control_Control1_OUTPORT" to="RightFtSensor.Control1_INPORT" />
+    <connection from="ec_cmdSplit.FTsensorright_Control_Control2_OUTPORT" to="RightFtSensor.Control2_INPORT" />
+
 <!--
 ec_cmdSplit.FTsensorleft
 ec_cmdSplit.FTsensorright

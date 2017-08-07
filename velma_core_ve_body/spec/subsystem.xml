@@ -74,6 +74,8 @@
             <running_component name="TorsoPanTransmision" />
             <running_component name="HeadPanTransmision" />
             <running_component name="HeadTiltTransmision" />
+            <running_component name="FtSensorLeft" />
+            <running_component name="FtSensorRight" />
             <running_component name="lwr_sync_r" />
             <running_component name="lwr_sync_l" />
             <running_component name="hi_stConcate" />
@@ -113,6 +115,8 @@
             <running_component name="TorsoPanTransmision" />
             <running_component name="HeadPanTransmision" />
             <running_component name="HeadTiltTransmision" />
+            <running_component name="FtSensorLeft" />
+            <running_component name="FtSensorRight" />
             <running_component name="lwr_sync_r" />
             <running_component name="lwr_sync_l" />
             <running_component name="hi_stConcate" />

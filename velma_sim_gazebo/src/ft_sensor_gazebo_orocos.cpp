@@ -37,9 +37,22 @@ void FtSensorGazebo::updateHook() {
     if (!data_valid_) {
         return;
     }
-    port_raw_wrench_out_.write(raw_wrench_out_);
-    port_slow_filtered_wrench_out_.write(slow_filtered_wrench_out_);
-    port_fast_filtered_wrench_out_.write(fast_filtered_wrench_out_);
+
+    uint32_t Control1 = 0, Control2 = 0;
+    port_Control1_in_.read(Control1);
+    port_Control2_in_.read(Control2);
+
+    port_FxGage0_out_.write(FxGage0_out_);
+    port_FyGage1_out_.write(FyGage1_out_);
+    port_FzGage2_out_.write(FzGage2_out_);
+    port_TxGage3_out_.write(TxGage3_out_);
+    port_TyGage4_out_.write(TyGage4_out_);
+    port_TzGage5_out_.write(TzGage5_out_);
+
+    StatusCode_out_ = 0;    // TODO
+    port_StatusCode_out_.write(StatusCode_out_);
+    port_SampleCounter_out_.write(SampleCounter_out_);
+    ++SampleCounter_out_;
 }
 
 bool FtSensorGazebo::startHook() {

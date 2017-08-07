@@ -30,20 +30,13 @@ if __name__ == "__main__":
         exitError(1)
     print "init ok"
 
-    print "sending head pan ENABLE command"
-    velma.enableHP()
-    if velma.waitForHP() != 0:
-        exitError(16)
+    if velma.enableMotors() != 0:
+        exitError(14)
 
     print "sending head pan START_HOMING command"
     velma.startHomingHP()
     if velma.waitForHP() != 0:
         exitError(14)
-
-    print "sending head tilt ENABLE command"
-    velma.enableHT()
-    if velma.waitForHT() != 0:
-        exitError(17)
 
     print "sending head tilt START_HOMING command"
     velma.startHomingHT()
@@ -97,4 +90,6 @@ if __name__ == "__main__":
         exitError(12)
     if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
         exitError(13)
+
+    exitError(0)
 

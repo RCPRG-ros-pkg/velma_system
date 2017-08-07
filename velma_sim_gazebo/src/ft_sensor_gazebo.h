@@ -42,13 +42,26 @@
 class FtSensorGazebo : public RTT::TaskContext
 {
 public:
-    RTT::OutputPort<geometry_msgs::Wrench> port_raw_wrench_out_;
-    RTT::OutputPort<geometry_msgs::Wrench> port_fast_filtered_wrench_out_;
-    RTT::OutputPort<geometry_msgs::Wrench> port_slow_filtered_wrench_out_;
+    int32_t FxGage0_out_;
+    int32_t FyGage1_out_;
+    int32_t FzGage2_out_;
+    int32_t TxGage3_out_;
+    int32_t TyGage4_out_;
+    int32_t TzGage5_out_;
+    uint32_t StatusCode_out_;
+    uint32_t SampleCounter_out_;
 
-    geometry_msgs::Wrench raw_wrench_out_;
-    geometry_msgs::Wrench fast_filtered_wrench_out_;
-    geometry_msgs::Wrench slow_filtered_wrench_out_;
+    RTT::OutputPort<int32_t > port_FxGage0_out_;
+    RTT::OutputPort<int32_t > port_FyGage1_out_;
+    RTT::OutputPort<int32_t > port_FzGage2_out_;
+    RTT::OutputPort<int32_t > port_TxGage3_out_;
+    RTT::OutputPort<int32_t > port_TyGage4_out_;
+    RTT::OutputPort<int32_t > port_TzGage5_out_;
+    RTT::OutputPort<uint32_t > port_StatusCode_out_;
+    RTT::OutputPort<uint32_t > port_SampleCounter_out_;
+
+    RTT::InputPort<uint32_t > port_Control1_in_;
+    RTT::InputPort<uint32_t > port_Control2_in_;
 
     // public methods
     FtSensorGazebo(std::string const& name);

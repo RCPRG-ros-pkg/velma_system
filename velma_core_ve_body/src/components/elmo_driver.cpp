@@ -98,6 +98,7 @@ private:
     RTT::InputPort<int32_t > port_desired_dq_in_;
     RTT::InputPort<uint8_t > port_homing_start_in_;
     RTT::InputPort<uint8_t > port_enable_in_;
+    RTT::InputPort<uint8_t > port_disable_in_;
 
     bool enable_;
     bool homing_;
@@ -130,6 +131,7 @@ ElmoDriver::ElmoDriver(const std::string &name)
 
     this->ports()->addPort("enabled_OUTPORT", port_enabled_out_);
     this->ports()->addPort("enable_INPORT", port_enable_in_);
+    this->ports()->addPort("disable_INPORT", port_disable_in_);
 
     addProperty("control_mode", control_mode_str_);
     addProperty("homing_done", homing_done_);
@@ -242,6 +244,9 @@ void ElmoDriver::updateHook() {
     uint16_t statusWord_in;
     int32_t q_in;
     int32_t dq_in;
+
+    bool enable_prev = enable_;
+
     if (port_statusWord_in_.read( statusWord_in ) != RTT::NewData) {
 //        Logger::log() << Logger::Error << getName() << " could not read statusWord" << Logger::endl;
         // TODO: verify this
@@ -262,11 +267,17 @@ void ElmoDriver::updateHook() {
 
     if (servo_state_prev != servo_state_) {
 //        Logger::log() << Logger::Info << getName() << " state: " << getServoStateStr(servo_state_) << Logger::endl;
+        std::cout << getName() << " state: " << getServoStateStr(servo_state_) << std::endl;
     }
 
+    uint8_t disable_in = false;
     uint8_t enable_in = false;
-    if (port_enable_in_.read(enable_in) == RTT::NewData && enable_in && servo_state_ == ServoState::SWITCH_ON) {
+    if (port_disable_in_.read(disable_in) == RTT::NewData && disable_in) {
+        enable_ = false;
+    }
+    else if (port_enable_in_.read(enable_in) == RTT::NewData && enable_in && servo_state_ == ServoState::SWITCH_ON) {
 //      Logger::log() << Logger::Info << getName() << " received enable command" << Logger::endl;
+      std::cout << getName() << " received enable command" << std::endl;
       enable_ = true;
     }
 
@@ -300,6 +311,7 @@ void ElmoDriver::updateHook() {
           break;
         case ServoState::QUICK_STOP_ACTIVE:
           enable_ = false;
+          controlWord_out = 0x0f;
           break;
         case ServoState::FAULT_REACTION_ACTIVE:
           enable_ = false;
@@ -400,6 +412,10 @@ void ElmoDriver::updateHook() {
 
   port_homing_required_out_.write(atribute_homing_required_);
   port_homing_in_progress_out_.write(atribute_homing_in_progress_);
+
+  if (enable_prev != enable_) {
+     std::cout << getName() << " enable: " << (enable_?"t":"f") << std::endl;
+  }
 }
 
 }   // velma_core_ve_body_types

@@ -77,6 +77,18 @@ private:
     VectorNd joint_stiffness_command_;
     RTT::OutputPort<VectorNd> port_joint_stiffness_command_;
 
+    RTT::InputPort<double > port_ht_q_in_;
+    RTT::InputPort<double > port_hp_q_in_;
+    RTT::OutputPort<double > port_ht_q_out_;
+    RTT::OutputPort<double > port_hp_q_out_;
+    RTT::InputPort<uint8_t > port_ht_enabled_in_;
+    RTT::InputPort<uint8_t > port_hp_enabled_in_;
+    RTT::InputPort<uint8_t > port_ht_homing_in_progress_in_;
+    RTT::InputPort<uint8_t > port_hp_homing_in_progress_in_;
+    double hp_q_;
+    double ht_q_;
+
+
     VectorNd internal_space_position_;
 
     bool first_step_;
@@ -97,6 +109,15 @@ SafeComponent::SafeComponent(const std::string &name)
     this->ports()->addPort(port_joint_stiffness_command_);
     this->ports()->addPort(port_status_in_);
     this->ports()->addPort(port_status_subsystem_state_out_);
+
+    this->ports()->addPort("ht_q_INPORT", port_ht_q_in_);
+    this->ports()->addPort("hp_q_INPORT", port_hp_q_in_);
+    this->ports()->addPort("ht_q_OUTPORT", port_ht_q_out_);
+    this->ports()->addPort("hp_q_OUTPORT", port_hp_q_out_);
+    this->ports()->addPort("ht_enabled_INPORT", port_ht_enabled_in_);
+    this->ports()->addPort("hp_enabled_INPORT", port_hp_enabled_in_);
+    this->ports()->addPort("ht_homing_in_progress_INPORT", port_ht_homing_in_progress_in_);
+    this->ports()->addPort("hp_homing_in_progress_INPORT", port_hp_homing_in_progress_in_);
 }
 
 bool SafeComponent::configureHook() {
@@ -154,8 +175,11 @@ void SafeComponent::updateHook() {
 */
     // read current configuration
     if (first_step_) {
-//        Logger::In in("SafeComponent::updateHook");
         first_step_ = false;
+
+        port_ht_q_in_.read(ht_q_);
+        port_hp_q_in_.read(hp_q_);
+
         if (port_internal_space_position_measurement_in_.read(internal_space_position_) != RTT::NewData) {
             // the safety component cannot be started - there is a serious problem with subsystem structure
             error();
@@ -172,6 +196,25 @@ void SafeComponent::updateHook() {
 //            << " r: " << rArm.transpose()
 //            << " l: " << lArm.transpose() << Logger::endl;
     }
+    else {
+        uint8_t ht_enabled;
+        uint8_t ht_homing_in_progress;
+        if (port_ht_enabled_in_.read(ht_enabled) == RTT::NewData && port_ht_homing_in_progress_in_.read(ht_homing_in_progress) == RTT::NewData) {
+            if (!ht_enabled || ht_homing_in_progress) {
+                port_ht_q_in_.read(ht_q_);
+            }
+        }
+        uint8_t hp_enabled;
+        uint8_t hp_homing_in_progress;
+        if (port_hp_enabled_in_.read(hp_enabled) == RTT::NewData && port_hp_homing_in_progress_in_.read(hp_homing_in_progress) == RTT::NewData) {
+            if (!hp_enabled || hp_homing_in_progress) {
+                port_hp_q_in_.read(hp_q_);
+            }
+        }
+    }
+
+    port_ht_q_out_.write(ht_q_);
+    port_hp_q_out_.write(hp_q_);
 
 //    internal_space_position_.setZero();
     port_internal_space_position_command_out_.write(internal_space_position_);

@@ -31,7 +31,7 @@
 #include "rtt/Component.hpp"
 #include <common_core_cs_components/collision_detector.h>
 
-typedef CollisionDetectorComponent<33, 100> CollisionDetectorVelma;
+typedef CollisionDetectorComponent<33, 15, 100> CollisionDetectorVelma;
 
 ORO_LIST_COMPONENT_TYPE(CollisionDetectorVelma)
 

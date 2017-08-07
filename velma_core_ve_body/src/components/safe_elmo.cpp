@@ -79,6 +79,11 @@ private:
     RTT::OutputPort<int16_t > port_desired_i_out_;
     RTT::OutputPort<int32_t > port_desired_q_out_;
     RTT::OutputPort<int32_t > port_desired_dq_out_;
+
+    RTT::InputPort<uint32_t > port_cycle_counter_in_;
+    RTT::OutputPort<uint8_t > port_disable_out_;
+
+    int32_t q_in_;
 };
 
 SafeElmo::SafeElmo(const std::string &name)
@@ -94,6 +99,8 @@ SafeElmo::SafeElmo(const std::string &name)
     addProperty("gear", gear_);
     addProperty("encoder_resolution", encoder_resolution_);
     addProperty("motor_constant", motor_constant_);
+
+    this->ports()->addPort("disable_OUTPORT", port_disable_out_);
 }
 
 bool SafeElmo::configureHook() {
@@ -102,6 +109,7 @@ bool SafeElmo::configureHook() {
     if (control_mode_str_ == "position") {
         this->ports()->addPort("q_INPORT", port_q_in_);
         this->ports()->addPort("q_OUTPORT", port_desired_q_out_);
+        this->ports()->addPort("cycle_counter_INPORT", port_cycle_counter_in_);
         control_mode_ = CYCLIC_POSITION;
         Logger::log() << Logger::Info << "Control mode is set to '" << control_mode_str_ << "'" << Logger::endl;
     }
@@ -170,6 +178,9 @@ void SafeElmo::calculateDampingTorque(int32_t motor_velocity, int16_t &motor_cur
 
 void SafeElmo::updateHook() {
 
+    uint8_t disable_out = true;
+    port_disable_out_.write(disable_out);
+
     if (control_mode_ == CYCLIC_CURRENT) {
         int32_t dq_in;
         if (port_dq_in_.read(dq_in) == RTT::NewData) {
@@ -185,10 +196,20 @@ void SafeElmo::updateHook() {
         port_desired_dq_out_.write(0);
     }
     else if (control_mode_ == CYCLIC_POSITION) {
-        int32_t q_in;
-        if (port_q_in_.read(q_in) == RTT::NewData) {
-            port_desired_q_out_.write(q_in);
+        uint32_t cycle_counter = 0;
+        if (port_cycle_counter_in_.read(cycle_counter) != RTT::NewData) {
+            Logger::In in( std::string("SafeElmo::updateHook ") + getName());
+            Logger::log() << Logger::Error << "could not read port " << port_cycle_counter_in_.getName() << Logger::endl;
+            error();
+            return;
         }
+
+        if (cycle_counter < 3) {
+            if (port_q_in_.read(q_in_) != RTT::NewData) {
+                //TODO: error?
+            }
+        }
+        port_desired_q_out_.write(q_in_);
     }
     else {
         Logger::In in( std::string("SafeElmo::updateHook ") + getName());

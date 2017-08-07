@@ -41,20 +41,20 @@ using namespace RTT;
 
 void LWRGazebo::getExternalForces(LWRGazebo::Joints &q) {
     for (int i=0; i<joints_.size(); i++) {
-        q(i) = joints_[i]->GetForce(0);
+        q[i] = joints_[i]->GetForce(0);
     }
 }
 
 void LWRGazebo::getJointPositionAndVelocity(LWRGazebo::Joints &q, LWRGazebo::Joints &dq) {
     for (int i=0; i<joints_.size(); i++) {
-        q(i) = joints_[i]->GetAngle(0).Radian();
-        dq(i) = joints_[i]->GetVelocity(0);
+        q[i] = joints_[i]->GetAngle(0).Radian();
+        dq[i] = joints_[i]->GetVelocity(0);
     }
 }
 
 void LWRGazebo::setForces(const LWRGazebo::Joints &t) {
     for (int i=0; i<joints_.size(); i++) {
-        joints_[i]->SetForce(0, t(i));
+        joints_[i]->SetForce(0, t[i]);
     }
 }
 
@@ -69,7 +69,7 @@ void LWRGazebo::getGravComp(LWRGazebo::Joints &t) {
     double mass = tool_.m;
     KDL::Vector torque = r * (mass * gr);
     KDL::Vector axis = gz2kdl( joint->GetGlobalAxis(0) );
-    t(6) = KDL::dot(axis, torque);
+    t[6] = KDL::dot(axis, torque);
 
     for (int i=6; i>0; i--) {
         link = links_[i-1];
@@ -79,10 +79,12 @@ void LWRGazebo::getGravComp(LWRGazebo::Joints &t) {
         r = cog-gz2kdl( joint->GetWorldPose().pos );
         torque = r * (mass * gr);
         axis = gz2kdl( joint->GetGlobalAxis(0) );
-        t(i-1) = KDL::dot(axis, torque);
+        t[i-1] = KDL::dot(axis, torque);
     }
 
-    t = -t;
+    for (int i = 0; i < 7; ++i) {
+        t[i] = -t[i];
+    }
 }
 
 bool LWRGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
@@ -226,34 +228,36 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 #endif
 
     // gravity forces
-    Joints grav(7);
-    grav.setZero();
+    Joints grav;
+    for (int i = 0; i < 7; ++i) {
+        grav[i] = 0;
+    }
     getGravComp(grav);
 
     // gravity forces
     for (int i = 0; i < 7; i++) {
-        tmp_GravityTorque_out_(i) = grav(i);
+        tmp_GravityTorque_out_[i] = grav[i];
     }
 
-    Joints ext_f(7);
+    Joints ext_f;
     getExternalForces(ext_f);
 
     // external forces
     for (int i = 0; i < 7; i++) {
-        tmp_JointTorque_out_(i) = ext_f[i] - grav(i);
+        tmp_JointTorque_out_[i] = ext_f[i] - grav[i];
     }
 
-    Joints q(7), dq(7);
+    Joints q, dq;
     getJointPositionAndVelocity(q, dq);
 
     // joint position
     for (int i = 0; i < 7; i++) {
-        tmp_JointPosition_out_(i) = q(i);
+        tmp_JointPosition_out_[i] = q[i];
     }
 
     // joint velocity
     for (int i = 0; i < 7; i++) {
-        tmp_JointVelocity_out_(i) = dq(i);
+        tmp_JointVelocity_out_[i] = dq[i];
     }
 
 /*
@@ -307,12 +311,12 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     // torque command
     if (tmp_command_mode) {
         for (int i = 0; i < 7; i++) {
-            grav(i) += tmp_JointTorqueCommand_in_(i);
+            grav[i] += tmp_JointTorqueCommand_in_[i];
         }
     }
     else {
         for (int i = 0; i < joints_.size(); i++) {
-            grav(i) += 10.0 * (init_q_vec_[i] - tmp_JointPosition_out_(i));
+            grav[i] += 10.0 * (init_q_vec_[i] - tmp_JointPosition_out_[i]);
         }
     }
 

@@ -35,9 +35,6 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name)
     , slow_buffer_index_(0)
     , fast_buffer_index_(0)
     , data_valid_(false)
-    , port_raw_wrench_out_("rawWrench_OUTPORT", false)
-    , port_fast_filtered_wrench_out_("fastFilteredWrench_OUTPORT", false)
-    , port_slow_filtered_wrench_out_("slowFilteredWrench_OUTPORT", false)
 {
     addProperty("joint_name", joint_name_);
     addProperty("transform_xyz", transform_xyz_);
@@ -47,10 +44,17 @@ FtSensorGazebo::FtSensorGazebo(std::string const& name)
     this->provides("gazebo")->addOperation("configure",&FtSensorGazebo::gazeboConfigureHook,this,RTT::ClientThread);
     this->provides("gazebo")->addOperation("update",&FtSensorGazebo::gazeboUpdateHook,this,RTT::ClientThread);
 
-    // right KUKA FRI ports
-    this->ports()->addPort(port_raw_wrench_out_);
-    this->ports()->addPort(port_fast_filtered_wrench_out_);
-    this->ports()->addPort(port_slow_filtered_wrench_out_);
+    this->ports()->addPort("FxGage0_OUTPORT", port_FxGage0_out_);
+    this->ports()->addPort("FyGage1_OUTPORT", port_FyGage1_out_);
+    this->ports()->addPort("FzGage2_OUTPORT", port_FzGage2_out_);
+    this->ports()->addPort("TxGage3_OUTPORT", port_TxGage3_out_);
+    this->ports()->addPort("TyGage4_OUTPORT", port_TyGage4_out_);
+    this->ports()->addPort("TzGage5_OUTPORT", port_TzGage5_out_);
+    this->ports()->addPort("StatusCode_OUTPORT", port_StatusCode_out_);
+    this->ports()->addPort("SampleCounter_OUTPORT", port_SampleCounter_out_);
+
+    this->ports()->addPort("Control1_INPORT", port_Control1_in_);
+    this->ports()->addPort("Control2_INPORT", port_Control2_in_);
 
     slow_buffer_.resize(slow_buffer_size_);
     fast_buffer_.resize(fast_buffer_size_);

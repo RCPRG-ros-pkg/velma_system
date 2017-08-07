@@ -33,12 +33,6 @@ if __name__ == "__main__":
         exitError(1)
     print "VelmaInterface init ok"
 
-    print "waiting for Planner init..."
-    p = Planner(velma.maxJointTrajLen())
-    if not p.waitForInit():
-        print "could not initialize PLanner"
-        exitError(2)
-    print "Planner init ok"
 
     if velma.enableMotors() != 0:
         exitError(14)
@@ -52,6 +46,23 @@ if __name__ == "__main__":
     velma.startHomingHT()
     if velma.waitForHT() != 0:
         exitError(15)
+
+    velma.switchToSafeColBehavior()
+
+    rospy.sleep(1)
+    exit(0)
+
+    print "waiting for Planner init..."
+    p = Planner(velma.maxJointTrajLen())
+    if not p.waitForInit():
+        print "could not initialize PLanner"
+        exitError(2)
+    print "Planner init ok"
+
+    velma.enableT()
+    if velma.waitForT() != 0:
+        print "ERROR: could not enable torso motor"
+        exitError(3)
 
     q_map_1 = {'torso_0_joint':0.0,
         'right_arm_0_joint':-0.3,
@@ -109,11 +120,6 @@ if __name__ == "__main__":
         exitError(10)
     if velma.waitForEffectorRight() != -5:
         exitError(11)
-
-    rospy.sleep(2.0)
-
-    if velma.enableMotors() != 0:
-        exitError(14)
 
     print "waiting 2 seconds..."
     rospy.sleep(2)
