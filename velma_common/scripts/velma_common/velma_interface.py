@@ -227,7 +227,7 @@ Class used as Velma robot Interface.
         self.all_links = []
 
         robot_description_xml = rospy.get_param("/robot_description")
-        print robot_description_xml
+        #print robot_description_xml
 
         dom = minidom.parseString(robot_description_xml)
         robot = dom.getElementsByTagName("robot")
@@ -257,11 +257,12 @@ Class used as Velma robot Interface.
                 if len(mesh) == 1:
                     obj_visual = self.VisualMesh()
                     obj_visual.filename = mesh[0].getAttribute("filename")
-                    print "link:", name, " mesh:", obj_visual.filename
+                    #print "link:", name, " mesh:", obj_visual.filename
                     obj_visual.origin = frame
                     obj_link.visuals.append( obj_visual )
                 else:
-                    print "link:", name, " other visual"
+                    pass
+                    #print "link:", name, " other visual"
 
             self.all_links.append(obj_link)
 
