@@ -42,9 +42,9 @@
       <!-- Plugin deps are loaded automatically by the rtt_ros import service -->
       <plugin_depend>rtt_std_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
-      <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_velma_core_cs_task_cs_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_barrett_hand_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_cs_ve_body_subsystem_buffers</plugin_depend>
+      <plugin_depend>rtt_velma_core_cs_task_cs_subsystem_buffers</plugin_depend>
+      <plugin_depend>rtt_barrett_hand_subsystem_buffers</plugin_depend>
       <plugin_depend>rtt_barrett_hand_msgs</plugin_depend>
     </rtt_ros>
   </export>

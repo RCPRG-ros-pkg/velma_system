@@ -4,7 +4,7 @@ project(velma_ec_gen_msgs)
 find_package(catkin REQUIRED COMPONENTS
  rtt_ros
  message_generation
- rtt_subsystem_ports
+ rtt_subsystem_buffers
  common_interfaces
 )
 

@@ -1,37 +1,37 @@
-CommandCartImp cart_r   # subsystem_buffer{type: container}
+CommandCartImp cart_r
 
-CommandCartImp cart_l   # subsystem_buffer{type: container}
+CommandCartImp cart_l
 
-CommandJntImp jnt       # subsystem_buffer{type: port; validity: jnt_valid}
+CommandJntImp jnt
 bool jnt_valid
 
-CommandHead head        # subsystem_buffer{type: port; validity: head_valid}
+CommandHead head
 bool head_valid
 
-bool safe_col           # subsystem_buffer{type: port; validity: safe_col_valid}
+bool safe_col
 bool safe_col_valid
 
-barrett_hand_msgs/CommandHand handRight    # subsystem_buffer{type: container; validity: handRight_valid}
+barrett_hand_msgs/CommandHand handRight
 bool handRight_valid
 
-bool handRightReset     # subsystem_buffer{type: port; validity: handRightReset_valid}
+bool handRightReset
 bool handRightReset_valid
 
-barrett_hand_msgs/CommandHand handLeft     # subsystem_buffer{type: container; validity: handLeft_valid}
+barrett_hand_msgs/CommandHand handLeft
 bool handLeft_valid
 
-bool handLeftReset      # subsystem_buffer{type: port; validity: handLeftReset_valid}
+bool handLeftReset
 bool handLeftReset_valid
 
-CommandServo hp         # subsystem_buffer{type: container}
+CommandServo hp
 
-CommandServo ht         # subsystem_buffer{type: container}
+CommandServo ht
 
-CommandServo t          # subsystem_buffer{type: container}
+CommandServo t
 
-#bool homing_start_hp    # subsystem_buffer{type: port; validity: homing_start_hp_valid}
+#bool homing_start_hp
 #bool homing_start_hp_valid
 
-#bool homing_start_ht    # subsystem_buffer{type: port; validity: homing_start_ht_valid}
+#bool homing_start_ht
 #bool homing_start_ht_valid
 

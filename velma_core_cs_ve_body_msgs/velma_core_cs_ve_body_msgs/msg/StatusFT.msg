@@ -1,10 +1,10 @@
 # RawWrench
-geometry_msgs/Wrench rw     # subsystem_buffer{type: port}
+geometry_msgs/Wrench rw
 
 # FastFilteredWrench
-geometry_msgs/Wrench ffw    # subsystem_buffer{type: port}
+geometry_msgs/Wrench ffw
 
 # SlowFilteredWrench
-geometry_msgs/Wrench sfw    # subsystem_buffer{type: port}
+geometry_msgs/Wrench sfw
 
 

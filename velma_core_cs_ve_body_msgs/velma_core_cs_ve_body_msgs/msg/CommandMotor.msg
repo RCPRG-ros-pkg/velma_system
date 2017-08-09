@@ -1,12 +1,12 @@
-float64 q               # subsystem_buffer{type: port; validity: q_valid}
+float64 q
 bool q_valid
 
-float64 dq              # subsystem_buffer{type: port; validity: dq_valid}
+float64 dq
 bool dq_valid
 
-bool homing_start       # subsystem_buffer{type: port; validity: homing_start_valid}
+bool homing_start
 bool homing_start_valid
 
-bool enable             # subsystem_buffer{type: port; validity: enable_valid}
+bool enable
 bool enable_valid
 

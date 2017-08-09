@@ -2,7 +2,7 @@
     <import package="controller_common" />
     <import package="rtt_geometry_msgs" />
     <import package="rtt_velma_core_cs_ve_body_msgs" />
-    <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
+    <import package="rtt_velma_core_cs_ve_body_subsystem_buffers" />
     <import package="eigen_typekit" />
     <import package="rtt_std_msgs" />
     <import package="port_operations" />
@@ -12,7 +12,7 @@
     <import package="rtt_std_msgs" />
     <import package="rtt_tf" />
     <import package="velma_sim_gazebo" />
-    <import package="rtt_velma_ec_gen_subsystem_ports" />
+    <import package="rtt_velma_ec_gen_subsystem_buffers" />
     <import package="rtt_velma_ec_gen_msgs" />
     <import package="rtt_lwr_msgs" />
     <import package="velma_common_components" />

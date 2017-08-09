@@ -1,61 +1,61 @@
-StatusCartImp rCart     # subsystem_buffer{type: container; validity: rCart_valid}
+StatusCartImp rCart
 bool rCart_valid
 
-StatusCartImp lCart     # subsystem_buffer{type: container; validity: rCart_valid}
+StatusCartImp lCart
 bool lCart_valid
 
-StatusJntImp jnt        # subsystem_buffer{type: container; validity: jnt_valid}
+StatusJntImp jnt
 bool jnt_valid
 
-StatusHead head         # subsystem_buffer{type: container; validity: head_valid}
+StatusHead head
 bool head_valid
 
-float64[33] q           # subsystem_buffer{type: port; validity: q_valid}
+float64[33] q
 bool q_valid
 
-float64[33] dq          # subsystem_buffer{type: port; validity: dq_valid}
+float64[33] dq
 bool dq_valid
 
-geometry_msgs/Pose rWristPose   # subsystem_buffer{type: port; validity: rWristPose_valid}
+geometry_msgs/Pose rWristPose
 bool rWristPose_valid
 
-geometry_msgs/Pose lWristPose   # subsystem_buffer{type: port; validity: lWristPose_valid}
+geometry_msgs/Pose lWristPose
 bool lWristPose_valid
 
-geometry_msgs/Pose rToolInWristPose     # subsystem_buffer{type: port; validity: rToolInWristPose_valid}
+geometry_msgs/Pose rToolInWristPose
 bool rToolInWristPose_valid
 
-geometry_msgs/Pose lToolInWristPose     # subsystem_buffer{type: port; validity: lToolInWristPose_valid}
+geometry_msgs/Pose lToolInWristPose
 bool lToolInWristPose_valid
 
-barrett_hand_msgs/StatusHand handRight  # subsystem_buffer{type: container; validity: handRight_valid}
+barrett_hand_msgs/StatusHand handRight
 bool handRight_valid
 
-barrett_hand_msgs/StatusHand handLeft   # subsystem_buffer{type: container; validity: handLeft_valid}
+barrett_hand_msgs/StatusHand handLeft
 bool handLeft_valid
 
-barrett_hand_msgs/BHPressureState p     # subsystem_buffer{type: port; validity: p_valid}
+barrett_hand_status_msgs/BHPressureState p
 bool p_valid
 
-geometry_msgs/Wrench[3] f               # subsystem_buffer{type: port; validity: f_valid}
+geometry_msgs/Wrench[3] f
 bool f_valid
 
-StatusServo hp                          # subsystem_buffer{type: container}
+StatusServo hp
 
-StatusServo ht                          # subsystem_buffer{type: container}
+StatusServo ht
 
-StatusServo t                           # subsystem_buffer{type: container}
+StatusServo t
 
-#bool homing_required_hp                 # subsystem_buffer{type: port; validity: homing_required_hp_valid}
+#bool homing_required_hp
 #bool homing_required_hp_valid
 
-#bool homing_in_progress_hp              # subsystem_buffer{type: port; validity: homing_in_progress_hp_valid}
+#bool homing_in_progress_hp
 #bool homing_in_progress_hp_valid
 
-#bool homing_required_ht                 # subsystem_buffer{type: port; validity: homing_required_ht_valid}
+#bool homing_required_ht
 #bool homing_required_ht_valid
 
-#bool homing_in_progress_ht              # subsystem_buffer{type: port; validity: homing_in_progress_ht_valid}
+#bool homing_in_progress_ht
 #bool homing_in_progress_ht_valid
 
 uint32 STATE_IDLE = 0
@@ -64,6 +64,6 @@ uint32 STATE_CART_IMP = 2
 uint32 STATE_JNT_IMP = 3
 uint32 STATE_FCL = 3
 
-uint32 subsystem_state                  # subsystem_buffer{type: port; validity: subsystem_state_valid}
+uint32 subsystem_state
 bool subsystem_state_valid
 

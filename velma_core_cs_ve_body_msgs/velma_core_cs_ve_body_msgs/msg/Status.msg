@@ -1,39 +1,39 @@
-uint32 test             # subsystem_buffer{type: port; validity: test_valid}
+uint32 test
 bool test_valid
 
-StatusSC sc             # subsystem_buffer{type: port; validity: sc_valid}
+StatusSC sc
 bool sc_valid
 
-StatusArm rArm          # subsystem_buffer{type: container; validity: rArm_valid}
+StatusArm rArm
 bool rArm_valid
 
-StatusArm lArm          # subsystem_buffer{type: container; validity: lArm_valid}
+StatusArm lArm
 bool lArm_valid
 
-StatusFT rFt            # subsystem_buffer{type: container; validity: rFt_valid}
+StatusFT rFt
 bool rFt_valid
 
-StatusFT lFt            # subsystem_buffer{type: container; validity: lFt_valid}
+StatusFT lFt
 bool lFt_valid
 
-StatusMotor tMotor      # subsystem_buffer{type: container; validity: tMotor_valid}
+StatusMotor tMotor
 bool tMotor_valid
 
-StatusMotor hpMotor     # subsystem_buffer{type: container; validity: hpMotor_valid}
+StatusMotor hpMotor
 bool hpMotor_valid
 
-StatusMotor htMotor     # subsystem_buffer{type: container; validity: htMotor_valid}
+StatusMotor htMotor
 bool htMotor_valid
 
-barrett_hand_msgs/StatusHand rHand        # subsystem_buffer{type: container; validity: rHand_valid}
+barrett_hand_msgs/StatusHand rHand
 bool rHand_valid
 
-barrett_hand_msgs/StatusHand lHand        # subsystem_buffer{type: container; validity: lHand_valid}
+barrett_hand_msgs/StatusHand lHand
 bool lHand_valid
 
-barrett_hand_msgs/BHPressureState p  # subsystem_buffer{type: port; validity: p_valid}
+barrett_hand_status_msgs/BHPressureState p
 bool p_valid
 
-geometry_msgs/Wrench[3] f                       # subsystem_buffer{type: port; validity: f_valid}
+geometry_msgs/Wrench[3] f
 bool f_valid
 

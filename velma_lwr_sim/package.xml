@@ -30,7 +30,6 @@
   <run_depend>lwr_msgs</run_depend>
   <run_depend>subsystem_msgs</run_depend>
   <run_depend>common_behavior</run_depend>
-  <run_depend>rtt_subsystem_ports</run_depend>
   <run_depend>shm_comm</run_depend>
   <run_depend>common_interfaces</run_depend>
   <run_depend>velma_common_components</run_depend>
@@ -41,7 +40,7 @@
       <plugin_depend>rtt_std_msgs</plugin_depend>
       <plugin_depend>rtt_lwr_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
-      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_buffers</plugin_depend>
       <plugin_depend>rtt_velma_core_ve_re_lwr_msgs</plugin_depend>
     </rtt_ros>
   </export>

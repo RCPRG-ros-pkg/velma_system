@@ -10,6 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
     lwr_msgs
     barrett_hand_tactile
     barrett_hand_msgs
+    barrett_hand_status_msgs
     velma_core_ve_re_lwr_msgs
     eigen_conversions
     common_behavior

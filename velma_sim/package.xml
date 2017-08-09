@@ -9,6 +9,7 @@
   <author>Dawid Seredynski</author>
 
   <buildtool_depend>catkin</buildtool_depend>
+    
 
   <build_depend>orocos_kdl</build_depend>
   <build_depend>kdl_parser</build_depend>
@@ -16,6 +17,7 @@
   <build_depend>rtt_actionlib</build_depend>
   <build_depend>barrett_hand_tactile</build_depend>
   <build_depend>barrett_hand_msgs</build_depend>
+  <build_depend>barrett_hand_status_msgs</build_depend>
   <build_depend>subsystem_msgs</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>common_behavior</build_depend>
@@ -39,7 +41,6 @@
   <run_depend>barrett_hand_tactile</run_depend>
   <run_depend>subsystem_msgs</run_depend>
   <run_depend>common_behavior</run_depend>
-  <run_depend>rtt_subsystem_ports</run_depend>
   <run_depend>velma_ec_gen_msgs</run_depend>
   <run_depend>shm_comm</run_depend>
   <run_depend>common_interfaces</run_depend>
@@ -53,11 +54,12 @@
       <plugin_depend>rtt_std_msgs</plugin_depend>
       <plugin_depend>rtt_lwr_msgs</plugin_depend>
       <plugin_depend>velma_data_conversions</plugin_depend>
-      <plugin_depend>rtt_velma_ec_gen_subsystem_ports</plugin_depend>
-      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_velma_ec_gen_subsystem_buffers</plugin_depend>
+      <plugin_depend>rtt_velma_core_ve_re_lwr_subsystem_buffers</plugin_depend>
       <plugin_depend>rtt_velma_core_ve_re_lwr_msgs</plugin_depend>
-      <plugin_depend>rtt_barrett_hand_subsystem_ports</plugin_depend>
+      <plugin_depend>rtt_barrett_hand_subsystem_buffers</plugin_depend>
       <plugin_depend>rtt_barrett_hand_msgs</plugin_depend>
+      <plugin_depend>rtt_barrett_hand_status_msgs</plugin_depend>
     </rtt_ros>
   </export>
 

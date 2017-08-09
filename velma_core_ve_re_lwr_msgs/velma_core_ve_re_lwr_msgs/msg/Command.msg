@@ -1,5 +1,5 @@
-float64[7] t        # subsystem_buffer{type: port}
+float64[7] t
 
-std_msgs/Int32 krlCmd      # subsystem_buffer{type: port; validity: krlCmd_valid}
+std_msgs/Int32 krlCmd
 bool krlCmd_valid
 

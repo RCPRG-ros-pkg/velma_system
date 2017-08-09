@@ -38,6 +38,9 @@
   <build_depend>rtt_barrett_hand_msgs</build_depend>
   <run_depend>rtt_barrett_hand_msgs</run_depend>
 
+  <build_depend>rtt_barrett_hand_status_msgs</build_depend>
+  <run_depend>rtt_barrett_hand_status_msgs</run_depend>
+
   <export>
     <rtt_ros>
       <plugin_depend>rtt_roscomm</plugin_depend>

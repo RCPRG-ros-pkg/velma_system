@@ -1,9 +1,9 @@
-CommandCartImpTrjImp imp        # subsystem_buffer{type: port; data_type: CommandCartImpTrjImp; validity: imp_valid}
+CommandCartImpTrjImp imp
 bool imp_valid
 
-CommandCartImpTrjPose pose      # subsystem_buffer{type: port; data_type: CommandCartImpTrjPose; validity: pose_valid}
+CommandCartImpTrjPose pose
 bool pose_valid
 
-CommandCartImpTrjPose tool      # subsystem_buffer{type: port; data_type: CommandCartImpTrjPose; validity: tool_valid}
+CommandCartImpTrjPose tool
 bool tool_valid
 

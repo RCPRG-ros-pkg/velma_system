@@ -1,39 +1,39 @@
-uint32 test             # subsystem_buffer{type: port; validity: test_valid}
+uint32 test
 bool test_valid
 
-float64 tMotor_i        # subsystem_buffer{type: port; validity: tMotor_i_valid}
+float64 tMotor_i
 bool tMotor_i_valid
 
-bool tMotor_enable      # subsystem_buffer{type: port; validity: tMotor_enable_valid}
+bool tMotor_enable
 bool tMotor_enable_valid
 
-CommandArm lArm         # subsystem_buffer{type: container; validity: lArm_valid}
+CommandArm lArm
 bool lArm_valid
 
-CommandArm rArm         # subsystem_buffer{type: container; validity: rArm_valid}
+CommandArm rArm
 bool rArm_valid
 
-CommandMotor hpMotor    # subsystem_buffer{type: container; validity: hpMotor_valid}
+CommandMotor hpMotor
 bool hpMotor_valid
 
-CommandMotor htMotor    # subsystem_buffer{type: container; validity: htMotor_valid}
+CommandMotor htMotor
 bool htMotor_valid
 
-int32 sc                # subsystem_buffer{type: port; validity: sc_valid}
+int32 sc
 bool sc_valid
 
-int32 tact              # subsystem_buffer{type: port; validity: tact_valid}
+int32 tact
 bool tact_valid
 
-barrett_hand_msgs/CommandHand lHand       # subsystem_buffer{type: container; validity: lHand_valid}
+barrett_hand_msgs/CommandHand lHand
 bool lHand_valid
 
-bool lHandReset         # subsystem_buffer{type: port; validity: lHandReset_valid}
+bool lHandReset
 bool lHandReset_valid
 
-barrett_hand_msgs/CommandHand rHand       # subsystem_buffer{type: container; validity: rHand_valid}
+barrett_hand_msgs/CommandHand rHand
 bool rHand_valid
 
-bool rHandReset         # subsystem_buffer{type: port; validity: rHandReset_valid}
+bool rHandReset
 bool rHandReset_valid
 

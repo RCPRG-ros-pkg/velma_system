@@ -12,9 +12,9 @@
     <import package="rtt_force_control_msgs" />
     <import package="velma_core_cs" />
     <import package="rtt_velma_core_cs_ve_body_msgs" />
-    <import package="rtt_velma_core_cs_ve_body_subsystem_ports" />
+    <import package="rtt_velma_core_cs_ve_body_subsystem_buffers" />
     <import package="rtt_velma_core_cs_task_cs_msgs" />
-    <import package="rtt_velma_core_cs_task_cs_subsystem_ports" />
+    <import package="rtt_velma_core_cs_task_cs_subsystem_buffers" />
     <import package="rtt_barrett_hand_msgs" />
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
