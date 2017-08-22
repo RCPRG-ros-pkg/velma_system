@@ -8,7 +8,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
   eigen_conversions
-  common_behavior
+  subsystem_common
 )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)

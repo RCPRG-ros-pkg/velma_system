@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_ve_re_lwr_msgs
   eigen_conversions
   common_interfaces
-  common_behavior
+  subsystem_common
   controller_common
   lwr_msgs
   geometry_msgs

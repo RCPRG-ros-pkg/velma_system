@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <common_behavior/abstract_port_converter.h>
+#include <subsystem_common/abstract_port_converter.h>
 
 #include <rtt/Component.hpp>
 #include <Eigen/Dense>
@@ -34,7 +34,7 @@ using namespace RTT;
 
 namespace velma_core_cs_types {
 
-class OutputConverter: public common_behavior::MultiConverterComponent {
+class OutputConverter: public subsystem_common::MultiConverterComponent {
 public:
     explicit OutputConverter(const std::string &name);
 
@@ -43,7 +43,7 @@ private:
 };
 
 OutputConverter::OutputConverter(const std::string &name)
-    : common_behavior::MultiConverterComponent(name)
+    : subsystem_common::MultiConverterComponent(name)
 {
     addConverter<Eigen::Matrix<double, 2, 1 >, boost::array<double, 2 > >( "head_q_desired" );
     addConverter<Eigen::Matrix<double, 15, 1 >, boost::array<double, 15 > >( "jnt_q_desired" );

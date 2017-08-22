@@ -17,7 +17,7 @@
   <build_depend>velma_core_cs_task_cs_msgs</build_depend>
   <build_depend>velma_core_cs_ve_body_msgs</build_depend>
   <build_depend>common_interfaces</build_depend>
-  <build_depend>common_behavior</build_depend>
+  <build_depend>subsystem_common</build_depend>
   <build_depend>eigen_conversions</build_depend>
   <build_depend>controller_common</build_depend>
   <build_depend>rtt_subsystem</build_depend>

@@ -12,7 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   eigen_conversions
   rtt_actionlib
   common_interfaces
-  common_behavior
+  subsystem_common
   controller_common
   planner
   behavior_switch_action_msgs

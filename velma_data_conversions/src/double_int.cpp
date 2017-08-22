@@ -25,9 +25,9 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include "common_behavior/abstract_port_converter.h"
+#include "subsystem_common/abstract_port_converter.h"
 
-class PortConverterInt32ToDouble : public common_behavior::Converter<int32_t, double > {
+class PortConverterInt32ToDouble : public subsystem_common::Converter<int32_t, double > {
 public:
 
     virtual void convert(const int32_t &from, double &to) const {
@@ -35,7 +35,7 @@ public:
     }
 };
 
-class PortConverterDoubleToInt32 : public common_behavior::Converter<double, int32_t > {
+class PortConverterDoubleToInt32 : public subsystem_common::Converter<double, int32_t > {
 public:
 
     virtual void convert(const double &from, int32_t &to) const {
@@ -46,7 +46,7 @@ public:
 REGISTER_PORT_CONVERTER(PortConverterInt32ToDouble);
 REGISTER_PORT_CONVERTER(PortConverterDoubleToInt32);
 
-class PortConverterInt16ToDouble : public common_behavior::Converter<int16_t, double > {
+class PortConverterInt16ToDouble : public subsystem_common::Converter<int16_t, double > {
 public:
 
     virtual void convert(const int16_t &from, double &to) const {
@@ -54,7 +54,7 @@ public:
     }
 };
 
-class PortConverterDoubleToInt16 : public common_behavior::Converter<double, int16_t > {
+class PortConverterDoubleToInt16 : public subsystem_common::Converter<double, int16_t > {
 public:
 
     virtual void convert(const double &from, int16_t &to) const {

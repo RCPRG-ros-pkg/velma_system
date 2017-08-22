@@ -26,9 +26,9 @@
 */
 
 #include "Eigen/Dense"
-#include "common_behavior/abstract_port_converter.h"
+#include "subsystem_common/abstract_port_converter.h"
 
-class PortConverterEigen15ToArray : public common_behavior::Converter<Eigen::Matrix<double, 15, 1>, boost::array<double, 15 > > {
+class PortConverterEigen15ToArray : public subsystem_common::Converter<Eigen::Matrix<double, 15, 1>, boost::array<double, 15 > > {
 public:
 
     virtual void convert(const Eigen::Matrix<double, 15, 1> &from, boost::array<double, 15 > &to) const {
@@ -38,7 +38,7 @@ public:
     }
 };
 
-class PortConverterArrayToEigen15 : public common_behavior::Converter<boost::array<double, 15 >, Eigen::Matrix<double, 15, 1> > {
+class PortConverterArrayToEigen15 : public subsystem_common::Converter<boost::array<double, 15 >, Eigen::Matrix<double, 15, 1> > {
 public:
 
     virtual void convert(const boost::array<double, 15 > &from, Eigen::Matrix<double, 15, 1> &to) const {

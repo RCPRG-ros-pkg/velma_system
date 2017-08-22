@@ -25,7 +25,7 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <common_behavior/abstract_port_converter.h>
+#include <subsystem_common/abstract_port_converter.h>
 
 #include <rtt/Component.hpp>
 #include <Eigen/Dense>
@@ -34,7 +34,7 @@ using namespace RTT;
 
 namespace velma_core_cs_types {
 
-class InputConverter: public common_behavior::MultiConverterComponent {
+class InputConverter: public subsystem_common::MultiConverterComponent {
 public:
     explicit InputConverter(const std::string &name);
 
@@ -43,7 +43,7 @@ private:
 };
 
 InputConverter::InputConverter(const std::string &name)
-    : common_behavior::MultiConverterComponent(name)
+    : subsystem_common::MultiConverterComponent(name)
 {
     addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "rArm_q" );
     addConverter<boost::array<double, 7 >, Eigen::Matrix<double, 7, 1 > >( "lArm_q" );

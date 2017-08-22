@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   velma_core_cs_ve_body_msgs
   eigen_conversions
   common_interfaces
-  common_behavior
+  subsystem_common
   controller_common
   planer_utils
   common_core_cs_components
