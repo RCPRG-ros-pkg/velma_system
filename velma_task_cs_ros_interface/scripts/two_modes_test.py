@@ -22,6 +22,9 @@ from velma_common.velma_interface import *
 
 if __name__ == "__main__":
 
+    print "This test is not ready yet"
+    exit(0)
+
     rospy.init_node('jimp_test', anonymous=True)
 
     rospy.sleep(1)

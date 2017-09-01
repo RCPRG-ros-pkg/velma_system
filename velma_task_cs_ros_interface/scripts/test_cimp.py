@@ -102,6 +102,9 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
 
+    print "The rest of this test is not ready yet"
+    exitError(0)
+
     print "moving right arm to another pose (cimp, error - too fast)"
     T_B_Trd = velma.getTf("B", "Wr")
     T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,1.1)) * T_B_Trd

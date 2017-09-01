@@ -10,6 +10,9 @@ from moveit_msgs.srv import *
 
 if __name__ == "__main__":
 
+    print "This test is not ready yet"
+    exit(0)
+
     rospy.init_node('wrists_test', anonymous=True)
 
     rospy.sleep(1)
