@@ -81,8 +81,10 @@ private:
     lwr_msgs::FriIntfState fri_;
     lwr_msgs::FriRobotState rob_;
 
-    bool valid_prev_;
+    bool valid_prev1_;
     bool valid_prev2_;
+    bool valid_prev3_;
+    bool valid_prev4_;
 };
 
 LwrStatusSync::LwrStatusSync(const std::string &name)
@@ -106,8 +108,10 @@ LwrStatusSync::LwrStatusSync(const std::string &name)
     this->ports()->addPort("fri_OUTPORT", port_fri_out_);
     this->ports()->addPort("rob_OUTPORT", port_rob_out_);
 
-    valid_prev_ = false;
+    valid_prev1_ = false;
     valid_prev2_ = false;
+    valid_prev3_ = false;
+    valid_prev4_ = false;
 }
 
 bool LwrStatusSync::startHook() {
@@ -128,7 +132,7 @@ void LwrStatusSync::updateHook() {
     valid &= (port_fri_in_.read(fri_) == RTT::NewData);
     valid &= (port_rob_in_.read(rob_) == RTT::NewData);
 
-    if (valid || valid_prev_) {// || valid_prev2_) {
+    if (valid || valid_prev1_ || valid_prev2_ || valid_prev3_ || valid_prev4_) {
         port_q_out_.write(q_);
         port_dq_out_.write(dq_);
         port_t_out_.write(t_);
@@ -146,8 +150,10 @@ void LwrStatusSync::updateHook() {
 //        Logger::log() << Logger::Info << getName() << ": almost lost data " << Logger::endl;
 //    }
 
-    valid_prev2_ = valid_prev_;
-    valid_prev_ = valid;
+    valid_prev4_ = valid_prev3_;
+    valid_prev3_ = valid_prev2_;
+    valid_prev2_ = valid_prev1_;
+    valid_prev1_ = valid;
 }
 
 }   // velma_core_ve_body_types
