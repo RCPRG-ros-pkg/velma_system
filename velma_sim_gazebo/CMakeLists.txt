@@ -30,6 +30,8 @@ include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 find_package(gazebo)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GAZEBO_CXX_FLAGS}")
 
+find_package(Bullet)
+
 #find_package(DARTCore REQUIRED)
 #find_package(FCL REQUIRED)
 
@@ -50,6 +52,11 @@ include_directories(
   ${Eigen_INCLUDE_DIR}
   )
 
+if(BULLET_FOUND)
+  include_directories(
+    ${BULLET_INCLUDE_DIRS}
+  )
+endif()
 #include_directories(${DARTCore_INCLUDE_DIRS})
 #link_directories(${DARTCore_LIBRARY_DIRS})
 
@@ -85,6 +92,7 @@ target_link_libraries(velma_sim_gazebo
   ${USE_OROCOS_LIBRARIES}
   ${Boost_LIBRARIES}
   rtt-${PROJECT_NAME}-master
+  ${BULLET_LIBRARIES}
 #  ${DARTCore_LIBRARIES}
 #  ${FCL_LIBRARY}
 )
