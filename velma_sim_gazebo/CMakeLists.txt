@@ -39,6 +39,8 @@ find_package(orocos_kdl REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Boost COMPONENTS thread REQUIRED)
 
+#catkin_python_setup()
+
 link_directories(
   ${GAZEBO_LIBRARY_DIRS}
   ${orocos_kdl_LIBRARY_DIRS}
@@ -109,6 +111,11 @@ install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
   )
 
-install(DIRECTORY worlds/
-  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/worlds
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
   )
+
+catkin_install_python(PROGRAMS scripts/unpause_on_init.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
+

@@ -16,13 +16,15 @@ include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 
 find_package(Eigen3 REQUIRED)
 
-include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIR})
+include_directories(${catkin_INCLUDE_DIRS} ${Eigen3_INCLUDE_DIR} ${USE_OROCOS_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 
-include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
+#include_directories(${USE_OROCOS_INCLUDE_DIRS})
 ### Orocos Targets ###
+
+message(WARNING "${catkin_INCLUDE_DIRS}")
 
 orocos_component(velma_data_conversions
   src/eigen_vector_1.cpp
@@ -42,7 +44,6 @@ target_link_libraries(velma_data_conversions ${catkin_LIBRARIES} ${USE_OROCOS_LI
 
 # Export package information (replaces catkin_package() macro) 
 orocos_generate_package(
-  INCLUDE_DIRS include
   DEPENDS rtt_ros
 )
 

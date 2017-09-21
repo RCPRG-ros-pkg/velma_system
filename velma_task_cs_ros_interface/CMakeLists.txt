@@ -66,6 +66,22 @@ orocos_generate_package(
   DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm rtt_actionlib
 )
 
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  )
+
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  )
+
+catkin_install_python(PROGRAMS
+    scripts/test_cimp.py
+    scripts/test_jimp.py
+    scripts/test_safe_col.py
+    scripts/test_head.py
+    scripts/test_grippers.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 #orocos_install_headers(
 #  DIRECTORY include/${PROJECT_NAME}/
 #)

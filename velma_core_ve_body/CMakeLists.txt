@@ -70,6 +70,17 @@ orocos_generate_package(
   DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_ve_body_msgs
 )
 
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  )
+
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  )
+
+catkin_install_python(PROGRAMS scripts/test_external_force.py
+DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+
 #orocos_install_headers(
 #  DIRECTORY include/${PROJECT_NAME}/
 #)
