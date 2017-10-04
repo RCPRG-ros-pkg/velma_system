@@ -24,8 +24,6 @@ ADD_DEFINITIONS(-DEIGEN_RUNTIME_NO_MALLOC)
 #include_directories(${USE_OROCOS_INCLUDE_DIRS})
 ### Orocos Targets ###
 
-message(WARNING "${catkin_INCLUDE_DIRS}")
-
 orocos_component(velma_data_conversions
   src/eigen_vector_1.cpp
   src/eigen_vector_2.cpp
