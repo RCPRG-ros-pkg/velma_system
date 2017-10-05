@@ -1,4 +1,3 @@
-cmake_minimum_required(VERSION 2.8.3)
 project(velma_core_cs)
 
 ### ROS Dependencies ###
@@ -83,9 +82,6 @@ install(DIRECTORY launch/
 install(DIRECTORY config/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
   )
-
-catkin_install_python(PROGRAMS scripts/col_det_vis.py
-DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 
 #orocos_install_headers(
