@@ -1,3 +1,4 @@
+cmake_minimum_required(VERSION 2.8.3)
 project(velma_core_cs)
 
 ### ROS Dependencies ###
