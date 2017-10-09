@@ -19,6 +19,7 @@ from cartesian_trajectory_msgs.msg import *
 import actionlib
 
 from velma_common.velma_interface import *
+from planner.planner import *
 
 if __name__ == "__main__":
 

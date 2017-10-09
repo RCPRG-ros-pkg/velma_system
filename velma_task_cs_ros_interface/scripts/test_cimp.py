@@ -5,14 +5,6 @@ import rospy
 from velma_common.velma_interface import *
 from planner.planner import *
 
-def isConfigurationClose(q_map, js):
-    for joint_name in q_map:
-        if not joint_name in js[1]:
-            return False
-        if abs(q_map[joint_name] - js[1][joint_name]) > 0.1:
-            return False
-    return True
-
 def exitError(code):
     if code == 0:
         print "OK"

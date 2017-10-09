@@ -4,10 +4,7 @@ import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 import rospy
 
 from velma_common.velma_interface import *
-
-def isHeadConfigurationClose(current_q, dest_q, tolerance):
-    return abs(current_q[0]-dest_q[0]) < tolerance and\
-        abs(current_q[1]-dest_q[1]) < tolerance
+from planner.planner import *
 
 def exitError(code):
     if code == 0:
