@@ -63,6 +63,24 @@ import xml.dom.minidom as minidom
 # Tl - left tool
 # Frij - right hand finger i knuckle j
 
+def isConfigurationClose(q_map, js, tolerance=0.1):
+    for joint_name in q_map:
+        if not joint_name in js[1]:
+            return False
+        if abs(q_map[joint_name] - js[1][joint_name]) > tolerance:
+            return False
+    return True
+
+def isHeadConfigurationClose(current_q, dest_q, tolerance=0.1):
+    return abs(current_q[0]-dest_q[0]) < tolerance and\
+        abs(current_q[1]-dest_q[1]) < tolerance
+
+def isHandConfigurationClose(current_q, dest_q, tolerance=0.1):
+    return abs(current_q[0]-dest_q[3]) < tolerance and\
+        abs(current_q[1]-dest_q[0]) < tolerance and\
+        abs(current_q[4]-dest_q[1]) < tolerance and\
+        abs(current_q[6]-dest_q[2]) < tolerance
+
 class VelmaInterface:
     """
 Class used as Velma robot Interface.

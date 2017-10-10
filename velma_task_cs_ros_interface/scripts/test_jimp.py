@@ -1,22 +1,9 @@
 #!/usr/bin/env python
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
-import sys
 import rospy
 import math
-import copy
-import tf
-
-from std_msgs.msg import ColorRGBA
-from interactive_markers.interactive_marker_server import *
-from interactive_markers.menu_handler import *
-from visualization_msgs.msg import *
-from geometry_msgs.msg import *
-from tf.transformations import * 
-import tf_conversions.posemath as pm
 import PyKDL
-from cartesian_trajectory_msgs.msg import *
-import actionlib
 
 from velma_common.velma_interface import *
 from planner.planner import *

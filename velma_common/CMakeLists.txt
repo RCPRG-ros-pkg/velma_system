@@ -7,7 +7,7 @@ catkin_package()
 
 catkin_python_setup()
 
-#foreach(dir launch scripts)
-#   install(DIRECTORY ${dir}/
-#      DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/${dir})
-#endforeach(dir)
+install(DIRECTORY launch/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+  )
+
