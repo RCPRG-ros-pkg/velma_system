@@ -44,13 +44,6 @@
         addProperty("init_joint_positions", init_joint_positions_);
         addProperty("name", name_);
         addProperty("tool", tool_);
-//        addProperty("gravity_arm_in_wrist", tool_arm_);
-//        addProperty("tool_inertia/ixx", tool_ixx_);
-//        addProperty("tool_inertia/ixy", tool_ixy_);
-//        addProperty("tool_inertia/ixz", tool_ixz_);
-//        addProperty("tool_inertia/iyy", tool_iyy_);
-//        addProperty("tool_inertia/iyz", tool_iyz_);
-//        addProperty("tool_inertia/izz", tool_izz_);
 
         // Add required gazebo interfaces
         this->provides("gazebo")->addOperation("configure",&LWRGazebo::gazeboConfigureHook,this,RTT::ClientThread);
