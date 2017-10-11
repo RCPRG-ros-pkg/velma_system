@@ -84,7 +84,6 @@ install(DIRECTORY config/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
   )
 
-
 #orocos_install_headers(
 #  DIRECTORY include/${PROJECT_NAME}/
 #)

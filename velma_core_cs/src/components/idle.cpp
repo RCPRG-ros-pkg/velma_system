@@ -155,9 +155,9 @@ void IdleComponent::updateHook() {
 
     if (counter_ > 100) {
         counter_ = 0;
-        std::cout << "valid: " << (status_in_.sc_valid?"t":"f")
-            << "  safe: " << (status_in_.sc.safe_behavior?"t":"f")
-            << "  error: " << (status_in_.sc.error?"t":"f") << std::endl;
+//        std::cout << "valid: " << (status_in_.sc_valid?"t":"f")
+//            << "  safe: " << (status_in_.sc.safe_behavior?"t":"f")
+//            << "  error: " << (status_in_.sc.error?"t":"f") << std::endl;
     }
     else {
         ++counter_;

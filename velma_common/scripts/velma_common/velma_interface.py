@@ -63,6 +63,24 @@ import xml.dom.minidom as minidom
 # Tl - left tool
 # Frij - right hand finger i knuckle j
 
+def isConfigurationClose(q_map, js, tolerance=0.1):
+    for joint_name in q_map:
+        if not joint_name in js[1]:
+            return False
+        if abs(q_map[joint_name] - js[1][joint_name]) > tolerance:
+            return False
+    return True
+
+def isHeadConfigurationClose(current_q, dest_q, tolerance=0.1):
+    return abs(current_q[0]-dest_q[0]) < tolerance and\
+        abs(current_q[1]-dest_q[1]) < tolerance
+
+def isHandConfigurationClose(current_q, dest_q, tolerance=0.1):
+    return abs(current_q[0]-dest_q[3]) < tolerance and\
+        abs(current_q[1]-dest_q[0]) < tolerance and\
+        abs(current_q[4]-dest_q[1]) < tolerance and\
+        abs(current_q[6]-dest_q[2]) < tolerance
+
 class VelmaInterface:
     """
 Class used as Velma robot Interface.
@@ -81,48 +99,41 @@ Class used as Velma robot Interface.
 
     def getLastJointState(self):
         result = None
-        self.joint_states_lock.acquire()
-        if self.js_pos_history_idx >= 0:
-            result = copy.copy(self.js_pos_history[self.js_pos_history_idx])
-        self.joint_states_lock.release()
-        return result
+        with self.joint_states_lock:
+            if self.js_pos_history_idx >= 0:
+                return copy.copy(self.js_pos_history[self.js_pos_history_idx])
 
     def getJointStateAtTime(self, time):
-        self.joint_states_lock.acquire()
-        if self.js_pos_history_idx < 0:
-            self.joint_states_lock.release()
-            return None
-            
-        hist_len = len(self.js_pos_history)
-        for step in range(hist_len-1):
-            h1_idx = (self.js_pos_history_idx - step - 1) % hist_len
-            h2_idx = (self.js_pos_history_idx - step) % hist_len
-            if self.js_pos_history[h1_idx] == None or self.js_pos_history[h2_idx] == None:
-                self.joint_states_lock.release()
+        with self.joint_states_lock:
+            if self.js_pos_history_idx < 0:
                 return None
+                
+            hist_len = len(self.js_pos_history)
+            for step in range(hist_len-1):
+                h1_idx = (self.js_pos_history_idx - step - 1) % hist_len
+                h2_idx = (self.js_pos_history_idx - step) % hist_len
+                if self.js_pos_history[h1_idx] == None or self.js_pos_history[h2_idx] == None:
+                    return None
 
-            time1 = self.js_pos_history[h1_idx][0]
-            time2 = self.js_pos_history[h2_idx][0]
-            if time > time1 and time <= time2:
-                factor = (time - time1).to_sec() / (time2 - time1).to_sec()
-                js_pos = {}
-                for joint_name in self.js_pos_history[h1_idx][1]:
-                    js_pos[joint_name] = self.js_pos_history[h1_idx][1][joint_name] * (1.0 - factor) + self.js_pos_history[h2_idx][1][joint_name] * factor
-                self.joint_states_lock.release()
-                return js_pos
-        self.joint_states_lock.release()
-        return None
+                time1 = self.js_pos_history[h1_idx][0]
+                time2 = self.js_pos_history[h2_idx][0]
+                if time > time1 and time <= time2:
+                    factor = (time - time1).to_sec() / (time2 - time1).to_sec()
+                    js_pos = {}
+                    for joint_name in self.js_pos_history[h1_idx][1]:
+                        js_pos[joint_name] = self.js_pos_history[h1_idx][1][joint_name] * (1.0 - factor) + self.js_pos_history[h2_idx][1][joint_name] * factor
+                    return js_pos
+            return None
 
     def jointStatesCallback(self, data):
-        self.joint_states_lock.acquire()
-        joint_idx = 0
-        for joint_name in data.name:
-            self.js_pos[joint_name] = data.position[joint_idx]
-            joint_idx += 1
+        with self.joint_states_lock:
+            joint_idx = 0
+            for joint_name in data.name:
+                self.js_pos[joint_name] = data.position[joint_idx]
+                joint_idx += 1
 
-        self.js_pos_history_idx = (self.js_pos_history_idx + 1) % len(self.js_pos_history)
-        self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(self.js_pos))
-        self.joint_states_lock.release()
+            self.js_pos_history_idx = (self.js_pos_history_idx + 1) % len(self.js_pos_history)
+            self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(self.js_pos))
 
     def getHandCurrentConfiguration(self, prefix):
         js = self.getLastJointState()
@@ -180,10 +191,9 @@ Class used as Velma robot Interface.
         time_start = time.time()
         can_break = False
         while not rospy.is_shutdown():
-            self.joint_states_lock.acquire()
-            if self.js_pos_history_idx >= 0:
-                can_break = True
-            self.joint_states_lock.release()
+            with self.joint_states_lock:
+                if self.js_pos_history_idx >= 0:
+                    can_break = True
             if can_break and self.allActionsConnected():
                 break
             rospy.sleep(0.1)
@@ -776,7 +786,18 @@ Class used as Velma robot Interface.
         return True
 
     def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
-        return self.moveJointTraj(([q_dest], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
+        if joint_names == None:
+            if not type(q_dest) is dict:
+                print "ERROR: wrong data type passed to moveJoint: ", type(q_dest)
+                return False
+            joint_names = []
+            q_dest_list = []
+            for name in q_dest:
+                joint_names.append(name)
+                q_dest_list.append(q_dest[name])
+            return self.moveJointTraj(([q_dest_list], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
+        else:
+            return self.moveJointTraj(([q_dest], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
 
     def waitForJoint(self):
         self.action_joint_traj_client.wait_for_result()
