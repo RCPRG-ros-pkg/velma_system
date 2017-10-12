@@ -1,0 +1,26 @@
+digraph graphname {
+    subgraph cluster_1 {
+        style=rounded
+        node [style=filled shape=box style=rounded];
+        {rank = same; velma_task_cs_ros_interface; ROS;}
+        velma_task_cs_ros_interface -> ROS;
+        ROS -> velma_task_cs_ros_interface;
+        label = "velma_task agent";
+    }
+
+    subgraph cluster_2 {
+        style=rounded
+        labelloc=b
+        node [style=filled shape=box style=rounded];
+        velma_core_cs -> velma_core_ve_body -> velma_sim_gazebo;
+        velma_sim_gazebo -> velma_core_ve_body -> velma_core_cs;
+        {rank=sink velma_sim_gazebo;}
+        label = "velma_core agent";
+    }
+
+    velma_task_cs_ros_interface -> velma_core_cs;
+    velma_core_cs -> velma_task_cs_ros_interface;
+
+    margin=0;   # for whole graph
+}
+
