@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+"""
+This file contains ROS-based Python interface for WUT Velma Robot and some helper functions.
+"""
+
 # Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
 # All rights reserved.
 # 
@@ -63,26 +67,56 @@ import xml.dom.minidom as minidom
 # Tl - left tool
 # Frij - right hand finger i knuckle j
 
-def isConfigurationClose(q_map, js, tolerance=0.1):
-    for joint_name in q_map:
-        if not joint_name in js[1]:
-            return False
-        if abs(q_map[joint_name] - js[1][joint_name]) > tolerance:
+def isConfigurationClose(q_map1, q_map2, tolerance=0.1):
+    """!
+    Check if two configurations of robot body are close within tolerance.
+
+    @param q_map1 dictionary: Dictionary {name:position} that maps joint names to their positions.
+    @param q_map2 dictionary: Dictionary {name:position} that maps joint names to their positions.
+
+    @return True if two configurations are close within tolerance (for every joint), False otherwise.
+
+    @exception KeyError: Either q_map1 or q_map2 dictionaries does not contain required key, i.e. one
+        of robot body joint names.
+    """
+    joint_names = ['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
+        'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
+        'right_arm_6_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
+        'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']
+
+    for joint_name in joint_names:
+        if abs(q_map1[joint_name] - q_map2[joint_name]) > tolerance:
             return False
     return True
 
-def isHeadConfigurationClose(current_q, dest_q, tolerance=0.1):
-    return abs(current_q[0]-dest_q[0]) < tolerance and\
-        abs(current_q[1]-dest_q[1]) < tolerance
+def isHeadConfigurationClose(q1, q2, tolerance=0.1):
+    """!
+    Check if two configurations of robot neck are close within tolerance.
+
+    @param q1 tuple: 2-tuple of neck joints positions.
+    @param q2 tuple: 2-tuple of neck joints positions.
+
+    @return True if two configurations are close within tolerance (for every joint), False otherwise.
+    """
+    return abs(q1[0]-q2[0]) < tolerance and abs(q1[1]-q2[1]) < tolerance
 
 def isHandConfigurationClose(current_q, dest_q, tolerance=0.1):
+    """!
+    Check if two configurations of robot hand are close within tolerance.
+
+    @param current_q tuple: 8-tuple of hand joints positions.
+    @param dest_q tuple: 4-tuple of hand DOFs positions.
+
+    @return True if two configurations are close within tolerance (for every joint), False otherwise.
+    """
     return abs(current_q[0]-dest_q[3]) < tolerance and\
         abs(current_q[1]-dest_q[0]) < tolerance and\
         abs(current_q[4]-dest_q[1]) < tolerance and\
         abs(current_q[6]-dest_q[2]) < tolerance
 
 class VelmaInterface:
-    """ROS-based, Python interface class for WUT Velma Robot.
+    """!
+    ROS-based, Python interface class for WUT Velma Robot.
 
     This class implements methods that use ROS topics, actions and services
     to communicate with velma_task_cs_ros_interface subsystem of velma_task
@@ -108,9 +142,9 @@ class VelmaInterface:
         (with key=joint_name, value=joint_position), or None if there is no joint state data yet.
 
         """
-        with self.joint_states_lock:
-            if self.js_pos_history_idx >= 0:
-                return copy.copy(self.js_pos_history[self.js_pos_history_idx])
+        with self._joint_states_lock:
+            if self._js_pos_history_idx >= 0:
+                return copy.copy(self._js_pos_history[self._js_pos_history_idx])
         return None
 
     def getJointStateAtTime(self, time):
@@ -123,38 +157,38 @@ class VelmaInterface:
         or None, if time is not within current joint state history.
 
         """
-        with self.joint_states_lock:
-            if self.js_pos_history_idx < 0:
+        with self._joint_states_lock:
+            if self._js_pos_history_idx < 0:
                 return None
                 
-            hist_len = len(self.js_pos_history)
+            hist_len = len(self._js_pos_history)
             for step in range(hist_len-1):
-                h1_idx = (self.js_pos_history_idx - step - 1) % hist_len
-                h2_idx = (self.js_pos_history_idx - step) % hist_len
-                if self.js_pos_history[h1_idx] == None or self.js_pos_history[h2_idx] == None:
+                h1_idx = (self._js_pos_history_idx - step - 1) % hist_len
+                h2_idx = (self._js_pos_history_idx - step) % hist_len
+                if self._js_pos_history[h1_idx] == None or self._js_pos_history[h2_idx] == None:
                     return None
 
-                time1 = self.js_pos_history[h1_idx][0]
-                time2 = self.js_pos_history[h2_idx][0]
+                time1 = self._js_pos_history[h1_idx][0]
+                time2 = self._js_pos_history[h2_idx][0]
                 if time > time1 and time <= time2:
                     factor = (time - time1).to_sec() / (time2 - time1).to_sec()
                     js_pos = {}
-                    for joint_name in self.js_pos_history[h1_idx][1]:
-                        js_pos[joint_name] = self.js_pos_history[h1_idx][1][joint_name] * (1.0 - factor) + self.js_pos_history[h2_idx][1][joint_name] * factor
+                    for joint_name in self._js_pos_history[h1_idx][1]:
+                        js_pos[joint_name] = self._js_pos_history[h1_idx][1][joint_name] * (1.0 - factor) + self._js_pos_history[h2_idx][1][joint_name] * factor
                     return js_pos
             return None
 
     # Private method used as callback for joint_states ROS topic.
     def _jointStatesCallback(self, data):
-        with self.joint_states_lock:
+        with self._joint_states_lock:
             joint_idx = 0
             js_pos = {}
             for joint_name in data.name:
                 js_pos[joint_name] = data.position[joint_idx]
                 joint_idx += 1
 
-            self.js_pos_history_idx = (self.js_pos_history_idx + 1) % len(self.js_pos_history)
-            self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(js_pos))
+            self._js_pos_history_idx = (self._js_pos_history_idx + 1) % len(self._js_pos_history)
+            self._js_pos_history[self._js_pos_history_idx] = (data.header.stamp, copy.copy(js_pos))
 
     def getHandCurrentConfiguration(self, prefix):
         """!
@@ -233,17 +267,17 @@ class VelmaInterface:
                 self.action_cart_traj_client_connected[side] = self.action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
             allConnected = allConnected and self.action_move_hand_client_connected[side] and\
                 self.action_cart_traj_client_connected[side]
-        if not self.action_joint_traj_client_connected:
-            self.action_joint_traj_client_connected = self.action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self.action_joint_traj_client_connected
+        if not self._action_joint_traj_client_connected:
+            self._action_joint_traj_client_connected = self.action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self._action_joint_traj_client_connected
 
-        if not self.action_head_joint_traj_client_connected:
-            self.action_head_joint_traj_client_connected = self.action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self.action_head_joint_traj_client_connected
+        if not self._action_head_joint_traj_client_connected:
+            self._action_head_joint_traj_client_connected = self.action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self._action_head_joint_traj_client_connected
 
-        if not self.action_safe_col_client_connected:
-            self.action_safe_col_client_connected = self.action_safe_col_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self.action_safe_col_client_connected
+        if not self._action_safe_col_client_connected:
+            self._action_safe_col_client_connected = self.action_safe_col_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self._action_safe_col_client_connected
 
         for motor in self.action_motor_client_connected:
             if not self.action_motor_client_connected[motor]:
@@ -263,8 +297,8 @@ class VelmaInterface:
         time_start = time.time()
         can_break = False
         while not rospy.is_shutdown():
-            with self.joint_states_lock:
-                if self.js_pos_history_idx >= 0:
+            with self._joint_states_lock:
+                if self._js_pos_history_idx >= 0:
                     can_break = True
             if can_break and self._allActionsConnected():
                 break
@@ -273,9 +307,9 @@ class VelmaInterface:
             if timeout_s and (time_now-time_start) > timeout_s:
                 print "ERROR: waitForInit: ", can_break, self.action_move_hand_client_connected["right"],\
                     self.action_move_hand_client_connected["left"], self.action_cart_traj_client_connected["right"],\
-                    self.action_cart_traj_client_connected["left"], self.action_joint_traj_client_connected,\
-                    self.action_head_joint_traj_client_connected, self.action_motor_client_connected,\
-                    self.action_safe_col_client_connected
+                    self.action_cart_traj_client_connected["left"], self._action_joint_traj_client_connected,\
+                    self._action_head_joint_traj_client_connected, self.action_motor_client_connected,\
+                    self._action_safe_col_client_connected
                 return False
         return True
 
@@ -288,7 +322,7 @@ class VelmaInterface:
         @return dictionary: Returns a dictionary {name:(lower_limit, upper_limit)} that maps joint name to
         a 2-tupe with lower and upper joint limit.
         """
-        return self.body_joint_limits
+        return self._body_joint_limits
 
     def getHeadJointLimits(self):
         """!
@@ -297,7 +331,7 @@ class VelmaInterface:
         @return dictionary: Returns a dictionary {name:(lower_limit, upper_limit)} that maps joint name to
         a 2-tupe with lower and upper joint limit.
         """
-        return self.head_joint_limits
+        return self._head_joint_limits
 
     def __init__(self, namespace):
         """!
@@ -307,26 +341,26 @@ class VelmaInterface:
 
         """
 
-        self.listener = tf.TransformListener();
+        self._listener = tf.TransformListener();
 
         # read the joint information from the ROS parameter server
-        self.body_joint_names = rospy.get_param(namespace+"/JntImpAction/joint_names")
+        self._body_joint_names = rospy.get_param(namespace+"/JntImpAction/joint_names")
         body_joint_lower_limits = rospy.get_param(namespace+"/JntImpAction/lower_limits")
         body_joint_upper_limits = rospy.get_param(namespace+"/JntImpAction/upper_limits")
-        self.body_joint_limits = {}
-        for i in range(len(self.body_joint_names)):
-            self.body_joint_limits[self.body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
+        self._body_joint_limits = {}
+        for i in range(len(self._body_joint_names)):
+            self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
 
-        self.head_joint_names = rospy.get_param(namespace+"/HeadAction/joint_names")
+        self._head_joint_names = rospy.get_param(namespace+"/HeadAction/joint_names")
         head_joint_lower_limits = rospy.get_param(namespace+"/HeadAction/lower_limits")
         head_joint_upper_limits = rospy.get_param(namespace+"/HeadAction/upper_limits")
-        self.head_joint_limits = {}
-        for i in range(len(self.head_joint_names)):
-            self.head_joint_limits[self.head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
+        self._head_joint_limits = {}
+        for i in range(len(self._head_joint_names)):
+            self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
 
-        self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
+        self._all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
-        self.all_links = []
+        self._all_links = []
 
         robot_description_xml = rospy.get_param("/robot_description")
         #print robot_description_xml
@@ -366,15 +400,15 @@ class VelmaInterface:
                     pass
                     #print "link:", name, " other visual"
 
-            self.all_links.append(obj_link)
+            self._all_links.append(obj_link)
 
-        #print "self.all_links", self.all_links
-        #print "self.all_joint_names", self.all_joint_names
+        #print "self._all_links", self._all_links
+        #print "self._all_joint_names", self._all_joint_names
 
-        self.js_pos_history = []
+        self._js_pos_history = []
         for i in range(200):
-            self.js_pos_history.append( None )
-        self.js_pos_history_idx = -1
+            self._js_pos_history.append( None )
+        self._js_pos_history_idx = -1
 
         self.T_B_L = [PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame(),PyKDL.Frame()]
 
@@ -392,18 +426,18 @@ class VelmaInterface:
 
         self.last_contact_time = rospy.Time.now()
 
-        self.joint_states_lock = threading.Lock()
+        self._joint_states_lock = threading.Lock()
 
         # for score function
-        self.failure_reason = "unknown"
+        #self.failure_reason = "unknown"
 
-        self.emergency_stop_active = False
+        #self.emergency_stop_active = False
 
         self.action_move_hand_client_connected = {'right':False, 'left':False}
         self.action_cart_traj_client_connected = {'right':False, 'left':False}
-        self.action_joint_traj_client_connected = False
-        self.action_head_joint_traj_client_connected = False
-        self.action_safe_col_client_connected = False
+        self._action_joint_traj_client_connected = False
+        self._action_head_joint_traj_client_connected = False
+        self._action_safe_col_client_connected = False
 
         self.action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
 
@@ -461,7 +495,7 @@ class VelmaInterface:
         for i in range(0,self.wrench_tab_len):
             self.wrench_tab.append( Wrench(Vector3(), Vector3()) )
 
-        self.listener_joint_states = rospy.Subscriber('/joint_states', JointState, self._jointStatesCallback)
+        self._listener_joint_states = rospy.Subscriber('/joint_states', JointState, self._jointStatesCallback)
 
         subscribed_topics_list = [
             ('/right_arm/transformed_wrench', geometry_msgs.msg.Wrench),
@@ -558,20 +592,46 @@ class VelmaInterface:
 
     def enableMotor(self, motor):
         """!
-        Enables motor.
+        Enable motor.
 
-        @param motor string: 
+        @param motor string: Name of motor to enable: 'hp', 'ht' or 't'
+
+        @exception NameError: Parameter motor has invalid value.
         """
+        if motor != 'hp' and motor != 'ht' and motor != 't':
+            raise NameError(motor)
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_ENABLE
         self.action_motor_client[motor].send_goal(goal)
 
     def startHomingMotor(self, motor):
+        """!
+        Start homing procedure for specified motor.
+
+        @param motor string: Name of motor to enable: 'hp' or 'ht'
+
+        @exception NameError: Parameter motor has invalid value.
+        """
+        if motor != 'hp' and motor != 'ht':
+            raise NameError(motor)
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_START_HOMING
         self.action_motor_client[motor].send_goal(goal)
 
     def waitForMotor(self, motor, timeout_s=0):
+        """!
+        Wait for an action for a motor to complete.
+
+        @param motor string: Name of motor to enable: 'hp', 'ht' or 't'
+        @param timeout_s float: Timeout in seconds.
+
+        @return Returns error code or None if timed out.
+
+        @exception NameError: Parameter motor has invalid value.
+        """
+        if motor != 'hp' and motor != 'ht' and motor != 't':
+            raise NameError(motor)
+
         if not self.action_motor_client[motor].wait_for_result(timeout=rospy.Duration(timeout_s)):
             return None
         result = self.action_motor_client[motor].get_result()
@@ -589,15 +649,37 @@ class VelmaInterface:
         return error_code
 
     def enableHP(self):
+        """!
+        Enable head pan motor.
+
+        @see enableMotor
+        """
         self.enableMotor("hp")
 
     def enableHT(self):
+        """!
+        Enable head tilt motor.
+
+        @see enableMotor
+        """
         self.enableMotor("ht")
 
     def enableT(self):
+        """!
+        Enable torso motor.
+
+        @see enableMotor
+        """
         self.enableMotor("t")
 
     def enableMotors(self, timeout=0):
+        """!
+        Enable all motors and wait.
+
+        @param timeout_s float: Timeout in seconds.
+
+        @see enableMotor
+        """
         self.enableHP()
         self.enableHT()
         self.enableT()
@@ -611,21 +693,50 @@ class VelmaInterface:
         return r_t
 
     def startHomingHP(self):
+        """!
+        Start homing procedure for head pan motor.
+
+        @see startHomingMotor
+        """
         self.startHomingMotor("hp")
 
     def startHomingHT(self):
+        """!
+        Start homing procedure for head tilt motor.
+
+        @see startHomingMotor
+        """
+        self.startHomingMotor("hp")
         self.startHomingMotor("ht")
 
-    def startHomingT(self):
-        print "startHomingT: ERROR: torso motor should not be homed"
-
     def waitForHP(self, timeout_s=0):
+        """!
+        Wait for head pan motor.
+
+        @param timeout_s float: Timeout in seconds.
+
+        @see waitForMotor
+        """
         return self.waitForMotor("hp", timeout_s=timeout_s)
 
     def waitForHT(self, timeout_s=0):
+        """!
+        Wait for head tilt motor.
+
+        @param timeout_s float: Timeout in seconds.
+
+        @see waitForMotor
+        """
         return self.waitForMotor("ht", timeout_s=timeout_s)
 
     def waitForT(self, timeout_s=0):
+        """!
+        Wait for torso motor.
+
+        @param timeout_s float: Timeout in seconds.
+
+        @see waitForMotor
+        """
         return self.waitForMotor("t", timeout_s=timeout_s)
 
     def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
@@ -731,7 +842,7 @@ class VelmaInterface:
     def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
         return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping)
 
-    cartesian_trajectory_result_names = {
+    _cartesian_trajectory_result_names = {
         CartImpResult.SUCCESSFUL:'SUCCESSFUL',
         CartImpResult.INVALID_GOAL:'INVALID_GOAL',
         CartImpResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
@@ -746,7 +857,7 @@ class VelmaInterface:
             return None
         result = self.action_cart_traj_client[prefix].get_result()
         if result.error_code != 0:
-            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.cartesian_trajectory_result_names[result.error_code] + ")"
+            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._cartesian_trajectory_result_names[result.error_code] + ")"
         return result.error_code
 
     def waitForEffectorLeft(self, timeout_s=None):
@@ -759,7 +870,7 @@ class VelmaInterface:
 #        self.action_cart_traj_client[prefix].get_state()
 #        result = self.action_cart_traj_client[prefix].get_result()
 #        if result.error_code != 0:
-#            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.cartesian_trajectory_result_names[result.error_code] + ")"
+#            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._cartesian_trajectory_result_names[result.error_code] + ")"
 #        return result.error_code
 
 #    def isActiveEffectorRight(self):
@@ -854,11 +965,11 @@ class VelmaInterface:
 
 #    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi):
 #        goal = FollowJointTrajectoryGoal()
-#        goal.trajectory.joint_names = self.body_joint_names
+#        goal.trajectory.joint_names = self._body_joint_names
 #
 #        vel = []
 #        q_dest_all = []
-#        for joint_name in self.body_joint_names:
+#        for joint_name in self._body_joint_names:
 #            if joint_name in joint_names:
 #                q_idx = joint_names.index(joint_name)
 #                q_dest_all.append(q_dest[q_idx])
@@ -880,7 +991,7 @@ class VelmaInterface:
 
     def moveJointTraj(self, traj, joint_names, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         goal = FollowJointTrajectoryGoal()
-        goal.trajectory.joint_names = self.body_joint_names
+        goal.trajectory.joint_names = self._body_joint_names
 
         pos = traj[0]
         vel = traj[1]
@@ -895,7 +1006,7 @@ class VelmaInterface:
             q_dest_all = []
             vel_dest_all = []
 
-            for joint_name in self.body_joint_names:
+            for joint_name in self._body_joint_names:
                 if joint_name in joint_names:
                     q_idx = joint_names.index(joint_name)
                     q_dest_all.append(pos[node_idx][q_idx])
@@ -977,38 +1088,38 @@ class VelmaInterface:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
         return result.error_code
 
-    def stopArm(self, prefix):
-        try:
-            self.action_cart_traj_client[prefix].cancel_goal()
-        except:
-            pass
+#    def stopArm(self, prefix):
+#        try:
+#            self.action_cart_traj_client[prefix].cancel_goal()
+#        except:
+#            pass
 
-    def stopArmLeft(self):
-        self.stopArm("left")
+#    def stopArmLeft(self):
+#        self.stopArm("left")
 
-    def stopArmRight(self):
-        self.stopArm("right")
+#    def stopArmRight(self):
+#        self.stopArm("right")
 
-    def emergencyStop(self):
-        self.stopArmLeft()
-        self.stopArmRight()
-        self.emergency_stop_active = True
-        print "emergency stop"
+#    def emergencyStop(self):
+#        self.stopArmLeft()
+#        self.stopArmRight()
+#        self.emergency_stop_active = True
+#        print "emergency stop"
 
-    def checkStopCondition(self, t=0.0):
-
-        end_t = rospy.Time.now()+rospy.Duration(t+0.0001)
-        while rospy.Time.now()<end_t:
-            if rospy.is_shutdown():
-                self.emergencyStop()
-                print "emergency stop: interrupted  %s  %s"%(self.getMaxWrench(), self.wrench_tab_index)
-                self.failure_reason = "user_interrupt"
-                rospy.sleep(1.0)
-            if self.wrench_emergency_stop:
-                self.emergencyStop()
-                print "too big wrench"
-                self.failure_reason = "too_big_wrench"
-                rospy.sleep(1.0)
+#    def checkStopCondition(self, t=0.0):
+#
+#        end_t = rospy.Time.now()+rospy.Duration(t+0.0001)
+#        while rospy.Time.now()<end_t:
+#            if rospy.is_shutdown():
+#                self.emergencyStop()
+#                print "emergency stop: interrupted  %s  %s"%(self.getMaxWrench(), self.wrench_tab_index)
+#                self.failure_reason = "user_interrupt"
+#                rospy.sleep(1.0)
+#            if self.wrench_emergency_stop:
+#                self.emergencyStop()
+#                print "too big wrench"
+#                self.failure_reason = "too_big_wrench"
+#                rospy.sleep(1.0)
 
 #            if (self.action_cart_traj_client != None) and (self.action_cart_traj_client.gh) and ((self.action_cart_traj_client.get_state()==GoalStatus.REJECTED) or (self.action_cart_traj_client.get_state()==GoalStatus.ABORTED)):
 #                state = self.action_cart_traj_client.get_state()
@@ -1025,8 +1136,8 @@ class VelmaInterface:
 #                print "emergency stop: tool_err: %s ; %s ; max_wrench: %s   %s"%(state, result, self.getMaxWrench(), self.wrench_tab_index)
 #                self.failure_reason = "too_big_wrench_tool"
 #                rospy.sleep(1.0)
-            rospy.sleep(0.01)
-        return self.emergency_stop_active
+#            rospy.sleep(0.01)
+#        return self.emergency_stop_active
 
     # ex.
     # q = (120.0/180.0*numpy.pi, 120.0/180.0*numpy.pi, 40.0/180.0*numpy.pi, 180.0/180.0*numpy.pi)
@@ -1039,7 +1150,7 @@ class VelmaInterface:
 #        except rospy.ServiceException, e:
 #            print "Service call failed: %s"%e
 
-    moveHand_action_error_codes_names = {
+    _moveHand_action_error_codes_names = {
         0:"SUCCESSFUL",
         -1:"INVALID_DOF_NAME",
         -2:"INVALID_GOAL",
@@ -1082,7 +1193,7 @@ class VelmaInterface:
         self.action_move_hand_client[prefix].wait_for_result()
         result = self.action_move_hand_client[prefix].get_result()
         if result.error_code != 0:
-            print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self.moveHand_action_error_codes_names[result.error_code] + ")"
+            print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._moveHand_action_error_codes_names[result.error_code] + ")"
         return result.error_code
 
     def waitForHandLeft(self):
@@ -1097,30 +1208,30 @@ class VelmaInterface:
         return False
 
     def getKDLtf(self, base_frame, frame):
-        pose = self.listener.lookupTransform(base_frame, frame, rospy.Time(0))
+        pose = self._listener.lookupTransform(base_frame, frame, rospy.Time(0))
         return pm.fromTf(pose)
 
     def getAllLinksTf(self, base_frame):
         result = {}
-        for l in self.all_links:
+        for l in self._all_links:
             try:
                 result[l.name] = self.getKDLtf(base_frame, l.name)
             except:
                 result[l.name] = None
         return result
 
-    fingers_links = {
-        (0,0):'_HandFingerOneKnuckleOneLink',
-        (0,1):'_HandFingerOneKnuckleTwoLink',
-        (0,2):'_HandFingerOneKnuckleThreeLink',
-        (1,0):'_HandFingerTwoKnuckleOneLink',
-        (1,1):'_HandFingerTwoKnuckleTwoLink',
-        (1,2):'_HandFingerTwoKnuckleThreeLink',
-        (2,1):'_HandFingerThreeKnuckleTwoLink',
-        (2,2):'_HandFingerThreeKnuckleThreeLink',
-    }
+#    _fingers_links = {
+#        (0,0):'_HandFingerOneKnuckleOneLink',
+#        (0,1):'_HandFingerOneKnuckleTwoLink',
+#        (0,2):'_HandFingerOneKnuckleThreeLink',
+#        (1,0):'_HandFingerTwoKnuckleOneLink',
+#        (1,1):'_HandFingerTwoKnuckleTwoLink',
+#        (1,2):'_HandFingerTwoKnuckleThreeLink',
+#        (2,1):'_HandFingerThreeKnuckleTwoLink',
+#        (2,2):'_HandFingerThreeKnuckleThreeLink',
+#    }
 
-    frames = {
+    _frames = {
         'Wo':'world',
         'B':'torso_base',
         'Wr':'right_arm_7_link',
@@ -1152,29 +1263,29 @@ class VelmaInterface:
     }
 
     def getTf(self, frame_from, frame_to):
-        if frame_from in self.frames and frame_to in self.frames:
-            return self.getKDLtf( self.frames[frame_from], self.frames[frame_to] )
+        if frame_from in self._frames and frame_to in self._frames:
+            return self.getKDLtf( self._frames[frame_from], self._frames[frame_to] )
         return None
 
-    def handleEmergencyStop(self):
-        if self.emergency_stop_active:
-            ch = '_'
-            while (ch != 'e') and (ch != 'n') and (ch != 'r'):
-                ch = raw_input("Emergency stop active... (e)xit, (n)ext case, (r)epeat case: ")
-            if ch == 'e':
-                exit(0)
-            if ch == 'n':
-                self.action = "next"
-                self.index += 1
-            if ch == 'r':
-                self.action = "repeat"
-            self.updateTransformations()
-            print "moving desired pose to current pose"
-            self.emergency_stop_active = False
-            self.moveWrist(self.T_B_W, 2.0, Wrench(Vector3(25,25,25), Vector3(5,5,5)))
-            self.checkStopCondition(2.0)
-            return True
-        return False
+#    def handleEmergencyStop(self):
+#        if self.emergency_stop_active:
+#            ch = '_'
+#            while (ch != 'e') and (ch != 'n') and (ch != 'r'):
+#                ch = raw_input("Emergency stop active... (e)xit, (n)ext case, (r)epeat case: ")
+#            if ch == 'e':
+#                exit(0)
+#            if ch == 'n':
+#                self.action = "next"
+#                self.index += 1
+#            if ch == 'r':
+#                self.action = "repeat"
+#            self.updateTransformations()
+#            print "moving desired pose to current pose"
+#            self.emergency_stop_active = False
+#            self.moveWrist(self.T_B_W, 2.0, Wrench(Vector3(25,25,25), Vector3(5,5,5)))
+#            self.checkStopCondition(2.0)
+#            return True
+#        return False
 
     def getMovementTime(self, T_B_Wd, max_v_l = 0.1, max_v_r = 0.2):
         self.updateTransformations()

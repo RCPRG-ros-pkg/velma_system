@@ -79,7 +79,7 @@ if __name__ == "__main__":
         exitError(6)
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_1, js):
+    if not isConfigurationClose(q_map_1, js[1]):
         exitError(7)
 
     print "moving right arm to another pose (cimp)"
@@ -122,7 +122,7 @@ if __name__ == "__main__":
         exitError(13)
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_1, js):
+    if not isConfigurationClose(q_map_1, js[1]):
         exitError(14)
 
     print "moving arms to self-collision pose (cimp)"

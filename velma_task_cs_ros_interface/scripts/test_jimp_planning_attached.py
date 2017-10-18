@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_goal, js):
+    if not isConfigurationClose(q_map_goal, js[1]):
         exitError(6)
 
     rospy.sleep(1.0)
@@ -185,7 +185,7 @@ if __name__ == "__main__":
             continue
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_end, js):
+    if not isConfigurationClose(q_map_end, js[1]):
         exitError(8)
 
     pub.stop()

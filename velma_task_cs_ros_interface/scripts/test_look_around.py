@@ -98,7 +98,7 @@ if __name__ == "__main__":
     rospy.sleep(0.5)
     js = velma.getLastJointState()
 
-    if isConfigurationClose(q_map, js, tolerance=1.6):
+    if isConfigurationClose(q_map, js[1], tolerance=1.6):
         velma.moveJoint(q_map, None, 2.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
         velma.waitForJoint()
     else:
@@ -128,7 +128,7 @@ if __name__ == "__main__":
             exitError(6)
         rospy.sleep(0.5)
         js = velma.getLastJointState()
-        if not isConfigurationClose(q_map, js, tolerance=0.2):
+        if not isConfigurationClose(q_map, js[1], tolerance=0.2):
             exitError(7)
 
     # body position: right
