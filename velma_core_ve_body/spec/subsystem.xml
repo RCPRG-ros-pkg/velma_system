@@ -171,7 +171,7 @@
         </state>
         <state name="idle">
             <behavior name="idle" />
-            <next_state name="safe_st" init_cond="recvStatus"/>
+            <next_state name="safe_st" init_cond="TRUE"/>
             <buffer_group name="status" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
     </states>

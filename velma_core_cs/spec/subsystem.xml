@@ -181,7 +181,7 @@
     <states initial="idle">
         <state name="idle">
             <behavior name="idle" />
-            <next_state name="safe" init_cond="veBodyStatusValid and (not veBodyInSafeState)"/>
+            <next_state name="safe" init_cond="TRUE"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 
@@ -189,9 +189,9 @@
 <!--            <behavior name="safe_hands_neck" />-->
             <behavior name="safe" />
             <next_state name="idle" init_cond="IN_ERROR"/>
-            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
-            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
-            <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
+            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
+            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
+            <next_state name="safe_col" init_cond="(not IN_ERROR) and recvSafeColCmd"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 
@@ -199,8 +199,8 @@
             <behavior name="position_hands_neck" />
             <behavior name="safe_col" />
             <next_state name="idle" init_cond="IN_ERROR"/>
-            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
-            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
+            <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
+            <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
         </state>
 

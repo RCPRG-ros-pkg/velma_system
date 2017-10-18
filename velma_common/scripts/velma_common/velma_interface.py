@@ -30,7 +30,7 @@ import tf
 import math
 import time
 import copy
-from threading import Lock
+import threading
 from functools import partial
 
 from geometry_msgs.msg import Wrench, Vector3, Twist
@@ -82,9 +82,12 @@ def isHandConfigurationClose(current_q, dest_q, tolerance=0.1):
         abs(current_q[6]-dest_q[2]) < tolerance
 
 class VelmaInterface:
+    """ROS-based, Python interface class for WUT Velma Robot.
+
+    This class implements methods that use ROS topics, actions and services
+    to communicate with velma_task_cs_ros_interface subsystem of velma_task
+    agent.
     """
-Class used as Velma robot Interface.
-"""
 
     class VisualMesh:
         def __init__(self):
@@ -98,12 +101,28 @@ Class used as Velma robot Interface.
             self.visuals = []
 
     def getLastJointState(self):
-        result = None
+        """!
+        Get the newest joint state.
+
+        @return (rospy.Time, dictionary): A Pair of timestamp of the newest joint state and dictionary
+        (with key=joint_name, value=joint_position), or None if there is no joint state data yet.
+
+        """
         with self.joint_states_lock:
             if self.js_pos_history_idx >= 0:
                 return copy.copy(self.js_pos_history[self.js_pos_history_idx])
+        return None
 
     def getJointStateAtTime(self, time):
+        """!
+        Get interpolated joint state at a given time.
+
+        @param time rospy.Time: Time of joint state to be computed.
+
+        @return dictionary: A dictionary (with key=joint_name, value=joint_position) of interpolated joint positions
+        or None, if time is not within current joint state history.
+
+        """
         with self.joint_states_lock:
             if self.js_pos_history_idx < 0:
                 return None
@@ -125,41 +144,87 @@ Class used as Velma robot Interface.
                     return js_pos
             return None
 
-    def jointStatesCallback(self, data):
+    # Private method used as callback for joint_states ROS topic.
+    def _jointStatesCallback(self, data):
         with self.joint_states_lock:
             joint_idx = 0
+            js_pos = {}
             for joint_name in data.name:
-                self.js_pos[joint_name] = data.position[joint_idx]
+                js_pos[joint_name] = data.position[joint_idx]
                 joint_idx += 1
 
             self.js_pos_history_idx = (self.js_pos_history_idx + 1) % len(self.js_pos_history)
-            self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(self.js_pos))
+            self.js_pos_history[self.js_pos_history_idx] = (data.header.stamp, copy.copy(js_pos))
 
     def getHandCurrentConfiguration(self, prefix):
+        """!
+        Get current configuration of a specified hand.
+
+        @param prefix string: Hand name, can be one of two values ('left' or 'right').
+
+        @return An 8-tuple of positions of all joints of the specified hand,
+            or None if there is no valid joint state data. The sequence
+            of joint positions is: FingerOneKnuckleOneJoint, FingerOneKnuckleTwoJoint,
+            FingerOneKnuckleThreeJoint, FingerTwoKnuckleOneJoint, FingerTwoKnuckleTwoJoint,
+            FingerTwoKnuckleThreeJoint, FingerThreeKnuckleTwoJoint,
+            FingerThreeKnuckleThreeJoint.
+
+        @exception NameError: If prefix is not 'left' or 'right'.
+        """
+        if prefix != 'left' and prefix != 'right':
+            raise NameError('wrong prefix: ' + str(prefix))
         js = self.getLastJointState()
-        q = [ js[1][prefix+'_HandFingerOneKnuckleOneJoint'],
+        if js == None:
+            return None
+        q = ( js[1][prefix+'_HandFingerOneKnuckleOneJoint'],
             js[1][prefix+'_HandFingerOneKnuckleTwoJoint'],
             js[1][prefix+'_HandFingerOneKnuckleThreeJoint'],
             js[1][prefix+'_HandFingerTwoKnuckleOneJoint'],
             js[1][prefix+'_HandFingerTwoKnuckleTwoJoint'],
             js[1][prefix+'_HandFingerTwoKnuckleThreeJoint'],
             js[1][prefix+'_HandFingerThreeKnuckleTwoJoint'],
-            js[1][prefix+'_HandFingerThreeKnuckleThreeJoint'] ]
+            js[1][prefix+'_HandFingerThreeKnuckleThreeJoint'] )
         return q
 
     def getHandLeftCurrentConfiguration(self):
+        """!
+        Get current configuration of left hand.
+
+        @return tuple: An 8-tuple of positions of all joints of left hand,
+            or None if there is no valid joint state data.
+
+        @see getHandCurrentConfiguration
+        """
         return self.getHandCurrentConfiguration("left")
 
     def getHandRightCurrentConfiguration(self):
+        """!
+        Get current configuration of right hand.
+
+        @return tuple: An 8-tuple of positions of all joints of right hand,
+            or None if there is no valid joint state data.
+
+        @see getHandCurrentConfiguration
+
+        """
         return self.getHandCurrentConfiguration("right")
 
     def getHeadCurrentConfiguration(self):
+        """!
+        Get current configuration of neck.
+
+        @return tuple: A 2-tuple of positions of neck joints,
+            or None if there is no valid joint state data.
+        """
         js = self.getLastJointState()
-        q = [ js[1]["head_pan_joint"],
-            js[1]["head_tilt_joint"] ]
+        if js == None:
+            return None
+        q = ( js[1]["head_pan_joint"],
+            js[1]["head_tilt_joint"] )
         return q
 
-    def allActionsConnected(self):
+    # Private method used in waitForInit.
+    def _allActionsConnected(self):
         allConnected = True
         for side in self.action_move_hand_client_connected:
             if not self.action_move_hand_client_connected[side]:
@@ -188,13 +253,20 @@ Class used as Velma robot Interface.
         return allConnected
 
     def waitForInit(self, timeout_s = None):
+        """!
+        Wait for the interface until it is initialized.
+
+        @param timeout_s float: Timeout in seconds.
+
+        @return True if the interface was succesfully initialized within timeout, False otherwise.
+        """
         time_start = time.time()
         can_break = False
         while not rospy.is_shutdown():
             with self.joint_states_lock:
                 if self.js_pos_history_idx >= 0:
                     can_break = True
-            if can_break and self.allActionsConnected():
+            if can_break and self._allActionsConnected():
                 break
             rospy.sleep(0.1)
             time_now = time.time()
@@ -207,30 +279,50 @@ Class used as Velma robot Interface.
                 return False
         return True
 
-    def getBodyJointLowerLimits(self):
-        return self.body_joint_lower_limits
+    def getBodyJointLimits(self):
+        """!
+        Gets limits of joints of both arms and torso.
+        Joints of neck and grippers are not included.
+        The joints are used in impedance control (both joint and cartesian).
 
-    def getBodyJointUpperLimits(self):
-        return self.body_joint_upper_limits
+        @return dictionary: Returns a dictionary {name:(lower_limit, upper_limit)} that maps joint name to
+        a 2-tupe with lower and upper joint limit.
+        """
+        return self.body_joint_limits
 
-    def getHeadJointLowerLimits(self):
-        return self.head_joint_lower_limits
+    def getHeadJointLimits(self):
+        """!
+        Gets limits of joints of neck.
 
-    def getHeadJointUpperLimits(self):
-        return self.head_joint_upper_limits
+        @return dictionary: Returns a dictionary {name:(lower_limit, upper_limit)} that maps joint name to
+        a 2-tupe with lower and upper joint limit.
+        """
+        return self.head_joint_limits
 
-    def __init__(self, namespace="/velma_controller"):
+    def __init__(self, namespace):
+        """!
+        Initialization of the interface.
+
+        @param namespace string: ROS namespace of control subssytem of velma_task agent.
+
+        """
 
         self.listener = tf.TransformListener();
 
         # read the joint information from the ROS parameter server
         self.body_joint_names = rospy.get_param(namespace+"/JntImpAction/joint_names")
-        self.body_joint_lower_limits = rospy.get_param(namespace+"/JntImpAction/lower_limits")
-        self.body_joint_upper_limits = rospy.get_param(namespace+"/JntImpAction/upper_limits")
+        body_joint_lower_limits = rospy.get_param(namespace+"/JntImpAction/lower_limits")
+        body_joint_upper_limits = rospy.get_param(namespace+"/JntImpAction/upper_limits")
+        self.body_joint_limits = {}
+        for i in range(len(self.body_joint_names)):
+            self.body_joint_limits[self.body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
 
-#        self.head_joint_names = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/joint_names")
-#        self.head_joint_lower_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/lower_limits")
-#        self.head_joint_upper_limits = rospy.get_param(namespace+"/HeadSplineTrajectoryActionJoint/upper_limits")
+        self.head_joint_names = rospy.get_param(namespace+"/HeadAction/joint_names")
+        head_joint_lower_limits = rospy.get_param(namespace+"/HeadAction/lower_limits")
+        head_joint_upper_limits = rospy.get_param(namespace+"/HeadAction/upper_limits")
+        self.head_joint_limits = {}
+        for i in range(len(self.head_joint_names)):
+            self.head_joint_limits[self.head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
 
         self.all_joint_names = rospy.get_param(namespace+"/JntPub/joint_names")
 
@@ -279,7 +371,6 @@ Class used as Velma robot Interface.
         #print "self.all_links", self.all_links
         #print "self.all_joint_names", self.all_joint_names
 
-        self.js_pos = {}
         self.js_pos_history = []
         for i in range(200):
             self.js_pos_history.append( None )
@@ -301,7 +392,7 @@ Class used as Velma robot Interface.
 
         self.last_contact_time = rospy.Time.now()
 
-        self.joint_states_lock = Lock()
+        self.joint_states_lock = threading.Lock()
 
         # for score function
         self.failure_reason = "unknown"
@@ -370,7 +461,7 @@ Class used as Velma robot Interface.
         for i in range(0,self.wrench_tab_len):
             self.wrench_tab.append( Wrench(Vector3(), Vector3()) )
 
-        self.listener_joint_states = rospy.Subscriber('/joint_states', JointState, self.jointStatesCallback)
+        self.listener_joint_states = rospy.Subscriber('/joint_states', JointState, self._jointStatesCallback)
 
         subscribed_topics_list = [
             ('/right_arm/transformed_wrench', geometry_msgs.msg.Wrench),
@@ -383,54 +474,94 @@ Class used as Velma robot Interface.
         self.subscribed_topics = {}
 
         for topic in subscribed_topics_list:
-            self.subscribed_topics[topic[0]] = [Lock(), None]
-            sub = rospy.Subscriber(topic[0], topic[1], partial( self.topicCallback, topic = topic[0] ))
+            self.subscribed_topics[topic[0]] = [threading.Lock(), None]
+            sub = rospy.Subscriber(topic[0], topic[1], partial( self._topicCallback, topic = topic[0] ))
             self.subscribed_topics[topic[0]].append(sub)
 
-    def topicCallback(self, data, topic):
-        self.subscribed_topics[topic][0].acquire()
-        self.subscribed_topics[topic][1] = copy.copy(data)
-        self.subscribed_topics[topic][0].release()
+    # Private method
+    def _topicCallback(self, data, topic):
+        with self.subscribed_topics[topic][0]:
+            self.subscribed_topics[topic][1] = copy.copy(data)
 
-    def getTopicData(self, topic):
-        self.subscribed_topics[topic][0].acquire()
-        data = copy.copy(self.subscribed_topics[topic][1])
-        self.subscribed_topics[topic][0].release()
-        return data
+    # Private method
+    def _getTopicData(self, topic):
+        with self.subscribed_topics[topic][0]:
+            return copy.copy(self.subscribed_topics[topic][1])
 
     def getRawFTr(self):
-        return self.wrenchROStoKDL( self.getTopicData('/right_arm/ft_sensor/wrench') )
+        """!
+        Gets right F/T sensor raw reading.
+
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/right_arm/ft_sensor/wrench') )
 
     def getRawFTl(self):
-        return self.wrenchROStoKDL( self.getTopicData('/left_arm/ft_sensor/wrench') )
+        """!
+        Gets left F/T sensor raw reading.
+
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/left_arm/ft_sensor/wrench') )
 
     def getTransformedFTr(self):
-        return self.wrenchROStoKDL( self.getTopicData('/right_arm/transformed_wrench') )
+        """!
+        Gets right F/T sensor transformed reading.
+
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/right_arm/transformed_wrench') )
 
     def getTransformedFTl(self):
-        return self.wrenchROStoKDL( self.getTopicData('/left_arm/transformed_wrench') )
+        """!
+        Gets left F/T sensor transformed reading.
+
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/left_arm/transformed_wrench') )
 
     def getWristWrenchr(self):
-        return self.wrenchROStoKDL( self.getTopicData('/right_arm/wrench') )
+        """!
+        Gets estimated wrench for the right end effector.
+
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/right_arm/wrench') )
 
     def getWristWrenchl(self):
-        return self.wrenchROStoKDL( self.getTopicData('/left_arm/wrench') )
+        """!
+        Gets estimated wrench for the left end effector.
 
-    def action_right_cart_traj_feedback_cb(self, feedback):
+        @return PyKDL.Wrench: Returns KDL wrench.
+        """
+        return self._wrenchROStoKDL( self._getTopicData('/left_arm/wrench') )
+
+    # Private method
+    def _action_right_cart_traj_feedback_cb(self, feedback):
         self.action_right_cart_traj_feedback = copy.deepcopy(feedback)
 
-    def wrenchKDLtoROS(self, wrKDL):
+    # Private method
+    def _wrenchKDLtoROS(self, wrKDL):
         return geometry_msgs.msg.Wrench(Vector3( wrKDL.force.x(), wrKDL.force.y(), wrKDL.force.z() ), Vector3( wrKDL.torque.x(), wrKDL.torque.y(), wrKDL.torque.z() ))
 
-    def wrenchROStoKDL(self, wrROS):
+    # Private method
+    def _wrenchROStoKDL(self, wrROS):
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
     def switchToSafeColBehavior(self):
+        """!
+        Switches the robot to SafeCol behavior.
+        """
         goal = BehaviorSwitchGoal()
         goal.command = 1
         self.action_safe_col_client.send_goal(goal)
 
     def enableMotor(self, motor):
+        """!
+        Enables motor.
+
+        @param motor string: 
+        """
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_ENABLE
         self.action_motor_client[motor].send_goal(goal)
@@ -510,14 +641,14 @@ Class used as Velma robot Interface.
         rospy.Duration(t),
         wrist_pose,
         Twist()))
-        action_trajectory_goal.wrench_constraint = self.wrenchKDLtoROS(max_wrench)
+        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
         if path_tol != None:
             action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
             action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
             action_trajectory_goal.goal_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
             action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
-        self.current_max_wrench = self.wrenchKDLtoROS(max_wrench)
-        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self.action_right_cart_traj_feedback_cb)
+        self.current_max_wrench = self._wrenchKDLtoROS(max_wrench)
+        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self._action_right_cart_traj_feedback_cb)
         return True
 
     def moveEffectorLeft(self, T_B_Tld, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
@@ -543,7 +674,7 @@ Class used as Velma robot Interface.
             Twist()))
             i += 1
 
-        action_trajectory_goal.wrench_constraint = self.wrenchKDLtoROS(max_wrench)
+        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
         self.current_max_wrench = max_wrench
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
 
@@ -585,10 +716,10 @@ Class used as Velma robot Interface.
             for k in imp_list:
                 action_trajectory_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
                 rospy.Duration(imp_times[i]),
-                CartesianImpedance(self.wrenchKDLtoROS(k), damping)))
+                CartesianImpedance(self._wrenchKDLtoROS(k), damping)))
                 i += 1
 
-        action_trajectory_goal.wrench_constraint = self.wrenchKDLtoROS(max_wrench)
+        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
         self.current_max_wrench = max_wrench
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
 
@@ -757,6 +888,8 @@ Class used as Velma robot Interface.
         dti = traj[3]
         time = 0.0
 
+        js = self.getLastJointState()
+
         for node_idx in range(0, len(pos)):
             time += dti[node_idx]
             q_dest_all = []
@@ -771,7 +904,7 @@ Class used as Velma robot Interface.
                     else:
                         vel_dest_all.append(0)
                 else:
-                    q_dest_all.append(self.js_pos[joint_name])
+                    q_dest_all.append(js[1][joint_name])
                     vel_dest_all.append(0)
 
             goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
