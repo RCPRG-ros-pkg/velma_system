@@ -27,7 +27,7 @@ if __name__ == "__main__":
         " in this example.\n"
 
     print "Running python interface for Velma..."
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
+    velma = VelmaInterface()
     print "Waiting for VelmaInterface initialization..."
     if not velma.waitForInit(timeout_s=10.0):
         print "Could not initialize VelmaInterface\n"
@@ -76,11 +76,11 @@ if __name__ == "__main__":
 
     print "Moving to valid position, using planned trajectory."
     goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01)
-    for i in range(3):
+    for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -118,11 +118,11 @@ if __name__ == "__main__":
 
     print "Moving to starting position, using planned trajectory."
     goal_constraint_2 = qMapToConstraints(q_map_end, 0.01)
-    for i in range(3):
+    for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js, [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj, jn = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -142,11 +142,11 @@ if __name__ == "__main__":
 
     print "Moving to valid position, using planned trajectory."
     goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01)
-    for i in range(3):
+    for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js, [goal_constraint_1], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj, jn = p.plan(js[1], [goal_constraint_1], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -184,11 +184,11 @@ if __name__ == "__main__":
 
     print "Moving to starting position, using planned trajectory."
     goal_constraint_2 = qMapToConstraints(q_map_end, 0.01)
-    for i in range(3):
+    for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js, [goal_constraint_2], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj, jn = p.plan(js[1], [goal_constraint_2], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."

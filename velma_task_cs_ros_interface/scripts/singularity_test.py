@@ -44,7 +44,7 @@ if __name__ == "__main__":
     goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
 
     js = velma.getLastJointState()
-    traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
 
     velma.moveJointTraj(traj, jn, start_time=0.5)
     velma.waitForJoint()
@@ -70,13 +70,13 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js, [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.1)
+    traj, jn = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.1)
     velma.moveJointTraj(traj, jn, start_time=0.5)
     velma.waitForJoint()
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
     velma.moveJointTraj(traj, jn, start_time=0.5)
     velma.waitForJoint()
 

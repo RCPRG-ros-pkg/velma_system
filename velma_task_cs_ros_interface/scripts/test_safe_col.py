@@ -17,28 +17,21 @@ if __name__ == "__main__":
 
     rospy.sleep(1)
 
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
-    print "waiting for VelmaInterface init..."
-    if not velma.waitForInit(timeout_s=20):
-        print "could not initialize VelmaInterface"
+    print "Running python interface for Velma..."
+    velma = VelmaInterface()
+    print "Waiting for VelmaInterface initialization..."
+    if not velma.waitForInit(timeout_s=10.0):
+        print "Could not initialize VelmaInterface\n"
         exitError(1)
-    print "VelmaInterface init ok"
+    print "Initialization ok!\n"
 
-
+    print "Motors must be enabled every time after the robot enters safe state."
+    print "If the motors are already enabled, enabling them has no effect."
+    print "Enabling motors..."
     if velma.enableMotors() != 0:
         exitError(14)
 
-    print "sending head pan START_HOMING command"
-    velma.startHomingHP()
-    if velma.waitForHP() != 0:
-        exitError(14)
-
-    print "sending head tilt START_HOMING command"
-    velma.startHomingHT()
-    if velma.waitForHT() != 0:
-        exitError(15)
-
     velma.switchToSafeColBehavior()
 
-    rospy.sleep(1)
+    rospy.sleep(0.5)
     exit(0)

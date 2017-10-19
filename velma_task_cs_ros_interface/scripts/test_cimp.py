@@ -18,12 +18,13 @@ if __name__ == "__main__":
 
     rospy.sleep(1)
 
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
-    print "waiting for VelmaInterface init..."
-    if not velma.waitForInit(timeout_s=20):
-        print "could not initialize VelmaInterface"
+    print "Running python interface for Velma..."
+    velma = VelmaInterface()
+    print "Waiting for VelmaInterface initialization..."
+    if not velma.waitForInit(timeout_s=10.0):
+        print "Could not initialize VelmaInterface\n"
         exitError(1)
-    print "VelmaInterface init ok"
+    print "Initialization ok!\n"
 
     print "waiting for Planner init..."
     p = Planner(velma.maxJointTrajLen())
@@ -34,16 +35,6 @@ if __name__ == "__main__":
 
     if velma.enableMotors() != 0:
         exitError(14)
-
-    print "sending head pan START_HOMING command"
-    velma.startHomingHP()
-    if velma.waitForHP() != 0:
-        exitError(14)
-
-    print "sending head tilt START_HOMING command"
-    velma.startHomingHT()
-    if velma.waitForHT() != 0:
-        exitError(15)
 
     q_map_1 = {'torso_0_joint':0.0,
         'right_arm_0_joint':-0.3,
@@ -62,25 +53,33 @@ if __name__ == "__main__":
         'left_arm_6_joint':0.0
         }
 
-    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
+    # get initial configuration
+    js_init = velma.getLastJointState()
 
-    print "moving whole body to initial pose (jimp)"
-    js = velma.getLastJointState()
-    for i in range(10):
-        traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
-        if traj != None:
+    print "Planning motion to the goal position using set of all joints..."
+
+    print "Moving to valid position, using planned trajectory."
+    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
+    for i in range(5):
+        rospy.sleep(0.5)
+        js = velma.getLastJointState()
+        print "Planning (try", i, ")..."
+        traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        if traj == None:
+            continue
+        print "Executing trajectory..."
+        if not velma.moveJointTraj(traj, jn, start_time=0.5):
+            exitError(5)
+        if velma.waitForJoint() == 0:
             break
-    if traj == None:
-        print "ERROR: planning"
-        exitError(4)
-    if not velma.moveJointTraj(traj, jn, start_time=0.5):
-        exitError(5)
-    if velma.waitForJoint() != 0:
-        exitError(6)
+        else:
+            print "The trajectory could not be completed, retrying..."
+            continue
+
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_1, js[1]):
-        exitError(7)
+        exitError(6)
 
     print "moving right arm to another pose (cimp)"
     T_B_Trd = velma.getTf("B", "Wr")
@@ -95,8 +94,36 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
 
+
+    print "Planning motion to the initial position using set of all joints..."
+
+    print "Moving to valid position, using planned trajectory."
+    goal_constraint_2 = qMapToConstraints(js_init[1], 0.01)
+    for i in range(5):
+        rospy.sleep(0.5)
+        js = velma.getLastJointState()
+        print "Planning (try", i, ")..."
+        traj, jn = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        if traj == None:
+            continue
+        print "Executing trajectory..."
+        if not velma.moveJointTraj(traj, jn, start_time=0.5):
+            exitError(5)
+        if velma.waitForJoint() == 0:
+            break
+        else:
+            print "The trajectory could not be completed, retrying..."
+            continue
+
+    rospy.sleep(0.5)
+    js = velma.getLastJointState()
+    if not isConfigurationClose(js_init[1], js[1]):
+        exitError(6)
+
     print "The rest of this test is not ready yet"
     exitError(0)
+
+    #TODO: implement more motions
 
     print "moving right arm to another pose (cimp, error - too fast)"
     T_B_Trd = velma.getTf("B", "Wr")
@@ -116,7 +143,7 @@ if __name__ == "__main__":
 
     print "moving whole body to initial pose (jimp)"
     js = velma.getLastJointState()
-    traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
     if not velma.moveJointTraj(traj, jn, start_time=0.5):
         exitError(12)
     if velma.waitForJoint() != 0:

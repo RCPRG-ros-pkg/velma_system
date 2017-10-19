@@ -26,7 +26,7 @@ if __name__ == "__main__":
         " in this example.\n"
 
     print "Running python interface for Velma..."
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
+    velma = VelmaInterface()
     print "Waiting for VelmaInterface initialization..."
     if not velma.waitForInit(timeout_s=10.0):
         print "Could not initialize VelmaInterface\n"
@@ -149,6 +149,11 @@ if __name__ == "__main__":
         }
 
     print "To reach the goal position, some trajectory must be exetuted that contains additional, intermediate nodes"
+
+    print "Using SafeCol behavior to exit self collision..."
+    velma.switchToSafeColBehavior()
+
+    rospy.sleep(2)
 
     print "Moving to the intermediate position..."
     velma.moveJoint(q_map_intermediate, None, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)

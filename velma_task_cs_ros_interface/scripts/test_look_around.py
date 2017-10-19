@@ -116,7 +116,7 @@ if __name__ == "__main__":
         print "moving whole body to initial pose (jimp)"
         js = velma.getLastJointState()
         for i in range(10):
-            traj, jn = p.plan(js, [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.01)
+            traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.01)
             if traj != None:
                 break
         if traj == None:

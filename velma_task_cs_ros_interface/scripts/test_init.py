@@ -23,7 +23,7 @@ if __name__ == "__main__":
         " procedures required for robot operation.\n"
 
     print "Running python interface for Velma..."
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
+    velma = VelmaInterface()
     print "Waiting for VelmaInterface initialization..."
     if not velma.waitForInit(timeout_s=10.0):
         print "Could not initialize VelmaInterface\n"
