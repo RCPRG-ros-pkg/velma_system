@@ -124,12 +124,18 @@ class VelmaInterface:
     """
 
     class VisualMesh:
+        """!
+        This class contains information about geometric object: mesh.
+        """
         def __init__(self):
             self.type = "mesh"
             self.origin = None
             self.filename = None
 
     class Link:
+        """!
+        This class contains information about single link of robot.
+        """
         def __init__(self):
             self.name = None
             self.visuals = []
@@ -648,30 +654,6 @@ class VelmaInterface:
             print "waitForMotor('" + motor + "'): action failed with error_code=" + str(result.error_code)
         return error_code
 
-    def enableHP(self):
-        """!
-        Enable head pan motor.
-
-        @see enableMotor
-        """
-        self.enableMotor("hp")
-
-    def enableHT(self):
-        """!
-        Enable head tilt motor.
-
-        @see enableMotor
-        """
-        self.enableMotor("ht")
-
-    def enableT(self):
-        """!
-        Enable torso motor.
-
-        @see enableMotor
-        """
-        self.enableMotor("t")
-
     def enableMotors(self, timeout=0):
         """!
         Enable all motors and wait.
@@ -680,9 +662,9 @@ class VelmaInterface:
 
         @see enableMotor
         """
-        self.enableHP()
-        self.enableHT()
-        self.enableT()
+        self.enableMotor("hp")
+        self.enableMotor("ht")
+        self.enableMotor("t")
         r_hp = self.waitForHP(timeout_s=timeout)
         r_ht = self.waitForHT(timeout_s=timeout)
         r_t = self.waitForT(timeout_s=timeout)
@@ -739,63 +721,64 @@ class VelmaInterface:
         """
         return self.waitForMotor("t", timeout_s=timeout_s)
 
-    def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        wrist_pose = pm.toMsg(T_B_Td)
-#        self.br.sendTransform([wrist_pose.position.x, wrist_pose.position.y, wrist_pose.position.z], [wrist_pose.orientation.x, wrist_pose.orientation.y, wrist_pose.orientation.z, wrist_pose.orientation.w], rospy.Time.now(), "dest", "torso_base")
+#    def moveEffector(self, prefix, T_B_Td, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
+#        wrist_pose = pm.toMsg(T_B_Td)
 
-        action_trajectory_goal = CartImpGoal()
-        if stamp != None:
-            action_trajectory_goal.pose_trj.header.stamp = stamp
-        else:
-            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
-        rospy.Duration(t),
-        wrist_pose,
-        Twist()))
-        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
-        if path_tol != None:
-            action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
-            action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
-            action_trajectory_goal.goal_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
-            action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
-        self.current_max_wrench = self._wrenchKDLtoROS(max_wrench)
-        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self._action_right_cart_traj_feedback_cb)
-        return True
+#        action_trajectory_goal = CartImpGoal()
+#        if stamp != None:
+#            action_trajectory_goal.pose_trj.header.stamp = stamp
+#        else:
+#            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+#        action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
+#        rospy.Duration(t),
+#        wrist_pose,
+#        Twist()))
+#        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
+#        if path_tol != None:
+#            action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+#            action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
+#            action_trajectory_goal.goal_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+#            action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
+#        self.current_max_wrench = self._wrenchKDLtoROS(max_wrench)
+#        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal, feedback_cb = self._action_right_cart_traj_feedback_cb)
+#        return True
 
-    def moveEffectorLeft(self, T_B_Tld, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        return self.moveEffector("left", T_B_Tld, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
+#    def moveEffectorLeft(self, T_B_Tld, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
+#        return self.moveEffector("left", T_B_Tld, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
-    def moveEffectorRight(self, T_B_Trd, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
-        return self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
+#    def moveEffectorRight(self, T_B_Trd, t, max_wrench, start_time=0.01, stamp=None, path_tol=None):
+#        return self.moveEffector("right", T_B_Trd, t, max_wrench, start_time=start_time, stamp=stamp, path_tol=path_tol)
 
-    def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
+#    def moveEffectorTraj(self, prefix, list_T_B_Td, times, max_wrench, start_time=0.01, stamp=None):
+#
+#        self.moveCartImp(prefix, list_T_B_Td, times, None, None, None, None, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
 
-        action_trajectory_goal = CartImpGoal()
-        if stamp != None:
-            action_trajectory_goal.pose_trj.header.stamp = stamp
-        else:
-            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+#        action_trajectory_goal = CartImpGoal()
+#        if stamp != None:
+#            action_trajectory_goal.pose_trj.header.stamp = stamp
+#        else:
+#            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
 
-        i = 0
-        for T_B_Td in list_T_B_Td:
-            wrist_pose = pm.toMsg(T_B_Td)
-            action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
-            rospy.Duration(times[i]),
-            wrist_pose,
-            Twist()))
-            i += 1
+#        i = 0
+#        for T_B_Td in list_T_B_Td:
+#            wrist_pose = pm.toMsg(T_B_Td)
+#            action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
+#            rospy.Duration(times[i]),
+#            wrist_pose,
+#            Twist()))
+#            i += 1
 
-        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
-        self.current_max_wrench = max_wrench
-        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
+#        action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
+#        self.current_max_wrench = max_wrench
+#        self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
 
-    def moveEffectorTrajLeft(self, prefix, list_T_B_Tld, times, max_wrench, start_time=0.01, stamp=None):
-        self.moveEffectorTraj("left", list_T_B_Tld, times, max_wrench, start_time=start_time, stamp=stamp)
+#    def moveEffectorTrajLeft(self, prefix, list_T_B_Tld, times, max_wrench, start_time=0.01, stamp=None):
+#        self.moveEffectorTraj("left", list_T_B_Tld, times, max_wrench, start_time=start_time, stamp=stamp)
 
-    def moveEffectorTrajRight(self, prefix, list_T_B_Trd, times, max_wrench, start_time=0.01, stamp=None):
-        self.moveEffectorTraj("right", list_T_B_Trd, times, max_wrench, start_time=start_time, stamp=stamp)
+#    def moveEffectorTrajRight(self, prefix, list_T_B_Trd, times, max_wrench, start_time=0.01, stamp=None):
+#        self.moveEffectorTraj("right", list_T_B_Trd, times, max_wrench, start_time=start_time, stamp=stamp)
 
-    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
+    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7)), path_tol=None):
         action_trajectory_goal = CartImpGoal()
         if stamp != None:
             action_trajectory_goal.pose_trj.header.stamp = stamp
@@ -830,17 +813,23 @@ class VelmaInterface:
                 CartesianImpedance(self._wrenchKDLtoROS(k), damping)))
                 i += 1
 
+        if path_tol != None:
+            action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+            action_trajectory_goal.path_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
+            action_trajectory_goal.goal_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
+            action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
+
         action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
         self.current_max_wrench = max_wrench
         self.action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
 
         return True
 
-    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        return self.moveCartImp("right", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping)
+    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7)), path_tol=None):
+        return self.moveCartImp("right", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
-    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7))):
-        return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping)
+    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=Wrench(Vector3(0.7, 0.7, 0.7),Vector3(0.7, 0.7, 0.7)), path_tol=None):
+        return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
     _cartesian_trajectory_result_names = {
         CartImpResult.SUCCESSFUL:'SUCCESSFUL',

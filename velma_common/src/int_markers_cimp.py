@@ -101,7 +101,7 @@ class IntMarkersCimp:
         if ( feedback.marker_name == self.prefix+'_arm_position_marker' ) and ( feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK ) and ( feedback.control_name == "button" ):
             T_B_Td = pm.fromMsg(feedback.pose)
             self.p = pm.toMsg(T_B_Td)
-            self.velma.moveEffector(self.prefix, T_B_Td, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None)
+            self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5)
 
     def createSphereMarkerControl(self, scale, position, color):
         marker = Marker()

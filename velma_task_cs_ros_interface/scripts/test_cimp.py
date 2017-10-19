@@ -87,7 +87,8 @@ if __name__ == "__main__":
     T_B_Trd_init = copy.copy(T_B_Trd)
     T_B_Tld_init = copy.copy(velma.getTf("B", "Wl"))
     T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,0.1)) * T_B_Trd
-    if not velma.moveEffectorRight(T_B_Trd, 3.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None):
+
+    if not velma.moveCartImpRight([T_B_Trd], [3.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(8)
     if velma.waitForEffectorRight() != 0:
         exitError(9)
@@ -100,7 +101,7 @@ if __name__ == "__main__":
     print "moving right arm to another pose (cimp, error - too fast)"
     T_B_Trd = velma.getTf("B", "Wr")
     T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,1.1)) * T_B_Trd
-    if not velma.moveEffectorRight(T_B_Trd, 0.1, PyKDL.Wrench(PyKDL.Vector(50,50,50), PyKDL.Vector(50,50,50)), start_time=0.5, stamp=None, path_tol=None):
+    if not velma.moveCartImpRight([T_B_Trd], [0.1], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(50,50,50), PyKDL.Vector(50,50,50)), start_time=0.5):
         exitError(10)
     if velma.waitForEffectorRight() != -5:
         exitError(11)
@@ -128,9 +129,9 @@ if __name__ == "__main__":
     print "moving arms to self-collision pose (cimp)"
     T_B_Trd = PyKDL.Frame(PyKDL.Vector(0.4, 0.1, 1.2))
     T_B_Tld = PyKDL.Frame(PyKDL.Rotation.RotZ(180.0/180.0*math.pi), PyKDL.Vector(0.4, -0.1, 1.2))
-    if not velma.moveEffectorRight(T_B_Trd, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
+    if not velma.moveCartImpRight([T_B_Trd], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
         exitError(15)
-    if not velma.moveEffectorLeft(T_B_Tld, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
+    if not velma.moveCartImpLeft([T_B_Tld], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
         exitError(16)
     if velma.waitForEffectorRight() != -5:
         exitError(17)
@@ -141,9 +142,9 @@ if __name__ == "__main__":
     rospy.sleep(2)
 
     print "moving arms to initial pose (cimp)"
-    if not velma.moveEffectorRight(T_B_Trd_init, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None):
+    if not velma.moveCartImpRight([T_B_Trd_init], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(19)
-    if not velma.moveEffectorLeft(T_B_Tld_init, 5.0, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, stamp=None, path_tol=None):
+    if not velma.moveCartImpLeft([T_B_Tld_init], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(20)
     if velma.waitForEffectorRight() != 0:
         exitError(21)
