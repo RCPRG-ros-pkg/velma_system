@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     print "Moving to the current position..."
     js_start = velma.getLastJointState()
-    velma.moveJoint(js_start[1], None, 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -61,7 +61,7 @@ if __name__ == "__main__":
     print "Moving too fast to another position (safe mode in velma_core_ve_body)..."
     q_map = copy.copy(js_start[1])
     q_map['torso_0_joint'] = 1.0
-    velma.moveJoint(q_map, None, 0.05, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map, 0.05, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error == 0:
         print "The action should have ended with error, but the error code is", error
@@ -84,7 +84,7 @@ if __name__ == "__main__":
 
     print "Moving to the current position..."
     js = velma.getLastJointState()
-    velma.moveJoint(js[1], None, 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js[1], 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         'left_arm_5_joint':0.5,
         'left_arm_6_joint':0
         }
-    velma.moveJoint(q_map, None, 4.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map, 4.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error == 0:
         print "The action should have ended with error, but the error code is", error
@@ -149,7 +149,7 @@ if __name__ == "__main__":
 
     print "Moving to the current position..."
     js = velma.getLastJointState()
-    velma.moveJoint(js[1], None, 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js[1], 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error

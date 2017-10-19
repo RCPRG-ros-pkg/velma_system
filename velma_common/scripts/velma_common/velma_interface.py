@@ -42,9 +42,9 @@ from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from motor_action_msgs.msg import *
-from behavior_switch_action_msgs.msg import *
+from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
-from trajectory_msgs.msg import *
+from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
 from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTolerance
 import diagnostic_msgs.msg
 import tf_conversions.posemath as pm
@@ -464,17 +464,10 @@ class VelmaInterface:
 
             self._all_links.append(obj_link)
 
-        #print "self._all_links", self._all_links
-        #print "self._all_joint_names", self._all_joint_names
-
         self._js_pos_history = []
         for i in range(200):
             self._js_pos_history.append( None )
         self._js_pos_history_idx = -1
-
-        # parameters
-        #self.T_B_W = None
-        #self.wrench_emergency_stop = False
 
         self._joint_states_lock = threading.Lock()
 
@@ -876,6 +869,18 @@ class VelmaInterface:
         return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
     def waitForEffector(self, prefix, timeout_s=None):
+        """!
+        Wait for completion of end-effector motion in cartesian impedance mode.
+
+        @param prefix       string: name of end-effector: 'left' or 'right'.
+        @param timeout_s    float: timeout in seconds.
+
+        @return Returns error code.
+
+        @exception AssertionError   Raised when prefix is neither 'left' nor 'right'
+        """
+        assert (prefix=="left" or prefix=="right")
+
         if timeout_s == None:
             timeout_s = 0
         if not self._action_cart_traj_client[prefix].wait_for_result(timeout=rospy.Duration(timeout_s)):
@@ -886,68 +891,98 @@ class VelmaInterface:
         return result.error_code
 
     def waitForEffectorLeft(self, timeout_s=None):
+        """!
+        Wait for completion of left end-effector motion in cartesian impedance mode.
+        @param timeout_s    float: Timeout in seconds.
+        @return Returns error code.
+        """
         return self.waitForEffector("left", timeout_s=timeout_s)
 
     def waitForEffectorRight(self, timeout_s=None):
+        """!
+        Wait for completion of right end-effector motion in cartesian impedance mode.
+        @param timeout_s    float: Timeout in seconds.
+        @return Returns error code.
+        """
         return self.waitForEffector("right", timeout_s=timeout_s)
 
     def maxJointTrajLen(self):
+        """!
+        Get maximum number of nodes in single joint trajectory.
+        @return Maximum number of nodes.
+        """
         return 50
 
-    def moveJointTraj(self, traj, joint_names, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+    def moveJointTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute joint space trajectory in joint impedance mode.
+        @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   Raised when trajectory has too many nodes.
+        """
+        assert (len(traj.points) <= self.maxJointTrajLen())
+
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = self._body_joint_names
 
-        pos = traj[0]
-        vel = traj[1]
-        acc = traj[2]
-        dti = traj[3]
-        time = 0.0
-
         js = self.getLastJointState()
+        assert (js != None)
 
-        for node_idx in range(0, len(pos)):
-            time += dti[node_idx]
+        for node_idx in range(len(traj.points)):
             q_dest_all = []
             vel_dest_all = []
 
             for joint_name in self._body_joint_names:
-                if joint_name in joint_names:
-                    q_idx = joint_names.index(joint_name)
-                    q_dest_all.append(pos[node_idx][q_idx])
-                    if vel != None:
-                        vel_dest_all.append(vel[node_idx][q_idx])
+                if joint_name in traj.joint_names:
+                    q_idx = traj.joint_names.index(joint_name)
+                    q_dest_all.append(traj.points[node_idx].positions[q_idx])
+                    if len(traj.points[node_idx].velocities) > 0:
+                        vel_dest_all.append(traj.points[node_idx].velocities[q_idx])
                     else:
                         vel_dest_all.append(0)
                 else:
                     q_dest_all.append(js[1][joint_name])
                     vel_dest_all.append(0)
-            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
+            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], traj.points[node_idx].time_from_start))
 
-        position_tol = position_tol
-        velocity_tol = 5.0/180.0 * math.pi
-        acceleration_tol = 5.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
-            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
-        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, 0.0))
+        if stamp != None:
+            goal.trajectory.header.stamp = stamp
+        else:
+            goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self._action_joint_traj_client.send_goal(goal)
         return True
 
-    def moveJoint(self, q_dest, joint_names, time, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
-        if joint_names == None:
-            if not type(q_dest) is dict:
-                print "ERROR: wrong data type passed to moveJoint: ", type(q_dest)
-                return False
-            joint_names = []
-            q_dest_list = []
-            for name in q_dest:
-                joint_names.append(name)
-                q_dest_list.append(q_dest[name])
-            return self.moveJointTraj(([q_dest_list], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
-        else:
-            return self.moveJointTraj(([q_dest], None, None, [time]), joint_names, start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
+    def moveJoint(self, q_dest_map, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute simple joint space motion in joint impedance mode.
+        @param q_dest_map   dictionary: dictionary {name:position} of goal configuration
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        """
+        traj = JointTrajectory()
+        pt = JointTrajectoryPoint()
+        for name in q_dest_map:
+            traj.joint_names.append(name)
+            pt.positions.append(q_dest_map[name])
+            pt.velocities.append(0)
+        pt.time_from_start = rospy.Duration(time)
+        traj.points.append(pt)
+        return self.moveJointTraj(traj, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
 
     def waitForJoint(self):
+        """!
+        Wait for joint space movement to complete.
+        @return Returns error code.
+        """
         self._action_joint_traj_client.wait_for_result()
         result = self._action_joint_traj_client.get_result()
         if result.error_code != 0:
@@ -992,51 +1027,7 @@ class VelmaInterface:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
         return result.error_code
 
-#    def checkStopCondition(self, t=0.0):
-#
-#        end_t = rospy.Time.now()+rospy.Duration(t+0.0001)
-#        while rospy.Time.now()<end_t:
-#            if rospy.is_shutdown():
-#                self.emergencyStop()
-#                print "emergency stop: interrupted  %s  %s"%(self.getMaxWrench(), self.wrench_tab_index)
-#                self.failure_reason = "user_interrupt"
-#                rospy.sleep(1.0)
-#            if self.wrench_emergency_stop:
-#                self.emergencyStop()
-#                print "too big wrench"
-#                self.failure_reason = "too_big_wrench"
-#                rospy.sleep(1.0)
-
-#            if (self._action_cart_traj_client != None) and (self._action_cart_traj_client.gh) and ((self._action_cart_traj_client.get_state()==GoalStatus.REJECTED) or (self._action_cart_traj_client.get_state()==GoalStatus.ABORTED)):
-#                state = self._action_cart_traj_client.get_state()
-#                result = self._action_cart_traj_client.get_result()
-#                self.emergencyStop()
-#                print "emergency stop: traj_err: %s ; %s ; max_wrench: %s   %s"%(state, result, self.getMaxWrench(), self.wrench_tab_index)
-#                self.failure_reason = "too_big_wrench_trajectory"
-#                rospy.sleep(1.0)
-
-#            if (self._action_tool_client.gh) and ((self._action_tool_client.get_state()==GoalStatus.REJECTED) or (self._action_tool_client.get_state()==GoalStatus.ABORTED)):
-#                state = self._action_tool_client.get_state()
-#                result = self._action_tool_client.get_result()
-#                self.emergencyStop()
-#                print "emergency stop: tool_err: %s ; %s ; max_wrench: %s   %s"%(state, result, self.getMaxWrench(), self.wrench_tab_index)
-#                self.failure_reason = "too_big_wrench_tool"
-#                rospy.sleep(1.0)
-#            rospy.sleep(0.01)
-#        return self.emergency_stop_active
-
-    # ex.
-    # q = (120.0/180.0*numpy.pi, 120.0/180.0*numpy.pi, 40.0/180.0*numpy.pi, 180.0/180.0*numpy.pi)
-    # robot.move_hand_client("right", q)
-#    def move_hand_client(self, q, v=(1.2, 1.2, 1.2, 1.2), t=(2000.0, 2000.0, 2000.0, 2000.0)):
-#        rospy.wait_for_service('/' + self.prefix + '_hand/move_hand')
-#        try:
-#            move_hand = rospy.ServiceProxy('/' + self.prefix + '_hand/move_hand', BHMoveHand)
-#            resp1 = move_hand(q[0], q[1], q[2], q[3], v[0], v[1], v[2], v[3], t[0], t[1], t[2], t[3])
-#        except rospy.ServiceException, e:
-#            print "Service call failed: %s"%e
-
-    def moveHand(self, q, v, t, maxPressure, hold=False, prefix="right"):
+    def moveHand(self, prefix, q, v, t, maxPressure, hold=False):
         action_goal = BHMoveGoal()
         action_goal.name = [prefix+"_HandFingerOneKnuckleTwoJoint", prefix+"_HandFingerTwoKnuckleTwoJoint", prefix+"_HandFingerThreeKnuckleTwoJoint", prefix+"_HandFingerOneKnuckleOneJoint"]
         action_goal.q = q
@@ -1051,23 +1042,23 @@ class VelmaInterface:
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def moveHandLeft(self, q, v, t, maxPressure, hold=False):
-        self.moveHand(q, v, t, maxPressure, hold=hold, prefix="left")
+        self.moveHand("left", q, v, t, maxPressure, hold=hold)
 
     def moveHandRight(self, q, v, t, maxPressure, hold=False):
-        self.moveHand(q, v, t, maxPressure, hold=hold, prefix="right")
+        self.moveHand("right", q, v, t, maxPressure, hold=hold)
 
-    def resetHand(self, prefix="right"):
+    def resetHand(self, prefix):
         action_goal = BHMoveGoal()
         action_goal.reset = True
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def resetHandLeft(self):
-        self.resetHand(prefix="left")
+        self.resetHand("left")
 
     def resetHandRight(self):
-        self.resetHand(prefix="right")
+        self.resetHand("right")
 
-    def waitForHand(self, prefix="right"):
+    def waitForHand(self, prefix):
         self._action_move_hand_client[prefix].wait_for_result()
         result = self._action_move_hand_client[prefix].get_result()
         if result.error_code != 0:
@@ -1075,10 +1066,10 @@ class VelmaInterface:
         return result.error_code
 
     def waitForHandLeft(self):
-        return self.waitForHand(prefix="left")
+        return self.waitForHand("left")
 
     def waitForHandRight(self):
-        return self.waitForHand(prefix="right")
+        return self.waitForHand("right")
 
     def hasContact(self, threshold, print_on_false=False):
         if self.T_F_C != None:
@@ -1102,54 +1093,4 @@ class VelmaInterface:
         if frame_from in self._frames and frame_to in self._frames:
             return self.getKDLtf( self._frames[frame_from], self._frames[frame_to] )
         return None
-
-#    def handleEmergencyStop(self):
-#        if self.emergency_stop_active:
-#            ch = '_'
-#            while (ch != 'e') and (ch != 'n') and (ch != 'r'):
-#                ch = raw_input("Emergency stop active... (e)xit, (n)ext case, (r)epeat case: ")
-#            if ch == 'e':
-#                exit(0)
-#            if ch == 'n':
-#                self.action = "next"
-#                self.index += 1
-#            if ch == 'r':
-#                self.action = "repeat"
-#            self.updateTransformations()
-#            print "moving desired pose to current pose"
-#            self.emergency_stop_active = False
-#            self.moveWrist(self.T_B_W, 2.0, Wrench(Vector3(25,25,25), Vector3(5,5,5)))
-#            self.checkStopCondition(2.0)
-#            return True
-#        return False
-
-#    def getMovementTime(self, T_B_Wd, max_v_l = 0.1, max_v_r = 0.2):
-#        self.updateTransformations()
-#        twist = PyKDL.diff(self.T_B_W, T_B_Wd, 1.0)
-#        v_l = twist.vel.Norm()
-#        v_r = twist.rot.Norm()
-#        f_v_l = v_l/max_v_l
-#        f_v_r = v_r/max_v_r
-#        if f_v_l > f_v_r:
-#            duration = f_v_l
-#        else:
-#            duration = f_v_r
-#        if duration < 0.2:
-#            duration = 0.2
-#        return duration
-
-#    def getMovementTime2(self, T_B_Wd1, T_B_Wd2, max_v_l = 0.1, max_v_r = 0.2):
-#        twist = PyKDL.diff(T_B_Wd1, T_B_Wd2, 1.0)
-#        v_l = twist.vel.Norm()
-#        v_r = twist.rot.Norm()
-#        print "v_l: %s   v_r: %s"%(v_l, v_r)
-#        f_v_l = v_l/max_v_l
-#        f_v_r = v_r/max_v_r
-#        if f_v_l > f_v_r:
-#            duration = f_v_l
-#        else:
-#            duration = f_v_r
-#        if duration < 0.5:
-#            duration = 0.5
-#        return duration
 

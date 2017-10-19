@@ -38,7 +38,7 @@ if __name__ == "__main__":
 
     print "Moving to the current position..."
     js_start = velma.getLastJointState()
-    velma.moveJoint(js_start[1], None, 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error

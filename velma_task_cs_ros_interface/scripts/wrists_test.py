@@ -44,8 +44,8 @@ if __name__ == "__main__":
 
     goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
-    velma.moveJointTraj(traj, jn, start_time=0.5)
+    traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    velma.moveJointTraj(traj, start_time=0.5)
     velma.waitForJoint()
 
     rospy.sleep(0.5)
@@ -70,8 +70,8 @@ if __name__ == "__main__":
 
     goal_constraint_2 = qMapToConstraints(q_map_2, 0.01)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.1)
-    velma.moveJointTraj(traj, jn, start_time=0.5)
+    traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.1)
+    velma.moveJointTraj(traj, start_time=0.5)
     velma.waitForJoint()
 
     rospy.sleep(0.5)
@@ -96,8 +96,8 @@ if __name__ == "__main__":
 
     goal_constraint_3 = qMapToConstraints(q_map_3, 0.01)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_3], "impedance_joints", max_velocity_scaling_factor=0.1)
-    velma.moveJointTraj(traj, jn, start_time=0.5)
+    traj = p.plan(js[1], [goal_constraint_3], "impedance_joints", max_velocity_scaling_factor=0.1)
+    velma.moveJointTraj(traj, start_time=0.5)
     velma.waitForJoint()
 
 
@@ -149,15 +149,15 @@ if __name__ == "__main__":
 
     goal_constraint_4 = qMapToConstraints(q_map_4, 0.01)
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_4], "impedance_joints", max_velocity_scaling_factor=0.1)
-    velma.moveJointTraj(traj, jn, start_time=0.5)
+    traj = p.plan(js[1], [goal_constraint_4], "impedance_joints", max_velocity_scaling_factor=0.1)
+    velma.moveJointTraj(traj, start_time=0.5)
     velma.waitForJoint()
 
     rospy.sleep(0.5)
 
     print "moving to initial position..."
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
-    velma.moveJointTraj(traj, jn, start_time=0.5)
+    traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    velma.moveJointTraj(traj, start_time=0.5)
     velma.waitForJoint()
 

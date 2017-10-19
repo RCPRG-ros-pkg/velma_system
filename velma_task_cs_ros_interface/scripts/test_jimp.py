@@ -41,7 +41,7 @@ if __name__ == "__main__":
 
     print "Moving to the current position..."
     js_start = velma.getLastJointState()
-    velma.moveJoint(js_start[1], None, 1.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 1.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -65,7 +65,7 @@ if __name__ == "__main__":
         }
 
     print "Moving to position 0 (this motion is too fast and should cause error condition, that leads to safe mode in velma_core_cs)."
-    velma.moveJoint(q_map_0, None, 0.1, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
@@ -81,11 +81,11 @@ if __name__ == "__main__":
         exitError(5)
 
     print "Moving to position 0 (slowly)."
-    velma.moveJoint(q_map_0, None, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_0, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
     print "Moving to the starting position..."
-    velma.moveJoint(js_start[1], None, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -109,7 +109,7 @@ if __name__ == "__main__":
         }
 
     print "Moving to valid position, using invalid self-colliding trajectory (this motion should cause error condition, that leads to safe mode in velma_core_cs)."
-    velma.moveJoint(q_map_goal, None, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_goal, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
@@ -125,7 +125,7 @@ if __name__ == "__main__":
         exitError(8)
 
     print "Moving to the starting position..."
-    velma.moveJoint(js_start[1], None, 4.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 4.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -156,28 +156,28 @@ if __name__ == "__main__":
     rospy.sleep(2)
 
     print "Moving to the intermediate position..."
-    velma.moveJoint(q_map_intermediate, None, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_intermediate, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
         exitError(10)
 
     print "Moving to the goal position."
-    velma.moveJoint(q_map_goal, None, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_goal, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
         exitError(11)
 
     print "Moving to the intermediate position..."
-    velma.moveJoint(q_map_intermediate, None, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_intermediate, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
         exitError(12)
 
     print "Moving to the starting position..."
-    velma.moveJoint(js_start[1], None, 5.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(js_start[1], 5.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error

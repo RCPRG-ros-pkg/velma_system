@@ -64,11 +64,11 @@ if __name__ == "__main__":
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, jn, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5):
             exitError(5)
         if velma.waitForJoint() == 0:
             break
@@ -103,11 +103,11 @@ if __name__ == "__main__":
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj, jn = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, jn, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5):
             exitError(5)
         if velma.waitForJoint() == 0:
             break
@@ -143,8 +143,8 @@ if __name__ == "__main__":
 
     print "moving whole body to initial pose (jimp)"
     js = velma.getLastJointState()
-    traj, jn = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
-    if not velma.moveJointTraj(traj, jn, start_time=0.5):
+    traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
+    if not velma.moveJointTraj(traj, start_time=0.5):
         exitError(12)
     if velma.waitForJoint() != 0:
         exitError(13)
