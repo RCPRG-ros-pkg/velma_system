@@ -197,6 +197,16 @@ class VelmaInterface:
     _core_cs_name = "/velma_core_cs"
     _task_cs_name = "/velma_task_cs_ros_interface"
 
+    _joint_groups = {"impedance_joints":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
+        'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
+        'right_arm_6_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
+        'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
+        "right_arm":['right_arm_0_joint', 'right_arm_1_joint',
+        'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
+        'right_arm_6_joint'],
+        "left_arm":['left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
+        'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']}
+
     def getLastJointState(self):
         """!
         Get the newest joint state.
@@ -363,7 +373,14 @@ class VelmaInterface:
             with self._joint_states_lock:
                 if self._js_pos_history_idx >= 0:
                     can_break = True
-            if can_break and self._allActionsConnected():
+            diag_info = False
+            try:
+                diag = self.getCoreCsDiag()
+                if len(diag.history) > 0:
+                    diag_info = True
+            except:
+                pass
+            if can_break and self._allActionsConnected() and diag_info:
                 break
             rospy.sleep(0.1)
             time_now = time.time()
@@ -571,14 +588,106 @@ class VelmaInterface:
         """
         return self._getSubsystemDiag(self._core_ve_name)
 
+    class CoreCsDiag(subsystem_diag.SubsystemDiag):
+        """!
+        This class contains subsystem-specific diagnostic information for velma_core_cs.
+        """
+        def __init__(self, parent):
+            """!
+            Initialization of diagnostics data using subsystem-independent diagnostics object.
+
+            @param parent               subsystem_common.subsystem_diag.SubsystemDiag: subsystem-independent diagnostics object.
+            @exception AssertionError   Raised when current state name cannot be obtained or state history is not present.
+            """
+            assert (len(parent.history) > 0)
+
+            self.history = parent.history
+            self.current_predicates = parent.current_predicates
+            self.current_period = parent.current_period
+
+            self.current_state = parent.history[0].state_name
+            assert (self.current_state == "idle" or self.current_state == "safe" or
+                self.current_state == "cart_imp" or self.current_state == "jnt_imp" or
+                self.current_state == "safe_col")
+
+        def inStateIdle(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'idle' state, False otherwise.
+            """
+            return self.current_state == "idle"
+
+        def inStateSafe(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'safe' state, False otherwise.
+            """
+            return self.current_state == "safe"
+
+        def inStateCartImp(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'cart_imp' state, False otherwise.
+            """
+            return self.current_state == "cart_imp"
+
+        def inStateJntImp(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'jnt_imp' state, False otherwise.
+            """
+            return self.current_state == "jnt_imp"
+
+        def inStateSafeCol(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'safe_col' state, False otherwise.
+            """
+            return self.current_state == "safe_col"
+
+        def isSafeReasonSelfCol(self):
+            """!
+            Information about reason for entering 'safe' state.
+            @return True if the subsystem entered 'safe' state due to possibility of self-collision,
+                False otherwise.
+            @exception AssertionError   Raised when current state is not 'safe'.
+            @exception KeyError         Raised when 'inSelfCollision' predicate cannot be obtained.
+            """
+            assert (self.current_state == "safe" and self.history[0].state_name == "safe")
+            for pv in self.history[0].predicates:
+                if pv.name == "inSelfCollision":
+                    return pv.value
+            raise KeyError("Could not obtain 'inSelfCollision' predicate value.")
+
+        def isSafeReasonIdle(self):
+            """!
+            Information about reason for entering 'safe' state.
+            @return True if the subsystem entered 'safe' state just after 'idle' state.
+            @exception AssertionError   Raised when current state is not 'safe' or history contain only one entry.
+            """
+            assert (self.current_state == "safe" and self.history[0].state_name == "safe" and len(self.history) >= 2)
+
+            return (self.history[1].state_name == "idle")
+
+        def motorsReady(self):
+            """!
+            Information about state of head and torso motors.
+            @return True if all motors are homed and ready to use, False otherwise.
+            @exception KeyError   Raised when 'motorsReady' predicate cannot be obtained.
+            """
+            for pv in self.current_predicates:
+                if pv.name == "motorsReady":
+                    return pv.value
+            raise KeyError("Could not obtain current 'motorsReady' predicate value.")
+
     def getCoreCsDiag(self):
         """!
         Get diagnostic information for core CS.
 
-        @return Returns object of type subsystem_common.subsystem_diag.SubsystemDiag, with
-            diagnostic information about subsystem.
+        @return Returns object of type VelmaInterface.CoreCsDiag, with
+            diagnostic information about control subsystem.
         """
-        return self._getSubsystemDiag(self._core_cs_name)
+        return self.CoreCsDiag(self._getSubsystemDiag(self._core_cs_name))
 
     # Private method
     def _topicCallback(self, data, topic):
@@ -815,33 +924,27 @@ class VelmaInterface:
         else:
             action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
 
-        if pose_list_T_B_Td:
-            i = 0
-            for T_B_Td in pose_list_T_B_Td:
-                wrist_pose = pm.toMsg(T_B_Td)
+        if pose_list_T_B_Td != None:
+            for i in range(len(pose_list_T_B_Td)):
+                wrist_pose = pm.toMsg(pose_list_T_B_Td[i])
                 action_trajectory_goal.pose_trj.points.append(CartesianTrajectoryPoint(
                 rospy.Duration(pose_times[i]),
                 wrist_pose,
                 Twist()))
-                i += 1
 
-        if tool_list_T_W_T:
-            i = 0
-            for T_W_T in tool_list_T_W_T:
-                tool_pose = pm.toMsg(T_W_T)
+        if tool_list_T_W_T != None:
+            for i in range(len(tool_list_T_W_T)):
+                tool_pose = pm.toMsg(tool_list_T_W_T[i])
                 action_trajectory_goal.tool_trj.points.append(CartesianTrajectoryPoint(
                 rospy.Duration(tool_times[i]),
                 tool_pose,
                 Twist()))
-                i += 1
 
-        if imp_list:
-            i = 0
-            for k in imp_list:
+        if imp_list != None:
+            for i in range(len(imp_list)):
                 action_trajectory_goal.imp_trj.points.append(CartesianImpedanceTrajectoryPoint(
                 rospy.Duration(imp_times[i]),
-                CartesianImpedance(self._wrenchKDLtoROS(k), self._wrenchKDLtoROS(damping))))
-                i += 1
+                CartesianImpedance(self._wrenchKDLtoROS(imp_list[i]), self._wrenchKDLtoROS(damping))))
 
         if path_tol != None:
             action_trajectory_goal.path_tolerance.position = geometry_msgs.msg.Vector3( path_tol.vel.x(), path_tol.vel.y(), path_tol.vel.z() )
@@ -867,6 +970,20 @@ class VelmaInterface:
         @see moveCartImp
         """
         return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
+
+    def moveCartImpRightCurrentPos(self, start_time=0.2, stamp=None):
+        """!
+        Move right end-effector to current position. Switch core_cs to cart_imp mode.
+        @return Returns True.
+        """
+        return self.moveCartImp("right", None, None, None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=start_time, stamp=stamp)
+
+    def moveCartImpLeftCurrentPos(self, start_time=0.2, stamp=None):
+        """!
+        Move left end-effector to current position. Switch core_cs to cart_imp mode.
+        @return Returns True.
+        """
+        return self.moveCartImp("left", None, None, None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=start_time, stamp=stamp)
 
     def waitForEffector(self, prefix, timeout_s=None):
         """!
@@ -912,6 +1029,21 @@ class VelmaInterface:
         @return Maximum number of nodes.
         """
         return 50
+
+    def maxHeadTrajLen(self):
+        """!
+        Get maximum number of nodes in single head trajectory.
+        @return Maximum number of nodes.
+        """
+        return 50
+
+    def getJointGroup(self, group_name):
+        """!
+        Get names of all joints in group.
+        @param group_name   string: name of group.
+        @return Returns list of names of joints in group.
+        """
+        return self._joint_groups[group_name]
 
     def moveJointTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         """!
@@ -978,6 +1110,14 @@ class VelmaInterface:
         traj.points.append(pt)
         return self.moveJointTraj(traj, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
 
+    def moveJointImpToCurrentPos(self, start_time=0.2, stamp=None):
+        """!
+        Switch core_cs to jnt_imp mode.
+        @return Returns True.
+        """
+        traj = JointTrajectory()
+        return self.moveJointTraj(traj, start_time=start_time, stamp=stamp)
+
     def waitForJoint(self):
         """!
         Wait for joint space movement to complete.
@@ -989,38 +1129,71 @@ class VelmaInterface:
             print "waitForJoint(): action failed with error_code=" + str(result.error_code)
         return result.error_code
 
-    def moveHeadTraj(self, traj, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+    def moveHeadTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute head trajectory in joint space.
+        @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   Raised when trajectory has too many nodes or not all joints are
+            included in trajectory.
+        """
+        assert (len(traj.points) <= self.maxHeadTrajLen())
+
         goal = FollowJointTrajectoryGoal()
         goal.trajectory.joint_names = ["head_pan_joint", "head_tilt_joint"]
 
-        pos = traj[0]
-        vel = traj[1]
-        acc = traj[2]
-        dti = traj[3]
-        time = 0.0
+        for node_idx in range(len(traj.points)):
+            q_dest_all = []
+            vel_dest_all = []
+            for joint_name in goal.trajectory.joint_names:
+                assert (joint_name in traj.joint_names)
+                q_idx = traj.joint_names.index(joint_name)
+                q_dest_all.append(traj.points[node_idx].positions[q_idx])
+                if len(traj.points[node_idx].velocities) > 0:
+                    vel_dest_all.append(traj.points[node_idx].velocities[q_idx])
+                else:
+                    vel_dest_all.append(0)
+            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], traj.points[node_idx].time_from_start))
 
-        for node_idx in range(0, len(pos)):
-            time += dti[node_idx]
-            q_dest_all = pos[node_idx]
-            if vel != None:
-                vel_dest_all = vel[node_idx]
-            else:
-                vel_dest_all = []
-            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(time)))
-
-        position_tol = position_tol
-        velocity_tol = velocity_tol
-        acceleration_tol = 5.0/180.0 * math.pi
         for joint_name in goal.trajectory.joint_names:
-            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, acceleration_tol))
-        goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, 0))
+        if stamp != None:
+            goal.trajectory.header.stamp = stamp
+        else:
+            goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
         self._action_head_joint_traj_client.send_goal(goal)
         return True
 
-    def moveHead(self, q_dest, time, start_time=0.2, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
-        return self.moveHeadTraj(([q_dest], None, None, [time]), start_time=start_time, position_tol=position_tol, velocity_tol=velocity_tol)
+    def moveHead(self, q_dest, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute simple head motion in joint space.
+        @param q_dest       2-tuple:  goal configuration of head ('head_pan_joint', 'head_tilt_joint')
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   When q_dest has wrong length.
+        """
+        assert (len(q_dest) == 2)
+        traj = JointTrajectory()
+        traj.joint_names = ["head_pan_joint", "head_tilt_joint"]
+        pt = JointTrajectoryPoint()
+        pt.positions = q_dest
+        pt.velocities = [0.0, 0.0]
+        pt.time_from_start = rospy.Duration(time)
+        traj.points.append(pt)
+        return self.moveHeadTraj(traj, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
 
     def waitForHead(self):
+        """!
+        Wait for head movement to complete.
+        @return Returns error code.
+        """
         self._action_head_joint_traj_client.wait_for_result()
         result = self._action_head_joint_traj_client.get_result()
         if result.error_code != 0:

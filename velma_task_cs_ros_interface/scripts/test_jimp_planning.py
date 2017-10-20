@@ -34,6 +34,11 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
+
     print "Waiting for Planner initialization..."
     p = Planner(velma.maxJointTrajLen())
     if not p.waitForInit(timeout_s=10.0):
@@ -75,16 +80,16 @@ if __name__ == "__main__":
     print "Planning motion to the goal position using set of all joints..."
 
     print "Moving to valid position, using planned trajectory."
-    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01)
-    for i in range(5):
+    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01, group=velma.getJointGroup("impedance_joints"))
+    for i in range(15):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", num_planning_attempts=10, max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5, position_tol=10.0/180.0 * math.pi, velocity_tol=10.0/180.0*math.pi):
             exitError(5)
         if velma.waitForJoint() == 0:
             break
@@ -117,16 +122,16 @@ if __name__ == "__main__":
         }
 
     print "Moving to starting position, using planned trajectory."
-    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01)
-    for i in range(5):
+    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01, group=velma.getJointGroup("impedance_joints"))
+    for i in range(15):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", num_planning_attempts=10, max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5, position_tol=10.0/180.0 * math.pi, velocity_tol=10.0/180.0*math.pi):
             exitError(7)
         if velma.waitForJoint() == 0:
             break
@@ -141,16 +146,16 @@ if __name__ == "__main__":
     print "Planning motion to the same goal position using subset of joints (right arm only)..."
 
     print "Moving to valid position, using planned trajectory."
-    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01)
-    for i in range(5):
+    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01, group=velma.getJointGroup("right_arm"))
+    for i in range(15):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_1], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_1], "right_arm", num_planning_attempts=10, max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5, position_tol=10.0/180.0 * math.pi, velocity_tol=10.0/180.0*math.pi):
             exitError(9)
         if velma.waitForJoint() == 0:
             break
@@ -183,16 +188,16 @@ if __name__ == "__main__":
         }
 
     print "Moving to starting position, using planned trajectory."
-    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01)
-    for i in range(5):
+    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01, group=velma.getJointGroup("right_arm"))
+    for i in range(15):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_2], "right_arm", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_2], "right_arm", num_planning_attempts=10, max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
+        if not velma.moveJointTraj(traj, start_time=0.5, position_tol=10.0/180.0 * math.pi, velocity_tol=10.0/180.0*math.pi):
             exitError(11)
         if velma.waitForJoint() == 0:
             break

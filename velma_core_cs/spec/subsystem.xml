@@ -61,7 +61,7 @@
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="safe" />
             <running_component name="Mass" />
-            <running_component name="JntImp" />
+            <running_component name="JntImpSafe" />
             <running_component name="S_t_body" />
             <running_component name="C_q_body" />
             <running_component name="C_dq_body" />
@@ -83,9 +83,8 @@
         <behavior name="safe_col"
             stop_cond="recvOneCmd and (recvCartImpCmd or recvJntImpCmd) and (not inSelfCollision)"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
-<!--            <running_component name="safe" />-->
+            <running_component name="safe_col" />
             <running_component name="Mass" />
-<!--            <running_component name="JntImp" />-->
             <running_component name="S_t_body" />
             <running_component name="C_q_body" />
             <running_component name="C_dq_body" />
@@ -154,7 +153,8 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-            <running_component name="ColDet" />
+<!--            <running_component name="ColDet" />-->
+            <running_component name="ColDetRepJntImp" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
             <running_component name="Y" />

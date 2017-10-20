@@ -30,6 +30,11 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
+
     print "Motors must be enabled every time after the robot enters safe state."
     print "If the motors are already enabled, enabling them has no effect."
     print "Enabling motors..."
@@ -37,8 +42,7 @@ if __name__ == "__main__":
         exitError(2)
 
     print "Moving to the current position..."
-    js_start = velma.getLastJointState()
-    velma.moveJoint(js_start[1], 0.5, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJointImpToCurrentPos(start_time=0.5)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
@@ -59,9 +63,23 @@ if __name__ == "__main__":
     rospy.sleep(0.5)
 
     print "Moving too fast to another position (safe mode in velma_core_ve_body)..."
-    q_map = copy.copy(js_start[1])
-    q_map['torso_0_joint'] = 1.0
-    velma.moveJoint(q_map, 0.05, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    q_map_0 = {'torso_0_joint':0,
+        'right_arm_0_joint':0,
+        'right_arm_1_joint':0,
+        'right_arm_2_joint':0,
+        'right_arm_3_joint':0,
+        'right_arm_4_joint':0,
+        'right_arm_5_joint':0,
+        'right_arm_6_joint':0,
+        'left_arm_0_joint':0,
+        'left_arm_1_joint':0,
+        'left_arm_2_joint':0,
+        'left_arm_3_joint':0,
+        'left_arm_4_joint':0,
+        'left_arm_5_joint':0,
+        'left_arm_6_joint':0}
+
+    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=30.0/180.0*math.pi, velocity_tol=30.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error == 0:
         print "The action should have ended with error, but the error code is", error
@@ -94,6 +112,19 @@ if __name__ == "__main__":
     rospy.sleep(2.0)
     if isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
         exitError(11)
+
+    print "moving head to position: 0"
+    q_dest = (0,0)
+    velma.moveHead(q_dest, 2.0, start_time=0.5)
+    if velma.waitForHead() != 0:
+        exitError(20)
+    if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
+        exitError(21)
+
+    exitError(0)
+
+#TODO: remove:
+
 
     print "moving head to position: left"
     q_dest = (1.56, 0)

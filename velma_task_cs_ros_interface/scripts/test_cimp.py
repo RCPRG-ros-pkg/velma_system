@@ -26,6 +26,11 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
+
     print "waiting for Planner init..."
     p = Planner(velma.maxJointTrajLen())
     if not p.waitForInit():
@@ -35,6 +40,33 @@ if __name__ == "__main__":
 
     if velma.enableMotors() != 0:
         exitError(14)
+
+    print "Moving to the current position (jnt_imp)..."
+    velma.moveJointImpToCurrentPos(start_time=0.2)
+    error = velma.waitForJoint()
+    if error != 0:
+        print "The action should have ended without error, but the error code is", error
+        exitError(3)
+
+    rospy.sleep(0.5)
+
+    diag = velma.getCoreCsDiag()
+    if not diag.inStateJntImp():
+        print "The core_cs should be in jnt_imp state, but it is not"
+        exitError(3)
+
+    print "Moving to the current position (cart_imp)..."
+    if not velma.moveCartImpRightCurrentPos(start_time=0.2):
+        exitError(8)
+    if velma.waitForEffectorRight() != 0:
+        exitError(9)
+
+    rospy.sleep(0.5)
+
+    diag = velma.getCoreCsDiag()
+    if not diag.inStateCartImp():
+        print "The core_cs should be in jnt_imp state, but it is not"
+        exitError(3)
 
     q_map_1 = {'torso_0_joint':0.0,
         'right_arm_0_joint':-0.3,
@@ -59,12 +91,12 @@ if __name__ == "__main__":
     print "Planning motion to the goal position using set of all joints..."
 
     print "Moving to valid position, using planned trajectory."
-    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01)
+    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01, group=velma.getJointGroup("impedance_joints"))
     for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -94,16 +126,32 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
 
+    q_map_starting = {'torso_0_joint':0,
+        'right_arm_0_joint':-0.3,
+        'right_arm_1_joint':-1.8,
+        'right_arm_2_joint':1.25,
+        'right_arm_3_joint':0.85,
+        'right_arm_4_joint':0,
+        'right_arm_5_joint':-0.5,
+        'right_arm_6_joint':0,
+        'left_arm_0_joint':0.3,
+        'left_arm_1_joint':1.8,
+        'left_arm_2_joint':-1.25,
+        'left_arm_3_joint':-0.85,
+        'left_arm_4_joint':0,
+        'left_arm_5_joint':0.5,
+        'left_arm_6_joint':0
+        }
 
-    print "Planning motion to the initial position using set of all joints..."
+    print "Planning motion to the starting position using set of all joints..."
 
     print "Moving to valid position, using planned trajectory."
-    goal_constraint_2 = qMapToConstraints(js_init[1], 0.01)
+    goal_constraint_2 = qMapToConstraints(q_map_starting, 0.01, group=velma.getJointGroup("impedance_joints"))
     for i in range(5):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect")
+        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -117,7 +165,7 @@ if __name__ == "__main__":
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(js_init[1], js[1]):
+    if not isConfigurationClose(q_map_starting, js[1]):
         exitError(6)
 
     print "The rest of this test is not ready yet"

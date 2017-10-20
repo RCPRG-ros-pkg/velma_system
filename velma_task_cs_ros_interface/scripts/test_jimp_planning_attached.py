@@ -63,6 +63,11 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
+
     print "Waiting for Planner initialization..."
     p = Planner(velma.maxJointTrajLen())
     if not p.waitForInit(timeout_s=10.0):
@@ -125,12 +130,12 @@ if __name__ == "__main__":
     print "Planning motion to the goal position using set of all joints..."
 
     print "Moving to valid position, using planned trajectory."
-    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01)
+    goal_constraint_1 = qMapToConstraints(q_map_goal, 0.01, group=velma.getJointGroup("impedance_joints"))
     for i in range(3):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect", attached_collision_objects=[object1])
+        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect", attached_collision_objects=[object1])
         if traj == None:
             continue
         print "Executing trajectory..."
@@ -167,12 +172,12 @@ if __name__ == "__main__":
         }
 
     print "Moving to starting position, using planned trajectory."
-    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01)
+    goal_constraint_2 = qMapToConstraints(q_map_end, 0.01, group=velma.getJointGroup("impedance_joints"))
     for i in range(3):
         rospy.sleep(0.5)
         js = velma.getLastJointState()
         print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.2, planner_id="RRTConnect", attached_collision_objects=[object1])
+        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect", attached_collision_objects=[object1])
         if traj == None:
             continue
         print "Executing trajectory..."

@@ -28,6 +28,11 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
+
     if velma.enableMotors() != 0:
         exitError(14)
 

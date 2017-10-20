@@ -31,15 +31,13 @@
 
     <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/safe_col_action" />
 
-<!--    <component type="TfPublisher"                                   name="TfPub"                running="true" />-->
+    <component type="TfPublisher"                                   name="TfPub"                running="true" />
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
-<!--
-    <connection from="stSplit.rToolInWristPose_OUTPORT"             to="TfPub.In0" />
-    <connection from="stSplit.lToolInWristPose_OUTPORT"             to="TfPub.In1" />
-    <ros_stream port="TfPub.OutTf"                  topic="/tf" />
--->
+
+    <connection from="stSplit.rToolInWristPose_OUTPORT"         to="TfPub.In0" />
+    <connection from="stSplit.lToolInWristPose_OUTPORT"         to="TfPub.In1" />
 
     <connection from="SafeColAction.cmd_OUTPORT"                to="cmdConcate.safe_col_INPORT" />
 
@@ -104,5 +102,10 @@
     <connection from="stSplit.handRight_s_OUTPORT"    to="RightHandAction.status_INPORT" />
 
     <ros_stream port="stSplit._OUTPORT"             topic="/velma_task_cs_ros_interface/st" />
+
+    <ros_stream port="TfPub.OutTf"                              topic="/tf" />
+    <ros_stream port="stSplit.hp_OUTPORT"                       topic="/motors/hp_status" />
+    <ros_stream port="stSplit.ht_OUTPORT"                       topic="/motors/ht_status" />
+    <ros_stream port="stSplit.t_OUTPORT"                        topic="/motors/t_status" />
 
 </subsystem_configuration>

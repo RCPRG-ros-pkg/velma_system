@@ -145,11 +145,11 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
     // joint controller for the head
     if (hp_homing_in_progress_) {
-        if (q_h(0) > 0.1) {
-            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)-0.0005);
+        if (q_h(0) > 0.01) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)-0.002);
         }
-        else if (q_h(0) < -0.1) {
-            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)+0.0005);
+        else if (q_h(0) < -0.01) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)+0.002);
         }
         else {
             hp_homing_in_progress_ = false;
@@ -161,11 +161,11 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     }
 
     if (ht_homing_in_progress_) {
-        if (q_h(1) > 0.1) {
-            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)-0.0005);
+        if (q_h(1) > 0.01) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)-0.002);
         }
-        else if (q_h(1) < -0.1) {
-            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)+0.0005);
+        else if (q_h(1) < -0.01) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)+0.002);
         }
         else {
             ht_homing_in_progress_ = false;

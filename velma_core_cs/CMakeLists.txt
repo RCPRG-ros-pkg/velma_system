@@ -47,6 +47,7 @@ orocos_component(velma_core_cs
     src/predicates.cpp
     src/components/idle.cpp
     src/components/safe.cpp
+    src/components/safe_col.cpp
     src/components/cart_imp.cpp
     src/components/jnt_imp.cpp
     src/components/fcl.cpp

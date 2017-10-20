@@ -29,9 +29,3 @@ CommandServo ht
 
 CommandServo t
 
-#bool homing_start_hp
-#bool homing_start_hp_valid
-
-#bool homing_start_ht
-#bool homing_start_ht_valid
-

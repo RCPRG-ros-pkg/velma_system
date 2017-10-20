@@ -19,6 +19,7 @@
 
     <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
+    <component name="ColDetRepJntImp"     type="CollisionDetectorVelma" latex="\text{ColDetRepJntImp}" />
     <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,r}" />
     <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,l}" />
 
@@ -62,6 +63,7 @@
     <component name="INT_imp_r"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT}_{r,imp}" />
     <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT}_{l,imp}" />
     <component name="JntImp"        type="JointImpedance15" latex="\text{IMP}_{jnt}" />
+    <component name="JntImpSafe"        type="JointImpedance15" latex="\text{IMP}_{jnt,safe}" />
     <component name="FK"            type="VelmaFK" latex="\text{FK}" >
         <service name="robot" />
     </component>
@@ -75,6 +77,7 @@
 
     <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{IDLE}" />
     <component name="safe"          type="velma_core_cs_types::SafeComponent" latex="\text{SAFE}" />
+    <component name="safe_col"      type="velma_core_cs_types::SafeColComponent" latex="\text{SAFE}" />
     <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" latex="\text{CIMP}" />
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{JIMP}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
@@ -126,7 +129,6 @@
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRep.mInv_INPORT" name="M" latex="M" />
     <connection from="C_q_all.Out" to="ColDetRep.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDetRep.dq_INPORT" name="dq" latex="\dot{q}" />
-    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRep.Nt_INPORT" name="t" latex="t" />
 <!--    <connection from="ColDetRep.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
     <connection from="ColDetRep.t_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
 
@@ -155,6 +157,7 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="safe_col.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="input_conv.tMotor_q_INPORT" name="q_t" latex="q_t" />
     <connection from="input_conv.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t" latex="q_t" />
@@ -251,12 +254,24 @@
     <connection from="C_q_body.Out" to="JntImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntImp.MassMatrix_INPORT" name="M" latex="M" />
-    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="C_q_body.Out" to="FK.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
+
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />
+<!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
+    <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />
+    <connection from="C_q_all.Out" to="ColDetRepJntImp.q_INPORT" name="q" latex="q" />
+    <connection from="C_dq_all.Out" to="ColDetRepJntImp.dq_INPORT" name="dq" latex="\dot{q}" />
+
+
+    <connection from="C_q_body.Out" to="JntImpSafe.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="JntImpSafe.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
+    <connection from="Mass.MassMatrix_OUTPORT" to="JntImpSafe.MassMatrix_INPORT" name="M" latex="M" />
+    <connection from="JntImpSafe.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
 
 <!--
     <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
@@ -304,8 +319,8 @@
 
     <connection from="master_component.b_st_OUTPORT" to="safe.status_INPORT" latex="st_{b}" />
     <connection from="C_q_body.Out" to="safe.JointPosition_INPORT" name="q_body" latex="q_{body}" />
-    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b, cmd}" />
-    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
+    <connection from="safe.JointPositionCommand_OUTPORT" to="JntImpSafe.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b, cmd}" />
+    <connection from="safe.JointStiffnessCommand_OUTPORT" to="JntImpSafe.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
 
     <connection from="b_stSplit.htMotor_q_OUTPORT" to="safe.ht_q_INPORT" />
     <connection from="b_stSplit.hpMotor_q_OUTPORT" to="safe.hp_q_INPORT" />

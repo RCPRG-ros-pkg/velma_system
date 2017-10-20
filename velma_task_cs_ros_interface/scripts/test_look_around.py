@@ -96,7 +96,7 @@ if __name__ == "__main__":
 
         p.processWorld(octomap)
 
-        goal_constraint_1 = qMapToConstraints(q_map, tolerance=0.1)
+        goal_constraint_1 = qMapToConstraints(q_map, tolerance=0.1, group=velma.getJointGroup("impedance_joints"))
 
         print "moving whole body to initial pose (jimp)"
         js = velma.getLastJointState()
