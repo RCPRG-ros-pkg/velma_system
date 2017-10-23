@@ -13,10 +13,28 @@ def exitError(code):
     exit(code)
 
 if __name__ == "__main__":
+    # define some configurations
+    q_map_starting = {'torso_0_joint':0,
+        'right_arm_0_joint':-0.3,   'left_arm_0_joint':0.3,
+        'right_arm_1_joint':-1.8,   'left_arm_1_joint':1.8,
+        'right_arm_2_joint':1.25,   'left_arm_2_joint':-1.25,
+        'right_arm_3_joint':0.85,   'left_arm_3_joint':-0.85,
+        'right_arm_4_joint':0,      'left_arm_4_joint':0,
+        'right_arm_5_joint':-0.5,   'left_arm_5_joint':0.5,
+        'right_arm_6_joint':0,      'left_arm_6_joint':0 }
 
-    rospy.init_node('test_cimp', anonymous=False)
+    q_map_1 = {'torso_0_joint':0.0,
+        'right_arm_0_joint':-0.3,   'left_arm_0_joint':0.3,
+        'right_arm_1_joint':-1.57,  'left_arm_1_joint':1.57,
+        'right_arm_2_joint':1.57,   'left_arm_2_joint':-1.57,
+        'right_arm_3_joint':1.57,   'left_arm_3_joint':-1.7,
+        'right_arm_4_joint':0.0,    'left_arm_4_joint':0.0,
+        'right_arm_5_joint':-1.57,  'left_arm_5_joint':1.57,
+        'right_arm_6_joint':0.0,    'left_arm_6_joint':0.0 }
 
-    rospy.sleep(1)
+    rospy.init_node('test_cimp_pose', anonymous=False)
+
+    rospy.sleep(0.5)
 
     print "Running python interface for Velma..."
     velma = VelmaInterface()
@@ -55,6 +73,14 @@ if __name__ == "__main__":
         print "The core_cs should be in jnt_imp state, but it is not"
         exitError(3)
 
+    print "Checking if the starting configuration is as expected..."
+    rospy.sleep(0.5)
+    js = velma.getLastJointState()
+    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.2):
+        print "This test requires starting pose:"
+        print q_map_starting
+        exitError(10)
+
     print "Moving to the current position (cart_imp)..."
     if not velma.moveCartImpRightCurrentPos(start_time=0.2):
         exitError(8)
@@ -67,23 +93,6 @@ if __name__ == "__main__":
     if not diag.inStateCartImp():
         print "The core_cs should be in jnt_imp state, but it is not"
         exitError(3)
-
-    q_map_1 = {'torso_0_joint':0.0,
-        'right_arm_0_joint':-0.3,
-        'right_arm_1_joint':-1.57,
-        'right_arm_2_joint':1.57,
-        'right_arm_3_joint':1.57,
-        'right_arm_4_joint':0.0,
-        'right_arm_5_joint':-1.57,
-        'right_arm_6_joint':0.0,
-        'left_arm_0_joint':0.3,
-        'left_arm_1_joint':1.57,
-        'left_arm_2_joint':-1.57,
-        'left_arm_3_joint':-1.7,
-        'left_arm_4_joint':0.0,
-        'left_arm_5_joint':1.57,
-        'left_arm_6_joint':0.0
-        }
 
     # get initial configuration
     js_init = velma.getLastJointState()
@@ -125,23 +134,6 @@ if __name__ == "__main__":
         exitError(9)
 
     rospy.sleep(0.5)
-
-    q_map_starting = {'torso_0_joint':0,
-        'right_arm_0_joint':-0.3,
-        'right_arm_1_joint':-1.8,
-        'right_arm_2_joint':1.25,
-        'right_arm_3_joint':0.85,
-        'right_arm_4_joint':0,
-        'right_arm_5_joint':-0.5,
-        'right_arm_6_joint':0,
-        'left_arm_0_joint':0.3,
-        'left_arm_1_joint':1.8,
-        'left_arm_2_joint':-1.25,
-        'left_arm_3_joint':-0.85,
-        'left_arm_4_joint':0,
-        'left_arm_5_joint':0.5,
-        'left_arm_6_joint':0
-        }
 
     print "Planning motion to the starting position using set of all joints..."
 

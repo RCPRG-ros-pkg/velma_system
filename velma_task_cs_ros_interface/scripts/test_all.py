@@ -19,7 +19,7 @@ if __name__ == "__main__":
 
     tests = ["test_init.py", "test_head.py", "test_head_complex.py", "test_safe_col.py",
         "test_jimp.py", "test_grippers.py", "test_jimp_planning.py",
-        "test_jimp_planning_attached.py", "test_cimp.py"]
+        "test_jimp_planning_attached.py", "test_cimp_pose.py"]
 
     i = 0
     for t in tests:
