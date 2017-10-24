@@ -85,7 +85,7 @@ if __name__ == "__main__":
         exitError(10)
 
     print "Moving to position 0 (this motion is too fast and should cause error condition, that leads to safe mode in velma_core_cs)."
-    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=-1)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error

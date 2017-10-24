@@ -393,6 +393,21 @@ class VelmaInterface:
                 return False
         return True
 
+    def waitForJointState(self, abs_time):
+        """!
+        Wait for reception of joint state ROS msg with time stamp greater or equal abs_time
+
+        @param abs_time rospy.Time: absolute time.
+
+        @return Returns True.
+        """
+        while not rospy.is_shutdown():
+            js = self.getLastJointState()
+            if (js[0] - abs_time).to_sec() > 0:
+                break
+            rospy.sleep(0.1)
+        return True
+
     def getBodyJointLimits(self):
         """!
         Gets limits of joints of both arms and torso.
@@ -1005,6 +1020,9 @@ class VelmaInterface:
         result = self._action_cart_traj_client[prefix].get_result()
         if result.error_code != 0:
             print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._cartesian_trajectory_result_names[result.error_code] + ")"
+
+        self.waitForJoint( self._action_cart_traj_client[prefix].action_client.comm_state_machine.latest_result.header.stamp )
+
         return result.error_code
 
     def waitForEffectorLeft(self, timeout_s=None):
@@ -1127,6 +1145,9 @@ class VelmaInterface:
         result = self._action_joint_traj_client.get_result()
         if result.error_code != 0:
             print "waitForJoint(): action failed with error_code=" + str(result.error_code)
+
+        self.waitForJoint( self._action_joint_traj_client.action_client.comm_state_machine.latest_result.header.stamp )
+
         return result.error_code
 
     def moveHeadTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
@@ -1198,6 +1219,9 @@ class VelmaInterface:
         result = self._action_head_joint_traj_client.get_result()
         if result.error_code != 0:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
+
+        self.waitForJoint( self._action_head_joint_traj_client.action_client.comm_state_machine.latest_result.header.stamp )
+
         return result.error_code
 
     def moveHand(self, prefix, q, v, t, maxPressure, hold=False):
