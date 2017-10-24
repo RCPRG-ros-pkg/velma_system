@@ -851,11 +851,11 @@ class VelmaInterface:
         @see enableMotor
         """
         self.enableMotor("hp")
+        r_hp = self.waitForMotor("hp", timeout_s=timeout)
         self.enableMotor("ht")
+        r_ht = self.waitForMotor("ht", timeout_s=timeout)
         self.enableMotor("t")
-        r_hp = self.waitForHP(timeout_s=timeout)
-        r_ht = self.waitForHT(timeout_s=timeout)
-        r_t = self.waitForT(timeout_s=timeout)
+        r_t = self.waitForMotor("t", timeout_s=timeout)
         if r_hp != 0:
             return r_hp
         if r_ht != 0:
