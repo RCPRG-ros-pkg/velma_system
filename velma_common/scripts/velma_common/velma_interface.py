@@ -1021,7 +1021,7 @@ class VelmaInterface:
         if result.error_code != 0:
             print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._cartesian_trajectory_result_names[result.error_code] + ")"
 
-        self.waitForJoint( self._action_cart_traj_client[prefix].action_client.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self._action_cart_traj_client[prefix].gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
@@ -1146,7 +1146,7 @@ class VelmaInterface:
         if result.error_code != 0:
             print "waitForJoint(): action failed with error_code=" + str(result.error_code)
 
-        self.waitForJoint( self._action_joint_traj_client.action_client.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self._action_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
@@ -1220,7 +1220,7 @@ class VelmaInterface:
         if result.error_code != 0:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
 
-        self.waitForJoint( self._action_head_joint_traj_client.action_client.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self._action_head_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
