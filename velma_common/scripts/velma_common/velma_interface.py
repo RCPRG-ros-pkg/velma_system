@@ -53,20 +53,6 @@ import subsystem_common.subsystem_diag as subsystem_diag
 
 import xml.dom.minidom as minidom
 
-# reference frames:
-# WO - world
-# B - robot's base
-# W - wrist
-# Wr - right wrist
-# Wl - left wrist
-# G - grasp
-# Gr - right grasp
-# Gl - left grasp
-# T - tool
-# Tr - right tool
-# Tl - left tool
-# Frij - right hand finger i knuckle j
-
 def isConfigurationClose(q_map1, q_map2, tolerance=0.1):
     """!
     Check if two configurations of robot body are close within tolerance.
@@ -1225,8 +1211,22 @@ class VelmaInterface:
         return result.error_code
 
     def moveHand(self, prefix, q, v, t, maxPressure, hold=False):
+        """!
+        Executes hand motion with trapezoidal velocity profile.
+
+        @param prefix       string: name of hand, either 'left' or 'right'
+        @param q            4-tuple of float: desired configuration for hand DOFs:
+            [FingerOneKnuckleTwo, FingerTwoKnuckleTwo, FingerThreeKnuckleTwo, Spread]
+        @param v            4-tuple of float: maximum velocities
+        @param t            4-tuple of float: maximum current in motors
+        @param maxPressure  float: maximum pressure for tactile sensors
+        @param hold         bool: True if spread joint should hold its position after completion of motion
+        @exception AssertionError when prefix is neither 'left' nor 'right'
+        """
+        assert (prefix == 'left' or prefix == 'right')
         action_goal = BHMoveGoal()
-        action_goal.name = [prefix+"_HandFingerOneKnuckleTwoJoint", prefix+"_HandFingerTwoKnuckleTwoJoint", prefix+"_HandFingerThreeKnuckleTwoJoint", prefix+"_HandFingerOneKnuckleOneJoint"]
+        action_goal.name = [prefix+"_HandFingerOneKnuckleTwoJoint", prefix+"_HandFingerTwoKnuckleTwoJoint",
+            prefix+"_HandFingerThreeKnuckleTwoJoint", prefix+"_HandFingerOneKnuckleOneJoint"]
         action_goal.q = q
         action_goal.v = v
         action_goal.t = t
@@ -1239,23 +1239,51 @@ class VelmaInterface:
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def moveHandLeft(self, q, v, t, maxPressure, hold=False):
+        """!
+        Executes motion with trapezoidal velocity profile for left hand.
+        @see moveHand
+        """
         self.moveHand("left", q, v, t, maxPressure, hold=hold)
 
     def moveHandRight(self, q, v, t, maxPressure, hold=False):
+        """!
+        Executes motion with trapezoidal velocity profile for right hand.
+        @see moveHand
+        """
         self.moveHand("right", q, v, t, maxPressure, hold=hold)
 
     def resetHand(self, prefix):
+        """!
+        Executes reset command for hand.
+        @param prefix       string: name of hand, either 'left' or 'right'
+        @exception AssertionError when prefix is neither 'left' nor 'right'
+        """
+        assert (prefix == 'left' or prefix == 'right')
         action_goal = BHMoveGoal()
         action_goal.reset = True
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def resetHandLeft(self):
+        """!
+        Executes reset command for left hand.
+        @see resetHand
+        """
         self.resetHand("left")
 
     def resetHandRight(self):
+        """!
+        Executes reset command for right hand.
+        @see resetHand
+        """
         self.resetHand("right")
 
     def waitForHand(self, prefix):
+        """!
+        Wait for completion of hand movement.
+        @param prefix       string: name of hand, either 'left' or 'right'
+        @exception AssertionError when prefix is neither 'left' nor 'right'
+        """
+        assert (prefix == 'left' or prefix == 'right')
         self._action_move_hand_client[prefix].wait_for_result()
         result = self._action_move_hand_client[prefix].get_result()
         if result.error_code != 0:
@@ -1263,31 +1291,85 @@ class VelmaInterface:
         return result.error_code
 
     def waitForHandLeft(self):
+        """!
+        Wait for completion of left hand movement.
+        @see waitForHand
+        """
         return self.waitForHand("left")
 
     def waitForHandRight(self):
+        """!
+        Wait for completion of right hand movement.
+        @see waitForHand
+        """
         return self.waitForHand("right")
 
-    def hasContact(self, threshold, print_on_false=False):
-        if self.T_F_C != None:
-            return True
-        return False
-
-    def getKDLtf(self, base_frame, frame):
-        pose = self._listener.lookupTransform(base_frame, frame, rospy.Time(0))
+    def getKDLtf(self, base_frame, frame, time=rospy.Time(0)):
+        """!
+        Lookup tf transform and convert it to PyKDL.Frame.
+        @param base_frame   string: name of base frame
+        @param frame        string: name of target frame
+        @param time         rospy.Time: time at which transform should be interpolated
+        @return PyKDL.Frame transformation from base frame to target frame.
+        """
+        pose = self._listener.lookupTransform(base_frame, frame, time)
         return pm.fromTf(pose)
 
-    def getAllLinksTf(self, base_frame):
+    def getAllLinksTf(self, base_frame, time=rospy.Time(0)):
+        """!
+        Lookup transformations for all links.
+
+        @param base_frame   string: name of base frame
+        @param time         rospy.Time: time at which transform should be interpolated
+        @return dictionary {string:PyKDL.Frame} Returns dictionary that maps link names
+            to their poses wrt. the base frame.
+        """
         result = {}
         for l in self._all_links:
             try:
-                result[l.name] = self.getKDLtf(base_frame, l.name)
+                result[l.name] = self.getKDLtf(base_frame, l.name, time)
             except:
                 result[l.name] = None
         return result
 
-    def getTf(self, frame_from, frame_to):
-        if frame_from in self._frames and frame_to in self._frames:
-            return self.getKDLtf( self._frames[frame_from], self._frames[frame_to] )
-        return None
+    def getTf(self, frame_from, frame_to, time=rospy.Time(0)):
+        """!
+        Lookup tf transform and convert it to PyKDL.Frame.
+        Only the following simplified names of frames can be used:
+         - 'Wo' - world frame ('world')
+         - 'B' - robot base frame ('torso_base')
+         - 'Wr' - right wrist ('right_arm_7_link')
+         - 'Wl' - left wrist ('left_arm_7_link')
+         - 'Gr' - right grip frame ('right_HandGripLink')
+         - 'Gl' - left grip frame ('left_HandGripLink')
+         - 'Tr' - right tool frame ('right_arm_tool')
+         - 'Tl' - left tool frame ('left_arm_tool')
+         - 'Fr00' - 'right_HandFingerOneKnuckleOneLink'
+         - 'Fr01' - 'right_HandFingerOneKnuckleTwoLink'
+         - 'Fr02' - 'right_HandFingerOneKnuckleThreeLink'
+         - 'Fr10' - 'right_HandFingerTwoKnuckleOneLink'
+         - 'Fr11' - 'right_HandFingerTwoKnuckleTwoLink'
+         - 'Fr12' - 'right_HandFingerTwoKnuckleThreeLink'
+         - 'Fr21' - 'right_HandFingerThreeKnuckleTwoLink'
+         - 'Fr22' - 'right_HandFingerThreeKnuckleThreeLink'
+         - 'Fl00' - 'left_HandFingerOneKnuckleOneLink'
+         - 'Fl01' - 'left_HandFingerOneKnuckleTwoLink'
+         - 'Fl02' - 'left_HandFingerOneKnuckleThreeLink'
+         - 'Fl10' - 'left_HandFingerTwoKnuckleOneLink'
+         - 'Fl11' - 'left_HandFingerTwoKnuckleTwoLink'
+         - 'Fl12' - 'left_HandFingerTwoKnuckleThreeLink'
+         - 'Fl21' - 'left_HandFingerThreeKnuckleTwoLink'
+         - 'Fl22' - 'left_HandFingerThreeKnuckleThreeLink'
+
+        @param frame_from   string: simplified name of base frame
+        @param frame_to     string: simplified name of target frame
+        @param time         rospy.Time: time at which transform should be interpolated
+        @return PyKDL.Frame transformation from base frame to target frame.
+
+        @exception AssertionError when frame_from or frame_to is invalid
+
+        @see getKDLtf
+        """
+        assert (frame_from in self._frames and frame_to in self._frames)
+        return self.getKDLtf( self._frames[frame_from], self._frames[frame_to], time )
 
