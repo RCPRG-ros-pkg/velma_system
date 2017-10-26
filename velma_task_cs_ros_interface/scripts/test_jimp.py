@@ -48,12 +48,12 @@ if __name__ == "__main__":
         'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
         'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
 
-    rospy.init_node('jimp_test', anonymous=True)
+    rospy.init_node('jimp_test')
 
     rospy.sleep(0.5)
 
     print "This test/tutorial executes simple motions"\
-        " in Joint Impedance mode. Planning is not used"\
+        " in joint impedance mode. Planning is not used"\
         " in this example.\n"
 
     print "Running python interface for Velma..."
