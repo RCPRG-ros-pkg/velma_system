@@ -1,20 +1,19 @@
 #!/usr/bin/env python
+
+## Runs test for jnt_imp mode motion and planning.
+# @ingroup integration_tests
+# @file test_jimp_planning.py
+# @namespace scripts.test_jimp_planning Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
 import rospy
 import math
 import PyKDL
 
-from velma_common.velma_interface import *
-from control_msgs.msg import FollowJointTrajectoryResult
-from planner.planner import *
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from velma_common import *
+from planner import *
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
     # define some configurations

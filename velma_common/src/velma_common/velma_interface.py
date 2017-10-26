@@ -1,6 +1,5 @@
-"""
-This file contains ROS-based Python interface for WUT Velma Robot and some helper functions.
-"""
+## This file contains ROS-based Python interface for WUT Velma Robot and some helper functions.
+# @file velma_interface.py
 
 # Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
 # All rights reserved.
@@ -49,7 +48,7 @@ from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryG
 import diagnostic_msgs.msg
 import tf_conversions.posemath as pm
 
-import subsystem_common.subsystem_diag as subsystem_diag
+import subsystem_common
 
 import xml.dom.minidom as minidom
 
@@ -576,7 +575,7 @@ class VelmaInterface:
             return None
         for v in data.status[1].values:
             if v.key == "master_component":
-                mcd = subsystem_diag.parseMasterComponentDiag(v.value)
+                mcd = subsystem_common.parseMasterComponentDiag(v.value)
                 return mcd
         return None
 
@@ -584,12 +583,12 @@ class VelmaInterface:
         """!
         Get diagnostic information for core VE.
 
-        @return Returns object of type subsystem_common.subsystem_diag.SubsystemDiag, with
+        @return Returns object of type subsystem_common.SubsystemDiag, with
             diagnostic information about subsystem.
         """
         return self._getSubsystemDiag(self._core_ve_name)
 
-    class CoreCsDiag(subsystem_diag.SubsystemDiag):
+    class CoreCsDiag(subsystem_common.SubsystemDiag):
         """!
         This class contains subsystem-specific diagnostic information for velma_core_cs.
         """
@@ -597,7 +596,7 @@ class VelmaInterface:
             """!
             Initialization of diagnostics data using subsystem-independent diagnostics object.
 
-            @param parent               subsystem_common.subsystem_diag.SubsystemDiag: subsystem-independent diagnostics object.
+            @param parent               subsystem_common.SubsystemDiag: subsystem-independent diagnostics object.
             @exception AssertionError   Raised when current state name cannot be obtained or state history is not present.
             """
             assert (len(parent.history) > 0)

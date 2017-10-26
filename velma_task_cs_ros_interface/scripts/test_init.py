@@ -1,23 +1,22 @@
 #!/usr/bin/env python
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
+## Runs initialization procedures for robot.
+# @ingroup integration_tests
+# @file test_init.py
+# @namespace scripts.test_init Integration test
+
 import rospy
 import PyKDL
 
-from velma_common.velma_interface import *
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from velma_common import *
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
 
     rospy.init_node('test_init', anonymous=True)
 
-    rospy.sleep(1)
+    rospy.sleep(0.5)
 
     print "This test/tutorial executes initialization"\
         " procedures required for robot operation.\n"

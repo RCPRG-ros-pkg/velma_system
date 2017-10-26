@@ -43,14 +43,6 @@
         child_frame_ids: [right_arm_tool, left_arm_tool]
     </rosparam>
 <!--
-      rightHandMoveAction:
-        prefix: right
-      leftHandMoveAction:
-        prefix: left
-      HeadSplineTrajectoryActionJoint:
-        joint_names: [head_pan_joint, head_tilt_joint]
-        lower_limits: [-1.57, -1]
-        upper_limits: [1.57, 1]
       TfPub:
         frame_ids: [right_arm_7_link, left_arm_7_link, torso_base, torso_base, torso_base, torso_base]
         child_frame_ids: [right_arm_tool, left_arm_tool, right_arm_cmd, left_arm_cmd, right_arm_tool_measured, left_arm_tool_measured]

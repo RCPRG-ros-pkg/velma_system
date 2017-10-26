@@ -1,15 +1,15 @@
 #!/usr/bin/env python
+
+## Runs test for grippers motions.
+# @ingroup integration_tests
+# @file test_grippers.py
+# @namespace scripts.test_grippers Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 import rospy
 import math
-from velma_common.velma_interface import *
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from velma_common import *
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
 

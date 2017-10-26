@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+## Runs integration test: external force.
+# @ingroup integration_tests
+# @file test_external_force.py
+# @namespace scripts.test_external_force Integration test
+
 import roslib; roslib.load_manifest('velma_core_ve_body')
 
 import sys

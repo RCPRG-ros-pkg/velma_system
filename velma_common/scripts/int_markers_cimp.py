@@ -1,11 +1,14 @@
 #!/usr/bin/env python
+
+## Provides interactive 6D pose marker that ca be used to move end-effectors.
+# @ingroup utilities
+# @file int_markers_cimp.py
+# @namespace scripts.int_markers_cimp Provides interactive 6D pose marker that ca be used to move end-effectors.
+
 import roslib; roslib.load_manifest('velma_controller')
 
-import sys
 import rospy
 import math
-import copy
-import tf
 
 from std_msgs.msg import ColorRGBA
 from interactive_markers.interactive_marker_server import *
@@ -15,10 +18,9 @@ from geometry_msgs.msg import *
 from tf.transformations import * 
 import tf_conversions.posemath as pm
 import PyKDL
-from cartesian_trajectory_msgs.msg import *
 import actionlib
 
-from velma_common.velma_interface import *
+from velma_common import *
 
 class IntMarkersCimp:
     def __init__(self, prefix, velma_interface):
@@ -191,7 +193,7 @@ if __name__ == "__main__":
 
     rospy.sleep(1)
 
-    velma = VelmaInterface("/velma_task_cs_ros_interface")
+    velma = VelmaInterface()
     print "waiting for init..."
 
     velma.waitForInit()

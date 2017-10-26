@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+## Runs test for jnt_imp mode motion.
+# @ingroup integration_tests
+# @file test_jimp.py
+# @namespace scripts.test_jimp Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
 import rospy

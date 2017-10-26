@@ -1,4 +1,10 @@
 #!/usr/bin/env python
+
+## Runs test for jnt_imp mode motion and planning with objects attached to gripper.
+# @ingroup integration_tests
+# @file test_jimp_planning_attached.py
+# @namespace scripts.test_jimp_planning_attached Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
 import rospy
@@ -6,22 +12,15 @@ import math
 import PyKDL
 from threading import Thread
 
-from velma_common.velma_interface import *
-from planner.planner import *
-from ros_utils.marker_publisher import MarkerPublisher
+from velma_common import *
+from planner import *
+from rcprg_ros_utils import MarkerPublisher, exitError
 
 from moveit_msgs.msg import AttachedCollisionObject, CollisionObject
 from shape_msgs.msg import SolidPrimitive
 from geometry_msgs.msg import Pose
 from visualization_msgs.msg import Marker
 import tf_conversions.posemath as pm
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
 
 class MarkerPublisherThread:
     def threaded_function(self, obj):

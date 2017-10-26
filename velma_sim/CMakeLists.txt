@@ -54,7 +54,7 @@ ros_generate_rtt_master()
 
 ## Default component
 orocos_component(velma_sim
-    src/lwr_sim.cpp
+#    src/lwr_sim.cpp
     src/barrett_hand_sim.cpp
     src/barrett_tactile_sim.cpp
     src/ft_sensor_sim.cpp

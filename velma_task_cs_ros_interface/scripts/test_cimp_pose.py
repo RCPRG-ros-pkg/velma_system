@@ -1,16 +1,16 @@
 #!/usr/bin/env python
+
+## Runs test for motions in cart_imp mode.
+# @ingroup integration_tests
+# @file test_cimp_pose.py
+# @namespace scripts.test_cimp_pose Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 import rospy
 
-from velma_common.velma_interface import *
-from planner.planner import *
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from velma_common import *
+from planner import *
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
     # define some configurations

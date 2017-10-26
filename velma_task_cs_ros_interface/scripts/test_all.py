@@ -1,15 +1,16 @@
 #!/usr/bin/env python
+
+## Runs all integration tests.
+# @ingroup integration_tests
+# @file test_all.py
+# @namespace scripts.test_all Integration test
+
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 
 import subprocess
 import rospy
 
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
 

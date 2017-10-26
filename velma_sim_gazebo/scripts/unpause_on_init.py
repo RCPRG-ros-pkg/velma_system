@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+## Script used to unpause the simulation after initialization procedure is complete.
+# @ingroup utilities
+# @file unpause_on_init.py
+# @namespace scripts.unpause_on_init Script used to unpause the simulation after initialization procedure is complete
+
 # Copyright (c) 2015, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
 # Warsaw University of Technology
