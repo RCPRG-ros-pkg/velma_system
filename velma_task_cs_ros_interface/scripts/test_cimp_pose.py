@@ -96,7 +96,6 @@ if __name__ == "__main__":
         exitError(3)
 
     rospy.sleep(0.5)
-
     diag = velma.getCoreCsDiag()
     if not diag.inStateJntImp():
         print "The core_cs should be in jnt_imp state, but it is not"
@@ -248,6 +247,22 @@ if __name__ == "__main__":
         exitError(8)
     if velma.waitForEffectorRight() != 0:
         exitError(9)
+
+    print "Rotating right writs by 45 deg around local z axis and left wrist by -45 deg (right-hand side matrix multiplication)"
+    synchronized_time = rospy.Time.now() + rospy.Duration(0.5)
+    T_B_Tr = velma.getTf("B", "Tr")
+    T_B_Trd = T_B_Tr * PyKDL.Frame(PyKDL.Rotation.RotZ(30.0/180.0*math.pi))
+    T_B_Tl = velma.getTf("B", "Tl")
+    T_B_Tld = T_B_Tl * PyKDL.Frame(PyKDL.Rotation.RotZ(-30.0/180.0*math.pi))
+    if not velma.moveCartImpRight([T_B_Trd], [2.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), stamp=synchronized_time):
+        exitError(8)
+    if not velma.moveCartImpLeft([T_B_Tld], [2.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), stamp=synchronized_time):
+        exitError(8)
+    if velma.waitForEffectorRight() != 0:
+        exitError(9)
+    if velma.waitForEffectorLeft() != 0:
+        exitError(9)
+    rospy.sleep(0.5)
 
     print "Rotating both writs by 30 deg around local x axis (right-hand side matrix multiplication)"
     synchronized_time = rospy.Time.now() + rospy.Duration(0.5)

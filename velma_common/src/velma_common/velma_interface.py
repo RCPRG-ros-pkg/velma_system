@@ -919,10 +919,12 @@ class VelmaInterface:
         assert (prefix=="left" or prefix=="right")
 
         action_trajectory_goal = CartImpGoal()
-        if stamp != None:
-            action_trajectory_goal.pose_trj.header.stamp = stamp
-        else:
-            action_trajectory_goal.pose_trj.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        if stamp == None:
+            stamp = rospy.Time.now() + rospy.Duration(start_time)
+
+        action_trajectory_goal.pose_trj.header.stamp = stamp
+        action_trajectory_goal.tool_trj.header.stamp = stamp
+        action_trajectory_goal.imp_trj.header.stamp = stamp
 
         if pose_list_T_B_Td != None:
             for i in range(len(pose_list_T_B_Td)):
@@ -1303,35 +1305,46 @@ class VelmaInterface:
         """
         return self.waitForHand("right")
 
-    def getKDLtf(self, base_frame, frame, time=rospy.Time(0)):
+    def getKDLtf(self, base_frame, frame, time=None, timeout_s=1.0):
         """!
         Lookup tf transform and convert it to PyKDL.Frame.
         @param base_frame   string: name of base frame
         @param frame        string: name of target frame
         @param time         rospy.Time: time at which transform should be interpolated
+        @param timeout_s    float: timeout in seconds
         @return PyKDL.Frame transformation from base frame to target frame.
+        @exception tf2_ros.TransformException when the transform for the specified time
+            is not avaible during the timeout_s.
         """
+        if time == None:
+            time = rospy.Time.now()
+        self._listener.waitForTransform(base_frame, frame, time, rospy.Duration(timeout_s))
         pose = self._listener.lookupTransform(base_frame, frame, time)
         return pm.fromTf(pose)
 
-    def getAllLinksTf(self, base_frame, time=rospy.Time(0)):
+    def getAllLinksTf(self, base_frame, time=None, timeout_s=1.0):
         """!
         Lookup transformations for all links.
 
         @param base_frame   string: name of base frame
         @param time         rospy.Time: time at which transform should be interpolated
+        @param timeout_s    float: timeout in seconds
         @return dictionary {string:PyKDL.Frame} Returns dictionary that maps link names
             to their poses wrt. the base frame.
+        @exception tf2_ros.TransformException when the transform for the specified time
+            is not avaible during the timeout_s.
         """
+        if time == None:
+            time = rospy.Time.now()
         result = {}
         for l in self._all_links:
             try:
-                result[l.name] = self.getKDLtf(base_frame, l.name, time)
+                result[l.name] = self.getKDLtf(base_frame, l.name, time, timeout_s)
             except:
                 result[l.name] = None
         return result
 
-    def getTf(self, frame_from, frame_to, time=rospy.Time(0)):
+    def getTf(self, frame_from, frame_to, time=None, timeout_s=1.0):
         """!
         Lookup tf transform and convert it to PyKDL.Frame.
         Only the following simplified names of frames can be used:
@@ -1363,12 +1376,17 @@ class VelmaInterface:
         @param frame_from   string: simplified name of base frame
         @param frame_to     string: simplified name of target frame
         @param time         rospy.Time: time at which transform should be interpolated
+        @param timeout_s    float: timeout in seconds
         @return PyKDL.Frame transformation from base frame to target frame.
+        @exception tf2_ros.TransformException when the transform for the specified time
+            is not avaible during the timeout_s.
 
         @exception AssertionError when frame_from or frame_to is invalid
 
         @see getKDLtf
         """
+        if time == None:
+            time = rospy.Time.now()
         assert (frame_from in self._frames and frame_to in self._frames)
-        return self.getKDLtf( self._frames[frame_from], self._frames[frame_to], time )
+        return self.getKDLtf( self._frames[frame_from], self._frames[frame_to], time, timeout_s )
 

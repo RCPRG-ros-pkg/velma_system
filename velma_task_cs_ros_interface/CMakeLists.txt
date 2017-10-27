@@ -78,6 +78,7 @@ catkin_install_python(PROGRAMS
     scripts/test_all.py
     scripts/test_init.py
     scripts/test_cimp_pose.py
+    scripts/test_cimp_tool.py
     scripts/test_jimp.py
     scripts/test_safe_col.py
     scripts/test_head.py

@@ -37,7 +37,7 @@ if __name__ == "__main__":
     rospy.sleep(0.5)
 
     print "This test/tutorial executes simple motions"\
-        " of tool in Cartesian impedance mode.\n"
+        " in Cartesian impedance mode.\n"
 
     print "Running python interface for Velma..."
     velma = VelmaInterface()
@@ -47,34 +47,59 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
+    if velma.enableMotors() != 0:
+        exitError(2)
+
     diag = velma.getCoreCsDiag()
     if not diag.motorsReady():
         print "Motors must be homed and ready to use for this test."
-        exitError(1)
+        exitError(3)
 
     print "waiting for Planner init..."
     p = Planner(velma.maxJointTrajLen())
     if not p.waitForInit():
         print "could not initialize PLanner"
-        exitError(2)
+        exitError(4)
     print "Planner init ok"
 
-    if velma.enableMotors() != 0:
-        exitError(14)
+    # define a function for frequently used routine in this test
+    def planAndExecute(q_dest):
+        print "Planning motion to the goal position using set of all joints..."
+        print "Moving to valid position, using planned trajectory."
+        goal_constraint = qMapToConstraints(q_dest, 0.01, group=velma.getJointGroup("impedance_joints"))
+        for i in range(5):
+            rospy.sleep(0.5)
+            js = velma.getLastJointState()
+            print "Planning (try", i, ")..."
+            traj = p.plan(js[1], [goal_constraint], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
+            if traj == None:
+                continue
+            print "Executing trajectory..."
+            if not velma.moveJointTraj(traj, start_time=0.5):
+                exitError(5)
+            if velma.waitForJoint() == 0:
+                break
+            else:
+                print "The trajectory could not be completed, retrying..."
+                continue
+        rospy.sleep(0.5)
+        js = velma.getLastJointState()
+        if not isConfigurationClose(q_dest, js[1]):
+            exitError(6)
 
-    print "Moving to the current position (jnt_imp)..."
+
+    print "Switch to jnt_imp mode (no trajectory)..."
     velma.moveJointImpToCurrentPos(start_time=0.2)
     error = velma.waitForJoint()
     if error != 0:
         print "The action should have ended without error, but the error code is", error
-        exitError(3)
+        exitError(7)
 
     rospy.sleep(0.5)
-
     diag = velma.getCoreCsDiag()
     if not diag.inStateJntImp():
         print "The core_cs should be in jnt_imp state, but it is not"
-        exitError(3)
+        exitError(8)
 
     print "Checking if the starting configuration is as expected..."
     rospy.sleep(0.5)
@@ -82,144 +107,69 @@ if __name__ == "__main__":
     if not isConfigurationClose(q_map_starting, js[1], tolerance=0.2):
         print "This test requires starting pose:"
         print q_map_starting
-        exitError(10)
-
-    print "Moving to the current position (cart_imp)..."
-    if not velma.moveCartImpRightCurrentPos(start_time=0.2):
-        exitError(8)
-    if velma.waitForEffectorRight() != 0:
         exitError(9)
+
+    # get initial configuration
+    js_init = velma.getLastJointState()
+
+    planAndExecute(q_map_1)
+
+    print "Switch to cart_imp mode (no trajectory)..."
+    if not velma.moveCartImpRightCurrentPos(start_time=0.2):
+        exitError(10)
+    if velma.waitForEffectorRight() != 0:
+        exitError(11)
 
     rospy.sleep(0.5)
 
     diag = velma.getCoreCsDiag()
     if not diag.inStateCartImp():
-        print "The core_cs should be in jnt_imp state, but it is not"
-        exitError(3)
-
-    # get initial configuration
-    js_init = velma.getLastJointState()
-
-    print "Planning motion to the goal position using set of all joints..."
-
-    print "Moving to valid position, using planned trajectory."
-    goal_constraint_1 = qMapToConstraints(q_map_1, 0.01, group=velma.getJointGroup("impedance_joints"))
-    for i in range(5):
-        rospy.sleep(0.5)
-        js = velma.getLastJointState()
-        print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
-        if traj == None:
-            continue
-        print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
-            exitError(5)
-        if velma.waitForJoint() == 0:
-            break
-        else:
-            print "The trajectory could not be completed, retrying..."
-            continue
-
-    rospy.sleep(0.5)
-    js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_1, js[1]):
-        exitError(6)
-
-    print "moving right arm to another pose (cimp)"
-    T_B_Trd = velma.getTf("B", "Wr")
-    T_B_Trd_init = copy.copy(T_B_Trd)
-    T_B_Tld_init = copy.copy(velma.getTf("B", "Wl"))
-    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,0.1)) * T_B_Trd
-
-    if not velma.moveCartImpRight([T_B_Trd], [3.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
-        exitError(8)
-    if velma.waitForEffectorRight() != 0:
-        exitError(9)
-
-    rospy.sleep(0.5)
-
-    print "Planning motion to the starting position using set of all joints..."
-
-    print "Moving to valid position, using planned trajectory."
-    goal_constraint_2 = qMapToConstraints(q_map_starting, 0.01, group=velma.getJointGroup("impedance_joints"))
-    for i in range(5):
-        rospy.sleep(0.5)
-        js = velma.getLastJointState()
-        print "Planning (try", i, ")..."
-        traj = p.plan(js[1], [goal_constraint_2], "impedance_joints", max_velocity_scaling_factor=0.15, planner_id="RRTConnect")
-        if traj == None:
-            continue
-        print "Executing trajectory..."
-        if not velma.moveJointTraj(traj, start_time=0.5):
-            exitError(5)
-        if velma.waitForJoint() == 0:
-            break
-        else:
-            print "The trajectory could not be completed, retrying..."
-            continue
-
-    rospy.sleep(0.5)
-    js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_starting, js[1]):
-        exitError(6)
-
-    print "The rest of this test is not ready yet"
-    exitError(0)
-
-    #TODO: implement more motions
-
-    print "moving right arm to another pose (cimp, error - too fast)"
-    T_B_Trd = velma.getTf("B", "Wr")
-    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0,0,1.1)) * T_B_Trd
-    if not velma.moveCartImpRight([T_B_Trd], [0.1], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(50,50,50), PyKDL.Vector(50,50,50)), start_time=0.5):
-        exitError(10)
-    if velma.waitForEffectorRight() != -5:
-        exitError(11)
-
-    rospy.sleep(2.0)
-
-    if velma.enableMotors() != 0:
-        exitError(14)
-
-    print "waiting 2 seconds..."
-    rospy.sleep(2)
-
-    print "moving whole body to initial pose (jimp)"
-    js = velma.getLastJointState()
-    traj = p.plan(js[1], [goal_constraint_1], "impedance_joints", max_velocity_scaling_factor=0.1)
-    if not velma.moveJointTraj(traj, start_time=0.5):
+        print "The core_cs should be in cart_imp state, but it is not"
         exitError(12)
-    if velma.waitForJoint() != 0:
+
+    print "Moving right wrist to pose defined in world frame..."
+    T_B_Trd = PyKDL.Frame(PyKDL.Rotation.Quaternion( 0.0 , 0.0 , 0.0 , 1.0 ), PyKDL.Vector( 0.7 , -0.3 , 1.3 ))
+    if not velma.moveCartImpRight([T_B_Trd], [3.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(13)
-    rospy.sleep(0.5)
-    js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_1, js[1]):
+    if velma.waitForEffectorRight() != 0:
         exitError(14)
-
-    print "moving arms to self-collision pose (cimp)"
-    T_B_Trd = PyKDL.Frame(PyKDL.Vector(0.4, 0.1, 1.2))
-    T_B_Tld = PyKDL.Frame(PyKDL.Rotation.RotZ(180.0/180.0*math.pi), PyKDL.Vector(0.4, -0.1, 1.2))
-    if not velma.moveCartImpRight([T_B_Trd], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
+    rospy.sleep(0.5)
+    print "calculating difference between desiread and reached pose..."
+    T_B_T_diff = PyKDL.diff(T_B_Trd, velma.getTf("B", "Tr"), 1.0)
+    print T_B_T_diff
+    if T_B_T_diff.vel.Norm() > 0.05 or T_B_T_diff.rot.Norm() > 0.05:
         exitError(15)
-    if not velma.moveCartImpLeft([T_B_Tld], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, path_tol=PyKDL.Twist(PyKDL.Vector(0.02, 0.02, 0.02), PyKDL.Vector(0.05, 0.05, 0.05))):
+
+    print "Rotating right writs by 45 deg around local z axis (right-hand side matrix multiplication)"
+    T_B_Tr = velma.getTf("B", "Tr")
+    T_B_Trd = T_B_Tr * PyKDL.Frame(PyKDL.Rotation.RotZ(45.0/180.0*math.pi))
+    if not velma.moveCartImpRight([T_B_Trd, T_B_Tr], [2.0, 4.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(16)
-    if velma.waitForEffectorRight() != -5:
+    if velma.waitForEffectorRight() != 0:
         exitError(17)
-    if velma.waitForEffectorLeft() != -5:
+    rospy.sleep(0.5)
+
+    print "Moving the right tool and equilibrium pose from 'wrist' to 'grip' frame..."
+    T_B_Wr = velma.getTf("B", "Wr")
+    T_Wr_Gr = velma.getTf("Wr", "Gr")
+    if not velma.moveCartImpRight([T_B_Wr*T_Wr_Gr], [0.1], [T_Wr_Gr], [0.1], None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(18)
-
-    print "waiting 2 seconds..."
-    rospy.sleep(2)
-
-    print "moving arms to initial pose (cimp)"
-    if not velma.moveCartImpRight([T_B_Trd_init], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
+    if velma.waitForEffectorRight() != 0:
         exitError(19)
-    if not velma.moveCartImpLeft([T_B_Tld_init], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
+
+    print "the right tool is now in 'grip' pose"
+    rospy.sleep(0.5)
+
+    print "Rotating right equilibrium pose by -45 deg around local x axis (right-hand side matrix multiplication)"
+    T_B_Tr = velma.getTf("B", "Tr")
+    T_B_Trd = T_B_Tr * PyKDL.Frame(PyKDL.Rotation.RotX(-45.0/180.0*math.pi))
+    if not velma.moveCartImpRight([T_B_Trd, T_B_Tr], [2.0, 4.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(20)
     if velma.waitForEffectorRight() != 0:
         exitError(21)
-    if velma.waitForEffectorLeft() != 0:
-        exitError(22)
+    rospy.sleep(0.5)
+
+    planAndExecute(q_map_starting)
 
     exitError(0)
 
