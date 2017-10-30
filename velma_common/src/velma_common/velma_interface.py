@@ -913,10 +913,13 @@ class VelmaInterface:
 
         @return Returns True.
 
-        @exception AssertionError   Raised when prefix is neither 'left' nor 'right'
+        @exception AssertionError   Raised when prefix is neither 'left' nor 'right'.
         """
 
         assert (prefix=="left" or prefix=="right")
+        assert ((pose_list_T_B_Td == None and pose_times == None) or len(pose_list_T_B_Td) == len(pose_times))
+        assert ((tool_list_T_W_T == None and tool_times == None) or len(tool_list_T_W_T) == len(tool_times))
+        assert ((imp_list == None and imp_times == None) or len(imp_list) == len(imp_times))
 
         action_trajectory_goal = CartImpGoal()
         if stamp == None:

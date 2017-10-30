@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-## Runs test for tool motions in cart_imp mode.
+## Runs test for motions in cart_imp mode.
 # @ingroup integration_tests
-# @file test_cimp_tool.py
-# @namespace scripts.test_cimp_tool Integration test
+# @file test_cimp_imp.py
+# @namespace scripts.test_cimp_imp Integration test
 
 import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
 import rospy
@@ -32,11 +32,11 @@ if __name__ == "__main__":
         'right_arm_5_joint':-1.57,  'left_arm_5_joint':1.57,
         'right_arm_6_joint':0.0,    'left_arm_6_joint':0.0 }
 
-    rospy.init_node('test_cimp_tool')
+    rospy.init_node('test_cimp_imp')
 
     rospy.sleep(0.5)
 
-    print "This test/tutorial executes simple tool motions"\
+    print "This test/tutorial executes simple impedance commands"\
         " in Cartesian impedance mode.\n"
 
     print "Running python interface for Velma..."
@@ -87,6 +87,9 @@ if __name__ == "__main__":
         if not isConfigurationClose(q_dest, js[1]):
             exitError(6)
 
+    def makeWrench(lx,ly,lz,rx,ry,rz):
+        return PyKDL.Wrench(PyKDL.Vector(lx,ly,lz), PyKDL.Vector(rx,ry,rz))
+
     print "Switch to jnt_imp mode (no trajectory)..."
     velma.moveJointImpToCurrentPos(start_time=0.2)
     error = velma.waitForJoint()
@@ -127,7 +130,10 @@ if __name__ == "__main__":
         exitError(12)
 
     print "To see the tool frame add 'tf' in rviz and enable 'right_arm_tool' frame."
-    print "At every state switch to cart_imp, the tool frames are reset"
+    print "At every state switch to cart_imp, the tool frames are reset."
+    print "Also, the tool impedance parameters are reset to 1500N/m in every"\
+        " direction for linear stiffness and to 150Nm/rad in every direction for angular"\
+        " stiffness, i.e. (1500,1500,1500,150,150,150)."
 
     print "Moving right wrist to pose defined in world frame..."
     T_B_Trd = PyKDL.Frame(PyKDL.Rotation.Quaternion( 0.0 , 0.0 , 0.0 , 1.0 ), PyKDL.Vector( 0.7 , -0.3 , 1.3 ))
@@ -142,34 +148,26 @@ if __name__ == "__main__":
     if T_B_T_diff.vel.Norm() > 0.05 or T_B_T_diff.rot.Norm() > 0.05:
         exitError(15)
 
-    print "Rotating right writs by 45 deg around local z axis (right-hand side matrix multiplication)"
-    T_B_Tr = velma.getTf("B", "Tr")
-    T_B_Trd = T_B_Tr * PyKDL.Frame(PyKDL.Rotation.RotZ(45.0/180.0*math.pi))
-    if not velma.moveCartImpRight([T_B_Trd, T_B_Tr], [2.0, 4.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
+    print "Set impedance to (1000,1000,125,150,150,150) in tool frame."
+    imp_list = [makeWrench(1000,1000,1000,150,150,150),
+                makeWrench(1000,1000,500,150,150,150),
+                makeWrench(1000,1000,250,150,150,150),
+                makeWrench(1000,1000,125,150,150,150)]
+    if not velma.moveCartImpRight(None, None, None, None, imp_list, [0.5,1.0,1.5,2.0], PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
         exitError(16)
     if velma.waitForEffectorRight() != 0:
         exitError(17)
-    rospy.sleep(0.5)
 
-    print "Moving the right tool and equilibrium pose from 'wrist' to 'grip' frame..."
-    T_B_Wr = velma.getTf("B", "Wr")
-    T_Wr_Gr = velma.getTf("Wr", "Gr")
-    if not velma.moveCartImpRight([T_B_Wr*T_Wr_Gr], [0.1], [T_Wr_Gr], [0.1], None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
-        exitError(18)
+    rospy.sleep(1.0)
+
+    print "Set impedance to (1000,1000,1000,150,150,150) in tool frame."
+    imp_list = [makeWrench(1000,1000,250,150,150,150),
+                makeWrench(1000,1000,500,150,150,150),
+                makeWrench(1000,1000,1000,150,150,150)]
+    if not velma.moveCartImpRight(None, None, None, None, imp_list, [0.5,1.0,1.5], PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
+        exitError(16)
     if velma.waitForEffectorRight() != 0:
-        exitError(19)
-
-    print "the right tool is now in 'grip' pose"
-    rospy.sleep(0.5)
-
-    print "Rotating right equilibrium pose by -45 deg around local x axis (right-hand side matrix multiplication)"
-    T_B_Tr = velma.getTf("B", "Tr")
-    T_B_Trd = T_B_Tr * PyKDL.Frame(PyKDL.Rotation.RotX(-45.0/180.0*math.pi))
-    if not velma.moveCartImpRight([T_B_Trd, T_B_Tr], [2.0, 4.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5):
-        exitError(20)
-    if velma.waitForEffectorRight() != 0:
-        exitError(21)
-    rospy.sleep(0.5)
+        exitError(17)
 
     planAndExecute(q_map_starting)
 
