@@ -145,6 +145,11 @@ void TorsoGazebo::updateHook() {
 
     port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in_);
 
+    ros::Time now = rtt_rosclock::host_now();
+    double cmd_div = std::max(1.0, (now - last_update_time_).toSec()/0.001);
+    last_update_time_ = now;
+    t_MotorCurrentCommand_in_ = t_MotorCurrentCommand_in_ / cmd_div;
+
     //
     // head
     //

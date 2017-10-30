@@ -86,6 +86,11 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
+    // calculate sim period
+    ros::Time now = rtt_rosclock::host_now();
+    double vel_mult = std::max(1.0, (now - last_update_time_).toSec()/0.001);
+    last_update_time_ = now;
+
     //
     // BarrettHand
     //
@@ -119,14 +124,14 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if (!status_overcurrent_[3] && !hw_can_.status_idle_[3]) {
         // spread joints
         if (finger_int_[3] > hw_can_.q_in_[f1k1_dof_idx]) {
-            finger_int_[3] -= hw_can_.v_in_[f1k1_dof_idx];
+            finger_int_[3] -= hw_can_.v_in_[f1k1_dof_idx] * vel_mult;
             if (finger_int_[3] <= hw_can_.q_in_[f1k1_dof_idx]) {
                 hw_can_.status_idle_[3] = true;
                 Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
             }
         }
         else if (finger_int_[3] < hw_can_.q_in_[f1k1_dof_idx]) {
-            finger_int_[3] += hw_can_.v_in_[f1k1_dof_idx];
+            finger_int_[3] += hw_can_.v_in_[f1k1_dof_idx] * vel_mult;
             if (finger_int_[3] >= hw_can_.q_in_[f1k1_dof_idx]) {
                 hw_can_.status_idle_[3] = true;
                 Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
@@ -165,7 +170,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         bool is_opening = false;
         if (!status_overcurrent_[fidx] && !hw_can_.status_idle_[fidx]) {
             if (finger_int_[fidx] > hw_can_.q_in_[k2_dof]) {
-                finger_int_[fidx] -= hw_can_.v_in_[k2_dof];
+                finger_int_[fidx] -= hw_can_.v_in_[k2_dof] * vel_mult;
                 is_opening = true;
                 //if (getName() == "RightHand") {
                 //    Logger::log() << Logger::Info << "op: " << finger_int_[fidx] << "  " << q_in_[k2_dof] << ", v: " << v_in_[k2_dof] << Logger::endl;
@@ -176,7 +181,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 }
             }
             else {
-                finger_int_[fidx] += hw_can_.v_in_[k2_dof];
+                finger_int_[fidx] += hw_can_.v_in_[k2_dof] * vel_mult;
                 is_opening = false;
                 //if (getName() == "RightHand") {
                 //    Logger::log() << Logger::Info << "cl: " << finger_int_[fidx] << "  " << q_in_[k2_dof] << ", v: " << v_in_[k2_dof] << Logger::endl;

@@ -39,6 +39,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
+#include "rtt_rosclock/rtt_rosclock.h"
+
 #include <barrett_hand_hw_sim/barrett_hand_hw_can.h>
 
 class BarrettHandGazebo : public RTT::TaskContext
@@ -108,8 +110,9 @@ public:
 
     bool disable_component_;
 
-
     BarrettHandHwCAN hw_can_;
+
+    ros::Time last_update_time_;
 };
 
 #endif  // BARRETT_HAND_GAZEBO_H__

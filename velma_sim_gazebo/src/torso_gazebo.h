@@ -37,6 +37,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
+#include "rtt_rosclock/rtt_rosclock.h"
+
 #include <controller_common/elmo_servo_state.h>
 
 class TorsoGazebo : public RTT::TaskContext
@@ -147,6 +149,8 @@ public:
     RTT::os::MutexRecursive gazebo_mutex_;
 
     bool data_valid_;
+
+    ros::Time last_update_time_;
 };
 
 #endif  // TORSO_GAZEBO_H__

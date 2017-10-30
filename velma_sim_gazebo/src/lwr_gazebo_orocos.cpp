@@ -75,6 +75,12 @@ using namespace RTT;
         if (port_JointTorqueCommand_in_.read(JointTorqueCommand_in_) == RTT::NewData) {
         }
 
+        ros::Time now = rtt_rosclock::host_now();
+        double cmd_div = std::max(1.0, (now - last_update_time_).toSec()/0.001);
+        last_update_time_ = now;
+        for (int i = 0; i < JointTorqueCommand_in_.size(); ++i) {
+            JointTorqueCommand_in_[i] = JointTorqueCommand_in_[i] / cmd_div;
+        }
 
         // FRI comm state
         FRIState_out_.quality = lwr_msgs::FriIntfState::FRI_QUALITY_PERFECT;

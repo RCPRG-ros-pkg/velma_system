@@ -43,6 +43,8 @@
 #include <rtt/Port.hpp>
 #include <rtt/TaskContext.hpp>
 
+#include "rtt_rosclock/rtt_rosclock.h"
+
 #include <lwr_msgs/FriRobotState.h>
 #include <lwr_msgs/FriIntfState.h>
 
@@ -139,6 +141,8 @@ public:
     std::vector<gazebo::physics::LinkPtr > links_;
 
     int counter_;
+
+    ros::Time last_update_time_;
 };
 
 #endif  // LWR_GAZEBO_H__
