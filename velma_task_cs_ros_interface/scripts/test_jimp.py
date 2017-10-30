@@ -64,16 +64,18 @@ if __name__ == "__main__":
         exitError(1)
     print "Initialization ok!\n"
 
-    diag = velma.getCoreCsDiag()
-    if not diag.motorsReady():
-        print "Motors must be homed and ready to use for this test."
-        exitError(1)
-
     print "Motors must be enabled every time after the robot enters safe state."
     print "If the motors are already enabled, enabling them has no effect."
     print "Enabling motors..."
     if velma.enableMotors() != 0:
         exitError(2)
+
+    rospy.sleep(0.5)
+
+    diag = velma.getCoreCsDiag()
+    if not diag.motorsReady():
+        print "Motors must be homed and ready to use for this test."
+        exitError(1)
 
     print "Switch to jnt_imp mode (no trajectory)..."
     velma.moveJointImpToCurrentPos(start_time=0.5)

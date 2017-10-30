@@ -104,6 +104,15 @@ if __name__ == "__main__":
     object1.object.primitives.append(object1_prim)
     object1.object.primitive_poses.append(object1_pose)
     object1.object.operation = CollisionObject.ADD
+    object1.touch_links = ['right_HandPalmLink',
+        'right_HandFingerOneKnuckleOneLink',
+        'right_HandFingerOneKnuckleTwoLink',
+        'right_HandFingerOneKnuckleThreeLink',
+        'right_HandFingerTwoKnuckleOneLink',
+        'right_HandFingerTwoKnuckleTwoLink',
+        'right_HandFingerTwoKnuckleThreeLink',
+        'right_HandFingerThreeKnuckleTwoLink',
+        'right_HandFingerThreeKnuckleThreeLink']
 
     print "Publishing the attached object marker on topic /attached_objects"
     pub = MarkerPublisherThread(object1)
