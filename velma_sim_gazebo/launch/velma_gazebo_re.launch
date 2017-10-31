@@ -10,7 +10,6 @@
   <arg name="verbose" default="true"/>
   <arg name="debug" default="false"/>
   <arg name="world_name" default="$(find rcprg_gazebo_utils)/data/gazebo/worlds/blank.world"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
-  <arg name="sim_clock_period" default="0.001"/>
   <arg name="load_robot_description" default="true"/>
   <arg name="GAZEBO_MODEL_PATH" default=""/>
   <arg name="GAZEBO_RESOURCE_PATH" default=""/>
@@ -33,7 +32,7 @@
   <env name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(optenv GAZEBO_MODEL_PATH)" />
   <env name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(optenv GAZEBO_RESOURCE_PATH)" />
   <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
-	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u --sim_clock_period $(arg sim_clock_period)" >
+	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u" >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
 <!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
   </node>
