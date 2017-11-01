@@ -16,7 +16,6 @@
       <arg name="world_name" value="$(arg world_name)"/> <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
       <arg name="use_kinect" default="$(arg use_kinect)"/>
       <arg name="gui" default="false"/>
-      <arg name="max_step_size" default="0.002"/>
       <arg name="load_robot_description" default="true"/>
       <arg name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(find rcprg_gazebo_utils)/data/gazebo/models"/>
       <arg name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(find rcprg_gazebo_utils)/data/gazebo"/>

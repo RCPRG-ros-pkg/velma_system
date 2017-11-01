@@ -58,12 +58,14 @@ if __name__ == '__main__':
 
     print "waiting for init"
     while True:
-        info_body = srv_info_velma_sim_gazebo()
-
-        if info_body.is_initialized:
-            srv_unpause_physics()
-            print "unpaused gazebo"
-            break
-
+        try:
+            info_body = srv_info_velma_sim_gazebo()
+            if info_body.is_initialized:
+                srv_unpause_physics()
+                print "unpaused gazebo"
+                break
+        except rospy.service.ServiceException as e:
+            print "unpause_on_init exception:", e
+            print "retrying..."
         time.sleep(1)
 
