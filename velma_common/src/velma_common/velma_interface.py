@@ -1308,7 +1308,7 @@ class VelmaInterface:
         """
         return self.waitForHand("right")
 
-    def getKDLtf(self, base_frame, frame, time=None, timeout_s=1.0):
+    def _getKDLtf(self, base_frame, frame, time=None, timeout_s=1.0):
         """!
         Lookup tf transform and convert it to PyKDL.Frame.
         @param base_frame   string: name of base frame
@@ -1342,15 +1342,15 @@ class VelmaInterface:
         result = {}
         for l in self._all_links:
             try:
-                result[l.name] = self.getKDLtf(base_frame, l.name, time, timeout_s)
+                result[l.name] = self._getKDLtf(base_frame, l.name, time, timeout_s)
             except:
                 result[l.name] = None
         return result
 
     def getTf(self, frame_from, frame_to, time=None, timeout_s=1.0):
         """!
-        Lookup tf transform and convert it to PyKDL.Frame.
-        Only the following simplified names of frames can be used:
+        Lookup tf transform and convert it to PyKDL.Frame. Frame names can be the full names
+        or the following simplified names can be used:
          - 'Wo' - world frame ('world')
          - 'B' - robot base frame ('torso_base')
          - 'Wr' - right wrist ('right_arm_7_link')
@@ -1383,13 +1383,18 @@ class VelmaInterface:
         @return PyKDL.Frame transformation from base frame to target frame.
         @exception tf2_ros.TransformException when the transform for the specified time
             is not avaible during the timeout_s.
-
-        @exception AssertionError when frame_from or frame_to is invalid
-
-        @see getKDLtf
         """
         if time == None:
             time = rospy.Time.now()
-        assert (frame_from in self._frames and frame_to in self._frames)
-        return self.getKDLtf( self._frames[frame_from], self._frames[frame_to], time, timeout_s )
+        if frame_from in self._frames:
+            frame_from_name = self._frames[frame_from]
+        else:
+            frame_from_name = frame_from
+
+        if frame_to in self._frames:
+            frame_to_name = self._frames[frame_to]
+        else:
+            frame_to_name = frame_to
+
+        return self._getKDLtf( frame_from_name, frame_to_name, time, timeout_s )
 

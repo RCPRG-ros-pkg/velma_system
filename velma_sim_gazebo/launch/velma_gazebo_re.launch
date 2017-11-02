@@ -29,8 +29,8 @@
   <arg     if="$(arg debug)" name="script_type" value="debug"/>
 
   <!-- start gazebo server-->
-  <env name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(optenv GAZEBO_MODEL_PATH)" />
-  <env name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(optenv GAZEBO_RESOURCE_PATH)" />
+  <env name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(optenv GAZEBO_MODEL_PATH):$(find rcprg_gazebo_utils)/data/gazebo/models" />
+  <env name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(optenv GAZEBO_RESOURCE_PATH):$(find rcprg_gazebo_utils)/data/gazebo" />
   <node pkg="gazebo_ros" type="$(arg script_type)" name="velma_controller" respawn="false" output="screen"
 	args="$(arg command_arg1) $(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u -o dart_2ms" >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
