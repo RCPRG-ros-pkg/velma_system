@@ -44,7 +44,7 @@ from motor_action_msgs.msg import *
 from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryGoal, JointTolerance
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryResult, FollowJointTrajectoryGoal, JointTolerance
 import diagnostic_msgs.msg
 import tf_conversions.posemath as pm
 
@@ -169,6 +169,14 @@ class VelmaInterface:
         CartImpResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
         CartImpResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED',
         CartImpResult.UNKNOWN_ERROR:'UNKNOWN_ERROR', }
+
+    _joint_trajectory_result_names = {
+        FollowJointTrajectoryResult.SUCCESSFUL:"SUCCESSFUL",
+        FollowJointTrajectoryResult.INVALID_GOAL:"INVALID_GOAL",
+        FollowJointTrajectoryResult.INVALID_JOINTS:"INVALID_JOINTS",
+        FollowJointTrajectoryResult.OLD_HEADER_TIMESTAMP:"OLD_HEADER_TIMESTAMP",
+        FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:"PATH_TOLERANCE_VIOLATED",
+        FollowJointTrajectoryResult.GOAL_TOLERANCE_VIOLATED:"GOAL_TOLERANCE_VIOLATED",}
 
     _moveHand_action_error_codes_names = {
         0:"SUCCESSFUL",
@@ -1009,7 +1017,10 @@ class VelmaInterface:
             return None
         result = self._action_cart_traj_client[prefix].get_result()
         if result.error_code != 0:
-            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._cartesian_trajectory_result_names[result.error_code] + ")"
+            error_str = "UNKNOWN"
+            if result.error_code in self._cartesian_trajectory_result_names:
+                error_str = self._cartesian_trajectory_result_names[result.error_code]
+            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
 
         self.waitForJointState( self._action_cart_traj_client[prefix].gh.comm_state_machine.latest_result.header.stamp )
 
@@ -1134,7 +1145,10 @@ class VelmaInterface:
         self._action_joint_traj_client.wait_for_result()
         result = self._action_joint_traj_client.get_result()
         if result.error_code != 0:
-            print "waitForJoint(): action failed with error_code=" + str(result.error_code)
+            error_str = "UNKNOWN"
+            if result.error_code in self._joint_trajectory_result_names:
+                error_str = self._joint_trajectory_result_names[result.error_code]
+            print "waitForJoint(): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
 
         self.waitForJointState( self._action_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
 
