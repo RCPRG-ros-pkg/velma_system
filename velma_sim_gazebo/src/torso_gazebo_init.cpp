@@ -46,6 +46,7 @@ TorsoGazebo::TorsoGazebo(std::string const& name)
     , t_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
     , hp_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
     , ht_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
+    , kinect_active_(false)
 {
     // Add required gazebo interfaces
     this->provides("gazebo")->addOperation("configure",&TorsoGazebo::gazeboConfigureHook,this,RTT::ClientThread);

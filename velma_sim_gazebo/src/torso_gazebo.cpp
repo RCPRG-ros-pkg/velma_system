@@ -29,6 +29,8 @@
 #include <rtt/Logger.hpp>
 #include "velma_sim_conversion.h"
 
+#include <gazebo/sensors/sensors.hh>
+
 using namespace RTT;
 
 void TorsoGazebo::getJointPositionAndVelocity(double &q, double &dq) {
@@ -90,6 +92,22 @@ void TorsoGazebo::setJointsPID() {
 void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
     Logger::In in("TorsoGazebo::gazeboUpdateHook");
+
+    bool kinect_active_prev = kinect_active_;
+    gazebo::sensors::SensorPtr kinect = gazebo::sensors::SensorManager::Instance()->GetSensor("openni_camera_camera");
+    kinect_active_ = false;
+    if (kinect && kinect->IsActive()) {
+        kinect_active_ = true;
+    }
+
+    if (kinect_active_prev != kinect_active_) {
+        if (kinect_active_) {
+            Logger::log() << Logger::Info << "kinect is enabled" << Logger::endl;
+        }
+        else {
+            Logger::log() << Logger::Info << "kinect is disabled" << Logger::endl;
+        }
+    }
 
     //
     // torso

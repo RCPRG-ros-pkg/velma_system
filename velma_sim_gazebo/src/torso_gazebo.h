@@ -151,6 +151,8 @@ public:
     bool data_valid_;
 
     ros::Time last_update_time_;
+
+    bool kinect_active_;
 };
 
 #endif  // TORSO_GAZEBO_H__
