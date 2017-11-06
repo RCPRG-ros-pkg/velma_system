@@ -118,13 +118,13 @@ if __name__ == "__main__":
     print "Checking if the starting configuration is as expected..."
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.2):
+    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.3):
         print "This test requires starting pose:"
         print q_map_starting
         exitError(10)
 
     print "Moving to position 0 (this motion is too fast and should cause error condition, that leads to safe mode in velma_core_cs)."
-    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=-1)
+    velma.moveJoint(q_map_0, 0.05, start_time=0.5, position_tol=0, velocity_tol=0)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
@@ -133,7 +133,7 @@ if __name__ == "__main__":
     print "Checking if current pose is close to the starting pose..."
     rospy.sleep(0.5)
     js = velma.getLastJointState()
-    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.2):
+    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.3):
         exitError(10)
 
     print "waiting 2 seconds..."

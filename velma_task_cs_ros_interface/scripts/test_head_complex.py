@@ -115,7 +115,7 @@ if __name__ == "__main__":
         'left_arm_5_joint':0,
         'left_arm_6_joint':0}
 
-    velma.moveJoint(q_map_0, 0.1, start_time=0.5, position_tol=30.0/180.0*math.pi, velocity_tol=30.0/180.0*math.pi)
+    velma.moveJoint(q_map_0, 0.05, start_time=0.5, position_tol=0, velocity_tol=0)
     error = velma.waitForJoint()
     if error == 0:
         print "The action should have ended with error, but the error code is", error
