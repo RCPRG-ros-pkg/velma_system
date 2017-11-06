@@ -63,6 +63,12 @@ class MarkerPublisherThread:
             except:
                 break
 
+        try:
+            pub.eraseMarkers(0, 10, namespace='default')
+            rospy.sleep(0.5)
+        except:
+            pass
+
     def __init__(self, obj):
         self.thread = Thread(target = self.threaded_function, args = (obj, ))
 
