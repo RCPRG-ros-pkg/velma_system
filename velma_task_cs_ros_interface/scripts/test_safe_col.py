@@ -44,9 +44,9 @@ from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
 
-    rospy.init_node('test_cimp', anonymous=False)
+    rospy.init_node('test_safe_col', anonymous=False)
 
-    rospy.sleep(1)
+    rospy.sleep(0.5)
 
     print "Running python interface for Velma..."
     velma = VelmaInterface()
@@ -59,15 +59,21 @@ if __name__ == "__main__":
     diag = velma.getCoreCsDiag()
     if not diag.motorsReady():
         print "Motors must be homed and ready to use for this test."
-        exitError(1)
+        exitError(2)
 
     print "Motors must be enabled every time after the robot enters safe state."
     print "If the motors are already enabled, enabling them has no effect."
     print "Enabling motors..."
     if velma.enableMotors() != 0:
-        exitError(14)
+        exitError(3)
 
     velma.switchToSafeColBehavior()
 
     rospy.sleep(0.5)
-    exit(0)
+
+    diag = velma.getCoreCsDiag()
+    if not diag.inStateSafeCol():
+        exitError(4)
+
+    exitError(0)
+

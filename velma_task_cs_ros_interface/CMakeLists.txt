@@ -76,7 +76,7 @@ install(DIRECTORY config/
 
 catkin_install_python(PROGRAMS
     scripts/test_all.py
-    scripts/test_init.py
+    scripts/initialize_robot.py
     scripts/test_cimp_pose.py
     scripts/test_cimp_tool.py
     scripts/test_cimp_imp.py

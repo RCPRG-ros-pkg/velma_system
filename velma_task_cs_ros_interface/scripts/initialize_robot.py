@@ -2,7 +2,7 @@
 
 ## Runs initialization procedures for robot.
 # @ingroup integration_tests
-# @file test_init.py
+# @file initialize_robot.py
 # @namespace scripts.test_init Integration test
 
 ## Provides interactive 6D pose marker and allows moving object in Gazebo.
