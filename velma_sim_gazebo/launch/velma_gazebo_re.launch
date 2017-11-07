@@ -4,7 +4,6 @@
 <!--  <env name="GAZEBO_MODEL_PATH" value="$(find rcprg_gazebo_utils)/data/gazebo/models" />-->
 
   <!-- these are the arguments you can pass this launch file, for example paused:=true -->
-  <arg name="paused" default="false"/>
   <arg name="gui" default="false"/>
   <arg name="headless" default="false"/>
   <arg name="verbose" default="true"/>
@@ -19,8 +18,6 @@
   <arg name="ORO_LOGLEVEL" default="5"/>
 
   <!-- set command arguments -->
-  <arg unless="$(arg paused)" name="command_arg1" value=""/>
-  <arg     if="$(arg paused)" name="command_arg1" value="-u"/>
   <arg unless="$(arg headless)" name="command_arg2" value=""/>
   <arg     if="$(arg headless)" name="command_arg2" value="-r"/>
   <arg unless="$(arg verbose)" name="command_arg3" value=""/>

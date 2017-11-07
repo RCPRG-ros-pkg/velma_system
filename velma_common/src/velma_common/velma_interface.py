@@ -1,5 +1,6 @@
 ## This file contains ROS-based Python interface for WUT Velma Robot and some helper functions.
 # @file velma_interface.py
+# @ingroup python_api
 
 # Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
 # All rights reserved.

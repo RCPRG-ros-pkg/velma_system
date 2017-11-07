@@ -3,12 +3,7 @@
 ## Runs initialization procedures for robot.
 # @ingroup integration_tests
 # @file initialize_robot.py
-# @namespace scripts.test_init Integration test
-
-## Provides interactive 6D pose marker and allows moving object in Gazebo.
-# @ingroup utilities
-# @file gazebo_move_object.py
-# @namespace scripts.gazebo_move_object Provides interactive 6D pose marker and allows moving object in Gazebo
+# @namespace scripts.initialize_robot Integration test
 
 # Copyright (c) 2017, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering

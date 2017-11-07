@@ -191,14 +191,13 @@ if __name__ == "__main__":
 
     rospy.init_node('int_markers_cimp', anonymous=False)
 
-    rospy.sleep(1)
+    rospy.sleep(0.5)
 
     velma = VelmaInterface()
     print "waiting for init..."
 
     velma.waitForInit()
     print "init ok"
-
 
     int_right = IntMarkersCimp("right", velma)
     int_left = IntMarkersCimp("left", velma)
