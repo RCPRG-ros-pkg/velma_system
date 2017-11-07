@@ -43,6 +43,11 @@ from velma_common import *
 from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
+    # starting position
+    q_map_starting = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,
+        'right_arm_2_joint':1.25, 'right_arm_3_joint':0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+        'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
+        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
 
     rospy.init_node('test_safe_col', anonymous=False)
 
@@ -67,6 +72,8 @@ if __name__ == "__main__":
     if velma.enableMotors() != 0:
         exitError(3)
 
+    print "Switching to safe_col behavior..."
+
     velma.switchToSafeColBehavior()
 
     rospy.sleep(0.5)
@@ -74,6 +81,18 @@ if __name__ == "__main__":
     diag = velma.getCoreCsDiag()
     if not diag.inStateSafeCol():
         exitError(4)
+
+    print "Moving to the starting position..."
+    velma.moveJoint(q_map_starting, 2.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+    error = velma.waitForJoint()
+    if error != 0:
+        print "The action should have ended without error, but the error code is", error
+        exitError(5)
+
+    rospy.sleep(0.5)
+    js = velma.getLastJointState()
+    if not isConfigurationClose(q_map_starting, js[1], tolerance=0.1):
+        exitError(6)
 
     exitError(0)
 
