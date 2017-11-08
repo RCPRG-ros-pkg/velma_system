@@ -56,10 +56,10 @@ if __name__ == "__main__":
     # define some configurations
 
     # every joint in position 0
-    q_map_0 = {'torso_0_joint':0, 'right_arm_0_joint':0, 'right_arm_1_joint':0,
-        'right_arm_2_joint':0, 'right_arm_3_joint':0, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0, 'left_arm_1_joint':0, 'left_arm_2_joint':0,
-        'left_arm_3_joint':0, 'left_arm_4_joint':0, 'left_arm_5_joint':0, 'left_arm_6_joint':0 }
+    q_map_0 = {'torso_0_joint':0, 'right_arm_0_joint':0, 'right_arm_1_joint':-0.3,
+        'right_arm_2_joint':0, 'right_arm_3_joint':0.3, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
+        'right_arm_6_joint':0, 'left_arm_0_joint':0, 'left_arm_1_joint':0.3, 'left_arm_2_joint':0,
+        'left_arm_3_joint':-0.3, 'left_arm_4_joint':0, 'left_arm_5_joint':0, 'left_arm_6_joint':0 }
 
     # starting position
     q_map_starting = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,
@@ -154,6 +154,8 @@ if __name__ == "__main__":
     if not isConfigurationClose(q_map_0, js[1], tolerance=0.1):
         exitError(10)
 
+    rospy.sleep(1.0)
+
     print "Moving to the starting position..."
     velma.moveJoint(q_map_starting, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
@@ -167,11 +169,14 @@ if __name__ == "__main__":
         exitError(10)
 
     print "Moving to valid position, using invalid self-colliding trajectory (this motion should cause error condition, that leads to safe mode in velma_core_cs)."
-    velma.moveJoint(q_map_goal, 9.0, start_time=0.5, position_tol=5.0/180.0*math.pi)
+    velma.moveJoint(q_map_goal, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
         print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
         exitError(7)
+
+    print "Using SafeCol behavior to exit self collision..."
+    velma.switchToSafeColBehavior()
 
     print "waiting 2 seconds..."
     rospy.sleep(2)
@@ -195,11 +200,6 @@ if __name__ == "__main__":
         exitError(10)
 
     print "To reach the goal position, some trajectory must be exetuted that contains additional, intermediate nodes"
-
-    print "Using SafeCol behavior to exit self collision..."
-    velma.switchToSafeColBehavior()
-
-    rospy.sleep(2)
 
     print "Moving to the intermediate position..."
     velma.moveJoint(q_map_intermediate, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
