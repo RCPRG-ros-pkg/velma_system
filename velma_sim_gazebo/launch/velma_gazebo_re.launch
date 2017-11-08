@@ -12,6 +12,7 @@
   <arg name="load_robot_description" default="true"/>
   <arg name="GAZEBO_MODEL_PATH" default=""/>
   <arg name="GAZEBO_RESOURCE_PATH" default=""/>
+  <arg name="profile" />
 
   <arg name="use_kinect" default="true"/>
 
@@ -29,7 +30,7 @@
   <env name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(optenv GAZEBO_MODEL_PATH):$(find rcprg_gazebo_utils)/data/gazebo/models" />
   <env name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(optenv GAZEBO_RESOURCE_PATH):$(find rcprg_gazebo_utils)/data/gazebo" />
   <node pkg="gazebo_ros" type="$(arg script_type)" name="gazebo" respawn="false" output="screen"
-	args="$(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u -o dart_2ms" >
+	args="$(arg command_arg2) $(arg command_arg3) $(arg world_name) -s librtt_gazebo_system.so -e dart -u -o $(arg profile)" >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
 <!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
   </node>
