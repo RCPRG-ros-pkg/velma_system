@@ -4,7 +4,7 @@
     <arg name="world_name" default="worlds/empty.world" />
     <arg name="GAZEBO_MODEL_PATH" default=""/>
     <arg name="GAZEBO_RESOURCE_PATH" default=""/>
-    <arg name="profile" />
+    <arg name="profile" default="dart_2ms"/>
 
     <param name="/robot_description"
       command="$(find xacro)/xacro '$(find velma_description)/robots/velma.urdf.xacro'

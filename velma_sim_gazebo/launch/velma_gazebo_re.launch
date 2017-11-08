@@ -12,7 +12,7 @@
   <arg name="load_robot_description" default="true"/>
   <arg name="GAZEBO_MODEL_PATH" default=""/>
   <arg name="GAZEBO_RESOURCE_PATH" default=""/>
-  <arg name="profile" />
+  <arg name="profile" default="dart_2ms"/>
 
   <arg name="use_kinect" default="true"/>
 
