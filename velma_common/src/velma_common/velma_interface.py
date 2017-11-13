@@ -507,23 +507,23 @@ class VelmaInterface:
 
         # cartesian wrist trajectory for right arm
         self._action_cart_traj_client = {
-            'right':actionlib.SimpleActionClient("/right_arm/cartesian_trajectory", CartImpAction),
-            'left':actionlib.SimpleActionClient("/left_arm/cartesian_trajectory", CartImpAction)
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/cartesian_trajectory", CartImpAction)
             }
 
         # joint trajectory for arms and torso
-        self._action_joint_traj_client = actionlib.SimpleActionClient("/spline_trajectory_action_joint", FollowJointTrajectoryAction)
+        self._action_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         # joint trajectory for head
-        self._action_head_joint_traj_client = actionlib.SimpleActionClient("/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
+        self._action_head_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
-        self._action_safe_col_client = actionlib.SimpleActionClient("/safe_col_action", BehaviorSwitchAction)
+        self._action_safe_col_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction)
 
         # motor actions for head
         self._action_motor_client = {
-            'hp':actionlib.SimpleActionClient("/motors/hp", MotorAction),
-            'ht':actionlib.SimpleActionClient("/motors/ht", MotorAction),
-            't':actionlib.SimpleActionClient("/motors/t", MotorAction)
+            'hp':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/hp", MotorAction),
+            'ht':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/ht", MotorAction),
+            't':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/t", MotorAction)
             }
 
         # cartesian tool trajectory for arms in the wrist frames
@@ -541,8 +541,8 @@ class VelmaInterface:
 #        self._action_impedance_client["left"].wait_for_server()
 
         self._action_move_hand_client = {
-            'right':actionlib.SimpleActionClient("/right_hand/move_hand", BHMoveAction),
-            'left':actionlib.SimpleActionClient("/left_hand/move_hand", BHMoveAction) }
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_hand/move_hand", BHMoveAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_hand/move_hand", BHMoveAction) }
 #        self._action_move_hand_client["right"].wait_for_server()    # this check is done in waitForInit
 #        self._action_move_hand_client["left"].wait_for_server()     # this check is done in waitForInit
 

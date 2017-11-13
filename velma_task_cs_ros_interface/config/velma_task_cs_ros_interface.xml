@@ -16,20 +16,20 @@
     <import package="rtt_barrett_hand_msgs" />
     <import package="rtt_barrett_hand_action_msgs" />
 
-    <component type="CartImpActionVelma"                            name="CartImpActionRight"   running="true" ros_action="/right_arm/cartesian_trajectory" />
-    <component type="CartImpActionVelma"                            name="CartImpActionLeft"    running="true" ros_action="/left_arm/cartesian_trajectory" />
+    <component type="CartImpActionVelma"                            name="CartImpActionRight"   running="true" ros_action="/velma_task_cs_ros_interface/right_arm/cartesian_trajectory" />
+    <component type="CartImpActionVelma"                            name="CartImpActionLeft"    running="true" ros_action="/velma_task_cs_ros_interface/left_arm/cartesian_trajectory" />
     <component type="VectorSplit15_2_8_8"                           name="q_splitAll"           running="true" />
     <component type="VectorSplit15_2_8_8"                           name="dq_splitAll"          running="true" />
-    <component type="InternalSpaceSplineTrajectoryActionVelmaBody"  name="JntImpAction"         running="true" ros_action="/spline_trajectory_action_joint" />
-    <component type="InternalSpaceSplineTrajectoryActionVelmaHead"  name="HeadAction"           running="true" ros_action="/head_spline_trajectory_action_joint" />
+    <component type="InternalSpaceSplineTrajectoryActionVelmaBody"  name="JntImpAction"         running="true" ros_action="/velma_task_cs_ros_interface/spline_trajectory_action_joint" />
+    <component type="InternalSpaceSplineTrajectoryActionVelmaHead"  name="HeadAction"           running="true" ros_action="/velma_task_cs_ros_interface/head_spline_trajectory_action_joint" />
     <component type="JointStatePublisher33"                         name="JntPub"               running="true" />
-    <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/left_hand/move_hand" />
-    <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/right_hand/move_hand" />
-    <component type="MotorActionServer"                             name="hpAction"             running="true" ros_action="/motors/hp" />
-    <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/motors/ht" />
-    <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/motors/t" />
+    <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/velma_task_cs_ros_interface/left_hand/move_hand" />
+    <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/velma_task_cs_ros_interface/right_hand/move_hand" />
+    <component type="MotorActionServer"                             name="hpAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/hp" />
+    <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/ht" />
+    <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/velma_task_cs_ros_interface/motors/t" />
 
-    <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/safe_col_action" />
+    <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/velma_task_cs_ros_interface/safe_col_action" />
 
     <component type="TfPublisher"                                   name="TfPub"                running="true" />
 
@@ -104,8 +104,8 @@
     <ros_stream port="stSplit._OUTPORT"             topic="/velma_task_cs_ros_interface/st" />
 
     <ros_stream port="TfPub.OutTf"                              topic="/tf" />
-    <ros_stream port="stSplit.hp_OUTPORT"                       topic="/motors/hp_status" />
-    <ros_stream port="stSplit.ht_OUTPORT"                       topic="/motors/ht_status" />
-    <ros_stream port="stSplit.t_OUTPORT"                        topic="/motors/t_status" />
+    <ros_stream port="stSplit.hp_OUTPORT"                       topic="/velma_task_cs_ros_interface/motors/hp_status" />
+    <ros_stream port="stSplit.ht_OUTPORT"                       topic="/velma_task_cs_ros_interface/motors/ht_status" />
+    <ros_stream port="stSplit.t_OUTPORT"                        topic="/velma_task_cs_ros_interface/motors/t_status" />
 
 </subsystem_configuration>
