@@ -90,31 +90,31 @@
 
     <connection from="safe_ht.q_OUTPORT" to="driver_ht.desired_q_INPORT" />
 
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_FxGage0_OUTPORT"          to="FtSensorLeft.FxGage0_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_FyGage1_OUTPORT"          to="FtSensorLeft.FyGage1_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_FzGage2_OUTPORT"          to="FtSensorLeft.FzGage2_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_TxGage3_OUTPORT"          to="FtSensorLeft.TxGage3_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_TyGage4_OUTPORT"          to="FtSensorLeft.TyGage4_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_TzGage5_OUTPORT"          to="FtSensorLeft.TzGage5_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_StatusCode_OUTPORT"       to="FtSensorLeft.StatusCode_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorleft_Data_SampleCounter_OUTPORT"    to="FtSensorLeft.SampleCounter_INPORT" />
-    <connection from="FtSensorLeft.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control1_INPORT" />
-    <connection from="FtSensorLeft.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control2_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FxGage0_OUTPORT"          to="FtSensorLeft.FxGage0_INPORT" name="ft_l_fx"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FyGage1_OUTPORT"          to="FtSensorLeft.FyGage1_INPORT" name="ft_l_fy"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_FzGage2_OUTPORT"          to="FtSensorLeft.FzGage2_INPORT" name="ft_l_fz"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TxGage3_OUTPORT"          to="FtSensorLeft.TxGage3_INPORT" name="ft_l_tx"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TyGage4_OUTPORT"          to="FtSensorLeft.TyGage4_INPORT" name="ft_l_ty"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_TzGage5_OUTPORT"          to="FtSensorLeft.TzGage5_INPORT" name="ft_l_tz"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_StatusCode_OUTPORT"       to="FtSensorLeft.StatusCode_INPORT" name="ft_l_s"/>
+    <connection from="lo_ec_stSplit.FTsensorleft_Data_SampleCounter_OUTPORT"    to="FtSensorLeft.SampleCounter_INPORT" name="ft_l_c"/>
+    <connection from="FtSensorLeft.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control1_INPORT" name="ft_l_c1"/>
+    <connection from="FtSensorLeft.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorleft_Control_Control2_INPORT" name="ft_l_c2"/>
 
     <connection from="FtSensorLeft.w_OUTPORT" to="hi_stConcate.lFt_rw_INPORT" />
     <connection from="FtSensorLeft.fw_OUTPORT" to="hi_stConcate.lFt_sfw_INPORT" />
     <connection from="FtSensorLeft.ffw_OUTPORT" to="hi_stConcate.lFt_ffw_INPORT" />
 
-    <connection from="lo_ec_stSplit.FTsensorright_Data_FxGage0_OUTPORT"          to="FtSensorRight.FxGage0_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_FyGage1_OUTPORT"          to="FtSensorRight.FyGage1_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_FzGage2_OUTPORT"          to="FtSensorRight.FzGage2_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_TxGage3_OUTPORT"          to="FtSensorRight.TxGage3_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_TyGage4_OUTPORT"          to="FtSensorRight.TyGage4_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_TzGage5_OUTPORT"          to="FtSensorRight.TzGage5_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_StatusCode_OUTPORT"       to="FtSensorRight.StatusCode_INPORT" />
-    <connection from="lo_ec_stSplit.FTsensorright_Data_SampleCounter_OUTPORT"    to="FtSensorRight.SampleCounter_INPORT" />
-    <connection from="FtSensorRight.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control1_INPORT" />
-    <connection from="FtSensorRight.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control2_INPORT" />
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FxGage0_OUTPORT"          to="FtSensorRight.FxGage0_INPORT" name="ft_r_fx"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FyGage1_OUTPORT"          to="FtSensorRight.FyGage1_INPORT" name="ft_r_fy"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_FzGage2_OUTPORT"          to="FtSensorRight.FzGage2_INPORT" name="ft_r_fz"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TxGage3_OUTPORT"          to="FtSensorRight.TxGage3_INPORT" name="ft_r_tx"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TyGage4_OUTPORT"          to="FtSensorRight.TyGage4_INPORT" name="ft_r_ty"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_TzGage5_OUTPORT"          to="FtSensorRight.TzGage5_INPORT" name="ft_r_tz"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_StatusCode_OUTPORT"       to="FtSensorRight.StatusCode_INPORT" name="ft_r_s"/>
+    <connection from="lo_ec_stSplit.FTsensorright_Data_SampleCounter_OUTPORT"    to="FtSensorRight.SampleCounter_INPORT" name="ft_r_c"/>
+    <connection from="FtSensorRight.Control1_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control1_INPORT" name="ft_r_c1"/>
+    <connection from="FtSensorRight.Control2_OUTPORT" to="lo_ec_cmdConcate.FTsensorright_Control_Control2_INPORT" name="ft_r_c2"/>
 
     <connection from="FtSensorRight.w_OUTPORT" to="hi_stConcate.rFt_rw_INPORT" />
     <connection from="FtSensorRight.fw_OUTPORT" to="hi_stConcate.rFt_sfw_INPORT" />
@@ -126,18 +126,18 @@
 
     <connection from="hi_cmdSplit.htMotor_q_OUTPORT" to="HeadTiltTransmisionInv.JointPosition_INPORT" />
 
-    <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"         to="HeadPanTransmision.MotorPosition_INPORT" />
-    <connection from="lo_ec_stSplit.HeadPan_Inputs_Velocityactualvalue_OUTPORT"         to="HeadPanTransmision.MotorVelocity_INPORT" />
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"         to="HeadPanTransmision.MotorPosition_INPORT" name="q_hp"/>
+    <connection from="lo_ec_stSplit.HeadPan_Inputs_Velocityactualvalue_OUTPORT"         to="HeadPanTransmision.MotorVelocity_INPORT" name="dq_hp"/>
     <connection from="HeadPanTransmision.JointPosition_OUTPORT"         to="hi_stConcate.hpMotor_q_INPORT" />
     <connection from="HeadPanTransmision.JointVelocity_OUTPORT"         to="hi_stConcate.hpMotor_dq_INPORT" />
 
-    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"        to="HeadTiltTransmision.MotorPosition_INPORT" />
-    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Velocityactualvalue_OUTPORT"        to="HeadTiltTransmision.MotorVelocity_INPORT" />
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Positionactualvalue_OUTPORT"        to="HeadTiltTransmision.MotorPosition_INPORT" name="q_ht"/>
+    <connection from="lo_ec_stSplit.HeadTilt_Inputs_Velocityactualvalue_OUTPORT"        to="HeadTiltTransmision.MotorVelocity_INPORT" name="dq_ht"/>
     <connection from="HeadTiltTransmision.JointPosition_OUTPORT" to="hi_stConcate.htMotor_q_INPORT" />
     <connection from="HeadTiltTransmision.JointVelocity_OUTPORT" to="hi_stConcate.htMotor_dq_INPORT" />
 
-    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Positionactualvalue_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" />
-    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" />
+    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Positionactualvalue_OUTPORT" to="TorsoPanTransmision.MotorPosition_INPORT" name="q_t"/>
+    <connection from="lo_ec_stSplit.TorsoPan_Inputs_Velocityactualvalue_OUTPORT" to="TorsoPanTransmision.MotorVelocity_INPORT" name="dq_t"/>
 
     <connection from="lo_rLwr_stSplit.q_OUTPORT"            to="lwr_sync_r.q_INPORT" name="q" />
     <connection from="lo_rLwr_stSplit.dq_OUTPORT"           to="lwr_sync_r.dq_INPORT" name="dq" />
@@ -212,7 +212,7 @@
 
     <connection from="bypass.rHand_OUTPORT"         to="rHand.cmd_INPORT" />
     <connection from="bypass.rHandReset_OUTPORT"    to="rHand.reset_INPORT" />
-    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" />
+    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="rHand.rx_queue_INPORT" name="can_r_rx"/>
     <connection from="rHand.tx_OUTPORT"             to="can_queue_tx_r.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
@@ -221,18 +221,18 @@
 
     <connection from="bypass.lHand_OUTPORT"         to="lHand.cmd_INPORT" />
     <connection from="bypass.lHandReset_OUTPORT"    to="lHand.reset_INPORT" />
-    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="lHand.rx_queue_INPORT" />
+    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="lHand.rx_queue_INPORT" name="can_l_rx"/>
     <connection from="lHand.tx_OUTPORT"             to="can_queue_tx_l.tx_INPORT" >
         <conn_policy type="circular_buffer" size="10" />
     </connection>
     <connection from="lHand.q_OUTPORT"              to="hi_stConcate.lHand_q_INPORT" />
     <connection from="lHand.status_OUTPORT"         to="hi_stConcate.lHand_s_INPORT" />
 
-    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_l.rx_queue_INPORT" />
-    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_r.rx_queue_INPORT" />
+    <connection from="lo_ec_stSplit.CANleft_Box10CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_l.rx_queue_INPORT" name="can_l_rx"/>
+    <connection from="lo_ec_stSplit.CANright_Box11CANInterfaceIN_RxQueue_OUTPORT" to="can_queue_tx_r.rx_queue_INPORT" name="can_r_rx"/>
 
-    <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" />
-    <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANright_Box11CANInterfaceOUT_TxQueue_INPORT" />
+    <connection from="can_queue_tx_l.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANleft_Box10CANInterfaceOUT_TxQueue_INPORT" name="can_l_tx"/>
+    <connection from="can_queue_tx_r.tx_queue_OUTPORT" to="lo_ec_cmdConcate.CANright_Box11CANInterfaceOUT_TxQueue_INPORT" name="can_r_tx"/>
 
     <connection from="transparent_cmd.sc_OUTPORT"            to="hi_stConcate.sc_INPORT" />
 
