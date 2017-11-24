@@ -56,10 +56,10 @@ if __name__ == "__main__":
     # define some configurations
 
     # every joint in position 0
-    q_map_0 = {'torso_0_joint':0, 'right_arm_0_joint':0, 'right_arm_1_joint':-0.3,
-        'right_arm_2_joint':0, 'right_arm_3_joint':0.3, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0, 'left_arm_1_joint':0.3, 'left_arm_2_joint':0,
-        'left_arm_3_joint':-0.3, 'left_arm_4_joint':0, 'left_arm_5_joint':0, 'left_arm_6_joint':0 }
+    q_map_0 = {'torso_0_joint':0, 'right_arm_0_joint':0, 'right_arm_1_joint':0,
+        'right_arm_2_joint':0, 'right_arm_3_joint':0, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
+        'right_arm_6_joint':0, 'left_arm_0_joint':0, 'left_arm_1_joint':0, 'left_arm_2_joint':0,
+        'left_arm_3_joint':0, 'left_arm_4_joint':0, 'left_arm_5_joint':0, 'left_arm_6_joint':0 }
 
     # starting position
     q_map_starting = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,

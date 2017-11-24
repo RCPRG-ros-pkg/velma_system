@@ -82,7 +82,9 @@ if __name__ == "__main__":
     if not diag.inStateSafeCol():
         exitError(4)
 
-    print "Moving to the starting position..."
+    rospy.sleep(2.0)
+
+    print "Moving to the starting position (jnt_imp)..."
     velma.moveJoint(q_map_starting, 2.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:

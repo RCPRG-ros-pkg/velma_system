@@ -912,13 +912,13 @@ class VelmaInterface:
         @param pose_times       list of float: Times of the poses in pose_list_T_B_Td wrt. start_time.
         @param tool_list_T_W_T  list of PyKDL.Frame: Poses of tool frame wrt. wrist frame. This is a path for the tool of end-effector.
         @param tool_times       list of float: Times of the tool poses in tool_list_T_W_T wrt. start_time.
-        @param imp_list         list of PyKDL.Wrench: End-effector impedance values. This is a path for the impedance of end-effector.
+        @param imp_list         list of PyKDL.Wrench: Tool impedance values expressed in tool frame. This is a path for the impedance of end-effector.
         @param imp_times        list of float: Times of the impedance values in imp_list wrt. start_time.
-        @param max_wrench       PyKDL.Wrench: Maximum allowed wrench during the motion.
+        @param max_wrench       PyKDL.Wrench: Maximum allowed wrench during the motion expressed in tool frame.
         @param start_time       float: Relative start time for the movement.
         @param stamp            rospy.Time: Absolute start time for the movement. If both start_time and stamp arguments are set, only stamp is taken into account.
-        @param damping          PyKDL.Wrench: Damping for the end-effector.
-        @param path_tol         PyKDL.Twist: Maximum allowed error of end-effector pose.
+        @param damping          PyKDL.Wrench: Damping for the tool expressed in tool frame.
+        @param path_tol         PyKDL.Twist: Maximum allowed error of tool pose expressed in the tool frame. Error of tool pose is a difference between desired tool equilibrium pose and measured tool pose.
 
         @return Returns True.
 
