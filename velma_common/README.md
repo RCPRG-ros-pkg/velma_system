@@ -29,3 +29,4 @@ This package provides python interface to WUT Velma Robot, python scripts and RO
    * *world_name* - world file name with respect to GAZEBO_RESOURCE_PATH
    * *profile* - physics profile as defined in world file
  * int_markers_cimp.py - provides interactive 6D pose marker that ca be used to move end-effectors.
+ * show_joints.launch - show joints and their limits as rviz visual markers
