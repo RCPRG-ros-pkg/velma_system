@@ -34,6 +34,7 @@
 #include "behavior_switch_action_msgs/BehaviorSwitchAction.h"
 #include "behavior_switch_action_msgs/BehaviorSwitchGoal.h"
 
+#include <actionlib/server/action_server.h>
 #include "rtt_actionlib/rtt_actionlib.h"
 #include "rtt_actionlib/rtt_action_server.h"
 
