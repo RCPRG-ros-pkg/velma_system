@@ -49,7 +49,8 @@
       command="$(find xacro)/xacro '$(find velma_description)/robots/velma.urdf.xacro'
           subsystem_xml:=true
           xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_re.xml'
-          use_gazebo_kinect:=$(arg use_kinect)" />
+          use_gazebo_kinect:=$(arg use_kinect)
+          use_stereo_pair:=true" />
     <param name="/robot_semantic_description" command="$(find xacro)/xacro '$(find velma_description)/robots/velma.srdf'" />
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
       <param name="use_tf_static" value="false"/>
