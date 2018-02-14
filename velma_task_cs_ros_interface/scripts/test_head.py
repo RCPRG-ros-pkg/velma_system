@@ -82,7 +82,7 @@ if __name__ == "__main__":
 
     print "moving head to position: 0"
     q_dest = (0,0)
-    velma.moveHead(q_dest, 2.0, start_time=0.5)
+    velma.moveHead(q_dest, 1.0, start_time=0.5)
     if velma.waitForHead() != 0:
         exitError(4)
     rospy.sleep(0.5)
@@ -91,6 +91,15 @@ if __name__ == "__main__":
 
     print "moving head to position: left"
     q_dest = (1.56, 0)
+    velma.moveHead(q_dest, 3.0, start_time=0.5)
+    if velma.waitForHead() != 0:
+        exitError(6)
+    rospy.sleep(0.5)
+    if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
+        exitError(7)
+
+    print "moving head to position: left down"
+    q_dest = (1.56, 0.7)
     velma.moveHead(q_dest, 2.0, start_time=0.5)
     if velma.waitForHead() != 0:
         exitError(6)
@@ -98,35 +107,27 @@ if __name__ == "__main__":
     if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
         exitError(7)
 
-    print "moving head to position: right"
-    q_dest = (-1.56, 0)
-    velma.moveHead(q_dest, 4.0, start_time=0.5)
+    print "moving head to position: right down"
+    q_dest = (-1.56, 0.7)
+    velma.moveHead(q_dest, 5.0, start_time=0.5)
     if velma.waitForHead() != 0:
         exitError(8)
     rospy.sleep(0.5)
     if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
         exitError(9)
 
-    print "moving head to position: up"
-    q_dest = (0, -0.99)
-    velma.moveHead(q_dest, 4.0, start_time=0.5)
+    print "moving head to position: right"
+    q_dest = (-1.56, 0)
+    velma.moveHead(q_dest, 2.0, start_time=0.5)
     if velma.waitForHead() != 0:
-        exitError(10)
+        exitError(8)
     rospy.sleep(0.5)
     if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
-        exitError(11)
-
-    print "moving head to position: down"
-    q_dest = (0, 1.29)
-    velma.moveHead(q_dest, 4.0, start_time=0.5)
-    if velma.waitForHead() != 0:
-        exitError(12)
-    if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
-        exitError(13)
+        exitError(9)
 
     print "moving head to position: 0"
     q_dest = (0,0)
-    velma.moveHead(q_dest, 2.0, start_time=0.5)
+    velma.moveHead(q_dest, 3.0, start_time=0.5)
     if velma.waitForHead() != 0:
         exitError(14)
     if not isHeadConfigurationClose( velma.getHeadCurrentConfiguration(), q_dest, 0.1 ):
