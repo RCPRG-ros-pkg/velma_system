@@ -27,11 +27,12 @@
 
 #include "velma_sim_conversion.h"
 
-KDL::Vector gz2kdl(const gazebo::math::Vector3 &v) {
-    return KDL::Vector(v.x, v.y, v.z);
+KDL::Vector gz2kdl(const ignition::math::Vector3d &v) {
+    return KDL::Vector(v.X(), v.Y(), v.Z());
 }
 
-KDL::Frame gz2kdl(const gazebo::math::Pose &p) {
-    return KDL::Frame(KDL::Rotation::Quaternion(p.rot.x,p.rot.y,p.rot.z,p.rot.w), gz2kdl(p.pos));
+KDL::Frame gz2kdl(const ignition::math::Pose3d &p) {
+    ignition::math::Quaterniond rot = p.Rot();
+    return KDL::Frame(KDL::Rotation::Quaternion(rot.X(), rot.Y(), rot.Z(), rot.W()), gz2kdl(p.Pos()));
 }
 

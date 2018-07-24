@@ -34,15 +34,15 @@
 using namespace RTT;
 
 void TorsoGazebo::getJointPositionAndVelocity(double &q, double &dq) {
-    q = torso_joint_->GetAngle(0).Radian();
+    q = torso_joint_->Position();
     dq = torso_joint_->GetVelocity(0);
 }
 
 void TorsoGazebo::getHeadJointPositionAndVelocity(TorsoGazebo::HeadJoints &q, TorsoGazebo::HeadJoints &dq) {
-    q(0) = head_pan_joint_->GetAngle(0).Radian();
+    q(0) = head_pan_joint_->Position();
     dq(0) = head_pan_joint_->GetVelocity(0);
 
-    q(1) = head_tilt_joint_->GetAngle(0).Radian();
+    q(1) = head_tilt_joint_->Position();
     dq(1) = head_tilt_joint_->GetVelocity(0);
 }
 
@@ -79,11 +79,11 @@ void TorsoGazebo::setJointsPID() {
 
     jc_->AddJoint(head_pan_joint_);
     jc_->SetPositionPID(head_pan_scoped_name_, gazebo::common::PID(2.0, 1.0, 0.0, 0.5, -0.5, 10.0,-10.0));
-    jc_->SetPositionTarget(head_pan_scoped_name_, head_pan_joint_->GetAngle(0).Radian());
+    jc_->SetPositionTarget(head_pan_scoped_name_, head_pan_joint_->Position());
 
     jc_->AddJoint(head_tilt_joint_);
     jc_->SetPositionPID(head_tilt_scoped_name_, gazebo::common::PID(2.0, 1.0, 0.0, 0.5, -0.5, 10.0,-10.0));
-    jc_->SetPositionTarget(head_tilt_scoped_name_, head_tilt_joint_->GetAngle(0).Radian());
+    jc_->SetPositionTarget(head_tilt_scoped_name_, head_tilt_joint_->Position());
 
 }
 

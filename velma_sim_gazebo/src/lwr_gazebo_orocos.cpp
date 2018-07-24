@@ -155,11 +155,25 @@ using namespace RTT;
         }
 
         Logger::log() << Logger::Info <<
-            "tool parameters for " << name_ << " LWR: " << tool_.m << " " << tool_.com.x << " " <<
-            tool_.com.y << " " << tool_.com.z << Logger::endl;
+            "tool parameters for " << name_ << " LWR: " <<
+            tool_.m << " " <<
+            tool_.com.x << " " <<
+            tool_.com.y << " " <<
+            tool_.com.z << Logger::endl;
 
-        mm_.reset( new manipulator_mass_matrix::Manipulator(model_, name_ + "_arm_0_joint", name_ + "_arm_6_joint",
-                    tool_.m, gazebo::math::Vector3(tool_.com.x,tool_.com.y,tool_.com.z), tool_.ixx, tool_.ixy, tool_.ixz, tool_.iyy, tool_.iyz, tool_.izz) );
+        mm_.reset(new manipulator_mass_matrix::Manipulator(
+            model_,
+            name_ + "_arm_0_joint",
+            name_ + "_arm_6_joint",
+            tool_.m,
+            ignition::math::Vector3d(tool_.com.x, tool_.com.y, tool_.com.z),
+            tool_.ixx,
+            tool_.ixy,
+            tool_.ixz,
+            tool_.iyy,
+            tool_.iyz,
+            tool_.izz
+        ));
 
         return true;
     }

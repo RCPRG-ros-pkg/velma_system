@@ -47,7 +47,7 @@ void LWRGazebo::getExternalForces(LWRGazebo::Joints &q) {
 
 void LWRGazebo::getJointPositionAndVelocity(LWRGazebo::Joints &q, LWRGazebo::Joints &dq) {
     for (int i=0; i<joints_.size(); i++) {
-        q[i] = joints_[i]->GetAngle(0).Radian();
+        q[i] = joints_[i]->Position();
         dq[i] = joints_[i]->GetVelocity(0);
     }
 }
@@ -59,26 +59,26 @@ void LWRGazebo::setForces(const LWRGazebo::Joints &t) {
 }
 
 void LWRGazebo::getGravComp(LWRGazebo::Joints &t) {
-    KDL::Vector gr = gz2kdl( gazebo::physics::get_world()->GetPhysicsEngine()->GetGravity() );
+    KDL::Vector gr = gz2kdl(gazebo::physics::get_world()->Gravity());
 
     gazebo::physics::LinkPtr link = links_[6];
     gazebo::physics::JointPtr joint = joints_[6];
-    KDL::Frame T_W_L7 = gz2kdl( link->GetWorldPose() );
+    KDL::Frame T_W_L7 = gz2kdl(link->WorldPose());
     KDL::Vector cog = T_W_L7 * KDL::Vector(tool_.com.x, tool_.com.y, tool_.com.z);
-    KDL::Vector r = cog-gz2kdl( joint->GetWorldPose().pos );
+    KDL::Vector r = cog - gz2kdl(joint->WorldPose().Pos());
     double mass = tool_.m;
     KDL::Vector torque = r * (mass * gr);
-    KDL::Vector axis = gz2kdl( joint->GetGlobalAxis(0) );
+    KDL::Vector axis = gz2kdl(joint->GlobalAxis(0));
     t[6] = KDL::dot(axis, torque);
 
-    for (int i=6; i>0; i--) {
+    for (int i = 6; i > 0; i--) {
         link = links_[i-1];
         joint = joints_[i-1];
-        cog = (cog*mass + gz2kdl(link->GetWorldCoGPose().pos)*link->GetInertial()->GetMass()) / (mass+link->GetInertial()->GetMass());
-        mass += link->GetInertial()->GetMass();
-        r = cog-gz2kdl( joint->GetWorldPose().pos );
+        cog = (cog * mass + gz2kdl(link->WorldCoGPose().Pos()) * link->GetInertial()->Mass()) / (mass+link->GetInertial()->Mass());
+        mass += link->GetInertial()->Mass();
+        r = cog - gz2kdl(joint->WorldPose().Pos());
         torque = r * (mass * gr);
-        axis = gz2kdl( joint->GetGlobalAxis(0) );
+        axis = gz2kdl(joint->GlobalAxis(0));
         t[i-1] = KDL::dot(axis, torque);
     }
 

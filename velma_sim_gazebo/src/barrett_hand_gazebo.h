@@ -83,17 +83,11 @@ public:
     int can_id_base_;
 
     gazebo::physics::ModelPtr model_;
-//    gazebo::physics::DARTModelPtr model_dart_;
-//    dart::dynamics::Skeleton *dart_sk_;
-//    dart::simulation::World *dart_world_;
-
     bool data_valid_;
 
     // BarrettHand
     std::vector<gazebo::physics::JointPtr> joints_;
     std::vector<std::string> joint_scoped_names_;
-
-//    std::vector<dart::dynamics::Joint*>  joints_dart_;
 
     std::vector<int > too_big_force_counter_;
     bool status_overcurrent_[4];

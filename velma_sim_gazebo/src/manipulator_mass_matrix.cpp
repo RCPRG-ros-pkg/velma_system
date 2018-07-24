@@ -29,44 +29,43 @@
 
 namespace manipulator_mass_matrix {
 
-static Eigen::Vector3d ConvVec3(const gazebo::math::Vector3 &_vec3) {
-    return Eigen::Vector3d(_vec3.x, _vec3.y, _vec3.z);
+static Eigen::Vector3d ConvVec3(const ignition::math::Vector3d &_vec3) {
+    return Eigen::Vector3d(_vec3.X(), _vec3.Y(), _vec3.Z());
 }
 
-static gazebo::math::Vector3 ConvVec3(const Eigen::Vector3d &_vec3)
+static ignition::math::Vector3d ConvVec3(const Eigen::Vector3d &_vec3)
 {
-    return gazebo::math::Vector3(_vec3.x(), _vec3.y(), _vec3.z());
+    return ignition::math::Vector3d(_vec3.x(), _vec3.y(), _vec3.z());
 }
 
-static Eigen::Quaterniond ConvQuat(const gazebo::math::Quaternion &_quat) {
-    return Eigen::Quaterniond(_quat.w, _quat.x, _quat.y, _quat.z);
+static Eigen::Quaterniond ConvQuat(const ignition::math::Quaterniond &_quat) {
+    return Eigen::Quaterniond(_quat.W(), _quat.X(), _quat.Y(), _quat.Z());
 }
 
-static gazebo::math::Quaternion ConvQuat(const Eigen::Quaterniond &_quat)
+static ignition::math::Quaterniond ConvQuat(const Eigen::Quaterniond &_quat)
 {
-    return gazebo::math::Quaternion(_quat.w(), _quat.x(), _quat.y(), _quat.z());
+    return ignition::math::Quaterniond(_quat.w(), _quat.x(), _quat.y(), _quat.z());
 }
 
-static Eigen::Isometry3d ConvPose(const gazebo::math::Pose &_pose) {
+static Eigen::Isometry3d ConvPose(const ignition::math::Pose3d &_pose) {
 // Below line doesn't work with 'libeigen3-dev is 3.0.5-1'
 // return Eigen::Translation3d(ConvVec3(_pose.pos)) *
 //        ConvQuat(_pose.rot);
     Eigen::Isometry3d res = Eigen::Isometry3d::Identity();
-    res.translation() = ConvVec3(_pose.pos);
-    res.linear() = Eigen::Matrix3d(ConvQuat(_pose.rot));
+    res.translation() = ConvVec3(_pose.Pos());
+    res.linear() = Eigen::Matrix3d(ConvQuat(_pose.Rot()));
     return res;
 }
 
-static gazebo::math::Pose ConvPose(const Eigen::Isometry3d &_T)
+static ignition::math::Pose3d ConvPose(const Eigen::Isometry3d &_T)
 {
-    gazebo::math::Pose pose;
-    pose.pos = ConvVec3(_T.translation());
-    pose.rot = ConvQuat(Eigen::Quaterniond(_T.linear()));
+    ignition::math::Pose3d pose;
+    pose.Set(ConvVec3(_T.translation()), ConvQuat(Eigen::Quaterniond(_T.linear())));
     return pose;
 }
 
 Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &first_joint, const std::string &last_joint,
-                            double tool_mass, const gazebo::math::Vector3 &tool_cog, double tool_IXX, double tool_IXY,
+                            double tool_mass, const ignition::math::Vector3d &tool_cog, double tool_IXX, double tool_IXY,
                             double tool_IXZ, double tool_IYY, double tool_IYZ, double tool_IZZ) {
     gazebo::physics::Joint_V js = model->GetJoints();
     gazebo::physics::JointPtr joint = model->GetJoint(last_joint);
@@ -84,8 +83,16 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 //        std::cout << "Manipulator::Manipulator  " << joint->GetName() << std::endl;
         links.push_front(LinkPtr(new Link(link->GetName(), link)));
         gazebo::physics::InertialPtr in = link->GetInertial();
-        links.front()->setInertia(in->GetMass(), in->GetCoG(), in->GetIXX(), in->GetIXY(),
-                            in->GetIXZ(), in->GetIYY(), in->GetIYZ(), in->GetIZZ());
+        links.front()->setInertia(
+            in->Mass(),
+            in->CoG(),
+            in->IXX(),
+            in->IXY(),
+            in->IXZ(),
+            in->IYY(),
+            in->IYZ(),
+            in->IZZ()
+        );
 
         for (gazebo::physics::Joint_V::const_iterator it = js.begin(); it != js.end(); it++) {
             if ( (*it)->GetChild()->GetName() == link->GetName() ) {
@@ -101,7 +108,7 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 //        std::cout << "Manipulator::Manipulator  " << (*it)->getName() << "  " << (*it)->getJointName() << std::endl;
         links_.push_back( *it );
         joint = model->GetJoint((*it)->getJointName());
-        (*it)->updateLocalJacobian(joint->GetInitialAnchorPose(), joint->GetAxisFrameOffset(0) * joint->GetLocalAxis(0));
+        (*it)->updateLocalJacobian(joint->InitialAnchorPose(), joint->AxisFrameOffset(0) * joint->LocalAxis(0));
     }
 
     for (int i = 1; i < links_.size(); i++) {
@@ -117,14 +124,14 @@ Manipulator::Manipulator(gazebo::physics::ModelPtr model, const std::string &fir
 }
 
 void Manipulator::updatePoses(gazebo::physics::ModelPtr model) {
-    links_[0]->setRelativePose( gazebo::math::Pose() );
+    links_[0]->setRelativePose( ignition::math::Pose3d() );
     for (int i=1; i<links_.size(); ++i) {
-        Eigen::Isometry3d T_W_1 = ConvPose(links_[i-1]->getGazeboLink()->GetWorldPose());
-        Eigen::Isometry3d T_W_2 = ConvPose(links_[i]->getGazeboLink()->GetWorldPose());
+        Eigen::Isometry3d T_W_1 = ConvPose(links_[i-1]->getGazeboLink()->WorldPose());
+        Eigen::Isometry3d T_W_2 = ConvPose(links_[i]->getGazeboLink()->WorldPose());
         Eigen::Isometry3d T_1_2 = T_W_1.inverse() * T_W_2;
-//        gazebo::math::Pose T_W_1 = model->GetLink( links_[i-1]->getName() )->GetWorldPose();
-//        gazebo::math::Pose T_W_2 = model->GetLink( links_[i]->getName() )->GetWorldPose();
-//        gazebo::math::Pose T_1_2 = T_W_1.GetInverse() * T_W_2;
+//        ignition::math::Pose3d T_W_1 = model->GetLink( links_[i-1]->getName() )->GetWorldPose();
+//        ignition::math::Pose3d T_W_2 = model->GetLink( links_[i]->getName() )->GetWorldPose();
+//        ignition::math::Pose3d T_1_2 = T_W_1.GetInverse() * T_W_2;
         links_[i]->setRelativePose( ConvPose(T_1_2) );
     }
 }
@@ -133,15 +140,14 @@ gazebo::physics::LinkPtr Link::getGazeboLink() const {
     return gz_link_;
 }
 
-void Link::setRelativePose(const gazebo::math::Pose &p) {
+void Link::setRelativePose(const ignition::math::Pose3d &p) {
     relative_pose_ = p;
 }
 
 Link::Link(const std::string &name, const gazebo::physics::LinkPtr &gz_link) :
     name_(name),
     gz_link_(gz_link)
-{
-}
+{}
 
 void Link::setIndex(int index) {
     index_ = index;
@@ -171,52 +177,52 @@ void Link::setChild(std::shared_ptr<Link > &child) {
     child_ = child;
 }
 
-void Link::setInertia(double mass, const gazebo::math::Vector3 &cog, double IXX, double IXY, double IXZ, double IYY, double IYZ, double IZZ) {
-//void BodyNode::_updateSpatialInertia()
-  // G = | I - m*[r]*[r]   m*[r] |
-  //     |        -m*[r]     m*I |
+void Link::setInertia(double mass, const ignition::math::Vector3d &cog, double IXX, double IXY, double IXZ, double IYY, double IYZ, double IZZ) {
+    //void BodyNode::_updateSpatialInertia()
+    // G = | I - m*[r]*[r]   m*[r] |
+    //     |        -m*[r]     m*I |
 
-  // m*r
-  double mr0 = mass * cog.x;
-  double mr1 = mass * cog.y;
-  double mr2 = mass * cog.z;
+    // m*r
+    double mr0 = mass * cog.X();
+    double mr1 = mass * cog.Y();
+    double mr2 = mass * cog.Z();
 
-  // m*[r]*[r]
-  double mr0r0 = mr0 * cog.x;
-  double mr1r1 = mr1 * cog.y;
-  double mr2r2 = mr2 * cog.z;
-  double mr0r1 = mr0 * cog.y;
-  double mr1r2 = mr1 * cog.z;
-  double mr2r0 = mr2 * cog.x;
+    // m*[r]*[r]
+    double mr0r0 = mr0 * cog.X();
+    double mr1r1 = mr1 * cog.Y();
+    double mr2r2 = mr2 * cog.Z();
+    double mr0r1 = mr0 * cog.Y();
+    double mr1r2 = mr1 * cog.Z();
+    double mr2r0 = mr2 * cog.X();
 
-  // Top left corner (3x3)
-  mI_(0, 0) =  IXX + mr1r1 + mr2r2;
-  mI_(1, 1) =  IYY + mr2r2 + mr0r0;
-  mI_(2, 2) =  IZZ + mr0r0 + mr1r1;
-  mI_(0, 1) =  IXY - mr0r1;
-  mI_(0, 2) =  IXZ - mr2r0;
-  mI_(1, 2) =  IYZ - mr1r2;
+    // Top left corner (3x3)
+    mI_(0, 0) =  IXX + mr1r1 + mr2r2;
+    mI_(1, 1) =  IYY + mr2r2 + mr0r0;
+    mI_(2, 2) =  IZZ + mr0r0 + mr1r1;
+    mI_(0, 1) =  IXY - mr0r1;
+    mI_(0, 2) =  IXZ - mr2r0;
+    mI_(1, 2) =  IYZ - mr1r2;
 
-  // Top right corner (3x3)
-  mI_(1, 5) = -mr0;
-  mI_(0, 5) =  mr1;
-  mI_(0, 4) = -mr2;
-  mI_(2, 4) =  mr0;
-  mI_(2, 3) = -mr1;
-  mI_(1, 3) =  mr2;
-  mI_(0, 3) = 0.0;
-  mI_(1, 4) = 0.0;
-  mI_(2, 5) = 0.0;
+    // Top right corner (3x3)
+    mI_(1, 5) = -mr0;
+    mI_(0, 5) =  mr1;
+    mI_(0, 4) = -mr2;
+    mI_(2, 4) =  mr0;
+    mI_(2, 3) = -mr1;
+    mI_(1, 3) =  mr2;
+    mI_(0, 3) = 0.0;
+    mI_(1, 4) = 0.0;
+    mI_(2, 5) = 0.0;
 
-  // Bottom right corner (3x3)
-  mI_(3, 3) =  mass;
-  mI_(4, 4) =  mass;
-  mI_(5, 5) =  mass;
-  mI_(3, 4) = 0.0;
-  mI_(3, 5) = 0.0;
-  mI_(4, 5) = 0.0;
+    // Bottom right corner (3x3)
+    mI_(3, 3) =  mass;
+    mI_(4, 4) =  mass;
+    mI_(5, 5) =  mass;
+    mI_(3, 4) = 0.0;
+    mI_(3, 5) = 0.0;
+    mI_(4, 5) = 0.0;
 
-  mI_.triangularView<Eigen::StrictlyLower>() = mI_.transpose();
+    mI_.triangularView<Eigen::StrictlyLower>() = mI_.transpose();
 }
 
 void Link::setJointAcceleration(double accel) {
@@ -230,106 +236,53 @@ void Manipulator::setAccelerations(const Eigen::VectorXd &acc) {
 }
 
 const Eigen::MatrixXd& Manipulator::getMassMatrix() {
-//void Skeleton::updateMassMatrix()
+    //void Skeleton::updateMassMatrix()
 
-  mM_.setZero();
+    mM_.setZero();
 
-  size_t dof = links_.size();
-  Eigen::VectorXd e = Eigen::VectorXd::Zero(dof);
-  for (size_t j = 0; j < dof; ++j) {
-    e[j] = 1.0;
-    setAccelerations(e);
+    size_t dof = links_.size();
+    Eigen::VectorXd e = Eigen::VectorXd::Zero(dof);
+    for (size_t j = 0; j < dof; ++j) {
+        e[j] = 1.0;
+        setAccelerations(e);
 
-    // Prepare cache data
-    for (size_t i = 0; i < dof; ++i) {
-        links_[i]->updateMassMatrix();
+        // Prepare cache data
+        for (size_t i = 0; i < dof; ++i) {
+            links_[i]->updateMassMatrix();
+        }
+
+        // Mass matrix
+        for (int i = dof-1; i >= 0; --i) {
+            links_[i]->aggregateMassMatrix(&mM_, j);
+            size_t iStart = links_[i]->getIndex();
+
+          if (iStart + 1 < j)
+            break;
+        }
+
+        e[j] = 0.0;
     }
-
-    // Mass matrix
-    for (int i = dof-1; i >= 0; --i) {
-        links_[i]->aggregateMassMatrix(&mM_, j);
-        size_t iStart = links_[i]->getIndex();
-
-      if (iStart + 1 < j)
-        break;
-    }
-
-    e[j] = 0.0;
-  }
-  mM_.triangularView<Eigen::StrictlyUpper>() = mM_.transpose();
+    mM_.triangularView<Eigen::StrictlyUpper>() = mM_.transpose();
 
     return mM_;
 }
 
 // re = Inv(T)*s*T
 Eigen::Matrix<double, 6, 1> AdInvT(const Eigen::Isometry3d& _T, const Eigen::Matrix<double, 6, 1>& _V) {
-  Eigen::Matrix<double, 6, 1> res;
-  res.head<3>().noalias() = _T.linear().transpose() * _V.head<3>();
-  res.tail<3>().noalias() =
-      _T.linear().transpose()
-      * (_V.tail<3>() + _V.head<3>().cross(_T.translation()));
-  return res;
+    Eigen::Matrix<double, 6, 1> res;
+    res.head<3>().noalias() = _T.linear().transpose() * _V.head<3>();
+    res.tail<3>().noalias() = _T.linear().transpose() * (_V.tail<3>() + _V.head<3>().cross(_T.translation()));
+    return res;
 }
 
-void Link::updateMassMatrix()
-{
+void Link::updateMassMatrix() {
     mM_dV_.setZero();
     mM_dV_.noalias() += mJacobian_ * joint_accel_;
     if (parent_) {
-
-//        gazebo::physics::JointPtr joint = model_->GetJoint(joint_name_);
-//        gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-//        Eigen::Isometry3d i2 = joint_dart->GetDARTJoint()->getLocalTransform();
-
         mM_dV_ += AdInvT(ConvPose(relative_pose_), parent_->mM_dV_);
-//        mM_dV_ += AdInvT(i2, parent_->mM_dV_);
     }
 }
 
-/*
-// I + sin(t) / t*[S] + (1 - cos(t)) / t^2*[S]^2, where t = |S|
-Eigen::Isometry3d expAngular(const Eigen::Vector3d& _s) {
-  Eigen::Isometry3d ret = Eigen::Isometry3d::Identity();
-  double s2[] = { _s[0]*_s[0], _s[1]*_s[1], _s[2]*_s[2] };
-  double s3[] = { _s[0]*_s[1], _s[1]*_s[2], _s[2]*_s[0] };
-  double theta = sqrt(s2[0] + s2[1] + s2[2]);
-  double cos_t = cos(theta);
-  double alpha = 0.0;
-  double beta = 0.0;
-
-  if (theta > DART_EPSILON) {
-    alpha = sin(theta) / theta;
-    beta = (1.0 - cos_t) / theta / theta;
-  } else {
-    alpha = 1.0 - theta*theta/6.0;
-    beta = 0.5 - theta*theta/24.0;
-  }
-
-  ret(0, 0) = beta*s2[0] + cos_t;
-  ret(1, 0) = beta*s3[0] + alpha*_s[2];
-  ret(2, 0) = beta*s3[2] - alpha*_s[1];
-
-  ret(0, 1) = beta*s3[0] - alpha*_s[2];
-  ret(1, 1) = beta*s2[1] + cos_t;
-  ret(2, 1) = beta*s3[1] + alpha*_s[0];
-
-  ret(0, 2) = beta*s3[2] + alpha*_s[1];
-  ret(1, 2) = beta*s3[1] - alpha*_s[0];
-  ret(2, 2) = beta*s2[2] + cos_t;
-
-  return ret;
-}
-
-void RevoluteJoint::updateLocalTransform()
-{
-  mT = mT_ParentBodyToJoint
-       * math::expAngular(mAxis * mPosition)
-       * mT_ChildBodyToJoint.inverse();
-
-  // Verification
-  assert(math::verifyTransform(mT));
-}
-*/
 Eigen::Matrix<double, 6, 1> AdTAngular(const Eigen::Isometry3d& _T,
                            const Eigen::Vector3d& _w) {
   //--------------------------------------------------------------------------
@@ -342,21 +295,9 @@ Eigen::Matrix<double, 6, 1> AdTAngular(const Eigen::Isometry3d& _T,
   return res;
 }
 
-void Link::updateLocalJacobian(const gazebo::math::Pose &childLinkToJoint, const gazebo::math::Vector3 &axis) {
-
-//    gazebo::physics::JointPtr joint = model_->GetJoint(joint_name_);
-//    gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-//    dart::dynamics::RevoluteJoint *jnt = dynamic_cast<dart::dynamics::RevoluteJoint* >(joint_dart->GetDARTJoint());
-
-//    Eigen::Vector3d ax = jnt->getAxis();
-//    std::cout << "axis: " << axis.x << " " << axis.y << " " << axis.z << "            " << ax.transpose() << std::endl;
-//    std::cout << "pose: " << ConvPose(childLinkToJoint).translation() << " " << ConvPose(childLinkToJoint).linear() << std::endl
-//            << "*** " << jnt->getTransformFromChildBodyNode().translation() << " " << jnt->getTransformFromChildBodyNode().linear() << std::endl;
-
+void Link::updateLocalJacobian(const ignition::math::Pose3d &childLinkToJoint, const ignition::math::Vector3d &axis) {
     mJacobian_ = AdTAngular(ConvPose(childLinkToJoint), ConvVec3(axis));
-//    mJacobian_ = AdTAngular(jnt->getTransformFromChildBodyNode(), ax);
 }
-
 
 Eigen::Matrix<double, 6, 1> dAdInvT(const Eigen::Isometry3d& _T,
                         const Eigen::Matrix<double, 6, 1>& _F) {
@@ -367,47 +308,14 @@ Eigen::Matrix<double, 6, 1> dAdInvT(const Eigen::Isometry3d& _T,
   return res;
 }
 
-void Link::aggregateMassMatrix(Eigen::MatrixXd* _MCol, int _col)
-{
-  //
+void Link::aggregateMassMatrix(Eigen::MatrixXd* _MCol, int _col) {
   mM_F_.noalias() = mI_ * mM_dV_;
-
-  // Verification
-//  assert(!math::isNan(mM_F_));
-
-  //
     if (child_) {
-
-//        gazebo::physics::JointPtr joint = model_->GetJoint(child_->joint_name_);
-//        gazebo::physics::DARTJointPtr joint_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint );
-        
-
-//        Eigen::Isometry3d i1 = ConvPose(child_->relative_pose_);
-//        Eigen::Isometry3d i2 = joint_dart->GetDARTJoint()->getLocalTransform();
-//        std::cout << "pose: " << i1.translation() << " " << i1.linear() << std::endl
-//                    << "*** " << i2.translation() << " " << i2.linear() << std::endl;
-
-        mM_F_ += dAdInvT(ConvPose(child_->relative_pose_),
-                            child_->mM_F_);
-//        mM_F_ += dAdInvT(i2,
-//                            child_->mM_F_);
+        mM_F_ += dAdInvT(ConvPose(child_->relative_pose_), child_->mM_F_);
     }
-
-  // Verification
-//  assert(!math::isNan(mM_F));
-
-  //
-//  int dof = mParentJoint->getNumDofs();
-//  if (dof > 0)
-//  {
-    int iStart = index_;//mParentJoint->getIndexInSkeleton(0);
-//    _MCol->block(iStart, _col, dof, 1).noalias() =
-//        mParentJoint->getLocalJacobian().transpose() * mM_F_;
-    _MCol->block(iStart, _col, 1, 1).noalias() =
-        mJacobian_.transpose() * mM_F_;
-//  }
+    int iStart = index_;
+    _MCol->block(iStart, _col, 1, 1).noalias() = mJacobian_.transpose() * mM_F_;
 }
-
 
 }   // namespace manipulator_mass_matrix
 

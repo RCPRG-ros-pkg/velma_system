@@ -54,14 +54,14 @@ double BarrettHandGazebo::getFingerAngle(unsigned int fidx) const {
         const int k2_jnt_tab[3] = {1, 4, 6};
         const int k3_jnt_tab[3] = {2, 5, 7};
 
-        double k2_pos = joints_[k2_jnt_tab[fidx]]->GetAngle(0).Radian();
-        double k3_pos = joints_[k3_jnt_tab[fidx]]->GetAngle(0).Radian();
+        double k2_pos = joints_[k2_jnt_tab[fidx]]->Position();
+        double k3_pos = joints_[k3_jnt_tab[fidx]]->Position();
 
         return k2_pos + (k3_pos - k2_pos / 3.0);
     } else if (fidx == 3) {
         int f1k1_jnt_idx = 0;
         int f2k1_jnt_idx = 3;
-        return (joints_[f1k1_jnt_idx]->GetAngle(0).Radian() + joints_[f2k1_jnt_idx]->GetAngle(0).Radian()) / 2.0;
+        return (joints_[f1k1_jnt_idx]->Position() + joints_[f2k1_jnt_idx]->Position()) / 2.0;
     }
     return 0;
 }
@@ -98,7 +98,7 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     const double force_factor = 1000.0;
     // joint position
     for (int i = 0; i < 8; i++) {
-        q_out_(i) = joints_[i]->GetAngle(0).Radian();
+        q_out_(i) = joints_[i]->Position();
     }
 
     t_out_[0] = t_out_[3] = joints_[0]->GetForce(0)*force_factor;
@@ -194,8 +194,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
             double k2_force = joints_[k2_jnt]->GetForce(0);
             double k3_force = joints_[k3_jnt]->GetForce(0);
-            double k2_angle = joints_[k2_jnt]->GetAngle(0).Radian();
-            double k3_angle = joints_[k3_jnt]->GetAngle(0).Radian();
+            double k2_angle = joints_[k2_jnt]->Position();
+            double k3_angle = joints_[k3_jnt]->Position();
 
             if (!is_opening && std::fabs(k2_force) > 0.25) {
                 clutch_break_angle_[fidx] = k2_angle;
@@ -228,11 +228,6 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 k2_angle_dest = finger_int_[fidx];
                 k3_angle_dest = finger_int_[fidx]/3;
             }
-
-//            std::cout << "finger " << fidx << "  dest: " << k2_angle_dest << "   " << k3_angle_dest << "   cur: " << joints_[k2_jnt]->GetAngle(0).Radian()
-//                << "  " << joints_[k3_jnt]->GetAngle(0).Radian() << std::endl;
-
-//            Logger::log() << Logger::Info << "finger " << fidx << ", pos: " << k2_angle_dest << ", " << k3_angle_dest << Logger::endl;
             jc_->SetPositionTarget(joint_scoped_names_[k2_jnt], k2_angle_dest);
             jc_->SetPositionTarget(joint_scoped_names_[k3_jnt], k3_angle_dest);
         }
@@ -241,8 +236,8 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         if (too_big_force_counter_[fidx] < 100) {
             gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
             gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
-            if (k2_wrench.body1Force.GetLength() > 40.0 || k2_wrench.body1Torque.GetLength() > 8.0 ||
-                k3_wrench.body1Force.GetLength() > 40.0 || k3_wrench.body1Torque.GetLength() > 6.0) {
+            if (k2_wrench.body1Force.Length() > 40.0 || k2_wrench.body1Torque.Length() > 8.0 ||
+                k3_wrench.body1Force.Length() > 40.0 || k3_wrench.body1Torque.Length() > 6.0) {
                 too_big_force_counter_[fidx]++;
             }
             else {
@@ -250,8 +245,6 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             }
         }
         if (too_big_force_counter_[fidx] == 100) {
-//            joints_dart_[k2_jnt]->setPositionLimited(false);
-//            joints_dart_[k3_jnt]->setPositionLimited(false);
             jc_->SetPositionPID(joint_scoped_names_[k2_jnt], gazebo::common::PID());
             jc_->SetPositionPID(joint_scoped_names_[k3_jnt], gazebo::common::PID());
             Logger::log() << Logger::Info << "finger " << fidx << " is broken" << Logger::endl;

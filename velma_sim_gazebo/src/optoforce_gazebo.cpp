@@ -151,20 +151,6 @@ using namespace RTT;
 
         model_ = model;
 
-/*        dart_world_ = boost::dynamic_pointer_cast < gazebo::physics::DARTPhysics > ( gazebo::physics::get_world()->GetPhysicsEngine() ) -> GetDARTWorld();
-
-        model_dart_ = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-        if (model_dart_.get() == NULL) {
-            std::cout << "VelmaGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-            return false;
-        }
-
-        dart_sk_ = model_dart_->GetDARTSkeleton();
-
-        detector_ = dart_world_->getConstraintSolver()->getCollisionDetector();
-
-        jc_.reset(new gazebo::physics::JointController(model_));
-*/
         return true;
     }
 
@@ -186,9 +172,9 @@ void OptoforceGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 //        force_out_[i].header.frame_id = frame_id_vec_[i];
 //        force_out_[i].header.stamp = rtt_rosclock::host_now();
         gazebo::physics::JointWrench wr = joints_[i]->GetForceTorque(0u);
-        force_out_[i].force.x = wr.body2Force.x;
-        force_out_[i].force.y = wr.body2Force.y;
-        force_out_[i].force.z = wr.body2Force.z;
+        force_out_[i].force.x = wr.body2Force.X();
+        force_out_[i].force.y = wr.body2Force.Y();
+        force_out_[i].force.z = wr.body2Force.Z();
         force_out_[i].torque.x = force_out_[i].torque.y = force_out_[i].torque.z = 0.0;
     }
 

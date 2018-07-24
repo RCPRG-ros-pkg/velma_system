@@ -32,12 +32,12 @@ using namespace RTT;
 
 void FtSensorGazebo::WrenchKDLToMsg(const KDL::Wrench &in,
                                     geometry_msgs::Wrench &out) const {
-  out.force.x = in[0];
-  out.force.y = in[1];
-  out.force.z = in[2];
-  out.torque.x = in[3];
-  out.torque.y = in[4];
-  out.torque.z = in[5];
+    out.force.x = in[0];
+    out.force.y = in[1];
+    out.force.z = in[2];
+    out.torque.x = in[3];
+    out.torque.y = in[4];
+    out.torque.z = in[5];
 }
 
 bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
@@ -49,15 +49,7 @@ bool FtSensorGazebo::gazeboConfigureHook(gazebo::physics::ModelPtr model) {
     }
 
     model_ = model;
-/*
-    gazebo::physics::DARTModelPtr model_dart = boost::dynamic_pointer_cast < gazebo::physics::DARTModel >(model);
-    if (model_dart.get() == NULL) {
-        std::cout << "FtSensorGazebo::gazeboConfigureHook: the gazebo model is not a DART model" << std::endl;
-        return false;
-    }
-
-    dart_sk_ = model_dart->GetDARTSkeleton();
-*/
+    
     return true;
 }
 
@@ -68,48 +60,15 @@ void FtSensorGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     if (joint_.get() == NULL) {
         return;
     }
-    gazebo::math::Vector3 force = joint_->GetLinkForce(0);
-    gazebo::math::Vector3 torque = joint_->GetLinkTorque(0);
-    //gazebo::math::Vector3 force = link_->GetWorldForce();
-    //gazebo::math::Vector3 torque = link_->GetWorldTorque();
-//    Eigen::Vector6d wr = dart_bn_->getBodyForce();
-//    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(wr(3), wr(4), wr(5)), -KDL::Vector(wr(0), wr(1), wr(2)) );
+    ignition::math::Vector3d force = joint_->LinkForce(0);
+    ignition::math::Vector3d torque = joint_->LinkTorque(0);
 
-//    std::cout << "F/T sensor " << joint_name_ << "  f: " << force.x << " " << force.y << " " << force.z << "  t: " << torque.x << " " << torque.y << " " << torque.z << std::endl;
-
-    KDL::Wrench wr_W = KDL::Wrench( -KDL::Vector(force.x, force.y, force.z), -KDL::Vector(torque.x, torque.y, torque.z) );
+    KDL::Wrench wr_W = KDL::Wrench(-KDL::Vector(force.X(), force.Y(), force.Z()), -KDL::Vector(torque.X(), torque.Y(), torque.Z()));
     KDL::Wrench wr_S = (T_W_S_.Inverse() * wr_W);
-
-//    slow_filtered_wrench_ = KDL::Wrench();
-//    for (int i = 0; i < slow_buffer_size_; i++) {
-//        slow_filtered_wrench_ += slow_buffer_[i];
-//    }
-//    slow_filtered_wrench_ = slow_filtered_wrench_ / slow_buffer_size_;
-
-//    slow_buffer_[slow_buffer_index_] = wr_S;
-//    if ((++slow_buffer_index_) == slow_buffer_size_) {
-//        slow_buffer_index_ = 0;
-//    }
-
-
-//    fast_filtered_wrench_ = KDL::Wrench();
-//    for (int i = 0; i < fast_buffer_size_; i++) {
-//        fast_filtered_wrench_ += fast_buffer_[i];
-//    }
-//    fast_filtered_wrench_ = fast_filtered_wrench_ / fast_buffer_size_;
-
-//    fast_buffer_[fast_buffer_index_] = wr_S;
-//    if ((++fast_buffer_index_) == fast_buffer_size_) {
-//        fast_buffer_index_ = 0;
-//    }
 
     {
         RTT::os::MutexLock lock(gazebo_mutex_);
-//        WrenchKDLToMsg(wr_S, raw_wrench_out_);
-//        WrenchKDLToMsg(slow_filtered_wrench_, slow_filtered_wrench_out_);
-//        WrenchKDLToMsg(fast_filtered_wrench_, fast_filtered_wrench_out_);
-
-// TODO: data conversion:
+        // TODO: data conversion:
         double mult = 1000000.0;
         FxGage0_out_ = wr_S.force.x() * mult;
         FyGage1_out_ = wr_S.force.y() * mult;

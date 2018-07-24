@@ -94,13 +94,9 @@ bool BarrettHandGazebo::configureHook() {
 
     for (int i = 0; i < 8; i++) {
         std::string name( prefix_ + hand_joint_names[i] );
-//            dart_sk_->getJoint(name)->setActuatorType( dart::dynamics::Joint::FORCE );
         gazebo::physics::JointPtr joint = model_->GetJoint(name);
         joints_.push_back(joint);
         joint_scoped_names_.push_back(joint->GetScopedName());
-
-//            dart::dynamics::Joint* joint_dart = dart_sk_->getJoint(name);
-//            joints_dart_.push_back( joint_dart );
         joint->SetEffortLimit(0, 1);
     }
 

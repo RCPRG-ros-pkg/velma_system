@@ -31,9 +31,9 @@
 #include <gazebo/gazebo.hh>
 #include <kdl/frames.hpp>
 
-KDL::Vector gz2kdl(const gazebo::math::Vector3 &v);
+KDL::Vector gz2kdl(const ignition::math::Vector3d &v);
 
-KDL::Frame gz2kdl(const gazebo::math::Pose &p);
+KDL::Frame gz2kdl(const ignition::math::Pose3d &p);
 
 #endif  // VELMA_SIM_CONVERSIONS_H__
 

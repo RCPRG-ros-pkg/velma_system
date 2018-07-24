@@ -69,7 +69,6 @@ bool FtSensorGazebo::configureHook() {
     }
 
     link_ = joint_->GetJointLink(0);
-//    dart_bn_ = boost::dynamic_pointer_cast < gazebo::physics::DARTJoint > ( joint_ )->GetDARTJoint()->getChildBodyNode();
 
     if (transform_xyz_.size() != 3) {
         Logger::log() << Logger::Error << "wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << Logger::endl;

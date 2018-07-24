@@ -82,9 +82,7 @@ public:
     std::vector<double> transform_rpy_;
 
     gazebo::physics::ModelPtr model_;
-//    dart::dynamics::Skeleton *dart_sk_;
     gazebo::physics::JointPtr joint_;
-//    dart::dynamics::BodyNode *dart_bn_;
     gazebo::physics::LinkPtr link_;
 
     std::vector<KDL::Wrench> slow_buffer_;
