@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
+ Copyright (c) 2017, Robot Control and Pattern Recognition Group, Warsaw University of Technology
  All rights reserved.
  
  Redistribution and use in source and binary forms, with or without
@@ -25,38 +25,33 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#include <subsystem_common/abstract_port_converter.h>
-
+#include <rtt/RTT.hpp>
 #include <rtt/Component.hpp>
-#include <Eigen/Dense>
+#include <rtt/base/PortInterface.hpp>
 
-using namespace RTT;
+#include "velma_core_cs_task_cs_msgs/Status.h"
 
 namespace velma_core_cs_types {
 
-class OutputConverter: public subsystem_common::MultiConverterComponent {
+class JntImpTrapezComponent: public RTT::TaskContext {
 public:
-    explicit OutputConverter(const std::string &name);
+    explicit JntImpTrapezComponent(const std::string &name)
+        : RTT::TaskContext(name)
+        , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
+    {
+        this->ports()->addPort(port_status_subsystem_state_out_);
+    }
+
+    void updateHook() {
+        port_status_subsystem_state_out_.write(velma_core_cs_task_cs_msgs::Status::STATE_JNT_IMP_TRAPEZ);
+    }
 
 private:
-    typedef boost::array<double, 7 > ArmJoints;
+    // OROCOS ports
+    RTT::OutputPort<uint32_t > port_status_subsystem_state_out_;
 };
 
-OutputConverter::OutputConverter(const std::string &name)
-    : subsystem_common::MultiConverterComponent(name)
-{
-    addConverter<Eigen::Matrix<double, 2, 1 >, boost::array<double, 2 > >( "head_q_desired" );
-    addConverter<Eigen::Matrix<double, 2, 1 >, boost::array<double, 2 > >( "head_trapez_q_desired" );
-    addConverter<Eigen::Matrix<double, 15, 1 >, boost::array<double, 15 > >( "jnt_q_desired" );
-    addConverter<Eigen::Matrix<double, 15, 1 >, boost::array<double, 15 > >( "jnt_trapez_q_desired" );
-    addConverter<Eigen::Matrix<double, 33, 1 >, boost::array<double, 33 > >( "q" );
-    addConverter<Eigen::Matrix<double, 33, 1 >, boost::array<double, 33 > >( "dq" );
-    addConverter<Eigen::Matrix<double, 7, 1 >, boost::array<double, 7 > >( "rArm_t" );
-    addConverter<Eigen::Matrix<double, 7, 1 >, boost::array<double, 7 > >( "lArm_t" );
-    addConverter<Eigen::Matrix<double, 1, 1 >, double >( "tMotor_i" );
-}
+}   // namespace velma_core_cs_types
 
-}   //namespace velma_core_cs_types
-
-ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::OutputConverter)
+ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::JntImpTrapezComponent)
 

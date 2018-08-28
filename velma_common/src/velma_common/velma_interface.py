@@ -41,6 +41,7 @@ from sensor_msgs.msg import JointState
 from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
+from trapezoid_trajectory_msgs.msg import TrapezoidTrajectoryAction, TrapezoidTrajectoryResult, TrapezoidTrajectoryGoal
 from motor_action_msgs.msg import *
 from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
@@ -178,6 +179,25 @@ class VelmaInterface:
         FollowJointTrajectoryResult.OLD_HEADER_TIMESTAMP:"OLD_HEADER_TIMESTAMP",
         FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:"PATH_TOLERANCE_VIOLATED",
         FollowJointTrajectoryResult.GOAL_TOLERANCE_VIOLATED:"GOAL_TOLERANCE_VIOLATED",}
+
+    _joint_trapezoid_trajectory_result_names = {
+        TrapezoidTrajectoryResult.ACTIVE:"ACTIVE",
+        TrapezoidTrajectoryResult.INACTIVE:"INACTIVE",
+        TrapezoidTrajectoryResult.SUCCESSFUL:"SUCCESSFUL",
+        TrapezoidTrajectoryResult.INVALID_GOAL:"INVALID_GOAL",
+        TrapezoidTrajectoryResult.INVALID_JOINTS:"INVALID_JOINTS",
+        TrapezoidTrajectoryResult.OLD_HEADER_TIMESTAMP:"OLD_HEADER_TIMESTAMP",
+        TrapezoidTrajectoryResult.PATH_TOLERANCE_VIOLATED:"PATH_TOLERANCE_VIOLATED",
+        TrapezoidTrajectoryResult.GOAL_TOLERANCE_VIOLATED:"GOAL_TOLERANCE_VIOLATED",
+        TrapezoidTrajectoryResult.INVALID_LIMIT_ARRAY:"INVALID_LIMIT_ARRAY",
+        TrapezoidTrajectoryResult.TRAJECTORY_NOT_FEASIBLE:"TRAJECTORY_NOT_FEASIBLE",
+        TrapezoidTrajectoryResult.CANT_CALCULATE_COEFFS:"CANT_CALCULATE_COEFFS",
+        TrapezoidTrajectoryResult.MAX_VEL_UNREACHEABLE:"MAX_VEL_UNREACHEABLE",
+        TrapezoidTrajectoryResult.BREACHED_POS_LIMIT:"BREACHED_POS_LIMIT",
+        TrapezoidTrajectoryResult.ACC_TOO_SMALL_FOR_DURATION:"ACC_TOO_SMALL_FOR_DURATION",
+        TrapezoidTrajectoryResult.TRAJECTORY_JUMP_CVD:"DURATION_TOO_LONG",
+        TrapezoidTrajectoryResult.TRAJECTORY_JUMP_ACV:"DURATION_TOO_SHORT",
+        TrapezoidTrajectoryResult.IMPOSSIBLE_VELOCITY:"IMPOSSIBLE_VELOCITY",}
 
     _moveHand_action_error_codes_names = {
         0:"SUCCESSFUL",
@@ -342,6 +362,14 @@ class VelmaInterface:
             self._action_head_joint_traj_client_connected = self._action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
         allConnected = allConnected and self._action_head_joint_traj_client_connected
 
+        if not self._action_joint_trapez_traj_client_connected:
+            self._action_joint_trapez_traj_client_connected = self._action_joint_trapez_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self._action_joint_trapez_traj_client_connected
+
+        if not self._action_head_joint_trapez_traj_client_connected:
+            self._action_head_joint_trapez_traj_client_connected = self._action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
+        allConnected = allConnected and self._action_head_joint_trapez_traj_client_connected
+
         if not self._action_safe_col_client_connected:
             self._action_safe_col_client_connected = self._action_safe_col_client.wait_for_server(rospy.Duration.from_sec(0.001))
         allConnected = allConnected and self._action_safe_col_client_connected
@@ -383,6 +411,7 @@ class VelmaInterface:
                     self._action_move_hand_client_connected["left"], self._action_cart_traj_client_connected["right"],\
                     self._action_cart_traj_client_connected["left"], self._action_joint_traj_client_connected,\
                     self._action_head_joint_traj_client_connected, self._action_motor_client_connected,\
+                    self._action_head_joint_trapez_traj_client_connected, self._action_joint_trapez_traj_client_connected,\
                     self._action_safe_col_client_connected
                 return False
         return True
@@ -501,6 +530,8 @@ class VelmaInterface:
         self._action_cart_traj_client_connected = {'right':False, 'left':False}
         self._action_joint_traj_client_connected = False
         self._action_head_joint_traj_client_connected = False
+        self._action_joint_trapez_traj_client_connected = False
+        self._action_head_joint_trapez_traj_client_connected = False
         self._action_safe_col_client_connected = False
 
         self._action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
@@ -516,6 +547,12 @@ class VelmaInterface:
 
         # joint trajectory for head
         self._action_head_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
+
+        # joint trapezoid trajectory for arms and torso
+        self._action_joint_trapez_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/trapezoid_trajectory_action_joint", TrapezoidTrajectoryAction)
+
+        # joint trapezoid trajectory for head
+        self._action_head_joint_trapez_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_trapezoid_trajectory_action_joint", TrapezoidTrajectoryAction)
 
         self._action_safe_col_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction)
 
@@ -617,7 +654,7 @@ class VelmaInterface:
             self.current_state = parent.history[0].state_name
             assert (self.current_state == "idle" or self.current_state == "safe" or
                 self.current_state == "cart_imp" or self.current_state == "jnt_imp" or
-                self.current_state == "safe_col")
+                self.current_state == "safe_col" or self.current_state == "jnt_imp_trapez")
 
         def inStateIdle(self):
             """!
@@ -646,6 +683,13 @@ class VelmaInterface:
             @return True if the subsystem is in 'jnt_imp' state, False otherwise.
             """
             return self.current_state == "jnt_imp"
+
+        def inStateJntImpTrapez(self):
+            """!
+            Information about current state.
+            @return True if the subsystem is in 'jnt_imp_trapez' state, False otherwise.
+            """
+            return self.current_state == "jnt_imp_trapez"
 
         def inStateSafeCol(self):
             """!
@@ -1226,6 +1270,187 @@ class VelmaInterface:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
 
         self.waitForJointState( self._action_head_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
+
+        return result.error_code
+
+    def moveJointTrajTrapez(self, traj, research_mode, duration_mode, save_data, max_velocities=None, max_accelerations=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute joint space trapezoid trajectory in joint impedance mode.
+        @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   Raised when trajectory has too many nodes.
+        """
+        assert (len(traj.points) <= self.maxJointTrajLen())
+        
+        goal = TrapezoidTrajectoryGoal()
+        goal.trajectory.joint_names = self._body_joint_names
+
+        js = self.getLastJointState()
+        assert (js != None)
+        for node_idx in range(len(traj.points)):
+            q_dest_all = []
+            vel_dest_all = []
+
+            for joint_name in self._body_joint_names:
+                if joint_name in traj.joint_names:
+                    q_idx = traj.joint_names.index(joint_name)
+                    q_dest_all.append(traj.points[node_idx].positions[q_idx])
+                    if len(traj.points[node_idx].velocities) > 0:
+                        vel_dest_all.append(traj.points[node_idx].velocities[q_idx])
+                    else:
+                        vel_dest_all.append(0)
+                else:
+                    q_dest_all.append(js[1][joint_name])
+                    vel_dest_all.append(0)
+            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(3.0)))
+        if max_velocities !=None:
+            goal.max_velocities = max_velocities
+        if max_accelerations !=None:
+            goal.max_accelerations = max_accelerations
+
+        goal.duration_mode = duration_mode
+        goal.research_mode = research_mode
+        goal.save_data = save_data
+        for joint_name in goal.trajectory.joint_names:
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, 0.0))
+
+        if stamp != None:
+            goal.trajectory.header.stamp = stamp
+        else:
+            goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        self._action_joint_trapez_traj_client.send_goal(goal)
+        return True
+
+    def moveJointTrapez(self, q_dest_map, research_mode, duration_mode, save_data, max_velocities=None, max_accelerations=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute simple joint space motion in joint impedance mode.
+        @param q_dest_map   dictionary: dictionary {name:position} of goal configuration
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        """
+        traj = JointTrajectory()
+        pt = JointTrajectoryPoint()
+        for name in q_dest_map:
+            traj.joint_names.append(name)
+            pt.positions.append(q_dest_map[name])
+            pt.velocities.append(0)
+        pt.time_from_start = rospy.Duration(3.0)
+        traj.points.append(pt)
+        return self.moveJointTrajTrapez(traj, research_mode, duration_mode, save_data, max_velocities, max_accelerations, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
+
+    def moveJointImpTrapezToCurrentPos(self, start_time=0.2, stamp=None):
+        """!
+        Switch core_cs to jnt_imp_trapez mode.
+        @return Returns True.
+        """
+        traj = JointTrajectory()
+        return self.moveJointTrajTrapez(traj,False, True, False, None, None, start_time=start_time, stamp=stamp)
+
+    def waitForJointTrapez(self):
+        """!
+        Wait for joint space movement to complete.
+        @return Returns error code.
+        """
+        self._action_joint_trapez_traj_client.wait_for_result()
+        result = self._action_joint_trapez_traj_client.get_result()
+        if result.error_code != 0:
+            error_str = "UNKNOWN"
+            if result.error_code in self._joint_trapezoid_trajectory_result_names:
+                error_str = self._joint_trapezoid_trajectory_result_names[result.error_code]
+            print "waitForJointTrapez(): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
+        self.waitForJointState( self._action_joint_trapez_traj_client.gh.comm_state_machine.latest_result.header.stamp )
+
+        return result.error_code
+
+    def moveHeadTrajTrapez(self, traj, research_mode, duration_mode, save_data, max_velocities=None, max_accelerations=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute head trajectory in joint space.
+        @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   Raised when trajectory has too many nodes or not all joints are
+            included in trajectory.
+        """
+        assert (len(traj.points) <= self.maxHeadTrajLen())
+
+        goal = TrapezoidTrajectoryGoal()
+        goal.trajectory.joint_names = ["head_pan_joint", "head_tilt_joint"]
+
+        for node_idx in range(len(traj.points)):
+            q_dest_all = []
+            vel_dest_all = []
+            for joint_name in goal.trajectory.joint_names:
+                assert (joint_name in traj.joint_names)
+                q_idx = traj.joint_names.index(joint_name)
+                q_dest_all.append(traj.points[node_idx].positions[q_idx])
+                if len(traj.points[node_idx].velocities) > 0:
+                    vel_dest_all.append(traj.points[node_idx].velocities[q_idx])
+                else:
+                    vel_dest_all.append(0)
+            goal.trajectory.points.append(JointTrajectoryPoint(q_dest_all, vel_dest_all, [], [], rospy.Duration(3.0)))
+
+        if duration_mode:
+            goal.max_velocities = max_velocities
+            goal.max_accelerations = max_accelerations
+        else:
+            goal.max_velocities = []
+            goal.max_accelerations = []
+
+        goal.duration_mode = duration_mode
+        goal.research_mode = research_mode
+        goal.save_data = save_data
+
+        for joint_name in goal.goal.trajectory.joint_names:
+            goal.path_tolerance.append(JointTolerance(joint_name, position_tol, velocity_tol, 0))
+        if stamp != None:
+            goal.trajectory.header.stamp = stamp
+        else:
+            goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        self._action_head_joint_trapez_traj_client.send_goal(goal)
+        return True
+
+    def moveHeadTrapez(self, q_dest, research_mode, duration_mode, save_data, max_velocities=None, max_accelerations=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute simple head motion in joint space.
+        @param q_dest       2-tuple:  goal configuration of head ('head_pan_joint', 'head_tilt_joint')
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        @exception AssertionError   When q_dest has wrong length.
+        """
+        assert (len(q_dest) == 2)
+        traj = JointTrajectory()
+        traj.joint_names = ["head_pan_joint", "head_tilt_joint"]
+        pt = JointTrajectoryPoint()
+        pt.positions = q_dest
+        pt.velocities = [0.0, 0.0]
+        pt.time_from_start = rospy.Duration(3.0)
+        traj.points.append(pt)
+        return self.moveHeadTrajTrapez(traj, research_mode, duration_mode, save_data, max_velocities, max_accelerations, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
+
+    def waitForHeadTrapez(self):
+        """!
+        Wait for head movement to complete.
+        @return Returns error code.
+        """
+        self._action_head_joint_trapez_traj_client.wait_for_result()
+        result = self._action_head_joint_trapez_traj_client.get_result().result
+        if result.error_code != 0:
+            print "waitForHead(): action failed with error_code=" + str(result.error_code)
+
+        self.waitForJointState( self._action_head_joint_trapez_traj_client.gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 

@@ -7,6 +7,7 @@
     <import package="controller_common" />
     <import package="velma_controller" />
     <import package="rtt_cartesian_trajectory_msgs" />
+    <import package="rtt_trapezoid_trajectory_msgs" />
     <import package="rtt_std_msgs" />
     <import package="rtt_tf" />
     <import package="port_operations" />
@@ -16,22 +17,24 @@
     <import package="rtt_barrett_hand_msgs" />
     <import package="rtt_barrett_hand_action_msgs" />
 
-    <component type="CartImpActionVelma"                            name="CartImpActionRight"   running="true" ros_action="/velma_task_cs_ros_interface/right_arm/cartesian_trajectory" />
-    <component type="CartImpActionVelma"                            name="CartImpActionLeft"    running="true" ros_action="/velma_task_cs_ros_interface/left_arm/cartesian_trajectory" />
-    <component type="VectorSplit15_2_8_8"                           name="q_splitAll"           running="true" />
-    <component type="VectorSplit15_2_8_8"                           name="dq_splitAll"          running="true" />
-    <component type="InternalSpaceSplineTrajectoryActionVelmaBody"  name="JntImpAction"         running="true" ros_action="/velma_task_cs_ros_interface/spline_trajectory_action_joint" />
-    <component type="InternalSpaceSplineTrajectoryActionVelmaHead"  name="HeadAction"           running="true" ros_action="/velma_task_cs_ros_interface/head_spline_trajectory_action_joint" />
-    <component type="JointStatePublisher33"                         name="JntPub"               running="true" />
-    <component type="BarrettHandMoveAction"                         name="LeftHandAction"       running="true" ros_action="/velma_task_cs_ros_interface/left_hand/move_hand" />
-    <component type="BarrettHandMoveAction"                         name="RightHandAction"      running="true" ros_action="/velma_task_cs_ros_interface/right_hand/move_hand" />
-    <component type="MotorActionServer"                             name="hpAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/hp" />
-    <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/ht" />
-    <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/velma_task_cs_ros_interface/motors/t" />
+    <component type="CartImpActionVelma"                               name="CartImpActionRight"         running="true" ros_action="/velma_task_cs_ros_interface/right_arm/cartesian_trajectory" />
+    <component type="CartImpActionVelma"                               name="CartImpActionLeft"          running="true" ros_action="/velma_task_cs_ros_interface/left_arm/cartesian_trajectory" />
+    <component type="VectorSplit15_2_8_8"                              name="q_splitAll"                 running="true" />
+    <component type="VectorSplit15_2_8_8"                              name="dq_splitAll"                running="true" />
+    <component type="InternalSpaceSplineTrajectoryActionVelmaBody"     name="JntImpAction"               running="true" ros_action="/velma_task_cs_ros_interface/spline_trajectory_action_joint" />
+    <component type="InternalSpaceSplineTrajectoryActionVelmaHead"     name="HeadAction"                 running="true" ros_action="/velma_task_cs_ros_interface/head_spline_trajectory_action_joint" />
+    <component type="InternalSpaceTrapezoidTrajectoryActionVelmaBody"  name="JntImpTrapezAction"         running="true" ros_action="/velma_task_cs_ros_interface/trapezoid_trajectory_action_joint" />
+    <component type="InternalSpaceTrapezoidTrajectoryActionVelmaHead"  name="HeadTrapezAction"           running="true" ros_action="/velma_task_cs_ros_interface/head_trapezoid_trajectory_action_joint" />
+    <component type="JointStatePublisher33"                            name="JntPub"                     running="true" />
+    <component type="BarrettHandMoveAction"                            name="LeftHandAction"             running="true" ros_action="/velma_task_cs_ros_interface/left_hand/move_hand" />
+    <component type="BarrettHandMoveAction"                            name="RightHandAction"            running="true" ros_action="/velma_task_cs_ros_interface/right_hand/move_hand" />
+    <component type="MotorActionServer"                                name="hpAction"                   running="true" ros_action="/velma_task_cs_ros_interface/motors/hp" />
+    <component type="MotorActionServer"                                name="htAction"                   running="true" ros_action="/velma_task_cs_ros_interface/motors/ht" />
+    <component type="MotorActionServer"                                name="tAction"                    running="true" ros_action="/velma_task_cs_ros_interface/motors/t" />
 
-    <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/velma_task_cs_ros_interface/safe_col_action" />
+    <component type="SafeColAction"                                    name="SafeColAction"              running="true" ros_action="/velma_task_cs_ros_interface/safe_col_action" />
 
-    <component type="TfPublisher"                                   name="TfPub"                running="true" />
+    <component type="TfPublisher"                                      name="TfPub"                      running="true" />
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
@@ -73,15 +76,26 @@
     <ros_stream port="CartImpActionLeft.cart_pose_command_OUTPORT"                  topic="/velma_task_cs_ros_interface/CartImpActionLeft/cart_pose_command_OUTPORT" />
     <connection from="stSplit.q_OUTPORT"             to="q_splitAll.In" />
     <connection from="stSplit.dq_OUTPORT"            to="dq_splitAll.In" />
-    <connection from="JntImpAction.jnt_OUTPORT"       to="cmdConcate.jnt_INPORT" />
-    <connection from="q_splitAll.Out0"                to="JntImpAction.JointPosition_INPORT" />
-    <connection from="stSplit.jnt_q_desired_OUTPORT" to="JntImpAction.JointPositionCommand_INPORT" />
-    <connection from="stSplit.jnt_status_OUTPORT"    to="JntImpAction.generator_status_INPORT" />
+    
+    <connection from="JntImpAction.jnt_OUTPORT"         to="cmdConcate.jnt_INPORT" />
+    <connection from="q_splitAll.Out0"                  to="JntImpAction.JointPosition_INPORT" />
+    <connection from="stSplit.jnt_q_desired_OUTPORT"    to="JntImpAction.JointPositionCommand_INPORT" />
+    <connection from="stSplit.jnt_status_OUTPORT"       to="JntImpAction.generator_status_INPORT" />
+    
+    <connection from="JntImpTrapezAction.jnt_OUTPORT"   to="cmdConcate.jnt_trapez_INPORT" />
+    <connection from="q_splitAll.Out0"                  to="JntImpTrapezAction.JointPosition_INPORT" />
+    <connection from="stSplit.jnt_trapez_q_desired_OUTPORT"    to="JntImpTrapezAction.JointPositionCommand_INPORT" />
+    <connection from="stSplit.jnt_trapez_status_OUTPORT"       to="JntImpTrapezAction.generator_status_INPORT" />
 
     <connection from="HeadAction.jnt_OUTPORT"           to="cmdConcate.head_INPORT" />
     <connection from="q_splitAll.Out1"                  to="HeadAction.JointPosition_INPORT" />
     <connection from="stSplit.head_q_desired_OUTPORT"   to="HeadAction.JointPositionCommand_INPORT" />
     <connection from="stSplit.head_status_OUTPORT"      to="HeadAction.generator_status_INPORT" />
+
+    <connection from="HeadTrapezAction.jnt_OUTPORT"     to="cmdConcate.head_trapez_INPORT" />
+    <connection from="q_splitAll.Out1"                  to="HeadTrapezAction.JointPosition_INPORT" />
+    <connection from="stSplit.head_trapez_q_desired_OUTPORT"   to="HeadTrapezAction.JointPositionCommand_INPORT" />
+    <connection from="stSplit.head_trapez_status_OUTPORT"      to="HeadTrapezAction.generator_status_INPORT" />
 
     <connection from="stSplit.q_OUTPORT"             to="JntPub.JointPosition" />
     <connection from="stSplit.dq_OUTPORT"            to="JntPub.JointVelocity" />
