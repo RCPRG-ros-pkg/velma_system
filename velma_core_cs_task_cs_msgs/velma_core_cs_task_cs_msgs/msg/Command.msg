@@ -8,6 +8,12 @@ bool jnt_valid
 CommandHead head
 bool head_valid
 
+CommandJntImpTrapez jnt_trapez
+bool jnt_trapez_valid
+
+CommandHeadTrapez head_trapez
+bool head_trapez_valid
+
 bool safe_col
 bool safe_col_valid
 

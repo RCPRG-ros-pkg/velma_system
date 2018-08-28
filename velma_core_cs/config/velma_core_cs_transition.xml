@@ -35,6 +35,7 @@
     </component>
 
     <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JntTrGen}_{head}" />
+    <component name="JTGT_head"  type="InternalSpaceTrapezoidTrajectoryGeneratorVelmaHead" latex="\text{JntTrGenTrapez}_{head}" />
 
     <component name="C_q_head"  type="VectorConcate1_1_0_0" latex="\text{Conc}_{q,head}" />
     <component name="S_q_head"  type="PortDoubleSplit2" latex="\text{Split}_{q,head}" />
@@ -73,6 +74,8 @@
     <component name="LeftForceControl"          type="ForceControlLaw" />
 -->
     <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" latex="\text{JntTrGen}_{b}" />
+    <component name="JTGT_body"  type="InternalSpaceTrapezoidTrajectoryGeneratorVelmaBody" latex="\text{JntTrGenTrapez}_{b}" />
+
     <component name="JntLimit"                  type="JointLimitAvoidance15" latex="\text{JntLim}" />
 
     <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{IDLE}" />
@@ -80,6 +83,7 @@
     <component name="safe_col"      type="velma_core_cs_types::SafeColComponent" latex="\text{SAFE}" />
     <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" latex="\text{CIMP}" />
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{JIMP}" />
+    <component name="jnt_imp_trapez"       type="velma_core_cs_types::JntImpTrapezComponent" latex="\text{JIMPT}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
     <component name="wcc_r"         type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
@@ -157,6 +161,7 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="jnt_imp_trapez.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="safe_col.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="input_conv.tMotor_q_INPORT" name="q_t" latex="q_t" />
@@ -304,6 +309,23 @@
     <connection from="output_conv.head_q_desired_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
     <connection from="JTG_head.generator_status_OUTPORT" to="stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
+
+
+    <connection from="C_q_body.Out" to="JTGT_body.JointPosition_INPORT" name="q_body_trapez" latex="q_{b,t}" />
+    <connection from="JTGT_body.JointPositionCommand_OUTPORT" to="JntImp.JointPositionCommand_INPORT" name="cmd_q_body_trapez" latex="q_{b,cmd,t}" />
+    <connection from="JTGT_body.JointPositionCommand_OUTPORT" to="output_conv.jnt_trapez_q_desired_INPORT" name="cmd_q_body_trapez" latex="q_{b,cmd,t}" />
+    <connection from="output_conv.jnt_trapez_q_desired_OUTPORT" to="stConcate.jnt_trapez_q_desired_INPORT" name="cmd_q_body_trapez" latex="q_{b,cmd,t}" />
+    <connection from="JTGT_body.generator_status_OUTPORT" to="stConcate.jnt_trapez_status_INPORT" name="gen_st_trapez" latex="s_{gen,t}" />
+    <connection from="JTGT_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_bod_trapez" latex="k_{b,cmd,t}" />
+    <connection from="cmdSplit.jnt_trapez_OUTPORT" to="JTGT_body.jnt_INPORT" latex="tr_{jnt,t}" />
+
+    <connection from="C_q_head.Out" to="JTGT_head.JointPosition_INPORT" name="q_head_trapez" latex="q_{h,t}" />
+    <connection from="JTGT_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head_trapez" latex="q_{h,cmd,t}" />
+    <connection from="JTGT_head.JointPositionCommand_OUTPORT" to="output_conv.head_trapez_q_desired_INPORT" name="cmd_q_body_trapez" latex="q_{h,cmd,t}" />
+    <connection from="output_conv.head_trapez_q_desired_OUTPORT" to="stConcate.head_trapez_q_desired_INPORT" name="cmd_q_body_trapez" latex="q_{h,cmd,t}" />
+    <connection from="JTGT_head.generator_status_OUTPORT" to="stConcate.head_trapez_status_INPORT" name="gen_st_trapez" latex="s_{gen,t}" />
+    <connection from="cmdSplit.head_trapez_OUTPORT" to="JTGT_head.jnt_INPORT" latex="tr_{head,t}" />
+
 
     <connection from="C_q_body.Out" to="JntLimit.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntLimit.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />

@@ -48,6 +48,8 @@ orocos_component(velma_task_cs_ros_interface
     src/components/cart_imp_action.cpp
     src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/components/HeadInternalSpaceSplineTrajectoryAction.cpp
+    src/components/InternalSpaceTrapezoidTrajectoryAction.cpp
+    src/components/HeadInternalSpaceTrapezoidTrajectoryAction.cpp
     src/components/vector_split15_2_8_8.cpp
     src/components/safe_col_action.cpp
 )
@@ -81,6 +83,7 @@ catkin_install_python(PROGRAMS
     scripts/test_cimp_tool.py
     scripts/test_cimp_imp.py
     scripts/test_jimp.py
+    scripts/test_jimp_trapez.py
     scripts/test_safe_col.py
     scripts/test_head.py
     scripts/test_grippers.py

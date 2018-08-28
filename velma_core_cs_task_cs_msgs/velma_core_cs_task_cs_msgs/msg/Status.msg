@@ -10,6 +10,12 @@ bool jnt_valid
 StatusHead head         # status of head trajectory generator
 bool head_valid
 
+StatusJntImpTrapez jnt_trapez        # status of joint impedance trapezoid trajectory generator
+bool jnt_trapez_valid
+
+StatusHeadTrapez head_trapez        # status of head trapezoid trajectory generator
+bool head_trapez_valid
+
 float64[33] q       # position of all joints
 bool q_valid
 
@@ -53,6 +59,7 @@ uint32 STATE_CART_IMP = 2
 uint32 STATE_JNT_IMP = 3
 uint32 STATE_SAFE_COL = 4
 uint32 STATE_FCL = 5   # currently unused
+uint32 STATE_JNT_IMP_TRAPEZ = 6 
 
 uint32 subsystem_state
 bool subsystem_state_valid

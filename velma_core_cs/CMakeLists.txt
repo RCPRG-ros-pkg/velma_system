@@ -50,11 +50,14 @@ orocos_component(velma_core_cs
     src/components/safe_col.cpp
     src/components/cart_imp.cpp
     src/components/jnt_imp.cpp
+    src/components/jnt_imp_trapez.cpp
     src/components/fcl.cpp
     src/components/cartesian_interpolator.cpp
     src/components/cartesian_impedance_interpolator.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
     src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
+    src/components/InternalSpaceTrapezoidTrajectoryGeneratorVelmaBody.cpp
+    src/components/InternalSpaceTrapezoidTrajectoryGeneratorVelmaHead.cpp
     src/components/vector_dummy.cpp
     src/components/double_joint_constraint.cpp
     src/components/collision_detector.cpp
