@@ -12,23 +12,26 @@
   <arg     if="$(arg debug)" name="LAUNCH_PREFIX" value="gdb -ex run --args "/>
 
   <node
-    launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
     name="velma_core_cs"
-    pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_core_cs -l $(arg LOG_LEVEL) -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -p 80 -c 2 --" output="screen">
-<!--    <env name="LD_PRELOAD" value="librtt_malloc_hook.so" />-->
+    pkg="subsystem_deployer"
+    type="deployer"
+    launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
+    args="--DeployerName velma_core_cs -l $(arg LOG_LEVEL) -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -p 80 -c 2 --"
+    output="screen">
+    <!-- <env name="LD_PRELOAD" value="librtt_malloc_hook.so" /> -->
   </node>
 
   <group if="$(arg load_robot_description)">
-    <param name="/robot_description"
+    <param
+      name="/robot_description"
       command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
     <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
-      <param name="use_tf_static" value="false"/>
+      <param name="use_tf_static" value="true"/>
     </node>
   </group>
 
-<!--  <param name="/use_sim_time" value="false" />-->
+  <!-- <param name="/use_sim_time" value="false" /> -->
 
   <group ns="velma_core_cs">
     <rosparam>
@@ -165,5 +168,4 @@
         constraint_polygon: [0.397855401039 , 2.90307354927 ,-1.79 , 2.91307354927 ,-1.78 , 1.43123674393 ,-0.77621114254 , 1.39720571041 ,-0.36 , 1.00585031509 ,-0.35 , -0.414940297604 ,-0.8 , -0.942419290543 ,-1.8 , -1.01898884773 ,-1.81 , -2.88 ,0.4 , -2.89 ,0.81 , -2.27813267708 ,1.82 , -2.29514837265 ,1.83 , 1.66945314407 ,0.84 , 1.73751521111 ,0.423378348351 , 2.09483933449]
     </rosparam>
   </group>
-
 </launch>

@@ -1,7 +1,7 @@
 /*
  Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
  All rights reserved.
- 
+
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions are met:
      * Redistributions of source code must retain the above copyright
@@ -12,7 +12,7 @@
      * Neither the name of the Warsaw University of Technology nor the
        names of its contributors may be used to endorse or promote products
        derived from this software without specific prior written permission.
- 
+
  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,12 +37,13 @@ using namespace RTT;
 
 
         if (!data_valid_) {
-            //Logger::In in("LWRGazebo::updateHook");
-            //Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
+            Logger::In in("LWRGazebo::updateHook");
+            Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
         }
         else {
-            //Logger::log() << Logger::Debug << Logger::endl;
+            Logger::In in("LWRGazebo::updateHook");
+            Logger::log() << Logger::Debug << Logger::endl;
         }
 
         port_MassMatrix_out_.write(MassMatrix_out_);
@@ -55,19 +56,19 @@ using namespace RTT;
             if (1 == KRL_CMD_in_.data) {
                 if (!command_mode_) {
                     command_mode_ = true;
-                    //Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
+                    Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
                 }
                 else {
-                    //Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
+                    Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
                 }
             }
             else if (2 == KRL_CMD_in_.data) {
                 if (command_mode_) {
                     command_mode_ = false;
-                    //Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;
+                    Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;
                 }
                 else {
-                    //Logger::log() << Logger::Warning <<  "tried to switch to monitor mode while in monitor mode" << Logger::endl;
+                    Logger::log() << Logger::Warning <<  "tried to switch to monitor mode while in monitor mode" << Logger::endl;
                 }
             }
         }
