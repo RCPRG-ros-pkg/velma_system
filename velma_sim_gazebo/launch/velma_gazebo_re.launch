@@ -15,6 +15,7 @@
   <arg name="profile" default="dart_2ms"/>
 
   <arg name="use_kinect" default="true"/>
+  <arg name="use_stereo_pair" default="true"/>
 
   <arg name="ORO_LOGLEVEL" default="5"/>
 
@@ -62,7 +63,7 @@
         subsystem_xml:=true
         xml_file_re_body:='$(find velma_sim_gazebo)/config/velma_core_re.xml'
         use_gazebo_kinect:=$(arg use_kinect)
-        use_stereo_pair:=true"
+        use_stereo_pair:=$(arg use_stereo_pair)"
     />
     <param
       name="/robot_semantic_description"
