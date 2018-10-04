@@ -155,9 +155,6 @@ void IdleComponent::updateHook() {
 
     if (counter_ > 100) {
         counter_ = 0;
-//        std::cout << "valid: " << (status_in_.sc_valid?"t":"f")
-//            << "  safe: " << (status_in_.sc.safe_behavior?"t":"f")
-//            << "  error: " << (status_in_.sc.error?"t":"f") << std::endl;
     }
     else {
         ++counter_;
@@ -190,10 +187,6 @@ void IdleComponent::updateHook() {
             rArm(i) = status_in_.rArm.q[i];
             lArm(i) = status_in_.lArm.q[i];
         }
-        log(RTT::Error) << "first step " << internal_space_position_.transpose()
-            << " t: " << status_in_.tMotor.q
-            << " r: " << rArm.transpose()
-            << " l: " << lArm.transpose() << Logger::endl;
     }
 */
 //    internal_space_position_.setZero();

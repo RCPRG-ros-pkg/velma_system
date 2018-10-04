@@ -44,28 +44,67 @@ import time
 import subsystem_msgs.srv
 import std_srvs.srv
 
-if __name__ == '__main__':
+from gazebo_msgs.msg import *
+from gazebo_msgs.srv import *
 
+if __name__ == '__main__':
     rospy.init_node('unpause_on_init')
 
-    print "waiting for service /gazebo/enable_sim"
+    rospy.wait_for_service('/gazebo/set_model_configuration')
+    try:
+        set_model_configuration = rospy.ServiceProxy('/gazebo/set_model_configuration', SetModelConfiguration)
+    except rospy.ServiceException, e:
+        print "Service call failed: %s"%e
+        exit(1)
+
+    state_snapshot = rospy.get_param('~state_snapshot', None)
+    #state_snapshot = 'state_snapshot.txt'
+
+    print "Waiting for service /gazebo/enable_sim"
     rospy.wait_for_service('/gazebo/enable_sim')
     srv_unpause_physics = rospy.ServiceProxy('/gazebo/enable_sim', std_srvs.srv.Empty)
 
-    print "waiting for service /velma_sim_gazebo/getSubsystemInfo"
+    print "Waiting for service /velma_sim_gazebo/getSubsystemInfo"
     rospy.wait_for_service('/velma_sim_gazebo/getSubsystemInfo')
     srv_info_velma_sim_gazebo = rospy.ServiceProxy('/velma_sim_gazebo/getSubsystemInfo', subsystem_msgs.srv.GetSubsystemInfo)
 
-    print "waiting for init"
+    print "Waiting for subsystem initialization"
     while True:
         try:
             info_body = srv_info_velma_sim_gazebo()
             if info_body.is_initialized:
-                srv_unpause_physics()
-                print "unpaused gazebo"
                 break
         except rospy.service.ServiceException as e:
             print "unpause_on_init exception:", e
             print "retrying..."
         time.sleep(1)
+
+    if state_snapshot is None:
+        print 'State snapshot is not provided'
+    else:
+        print 'Restoring configuration saved in file "' + state_snapshot + '"'
+
+        models_map = {}
+        with open(state_snapshot, 'r') as f:
+            file_lines = f.readlines()
+            for line in file_lines:
+                fields = line.split()
+                if len(fields) != 3:
+                    continue
+                model_name = fields[0]
+                joint_name = fields[1]
+                position = float(fields[2])
+                if not model_name in models_map:
+                    models_map[model_name] = ([], [])
+                models_map[model_name][0].append( joint_name )
+                models_map[model_name][1].append( position )
+
+        # set desired configurations for all models
+        for model_name in models_map:
+            print 'Set configuration for model "' + model_name + '":'
+            result = set_model_configuration(model_name, '', models_map[model_name][0], models_map[model_name][1])
+            print '  success: "' + str(result.success) + '", status message: "' + result.status_message + '"'
+
+    srv_unpause_physics()
+    print "unpaused gazebo"
 

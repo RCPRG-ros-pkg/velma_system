@@ -27,6 +27,8 @@
 
 #include "velma_core_cs/master.h"
 
+using namespace RTT;
+
 namespace velma_core_cs_types {
 
 static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
@@ -34,12 +36,12 @@ static const RTT::Attribute<bool >* getBoolAttribute(const std::string& componen
         if (components[i]->getName() == component_name) {
             const RTT::Attribute<bool >* attr = static_cast<const RTT::Attribute< bool >* >(components[i]->getAttribute(attribute_name));
             if (!attr) {
-                RTT::log(RTT::Error) << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+                Logger::log() << Logger::Error << "Could not get attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << Logger::endl;
             }
             return attr;
         }
     }
-    RTT::log(RTT::Error) << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << RTT::endlog();
+    Logger::log() << Logger::Error << "Could not find attribute \'" << attribute_name << "\' of component \'" << component_name << "\'" << Logger::endl;
 
     return NULL;
 }

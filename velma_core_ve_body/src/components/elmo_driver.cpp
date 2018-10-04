@@ -168,7 +168,7 @@ bool ElmoDriver::beginHoming() {
       homing_ = true;
     }
   } else {
-    RTT::log(RTT::Error) << "Drive not configured for homing" << RTT::endlog();
+    Logger::log() << Logger::Error << "Drive not configured for homing" << Logger::endl;
   }
   return homing_;
 }
@@ -266,8 +266,7 @@ void ElmoDriver::updateHook() {
     servo_state_ = getServoState(statusWord_in);
 
     if (servo_state_prev != servo_state_) {
-//        Logger::log() << Logger::Info << getName() << " state: " << getServoStateStr(servo_state_) << Logger::endl;
-        std::cout << getName() << " state: " << getServoStateStr(servo_state_) << std::endl;
+        Logger::log() << Logger::Info << getName() << " state: " << getServoStateStr(servo_state_) << Logger::endl;
     }
 
     uint8_t disable_in = false;
@@ -276,8 +275,7 @@ void ElmoDriver::updateHook() {
         enable_ = false;
     }
     else if (port_enable_in_.read(enable_in) == RTT::NewData && enable_in && servo_state_ == ServoState::SWITCH_ON) {
-//      Logger::log() << Logger::Info << getName() << " received enable command" << Logger::endl;
-      std::cout << getName() << " received enable command" << std::endl;
+      Logger::log() << Logger::Info << getName() << " received enable command" << Logger::endl;
       enable_ = true;
     }
 
@@ -414,7 +412,7 @@ void ElmoDriver::updateHook() {
   port_homing_in_progress_out_.write(atribute_homing_in_progress_);
 
   if (enable_prev != enable_) {
-     std::cout << getName() << " enable: " << (enable_?"t":"f") << std::endl;
+     Logger::log() << Logger::Info << getName() << " enable: " << (enable_?"t":"f") << Logger::endl;
   }
 }
 

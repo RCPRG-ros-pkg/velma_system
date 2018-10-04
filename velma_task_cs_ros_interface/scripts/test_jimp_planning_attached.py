@@ -44,7 +44,7 @@ import PyKDL
 from threading import Thread
 
 from velma_common import *
-from planner import *
+from rcprg_planner import *
 from rcprg_ros_utils import MarkerPublisher, exitError
 
 from moveit_msgs.msg import AttachedCollisionObject, CollisionObject

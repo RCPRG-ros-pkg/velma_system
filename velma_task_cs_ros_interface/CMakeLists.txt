@@ -14,7 +14,7 @@ find_package(catkin REQUIRED COMPONENTS
   common_interfaces
   subsystem_common
   controller_common
-  planner
+  rcprg_planner
   behavior_switch_action_msgs
   )
 

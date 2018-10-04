@@ -43,7 +43,7 @@ import math
 import PyKDL
 
 from velma_common import *
-from planner import *
+from rcprg_planner import *
 from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":

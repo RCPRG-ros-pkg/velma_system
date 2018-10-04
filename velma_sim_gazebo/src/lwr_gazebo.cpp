@@ -178,12 +178,12 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             to_check = to_check_new;
         }
 
-        std::cout << "links below joint " << name_ << "_arm_6_joint" << std::endl;
+        Logger::log() << Logger::Debug << "links below joint " << name_ << "_arm_6_joint" << Logger::endl;
         // calculate com
         KDL::Vector COM;
         double MASS = 0;
         for (int i = 0; i < all.size(); ++i) {
-            std::cout << "    " << all[i]->getName() << std::endl;
+            Logger::log() << Logger::Debug << "    " << all[i]->getName() << Logger::endl;
             KDL::Vector com;
             tf::vectorEigenToKDL(all[i]->getLocalCOM(), com);
             KDL::Frame tf;
@@ -192,7 +192,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             MASS += all[i]->getMass();
         }
         COM = COM * (1.0 / MASS);
-        std::cout << "mass: " << MASS << ", com: " << COM.x() << " " << COM.y() << " " << COM.z() << std::endl;
+        Logger::log() << Logger::Debug << "mass: " << MASS << ", com: " << COM.x() << " " << COM.y() << " " << COM.z() << Logger::endl;
 
         KDL::Frame T_B_WI = base_tf * KDL::Frame(COM);
         KDL::RigidBodyInertia RBI;
@@ -209,9 +209,9 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             KDL::RigidBodyInertia rbI_WI = (T_B_WI.Inverse() * T_B_LI) * rbI;
             RBI = RBI + rbI_WI;
         }
-        std::cout << "I: " << RBI.getRotationalInertia().data[0] << " " << RBI.getRotationalInertia().data[1] << " " << RBI.getRotationalInertia().data[2] << std::endl;
-        std::cout << "   " << RBI.getRotationalInertia().data[3] << " " << RBI.getRotationalInertia().data[4] << " " << RBI.getRotationalInertia().data[5] << std::endl;
-        std::cout << "   " << RBI.getRotationalInertia().data[6] << " " << RBI.getRotationalInertia().data[7] << " " << RBI.getRotationalInertia().data[8] << std::endl;
+        Logger::log() << Logger::Debug << "I: " << RBI.getRotationalInertia().data[0] << " " << RBI.getRotationalInertia().data[1] << " " << RBI.getRotationalInertia().data[2] << Logger::endl;
+        Logger::log() << Logger::Debug << "   " << RBI.getRotationalInertia().data[3] << " " << RBI.getRotationalInertia().data[4] << " " << RBI.getRotationalInertia().data[5] << Logger::endl;
+        Logger::log() << Logger::Debug << "   " << RBI.getRotationalInertia().data[6] << " " << RBI.getRotationalInertia().data[7] << " " << RBI.getRotationalInertia().data[8] << Logger::endl;
     }
 #else
     //
@@ -294,9 +294,6 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     // exchange the data between Orocos and Gazebo
     {
         RTT::os::MutexLock lock(gazebo_mutex_);
-
-        Logger::In in("LWRGazebo::gazeboUpdateHook");
-        Logger::log() << Logger::Debug << Logger::endl;
 
         MassMatrix_out_ = tmp_MassMatrix_out_;
         GravityTorque_out_ = tmp_GravityTorque_out_;

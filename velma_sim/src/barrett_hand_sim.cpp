@@ -141,9 +141,9 @@ public:
             }
         }
 
-        std::cout << "int: " << finger_int_[0] << " " << finger_int_[1] << " " << finger_int_[2] << " " << finger_int_[3]
-                << "  pos: " << q_out_(k2_idx_tab[0]) << " " << q_out_(k2_idx_tab[1]) << " " << q_out_(k2_idx_tab[2]) << " " << q_out_(k2_idx_tab[3])
-                << "  dst: " << hw_can_.q_in_[0] << " " << hw_can_.q_in_[1] << " " << hw_can_.q_in_[2] << " " << hw_can_.q_in_[3] << std::endl;
+//        std::cout << "int: " << finger_int_[0] << " " << finger_int_[1] << " " << finger_int_[2] << " " << finger_int_[3]
+//                << "  pos: " << q_out_(k2_idx_tab[0]) << " " << q_out_(k2_idx_tab[1]) << " " << q_out_(k2_idx_tab[2]) << " " << q_out_(k2_idx_tab[3])
+//                << "  dst: " << hw_can_.q_in_[0] << " " << hw_can_.q_in_[1] << " " << hw_can_.q_in_[2] << " " << hw_can_.q_in_[3] << std::endl;
         if (!hw_can_.status_idle_[3]) {
             // spread joints
             if (finger_int_[3] > hw_can_.q_in_[3]) {

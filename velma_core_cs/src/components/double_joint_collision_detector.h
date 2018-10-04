@@ -44,6 +44,8 @@
 
 #include "planer_utils/double_joint_collision_checker.h"
 
+using namespace RTT;
+
 template<unsigned DOFS >
 class DoubleJointCollisionDetector: public RTT::TaskContext {
  public:
@@ -96,22 +98,22 @@ bool DoubleJointCollisionDetector<DOFS >::configureHook() {
     RTT::Logger::In in("DoubleJointCollisionDetector::configureHook");
 
     if (constraint_polygon_.size() == 0 || (constraint_polygon_.size()%2) != 0) {
-        RTT::log(RTT::Error) << "property \'constraint_polygon\' has wrong size: " << constraint_polygon_.size() << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'constraint_polygon\' has wrong size: " << constraint_polygon_.size() << Logger::endl;
         return false;
     }
 
     if (joint0_idx_ == joint1_idx_) {
-        RTT::log(RTT::Error) << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << Logger::endl;
         return false;
     }
 
     if (joint0_idx_ >= DOFS) {
-        RTT::log(RTT::Error) << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << Logger::endl;
         return false;
     }
 
     if (joint1_idx_ >= DOFS) {
-        RTT::log(RTT::Error) << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << Logger::endl;
         return false;
     }
 

@@ -41,10 +41,6 @@ using namespace RTT;
             Logger::log() << Logger::Debug << "gazebo is not initialized" << Logger::endl;
             return;
         }
-        else {
-            Logger::In in("LWRGazebo::updateHook");
-            Logger::log() << Logger::Debug << Logger::endl;
-        }
 
         port_MassMatrix_out_.write(MassMatrix_out_);
         port_GravityTorque_out_.write(GravityTorque_out_);
@@ -146,8 +142,12 @@ using namespace RTT;
                 return false;
             }
             init_q_vec.push_back(init_joint_map[joints_[i]->GetName()]);
+
+            // keep the initial position as it is
+            init_q_vec_.push_back(joints_[i]->Position(0));
         }
-        setInitialPosition(init_q_vec);
+//        setInitialPosition(init_q_vec);
+        
 
         link_names_.resize(7);
         for (int i = 0; i < 7; ++i) {

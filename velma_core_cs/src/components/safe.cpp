@@ -191,10 +191,6 @@ void SafeComponent::updateHook() {
             rArm(i) = status_in_.rArm.q[i];
             lArm(i) = status_in_.lArm.q[i];
         }
-//        log(RTT::Error) << "first step " << internal_space_position_.transpose()
-//            << " t: " << status_in_.tMotor.q
-//            << " r: " << rArm.transpose()
-//            << " l: " << lArm.transpose() << Logger::endl;
     }
     else {
         uint8_t ht_enabled;

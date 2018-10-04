@@ -33,6 +33,7 @@
 #include <controller_common/elmo_servo_state.h>
 
 using namespace controller_common::elmo_servo;
+using namespace RTT;
 
 class TorsoSim : public RTT::TaskContext
 {
@@ -186,7 +187,7 @@ using namespace RTT;
 
         int16_t t_MotorCurrentCommand_in = 0;
         if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in) != RTT::NewData) {
-            std::cout << "could not read t motor current" << std::endl;
+            Logger::log() << Logger::Info << "could not read torso motor torque" << Logger::endl;
         }
 
         t_t_ = t_MotorCurrentCommand_in * torso_gear * torso_motor_constant;
@@ -198,8 +199,6 @@ using namespace RTT;
 
         // integrate velocity
         q_t_ += dq_t_ * 0.001;
-
-//        std::cout << t_MotorCurrentCommand_in << " " << q_t_ << std::endl;
 
         int32_t t_MotorPosition_out = (q_t_ - torso_joint_offset) * torso_trans_mult + torso_motor_offset;
         int32_t t_MotorVelocity_out = dq_t_ * torso_trans_mult;
@@ -265,44 +264,44 @@ using namespace RTT;
         if (port_hp_controlWord_in_.read(hp_controlWord_in) == RTT::NewData) {
             if ( (hp_controlWord_in&0x10) != 0 && !hp_homing_in_progress_) {
                 if (hp_homing_done_) {
-                    std::cout << "Running homing second time for head pan motor!" << std::endl;
+                    Logger::log() << Logger::Info << "Running homing second time for head pan motor!" << Logger::endl;
                 }
                 else {
                     hp_homing_in_progress_ = true;
-                    std::cout << "Running homing head pan motor" << std::endl;
+                    Logger::log() << Logger::Info << "Running homing head pan motor" << Logger::endl;
                 }
             }
             ServoState prev_state = hp_servo_state_;
             hp_servo_state_ = getNextServoState(hp_servo_state_, hp_controlWord_in);
             if (prev_state != hp_servo_state_) {
-                std::cout << "hp motor state: " << getServoStateStr(hp_servo_state_) << std::endl;
+                Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
             }
         }
         else {
             hp_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            std::cout << "hp motor state: " << getServoStateStr(hp_servo_state_) << std::endl;
+            Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
         }
 
         uint16_t ht_controlWord_in;
         if (port_ht_controlWord_in_.read(ht_controlWord_in) == RTT::NewData) {
             if ( (ht_controlWord_in&0x10) != 0 && !ht_homing_in_progress_) {
                 if (ht_homing_done_) {
-                    std::cout << "Running homing second time for head tilt motor!" << std::endl;
+                    Logger::log() << Logger::Info << "Running homing second time for head tilt motor!" << Logger::endl;
                 }
                 else {
                     ht_homing_in_progress_ = true;
-                    std::cout << "Running homing head tilt motor" << std::endl;
+                    Logger::log() << Logger::Info << "Running homing head tilt motor" << Logger::endl;
                 }
             }
             ServoState prev_state = ht_servo_state_;
             ht_servo_state_ = getNextServoState(ht_servo_state_, ht_controlWord_in);
             if (prev_state != ht_servo_state_) {
-                std::cout << "ht motor state: " << getServoStateStr(ht_servo_state_) << std::endl;
+                Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
             }
         }
         else {
             ht_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            std::cout << "ht motor state: " << getServoStateStr(ht_servo_state_) << std::endl;
+            Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
         }
 
         uint16_t t_controlWord_in;
@@ -310,12 +309,12 @@ using namespace RTT;
             ServoState prev_state = t_servo_state_;
             t_servo_state_ = getNextServoState(t_servo_state_, t_controlWord_in);
             if (prev_state != t_servo_state_) {
-                std::cout << "t motor state: " << getServoStateStr(t_servo_state_) << std::endl;
+                Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
             }
         }
         else {
             t_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            std::cout << "t motor state: " << getServoStateStr(t_servo_state_) << std::endl;
+            Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
         }
 
         uint16_t t_status_out = getStatusWord(t_servo_state_);

@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <arg name="LOG_LEVEL" default="Info"/>
+  <arg name="ORO_LOGLEVEL" default="3"/>
   <arg name="debug" default="false"/>
   <arg name="cset" default="false"/>
 
@@ -16,8 +16,9 @@
     type="deployer"
     output="screen"
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
-    args="--DeployerName velma_core_ve_body -l $(arg LOG_LEVEL) -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 60 -c 3 --"
+    args="--DeployerName velma_core_ve_body -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 60 -c 3 --"
   >
+    <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
     <!-- <env name="LD_PRELOAD" value="librtt_malloc_hook.so" /> -->
   </node>
 

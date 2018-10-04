@@ -427,7 +427,7 @@ class VelmaInterface:
         Initialization of the interface.
         """
 
-        self._listener = tf.TransformListener();
+        self._listener = tf.TransformListener()
 
         # read the joint information from the ROS parameter server
         self._body_joint_names = rospy.get_param(self._task_cs_name+"/JntImpAction/joint_names")

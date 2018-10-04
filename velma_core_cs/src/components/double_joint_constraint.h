@@ -45,6 +45,8 @@
 #include "planer_utils/activation_function.h"
 #include "planer_utils/double_joint_collision_checker.h"
 
+using namespace RTT;
+
 template<unsigned DOFS >
 class DoubleJointConstraint: public RTT::TaskContext {
  public:
@@ -143,27 +145,27 @@ template<unsigned DOFS >
     RTT::Logger::In in("DoubleJointConstraint::configureHook");
 
     if (constraint_polygon_.size() == 0 || (constraint_polygon_.size()%2) != 0) {
-        RTT::log(RTT::Error) << "property \'constraint_polygon\' has wrong size: " << constraint_polygon_.size() << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'constraint_polygon\' has wrong size: " << constraint_polygon_.size() << Logger::endl;
         return false;
     }
 
     if (joint0_idx_ == joint1_idx_) {
-        RTT::log(RTT::Error) << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << Logger::endl;
         return false;
     }
 
     if (joint0_idx_ >= DOFS) {
-        RTT::log(RTT::Error) << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << Logger::endl;
         return false;
     }
 
     if (joint1_idx_ >= DOFS) {
-        RTT::log(RTT::Error) << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << Logger::endl;
         return false;
     }
 
     if (d0_ == 0.0) {
-        RTT::log(RTT::Error) << "property \'d0\' is not set" << RTT::endlog();
+        Logger::log() << Logger::Error << "property \'d0\' is not set" << Logger::endl;
         return false;
     }
 
@@ -185,57 +187,56 @@ template<unsigned DOFS >
     if (port_joint_position_.read(joint_position_) != RTT::NewData) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " could not read port \'" << port_joint_position_.getName() << "\'" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_position_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!joint_position_.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " joint_position_ contains NaN or inf" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " joint_position_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_joint_velocity_.read(joint_velocity_) != RTT::NewData) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " could not read port \'" << port_joint_velocity_.getName() << "\'" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_velocity_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!joint_velocity_.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " joint_velocity_ contains NaN or inf" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " joint_velocity_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_nullspace_torque_command_.read(nullspace_torque_command_) != RTT::NewData) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " could not read port \'" << port_nullspace_torque_command_.getName() << "\'" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_nullspace_torque_command_.getName() << "\'" << Logger::endl;
         return;
     }
 
-    //std::cout << getName() << " " << nullspace_torque_command_.transpose() << std::endl;
     if (!nullspace_torque_command_.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " nullspace_torque_command_ contains NaN or inf" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " nullspace_torque_command_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_mass_matrix_inv_.read(Minv) != RTT::NewData) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " could not read port \'" << port_mass_matrix_inv_.getName() << "\'" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_mass_matrix_inv_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!Minv.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " Minv contains NaN or inf" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " Minv contains NaN or inf" << Logger::endl;
         return;
     }
 
@@ -244,7 +245,7 @@ template<unsigned DOFS >
     if (cc_->inCollision(q2)) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << getName() << " collision" << RTT::endlog();
+        Logger::log() << Logger::Error << getName() << " collision" << Logger::endl;
         return;
     }
 
@@ -297,13 +298,13 @@ template<unsigned DOFS >
         double D = 0;//2.0 * 0.7 * sqrt(Mdij_inv * K);  // sqrt(K/M)
         joint_torque_command_.noalias() = JT * (Frep - D * ddij);
 
-//        RTT::log(RTT::Info) << joint_torque_command_.transpose() << RTT::endlog();
+//        RTT::log(RTT::Info) << joint_torque_command_.transpose() << Logger::endl;
     }
 
     if (!joint_torque_command_.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << "joint_torque_command_ contains NaN or inf (#1)" << RTT::endlog();
+        Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#1)" << Logger::endl;
         return;
     }
 
@@ -312,7 +313,7 @@ template<unsigned DOFS >
     if (!joint_torque_command_.allFinite()) {
         RTT::Logger::In in("DoubleJointConstraint::updateHook");
         error();
-        RTT::log(RTT::Error) << "joint_torque_command_ contains NaN or inf (#2)" << RTT::endlog();
+        Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#2)" << Logger::endl;
         return;
     }
 
