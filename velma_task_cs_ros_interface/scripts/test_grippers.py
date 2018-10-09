@@ -67,6 +67,13 @@ if __name__ == "__main__":
     if velma.enableMotors() != 0:
         exitError(14)
 
+    print "Switch to jnt_imp mode (no trajectory)..."
+    velma.moveJointImpToCurrentPos(start_time=0.5)
+    error = velma.waitForJoint()
+    if error != 0:
+        print "The action should have ended without error, but the error code is", error
+        exitError(3)
+
     print "reset left"
     velma.resetHandLeft()
     if velma.waitForHandLeft() != 0:

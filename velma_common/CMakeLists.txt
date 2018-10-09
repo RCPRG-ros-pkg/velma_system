@@ -12,6 +12,6 @@ install(DIRECTORY launch/
   )
 
 catkin_install_python(PROGRAMS
-    scripts/int_markers_cimp.py
+    scripts/int_markers_cimp
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

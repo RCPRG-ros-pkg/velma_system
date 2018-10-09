@@ -2,7 +2,7 @@
 
 ## Provides interactive 6D pose marker that ca be used to move end-effectors.
 # @ingroup utilities
-# @file int_markers_cimp.py
+# @file int_markers_cimp
 # @namespace scripts.int_markers_cimp Provides interactive 6D pose marker that ca be used to move end-effectors.
 
 import roslib; roslib.load_manifest('velma_controller')
@@ -21,6 +21,7 @@ import PyKDL
 import actionlib
 
 from velma_common import *
+from rcprg_ros_utils import exitError
 
 class IntMarkersCimp:
     def __init__(self, prefix, velma_interface):
@@ -40,10 +41,10 @@ class IntMarkersCimp:
         self.int_hide_marker.pose.orientation = Quaternion(0,0,0,1)
         if self.prefix == "right":
             self.int_hide_marker.pose.position = Point(0, -0.5, 0)
-            self.hide = self.createButtoMarkerControl(Point(0.15,0.15,0.15), Point(0.0, 0.0, 0.0), ColorRGBA(1,0,0,1) )
+            self.hide = self.createButtoMarkerControl(Point(0.15,0.15,0.15), Point(0.0, 0.0, 0.0), ColorRGBA(0,1,0,1) )
         else:
             self.int_hide_marker.pose.position = Point(0, 0.5, 0)
-            self.hide = self.createButtoMarkerControl(Point(0.15,0.15,0.15), Point(0.0, 0.0, 0.0), ColorRGBA(0,1,0,1) )
+            self.hide = self.createButtoMarkerControl(Point(0.15,0.15,0.15), Point(0.0, 0.0, 0.0), ColorRGBA(1,0,0,1) )
         self.hide.interaction_mode = InteractiveMarkerControl.BUTTON
         self.hide.name = 'button_hide'
         self.int_hide_marker.controls.append( self.hide )
@@ -98,7 +99,7 @@ class IntMarkersCimp:
                self.globalState();
 
     def processFeedback(self, feedback):
-        print "feedback", feedback.marker_name, feedback.control_name, feedback.event_type
+        #print "feedback", feedback.marker_name, feedback.control_name, feedback.event_type
 
         if ( feedback.marker_name == self.prefix+'_arm_position_marker' ) and ( feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK ) and ( feedback.control_name == "button" ):
             T_B_Td = pm.fromMsg(feedback.pose)
@@ -198,6 +199,19 @@ if __name__ == "__main__":
 
     velma.waitForInit()
     print "init ok"
+
+    print "Switch to cart_imp mode (no trajectory)..."
+    if not velma.moveCartImpRightCurrentPos(start_time=0.2):
+        exitError(1)
+    if velma.waitForEffectorRight() != 0:
+        exitError(2)
+
+    if not velma.moveCartImpLeftCurrentPos(start_time=0.2):
+        exitError(3)
+    if velma.waitForEffectorLeft() != 0:
+        exitError(4)
+
+    print "Switched to cart_imp mode."
 
     int_right = IntMarkersCimp("right", velma)
     int_left = IntMarkersCimp("left", velma)
