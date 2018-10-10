@@ -82,7 +82,7 @@ class MarkerPublisherThread:
 
 if __name__ == "__main__":
 
-    rospy.init_node('test_jimp_planning_attached', anonymous=True)
+    rospy.init_node('test_jimp_planning_attached', anonymous=False)
 
     rospy.sleep(0.5)
 

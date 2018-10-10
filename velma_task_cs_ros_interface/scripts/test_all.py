@@ -45,7 +45,7 @@ from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
 
-    rospy.init_node('test_all', anonymous=True)
+    rospy.init_node('test_all', anonymous=False)
 
     rospy.sleep(0.5)
 
