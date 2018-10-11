@@ -18,6 +18,7 @@
   <arg name="use_stereo_pair" default="true"/>
 
   <arg name="state_snapshot" default="$(find velma_sim_gazebo)/config/initial_state.txt" />
+  <arg name="spawn_velma" default="true"/>
 
   <arg name="ORO_LOGLEVEL" default="3"/>
 
@@ -80,12 +81,14 @@
     <param name="use_tf_static" value="false"/>
   </node>
 
+  <group if="$(arg spawn_velma)">
   <node
     name="spawn_urdf"
     pkg="gazebo_ros"
     type="spawn_model"
     output="screen"
     args="-param robot_description -urdf -model velma -gazebo_namespace gazebo" />
+  </group>
 
   <node
       name="unpause_on_init"
