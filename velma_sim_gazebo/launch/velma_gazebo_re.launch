@@ -93,7 +93,7 @@
   <node
       name="unpause_on_init"
       pkg="velma_sim_gazebo"
-      type="unpause_on_init.py"
+      type="unpause_on_init"
       output="screen" >
     <param name="state_snapshot" value="$(arg state_snapshot)"/>
   </node>

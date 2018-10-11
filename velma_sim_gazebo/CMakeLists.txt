@@ -115,7 +115,7 @@ install(DIRECTORY config/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
   )
 
-catkin_install_python(PROGRAMS scripts/unpause_on_init.py
+catkin_install_python(PROGRAMS scripts/unpause_on_init
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 

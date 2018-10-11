@@ -3,7 +3,7 @@ This package defines and implements a group of simulated real effectors of Velma
 It is Gazebo plugin and Orocos components for WUT Velma Robot simulation in Gazebo.
 
 It provides ROS launch file:
- * velma_gazebo_re.launch - runs the subsystem and simulator; it uses unpause_on_init.py script to unpause
+ * velma_gazebo_re.launch - runs the subsystem and simulator; it uses unpause_on_init script to unpause
 the simulation after initialization procedure is complete; arguments:
    * *gui* - run also Gazebo client
    * *headless* - run Gazebo without graphic card support (all rendering is disabled, even for visual sensors)
