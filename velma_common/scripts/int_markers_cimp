@@ -5,7 +5,7 @@
 # @file int_markers_cimp
 # @namespace scripts.int_markers_cimp Provides interactive 6D pose marker that ca be used to move end-effectors.
 
-import roslib; roslib.load_manifest('velma_controller')
+import roslib; roslib.load_manifest('velma_common')
 
 import rospy
 import math
