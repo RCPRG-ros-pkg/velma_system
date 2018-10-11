@@ -37,3 +37,6 @@ if __name__ == "__main__":
         print 'rm /dev/shm/' + file_name
         subprocess.call(['rm', '/dev/shm/' + file_name])
 
+    print "Cleanup done."
+    print "You can now run the control system of Velma."
+
