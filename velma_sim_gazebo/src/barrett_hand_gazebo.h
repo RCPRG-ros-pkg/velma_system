@@ -107,6 +107,8 @@ public:
     BarrettHandHwCAN hw_can_;
 
     ros::Time last_update_time_;
+
+    bool first_step_;
 };
 
 #endif  // BARRETT_HAND_GAZEBO_H__

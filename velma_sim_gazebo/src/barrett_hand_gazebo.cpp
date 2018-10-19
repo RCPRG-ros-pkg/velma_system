@@ -86,6 +86,38 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         return;
     }
 
+    if (first_step_) {
+        first_step_ = false;
+        for (int i = 0; i < 8; i++) {
+            jc_->AddJoint(joints_[i]);
+        }
+
+        double torque = 1.0;
+
+/*
+        jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(torque*2.0, torque*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[4]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[6]->GetScopedName(), gazebo::common::PID(torque*1.1, torque*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[2]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[5]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[7]->GetScopedName(), gazebo::common::PID(torque*0.5, torque*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+*/
+        jc_->SetPositionPID(joints_[0]->GetScopedName(), gazebo::common::PID(torque*2.0, 0, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[3]->GetScopedName(), gazebo::common::PID(torque*2.0, 0*0.5, 0.0, torque*0.2, torque*(-0.2), torque*2.0,torque*(-2.0)));
+        jc_->SetPositionPID(joints_[1]->GetScopedName(), gazebo::common::PID(torque*1.1, 0*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[4]->GetScopedName(), gazebo::common::PID(torque*1.1, 0*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[6]->GetScopedName(), gazebo::common::PID(torque*1.1, 0*0.2, 0.0, torque*0.1, torque*(-0.1), torque*1.0,torque*(-1.0)));
+        jc_->SetPositionPID(joints_[2]->GetScopedName(), gazebo::common::PID(torque*0.5, 0*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[5]->GetScopedName(), gazebo::common::PID(torque*0.5, 0*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+        jc_->SetPositionPID(joints_[7]->GetScopedName(), gazebo::common::PID(torque*0.5, 0*0.1, 0.0, torque*0.04, torque*(-0.04), torque*0.7,torque*(-0.7)));
+
+        for (int i = 0; i < 8; i++) {
+            jc_->SetPositionTarget(joints_[i]->GetScopedName(), joints_[i]->Position());
+        }
+    }
+
     // calculate sim period
     ros::Time now = rtt_rosclock::host_now();
     double vel_mult = std::max(1.0, (now - last_update_time_).toSec()/0.001);
@@ -111,6 +143,98 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     int f2k1_dof_idx = 3;
     int f2k1_jnt_idx = 3;
     double mean_spread = getFingerAngle(3);
+
+    for (int i = 0; i < 4; ++i) {
+        if (hw_can_.move_hand_[i]) {
+            hw_can_.move_hand_[i] = false;
+            finger_int_[i] = getFingerAngle(i);
+            hw_can_.status_idle_[i] = false;
+            status_overcurrent_[i] = false;
+            Logger::log() << Logger::Info <<  "move hand " << i << Logger::endl;
+        }
+    }
+
+    if (!hw_can_.status_idle_[3]) {
+        // spread joints
+        if (finger_int_[3] > hw_can_.q_in_[f1k1_dof_idx]) {
+            finger_int_[3] -= hw_can_.v_in_[f1k1_dof_idx] * vel_mult;
+            if (finger_int_[3] <= hw_can_.q_in_[f1k1_dof_idx]) {
+                hw_can_.status_idle_[3] = true;
+                Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
+            }
+        }
+        else if (finger_int_[3] < hw_can_.q_in_[f1k1_dof_idx]) {
+            finger_int_[3] += hw_can_.v_in_[f1k1_dof_idx] * vel_mult;
+            if (finger_int_[3] >= hw_can_.q_in_[f1k1_dof_idx]) {
+                hw_can_.status_idle_[3] = true;
+                Logger::log() << Logger::Info <<  "spread idle" << Logger::endl;
+            }
+        }
+
+        double f1k1_force = joints_[f1k1_jnt_idx]->GetForce(0);
+        double f2k1_force = joints_[f2k1_jnt_idx]->GetForce(0);
+        double spread_force = f1k1_force + f2k1_force;
+
+        if (!jc_->SetPositionTarget(joint_scoped_names_[f1k1_jnt_idx], finger_int_[3])) {
+            Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joint_scoped_names_[f1k1_jnt_idx] << ")" << Logger::endl;
+        }
+        if (!jc_->SetPositionTarget(joint_scoped_names_[f2k1_jnt_idx], finger_int_[3])) {
+            Logger::log() << Logger::Warning <<  "jc_->SetPositionTarget(" << joint_scoped_names_[f2k1_jnt_idx] << ")" << Logger::endl;
+        }
+    }
+
+    // finger joints
+    const int k2_dof_tab[3] = {0, 1, 2};
+    const int k2_jnt_tab[3] = {1, 4, 6};
+    const int k3_jnt_tab[3] = {2, 5, 7};
+    for (int fidx = 0; fidx < 3; fidx++) {
+        int k2_dof = k2_dof_tab[fidx];
+        int k2_jnt = k2_jnt_tab[fidx];
+        int k3_jnt = k3_jnt_tab[fidx];
+        bool is_opening = false;
+//        double k2_force = joints_[k2_jnt]->GetForce(0);
+//        double k3_force = joints_[k3_jnt]->GetForce(0);
+        gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
+        gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
+
+        if (!hw_can_.status_idle_[fidx]) {
+            if (finger_int_[fidx] > hw_can_.q_in_[k2_dof]) {
+                finger_int_[fidx] -= hw_can_.v_in_[k2_dof] * vel_mult;
+                is_opening = true;
+                //if (getName() == "RightHand") {
+                //    Logger::log() << Logger::Info << "op: " << finger_int_[fidx] << "  " << q_in_[k2_dof] << ", v: " << v_in_[k2_dof] << Logger::endl;
+                //}
+                if (finger_int_[fidx] <= hw_can_.q_in_[k2_dof]) {
+                    hw_can_.status_idle_[fidx] = true;
+                    Logger::log() << Logger::Info << "finger " << fidx << " idle -- opening" << Logger::endl;
+                }
+            }
+            else {
+                finger_int_[fidx] += hw_can_.v_in_[k2_dof] * vel_mult;
+                is_opening = false;
+                //if (getName() == "RightHand") {
+                //    Logger::log() << Logger::Info << "cl: " << finger_int_[fidx] << "  " << q_in_[k2_dof] << ", v: " << v_in_[k2_dof] << Logger::endl;
+                //}
+                if (finger_int_[fidx] >= hw_can_.q_in_[k2_dof]) {
+                    hw_can_.status_idle_[fidx] = true;
+                    Logger::log() << Logger::Info << "finger " << fidx << " idle -- closing" << Logger::endl;
+                }
+            }
+
+            double k2_angle = joints_[k2_jnt]->Position();
+            double k3_angle = joints_[k3_jnt]->Position();
+
+            double k3_angle_dest;
+            double k2_angle_dest;
+            k2_angle_dest = finger_int_[fidx];
+            k3_angle_dest = finger_int_[fidx]/3;
+
+            jc_->SetPositionTarget(joint_scoped_names_[k2_jnt], k2_angle_dest);
+            jc_->SetPositionTarget(joint_scoped_names_[k3_jnt], k3_angle_dest);
+        }
+    }
+
+/*
     for (int i = 0; i < 4; ++i) {
         if (hw_can_.move_hand_[i]) {
             hw_can_.move_hand_[i] = false;
@@ -168,6 +292,11 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         int k2_jnt = k2_jnt_tab[fidx];
         int k3_jnt = k3_jnt_tab[fidx];
         bool is_opening = false;
+//        double k2_force = joints_[k2_jnt]->GetForce(0);
+//        double k3_force = joints_[k3_jnt]->GetForce(0);
+        gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
+        gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
+
         if (!status_overcurrent_[fidx] && !hw_can_.status_idle_[fidx]) {
             if (finger_int_[fidx] > hw_can_.q_in_[k2_dof]) {
                 finger_int_[fidx] -= hw_can_.v_in_[k2_dof] * vel_mult;
@@ -192,12 +321,11 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
                 }
             }
 
-            double k2_force = joints_[k2_jnt]->GetForce(0);
-            double k3_force = joints_[k3_jnt]->GetForce(0);
             double k2_angle = joints_[k2_jnt]->Position();
             double k3_angle = joints_[k3_jnt]->Position();
 
-            if (!is_opening && std::fabs(k2_force) > 0.25) {
+            //if (!is_opening && std::fabs(k2_force) > 0.25) {
+            if (!is_opening && (k2_wrench.body1Force.Length() > 2.0 || k2_wrench.body1Torque.Length() > 1.0)) {
                 clutch_break_angle_[fidx] = k2_angle;
                 clutch_break_[fidx] = true;
                 Logger::log() << Logger::Info << "finger " << fidx << " clutch is disengaged" << Logger::endl;
@@ -205,7 +333,9 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
             double k3_angle_dest;
             double k2_angle_dest;
-            if (std::fabs(k2_force) + std::fabs(k3_force) > 0.5) {
+//            if (std::fabs(k2_force) + std::fabs(k3_force) > 0.5) {
+            if ((!is_opening && (k2_wrench.body1Force.Length() + k3_wrench.body1Force.Length() > 4.0 || k2_wrench.body1Torque.Length() + k2_wrench.body1Torque.Length() > 2.0)) ||
+                (is_opening  && (k2_wrench.body1Force.Length() + k3_wrench.body1Force.Length() > 8.0 || k2_wrench.body1Torque.Length() + k2_wrench.body1Torque.Length() > 4.0))) {
                 status_overcurrent_[fidx] = true;
                 hw_can_.status_idle_[fidx] = true;
                 Logger::log() << Logger::Info << "finger " << fidx << " overcurrent" << Logger::endl;
@@ -234,10 +364,10 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
         // fingers may break if the force is too big
         if (too_big_force_counter_[fidx] < 100) {
-            gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
-            gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
-            if (k2_wrench.body1Force.Length() > 40.0 || k2_wrench.body1Torque.Length() > 8.0 ||
-                k3_wrench.body1Force.Length() > 40.0 || k3_wrench.body1Torque.Length() > 6.0) {
+            //gazebo::physics::JointWrench k2_wrench = joints_[k2_jnt]->GetForceTorque(0);
+            //gazebo::physics::JointWrench k3_wrench = joints_[k3_jnt]->GetForceTorque(0);
+            if (k2_wrench.body1Force.Length() > 200.0 || k2_wrench.body1Torque.Length() > 100.0 ||
+                k3_wrench.body1Force.Length() > 200.0 || k3_wrench.body1Torque.Length() > 100.0) {
                 too_big_force_counter_[fidx]++;
             }
             else {
@@ -247,11 +377,11 @@ void BarrettHandGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
         if (too_big_force_counter_[fidx] == 100) {
             jc_->SetPositionPID(joint_scoped_names_[k2_jnt], gazebo::common::PID());
             jc_->SetPositionPID(joint_scoped_names_[k3_jnt], gazebo::common::PID());
-            Logger::log() << Logger::Info << "finger " << fidx << " is broken" << Logger::endl;
+            Logger::log() << Logger::Error << "finger " << fidx << " is broken" << Logger::endl;
             too_big_force_counter_[fidx]++;
         }
     }
-
+*/
     jc_->Update();
 
     data_valid_ = true;

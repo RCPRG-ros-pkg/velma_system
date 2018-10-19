@@ -84,7 +84,6 @@ void TorsoGazebo::setJointsPID() {
     jc_->AddJoint(head_tilt_joint_);
     jc_->SetPositionPID(head_tilt_scoped_name_, gazebo::common::PID(2.0, 1.0, 0.0, 0.5, -0.5, 10.0,-10.0));
     jc_->SetPositionTarget(head_tilt_scoped_name_, head_tilt_joint_->Position());
-
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +91,11 @@ void TorsoGazebo::setJointsPID() {
 void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 {
     Logger::In in("TorsoGazebo::gazeboUpdateHook");
+
+    if (first_step_) {
+        setJointsPID();
+        first_step_ = false;
+    }
 
     bool kinect_active_prev = kinect_active_;
     gazebo::sensors::SensorPtr kinect = gazebo::sensors::SensorManager::Instance()->GetSensor("openni_camera_camera");
@@ -163,34 +167,34 @@ void TorsoGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
 
     // joint controller for the head
     if (hp_homing_in_progress_) {
-        if (q_h(0) > 0.01) {
-            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)-0.002);
+        if (q_h(0) > 0.015) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)-0.008);
         }
-        else if (q_h(0) < -0.01) {
-            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)+0.002);
+        else if (q_h(0) < -0.015) {
+            jc_->SetPositionTarget(head_pan_scoped_name_, q_h(0)+0.008);
         }
         else {
             hp_homing_in_progress_ = false;
             hp_homing_done_ = true;
         }
     }
-    else {
+    else if (hp_homing_done_) {
         jc_->SetPositionTarget(head_pan_scoped_name_, -tmp_hp_q_in_ / head_trans);
     }
 
     if (ht_homing_in_progress_) {
-        if (q_h(1) > 0.01) {
-            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)-0.002);
+        if (q_h(1) > 0.015) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)-0.008);
         }
-        else if (q_h(1) < -0.01) {
-            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)+0.002);
+        else if (q_h(1) < -0.015) {
+            jc_->SetPositionTarget(head_tilt_scoped_name_, q_h(1)+0.008);
         }
         else {
             ht_homing_in_progress_ = false;
             ht_homing_done_ = true;
         }
     }
-    else {
+    else if (ht_homing_done_) {
         jc_->SetPositionTarget(head_tilt_scoped_name_, tmp_ht_q_in_ / head_trans);
     }
 

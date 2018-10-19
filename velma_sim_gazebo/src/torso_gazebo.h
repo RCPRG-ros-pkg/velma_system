@@ -153,6 +153,7 @@ public:
     ros::Time last_update_time_;
 
     bool kinect_active_;
+    bool first_step_;
 };
 
 #endif  // TORSO_GAZEBO_H__
