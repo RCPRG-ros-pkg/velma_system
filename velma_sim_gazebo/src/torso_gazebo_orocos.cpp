@@ -78,7 +78,7 @@ void TorsoGazebo::updateHook() {
             }
             else {
                 hp_homing_in_progress_ = true;
-                Logger::log() << Logger::Error << "Running homing head pan motor" << Logger::endl;
+                Logger::log() << Logger::Info << "Running homing head pan motor" << Logger::endl;
             }
         }
         ServoState prev_state = hp_servo_state_;
@@ -101,7 +101,7 @@ void TorsoGazebo::updateHook() {
             }
             else {
                 ht_homing_in_progress_ = true;
-                Logger::log() << Logger::Error << "Running homing head tilt motor" << Logger::endl;
+                Logger::log() << Logger::Info << "Running homing head tilt motor" << Logger::endl;
             }
         }
         ServoState prev_state = ht_servo_state_;
