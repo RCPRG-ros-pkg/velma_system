@@ -89,7 +89,7 @@ void SafeComponent::updateHook() {
     // write diagnostic data
     port_sc_out_.write(sc_out_);
 
-    if (safe_iterations_ < numeric_limits<uint32_t>::max()) {
+    if (safe_iterations_ < std::numeric_limits<uint32_t>::max()) {
         ++safe_iterations_;
     }
 
