@@ -129,7 +129,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
     // This code calculates and displays inertia of tool.
     // It uses real mass matrix (taken from Gazebo).
     //
-    dart::dynamics::Skeleton *sk = boost::dynamic_pointer_cast<gazebo::physics::DARTModel >(model)->GetDARTSkeleton();
+    dart::dynamics::SkeletonPtr sk = boost::dynamic_pointer_cast<gazebo::physics::DARTModel >(model)->DARTSkeleton();
 
     Eigen::MatrixXd mm = sk->getMassMatrix();
 
@@ -178,12 +178,12 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             to_check = to_check_new;
         }
 
-        Logger::log() << Logger::Debug << "links below joint " << name_ << "_arm_6_joint" << Logger::endl;
+        Logger::log() << Logger::Error << "links below joint " << name_ << "_arm_6_joint" << Logger::endl;
         // calculate com
         KDL::Vector COM;
         double MASS = 0;
         for (int i = 0; i < all.size(); ++i) {
-            Logger::log() << Logger::Debug << "    " << all[i]->getName() << Logger::endl;
+            Logger::log() << Logger::Error << "    " << all[i]->getName() << Logger::endl;
             KDL::Vector com;
             tf::vectorEigenToKDL(all[i]->getLocalCOM(), com);
             KDL::Frame tf;
@@ -192,7 +192,7 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             MASS += all[i]->getMass();
         }
         COM = COM * (1.0 / MASS);
-        Logger::log() << Logger::Debug << "mass: " << MASS << ", com: " << COM.x() << " " << COM.y() << " " << COM.z() << Logger::endl;
+        Logger::log() << Logger::Error << "mass: " << MASS << ", com: " << COM.x() << " " << COM.y() << " " << COM.z() << Logger::endl;
 
         KDL::Frame T_B_WI = base_tf * KDL::Frame(COM);
         KDL::RigidBodyInertia RBI;
@@ -209,9 +209,9 @@ void LWRGazebo::gazeboUpdateHook(gazebo::physics::ModelPtr model)
             KDL::RigidBodyInertia rbI_WI = (T_B_WI.Inverse() * T_B_LI) * rbI;
             RBI = RBI + rbI_WI;
         }
-        Logger::log() << Logger::Debug << "I: " << RBI.getRotationalInertia().data[0] << " " << RBI.getRotationalInertia().data[1] << " " << RBI.getRotationalInertia().data[2] << Logger::endl;
-        Logger::log() << Logger::Debug << "   " << RBI.getRotationalInertia().data[3] << " " << RBI.getRotationalInertia().data[4] << " " << RBI.getRotationalInertia().data[5] << Logger::endl;
-        Logger::log() << Logger::Debug << "   " << RBI.getRotationalInertia().data[6] << " " << RBI.getRotationalInertia().data[7] << " " << RBI.getRotationalInertia().data[8] << Logger::endl;
+        Logger::log() << Logger::Error << "I: " << RBI.getRotationalInertia().data[0] << " " << RBI.getRotationalInertia().data[1] << " " << RBI.getRotationalInertia().data[2] << Logger::endl;
+        Logger::log() << Logger::Error << "   " << RBI.getRotationalInertia().data[3] << " " << RBI.getRotationalInertia().data[4] << " " << RBI.getRotationalInertia().data[5] << Logger::endl;
+        Logger::log() << Logger::Error << "   " << RBI.getRotationalInertia().data[6] << " " << RBI.getRotationalInertia().data[7] << " " << RBI.getRotationalInertia().data[8] << Logger::endl;
     }
 #else
     //
