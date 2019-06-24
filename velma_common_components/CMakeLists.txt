@@ -8,9 +8,6 @@ find_package(catkin REQUIRED COMPONENTS
   controller_common
   )
 
-#find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
-include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
-
 include_directories(${catkin_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
