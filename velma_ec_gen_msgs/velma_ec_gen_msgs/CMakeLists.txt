@@ -10,7 +10,8 @@ find_package(catkin REQUIRED COMPONENTS
 
 include_directories(${catkin_INCLUDE_DIRS})
 
-generate_msgs_from_ec_config(velma_eni.xml)
+#generate_msgs_from_ec_config(velma_eni.xml)     # 2017 - EtherCat config by Banan
+generate_msgs_from_ec_config(ethercat.xml)      # 2019.06.25 - EtherCat config by Adam
 
 add_message_files(
   BASE_DIR ${MESSAGE_DIR}
