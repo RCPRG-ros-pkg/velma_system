@@ -25,7 +25,7 @@
     <states initial="normal">
         <state name="normal">
             <behavior name="normal" />
-            <buffer_group name="status" min_period="0.01" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="status" min_period="0.01" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
     </states>
 

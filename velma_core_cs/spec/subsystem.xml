@@ -182,7 +182,7 @@
         <state name="idle">
             <behavior name="idle" />
             <next_state name="safe" init_cond="TRUE"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
 
         <state name="safe">
@@ -192,7 +192,7 @@
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
 
         <state name="safe_col">
@@ -201,7 +201,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
 
         <state name="cart_imp">
@@ -211,7 +211,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
 
         <state name="jnt_imp">
@@ -221,7 +221,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.001" next_timeout="0.001" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
         </state>
     </states>
 
