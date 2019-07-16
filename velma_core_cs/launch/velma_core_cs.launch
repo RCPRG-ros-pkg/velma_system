@@ -17,7 +17,7 @@
     pkg="subsystem_deployer"
     type="deployer"
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
-    args="--DeployerName velma_core_cs -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -p 80 -c 1 --"
+    args="--DeployerName velma_core_cs -x $(find velma_core_cs)/config/velma_core_cs_transition.xml -m velma_core_cs -p 20 -c 1 --"
     output="screen">
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
     <!-- <env name="LD_PRELOAD" value="librtt_malloc_hook.so" /> -->
