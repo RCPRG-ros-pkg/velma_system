@@ -14,7 +14,7 @@
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
     name="velma_task_cs_ros_interface"
     pkg="subsystem_deployer" type="deployer"
-    args="--DeployerName velma_task_cs_ros_interface -x $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.xml -m velma_task_cs_ros_interface -c 3 --" output="screen">
+    args="--DeployerName velma_task_cs_ros_interface -x $(find velma_task_cs_ros_interface)/config/velma_task_cs_ros_interface.xml -m velma_task_cs_ros_interface -c 0 --" output="screen">
 <!--    <env name="OROCOS_TARGET" value="$(arg OROCOS_TARGET)"/>
     <env name="RTT_COMPONENT_PATH" value="$(arg RTT_COMPONENT_PATH)"/>-->
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
