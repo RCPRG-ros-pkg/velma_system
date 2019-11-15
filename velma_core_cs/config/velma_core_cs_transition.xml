@@ -15,29 +15,30 @@
     <import package="rtt_velma_core_cs_ve_body_subsystem_buffers" />
     <import package="rtt_velma_core_cs_task_cs_msgs" />
     <import package="rtt_velma_core_cs_task_cs_subsystem_buffers" />
-    <import package="rtt_barrett_hand_msgs" />
 
-    <component name="ColDet"     type="CollisionDetectorVelma" latex="\text{ColDet}" />
+    <component name="MassStatCtrl"   type="MassStaticControl15"  latex="\text{MassStatCtrl}" />
+
+    <component name="ColDet"    type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
     <component name="ColDetRepJntImp"     type="CollisionDetectorVelma" latex="\text{ColDetRepJntImp}" />
-    <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,r}" />
-    <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDet}_{wr,l}" />
+    <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrR}" />
+    <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrL}" />
 
-    <component name="VL_hp"     type="VelocityLimiter" latex="\text{VelLim}_{hp}" />
-    <component name="VL_ht"     type="VelocityLimiter" latex="\text{VelLim}_{ht}" />
+    <component name="VL_hp"     type="VelocityLimiter" latex="\text{VL\_hp}" />
+    <component name="VL_ht"     type="VelocityLimiter" latex="\text{VL\_ht}" />
 
-    <component name="C_q_body"  type="VectorConcate1_7_7_0" latex="\text{Conc}_{q,b}" />
-    <component name="C_dq_body" type="VectorConcate1_7_7_0" latex="\text{Conc}_{\dot{q},b}" />
-    <component name="C_q_all"   type="VectorConcate15_2_8_8" latex="\text{Conc}_{q}" />
-    <component name="C_dq_all"  type="VectorConcate15_2_8_8" latex="\text{Conc}_{\dot{q}}" />
+    <component name="C_q_body"  type="VectorConcate1_7_7_0" latex="\text{C\_q\_body}" />
+    <component name="C_dq_body" type="VectorConcate1_7_7_0" latex="\text{C\_dq\_body}" />
+    <component name="C_q_all"   type="VectorConcate15_2_8_8" latex="\text{C\_q\_all}" />
+    <component name="C_dq_all"  type="VectorConcate15_2_8_8" latex="\text{C\_dq\_all}" />
     <component name="Mass"      type="MassTest15_2" latex="\text{Mass}" >
         <service name="robot" />
     </component>
 
-    <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JntTrGen}_{head}" />
+    <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JTG\_head}" />
 
-    <component name="C_q_head"  type="VectorConcate1_1_0_0" latex="\text{Conc}_{q,head}" />
-    <component name="S_q_head"  type="PortDoubleSplit2" latex="\text{Split}_{q,head}" />
+    <component name="C_q_head"  type="VectorConcate1_1_0_0" latex="\text{C\_q\_head}" />
+    <component name="S_q_head"  type="PortDoubleSplit2" latex="\text{S\_q\_head}" />
 
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
@@ -46,24 +47,24 @@
 #TGR.start();
 -->
 <!--    <component name="TGR"       type="TriggerGenerator" />-->
-    <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec}_{8}" />
-    <component name="S_t_body"        type="VectorSplit1_7_7_0" latex="\text{Split}_{t,b}" />
+    <component name="ZeroVec8"  type="VectorDummy8" latex="\text{ZeroVec8}" />
+    <component name="S_t_body"        type="VectorSplit1_7_7_0" latex="\text{S\_t\_body}" />
 <!--    <component name="TJ"        type="TorsoTeleopJoy" running="true" />-->
 
-    <component name="C_dq_head" type="VectorConcate1_1_0_0" latex="\text{Conc}_{\dot{q},head}" />
+    <component name="C_dq_head" type="VectorConcate1_1_0_0" latex="\text{C\_dq\_head}" />
 
-    <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{IMP}_{cart}" >
+    <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{CImp}" >
         <service name="robot" />
     </component>
 
-    <component name="INT_pose_r"    type="CartesianInterpolatorVelma" latex="\text{INT}_{r,pos}" />
-    <component name="INT_pose_l"    type="CartesianInterpolatorVelma" latex="\text{INT}_{l,pos}" />
-    <component name="INT_tool_r"    type="CartesianInterpolatorVelma" latex="\text{INT}_{r,tool}" />
-    <component name="INT_tool_l"    type="CartesianInterpolatorVelma" latex="\text{INT}_{l,tool}" />
-    <component name="INT_imp_r"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT}_{r,imp}" />
-    <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT}_{l,imp}" />
-    <component name="JntImp"        type="JointImpedance15" latex="\text{IMP}_{jnt}" />
-    <component name="JntImpSafe"        type="JointImpedance15" latex="\text{IMP}_{jnt,safe}" />
+    <component name="INT_pose_r"    type="CartesianInterpolatorVelma" latex="\text{INT\_pose\_r}" />
+    <component name="INT_pose_l"    type="CartesianInterpolatorVelma" latex="\text{INT\_pose\_l}" />
+    <component name="INT_tool_r"    type="CartesianInterpolatorVelma" latex="\text{INT\_tool\_r}" />
+    <component name="INT_tool_l"    type="CartesianInterpolatorVelma" latex="\text{INT\_tool\_l}" />
+    <component name="INT_imp_r"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT\_imp\_r}" />
+    <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT\_imp\_l}" />
+    <component name="JntImp"        type="JointImpedance15" latex="\text{JntImp}" />
+    <component name="JntImpSafe"        type="JointImpedance15" latex="\text{JntImpSafe}" />
     <component name="FK"            type="VelmaFK" latex="\text{FK}" >
         <service name="robot" />
     </component>
@@ -72,34 +73,34 @@
     <component name="RightForceControl"         type="ForceControlLaw" />
     <component name="LeftForceControl"          type="ForceControlLaw" />
 -->
-    <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" latex="\text{JntTrGen}_{b}" />
-    <component name="JntLimit"                  type="JointLimitAvoidance15" latex="\text{JntLim}" />
+    <component name="JTG_body"  type="InternalSpaceSplineTrajectoryGeneratorVelmaBody" latex="\text{JTG\_body}" />
+    <component name="JntLimit"                  type="JointLimitAvoidance15" latex="\text{JntLimit}" />
 
-    <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{IDLE}" />
-    <component name="safe"          type="velma_core_cs_types::SafeComponent" latex="\text{SAFE}" />
-    <component name="safe_col"      type="velma_core_cs_types::SafeColComponent" latex="\text{SAFE}" />
-    <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" latex="\text{CIMP}" />
-    <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{JIMP}" />
+    <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{idle}" />
+    <component name="safe"          type="velma_core_cs_types::SafeComponent" latex="\text{safe}" />
+    <component name="safe_col"      type="velma_core_cs_types::SafeColComponent" latex="\text{safe\_col}" />
+    <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" latex="\text{cart\_imp}" />
+    <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{jnt\_imp}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
 
-    <component name="wcc_r"         type="DoubleJointConstraint15" latex="\text{WCC}_{r}" />
-    <component name="wcc_l"         type="DoubleJointConstraint15" latex="\text{WCC}_{l}" />
+    <component name="wcc_r"         type="DoubleJointConstraint15" latex="\text{wcc\_r}" />
+    <component name="wcc_l"         type="DoubleJointConstraint15" latex="\text{wcc\_l}" />
 
     <component name="input_conv"    type="velma_core_cs_types::InputConverter" running="true" />
     <component name="output_conv"    type="velma_core_cs_types::OutputConverter" running="true" />
 
-    <component name="b_stSplit"     latex="\text{Split}_{b,st}" />
-    <component name="cmdSplit"      latex="\text{Split}_{task,cmd}" />
-    <component name="stConcate"     latex="\text{Conc}_{task,st}" />
-    <component name="b_cmdConcate"  latex="\text{Conc}_{b,cmd}" />
+    <component name="b_stSplit"     latex="\text{b\_stSplit}" />
+    <component name="cmdSplit"      latex="\text{cmdSplit}" />
+    <component name="stConcate"     latex="\text{stConcate}" />
+    <component name="b_cmdConcate"  latex="\text{b\_cmdConcate}" />
 
 
 <!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
     <component name="cmdRx"         latex="\text{x}_{task,cmd}" />-->
 <!--    <component name="stTx"          latex="\text{y}_{task,st}" />
     <component name="b_cmdTx"       latex="\text{y}_{b,cmd}" />-->
-    <component name="master_component"      latex="\text{MC}" />
-    <component name="Y"      latex="\text{y}" />
+    <component name="master_component"      latex="\text{master\_component}" />
+    <component name="Y"      latex="\text{Y}" />
 
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
@@ -148,7 +149,8 @@
     <connection from="C_q_body.Out" to="wcc_l.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="wcc_l.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="wcc_l.MassMatrixInv_INPORT" name="M" latex="M" />
-    <connection from="wcc_l.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
+<!--     <connection from="wcc_l.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" /> -->
+    <connection from="wcc_l.JointTorqueCommand_OUTPORT" to="MassStatCtrl.ControlLawTorqueCommand_INPORT" name="ctrl_law_t_body" latex="t_{cmd,b}" />
 
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
@@ -260,10 +262,16 @@
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
-    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />
+    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />    
 <!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
-    <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
-    <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />
+    <!-- <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" /> -->
+    <connection from="C_q_body.Out" to="MassStatCtrl.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="ColDetRepJntImp.t_OUTPORT" to="MassStatCtrl.ControlLawTorqueCommand_INPORT" name="ctrl_law_t_body" latex="t_{cmd,b}" />
+    <connection from="cmdSplit.objectGraspedRight_OUTPORT" to="MassStatCtrl.ObjectGraspedRightCommand_INPORT" />
+    <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassStatCtrl.ObjectGraspedLeftCommand_INPORT" />    
+    <connection from="MassStatCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
+
+    <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />    
     <connection from="C_q_all.Out" to="ColDetRepJntImp.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDetRepJntImp.dq_INPORT" name="dq" latex="\dot{q}" />
 

@@ -15,7 +15,11 @@ find_package(catkin REQUIRED COMPONENTS
   controller_common
   planer_utils
   common_core_cs_components
+	grasped_object_in_robot_control
   )
+
+find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)
+include(${OROCOS-RTT_USE_FILE_PATH}/UseOROCOS-RTT.cmake )
 
 find_package(Eigen3 REQUIRED)
 
@@ -56,6 +60,7 @@ orocos_component(velma_core_cs
     src/components/double_joint_constraint.cpp
     src/components/collision_detector.cpp
     src/components/double_joint_collision_detector.cpp
+		src/components/mass_static_control.cpp
     src/components/vector_concate1_1_0_0.cpp
     src/components/vector_split1_7_7_0.cpp
     src/components/vector_concate1_7_7_0.cpp
@@ -71,7 +76,7 @@ target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} 
 orocos_generate_package(
   INCLUDE_DIRS include
 #  LIBRARIES velma_core_cs
-  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs common_core_cs_components
+  DEPENDS rtt_ros std_msgs message_runtime rtt_roscomm velma_core_cs_task_cs_interface_msgs common_core_cs_components grasped_object_in_robot_control
 )
 
 install(DIRECTORY launch/

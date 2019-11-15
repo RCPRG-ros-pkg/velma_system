@@ -15,6 +15,8 @@
     <import package="rtt_velma_core_cs_task_cs_msgs" />
     <import package="rtt_barrett_hand_msgs" />
     <import package="rtt_barrett_hand_action_msgs" />
+    <import package="rtt_grasped_action_msgs" />
+    <import package="grasped_action" />
 
     <component type="CartImpActionVelma"                            name="CartImpActionRight"   running="true" ros_action="/velma_task_cs_ros_interface/right_arm/cartesian_trajectory" />
     <component type="CartImpActionVelma"                            name="CartImpActionLeft"    running="true" ros_action="/velma_task_cs_ros_interface/left_arm/cartesian_trajectory" />
@@ -28,6 +30,9 @@
     <component type="MotorActionServer"                             name="hpAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/hp" />
     <component type="MotorActionServer"                             name="htAction"             running="true" ros_action="/velma_task_cs_ros_interface/motors/ht" />
     <component type="MotorActionServer"                             name="tAction"              running="true" ros_action="/velma_task_cs_ros_interface/motors/t" />
+
+    <component type="GraspedActionServer"                           name="RightGraspedAction"   running="true" ros_action="/velma_task_cs_ros_interface/right_arm/grasped_action" />    
+    <component type="GraspedActionServer"                           name="LeftGraspedAction"    running="true" ros_action="/velma_task_cs_ros_interface/left_arm/grasped_action" /> 
 
     <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/velma_task_cs_ros_interface/safe_col_action" />
 
@@ -58,6 +63,10 @@
     <connection from="stSplit.t_enabled_OUTPORT"                to="tAction.enabled_INPORT" />
     <connection from="tAction.enable_OUTPORT"                   to="cmdConcate.t_enable_INPORT" />
 
+    <connection from="RightGraspedAction.object_grasped_OUTPORT"                    to="cmdConcate.objectGraspedRight_INPORT" />
+    <ros_stream port="RightGraspedAction.object_grasped_OUTPORT"                    topic="/velma_task_cs_ros_interface/RightGraspedAction/object_grasped" />
+    <connection from="LeftGraspedAction.object_grasped_OUTPORT"                     to="cmdConcate.objectGraspedLeft_INPORT" />
+    <ros_stream port="LeftGraspedAction.object_grasped_OUTPORT"                     topic="/velma_task_cs_ros_interface/LeftGraspedAction/object_grasped" />
 
     <connection from="CartImpActionRight.cart_pose_command_OUTPORT"                 to="cmdConcate.cart_r_pose_INPORT" />
 

@@ -132,6 +132,7 @@
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="MassStatCtrl" />
             <running_component name="Y" />
         </behavior>
 
@@ -157,6 +158,7 @@
             <running_component name="ColDetRepJntImp" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="MassStatCtrl" />
             <running_component name="Y" />
         </behavior>
 <!--
