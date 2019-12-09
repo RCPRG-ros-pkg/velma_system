@@ -196,6 +196,8 @@ bool ElmoDriver::configureHook() {
         this->ports()->addPort("q_OUTPORT", port_q_out_);
         this->ports()->addPort("desired_q_INPORT", port_desired_q_in_);
         this->ports()->addPort("q_INPORT", port_q_in_);
+        this->ports()->addPort("dq_OUTPORT", port_dq_out_);
+        this->ports()->addPort("desired_dq_INPORT", port_desired_dq_in_);
         control_mode_ = CYCLIC_POSITION;
         Logger::log() << Logger::Info << "Control mode is set to '" << control_mode_str_ << "'" << Logger::endl;
     }
@@ -366,6 +368,7 @@ void ElmoDriver::updateHook() {
         port_dq_out_.write(0);
         break;
       case CYCLIC_POSITION:
+        port_dq_out_.write(0);
         port_q_out_.write(q_in);
         break;
       default:
@@ -392,6 +395,9 @@ void ElmoDriver::updateHook() {
         int32_t q_in;
         if (port_desired_q_in_.read(q_in) == RTT::NewData) {
           port_q_out_.write(q_in);
+        }
+        if (port_desired_dq_in_.read(dq_in) == RTT::NewData) {
+          port_dq_out_.write(dq_in);
         }
         break;
       default:

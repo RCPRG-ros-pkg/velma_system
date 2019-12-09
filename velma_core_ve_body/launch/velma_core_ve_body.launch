@@ -83,6 +83,7 @@
         encoder_res: 8000.0
         motor_constant: 0.0
         enable_position: true
+        enable_velocity: true
       HeadTiltTransmision:
         motor_offset: 0.0
         joint_offset: 0.0
@@ -97,6 +98,7 @@
         encoder_res: 8000.0
         motor_constant: 0.0
         enable_position: true
+        enable_velocity: true
       rHand:
         device_name: TODO
         prefix: right

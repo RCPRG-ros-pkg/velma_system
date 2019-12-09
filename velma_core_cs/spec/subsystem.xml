@@ -34,6 +34,7 @@
             <running_component name="VL_hp" />
             <running_component name="VL_ht" />
             <running_component name="S_q_head" />
+            <running_component name="S_dq_head" />
             <running_component name="C_q_head" />
             <running_component name="C_dq_head" />
             <running_component name="b_stSplit" />

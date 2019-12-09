@@ -79,7 +79,9 @@ private:
     RTT::OutputPort<VectorNd> port_joint_torque_command_;
 
     RTT::OutputPort<double > port_cmd_hpMotor_out_;
+    RTT::OutputPort<double > port_cmd_hpMotor_dq_out_;
     RTT::OutputPort<double > port_cmd_htMotor_out_;
+    RTT::OutputPort<double > port_cmd_htMotor_dq_out_;
 
     VectorNd internal_space_position_;
 
@@ -95,7 +97,9 @@ IdleComponent::IdleComponent(const std::string &name)
     , port_status_in_("status_INPORT")
     , port_cmd_sc_out_("cmd_sc_OUTPORT")
     , port_cmd_hpMotor_out_("cmd_hpMotor_q_OUTPORT")
+    , port_cmd_hpMotor_dq_out_("cmd_hpMotor_dq_OUTPORT")
     , port_cmd_htMotor_out_("cmd_htMotor_q_OUTPORT")
+    , port_cmd_htMotor_dq_out_("cmd_htMotor_dq_OUTPORT")
     , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
     , first_step_(true)
 {
@@ -105,7 +109,9 @@ IdleComponent::IdleComponent(const std::string &name)
     this->ports()->addPort(port_status_in_);
     this->ports()->addPort(port_cmd_sc_out_);
     this->ports()->addPort(port_cmd_hpMotor_out_);
+    this->ports()->addPort(port_cmd_hpMotor_dq_out_);
     this->ports()->addPort(port_cmd_htMotor_out_);
+    this->ports()->addPort(port_cmd_htMotor_dq_out_);
     this->ports()->addPort(port_status_subsystem_state_out_);
 }
 
@@ -162,7 +168,9 @@ void IdleComponent::updateHook() {
 
 // TODO
     port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);
+    port_cmd_hpMotor_dq_out_.write(0.0);
     port_cmd_htMotor_out_.write(status_in_.htMotor.q);
+    port_cmd_htMotor_dq_out_.write(0.0);
 
     if (status_in_.hpMotor_valid) {
 //        port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);

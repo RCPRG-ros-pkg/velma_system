@@ -38,6 +38,7 @@
 
     <component name="C_q_head"  type="VectorConcate1_1_0_0" latex="\text{Conc}_{q,head}" />
     <component name="S_q_head"  type="PortDoubleSplit2" latex="\text{Split}_{q,head}" />
+    <component name="S_dq_head"  type="PortDoubleSplit2" latex="\text{Split}_{\dot{q},head}" />
 
 <!--
 #    <component name="TorquePubRight"   type="TorquePublisher7" />
@@ -184,6 +185,9 @@
     <connection from="input_conv.hpMotor_q_OUTPORT" to="VL_hp.PositionMsr_INPORT" name="q_hp" latex="q_{hp}" />
     <connection from="VL_hp.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="VL_ht.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
+    <connection from="S_dq_head.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" name="dq_hp" latex="\dot{q}_{hp}" />
+    <connection from="S_dq_head.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
+
 
     <connection from="b_stSplit.rArm_q_OUTPORT" to="input_conv.rArm_q_INPORT" latex="q_{ra}" />
     <connection from="b_stSplit.lArm_q_OUTPORT" to="input_conv.lArm_q_INPORT" latex="q_{la}" />
@@ -300,8 +304,11 @@
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
-    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="output_conv.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
-    <connection from="output_conv.head_q_desired_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_body" latex="q_{h,cmd}" />
+    <connection from="JTG_head.JointVelocityCommand_OUTPORT" to="S_dq_head.InputPort" name="cmd_dq_head" latex="\dot{q}_{h,cmd}" />
+    <connection from="JTG_head.JointPositionCommand_OUTPORT" to="output_conv.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="JTG_head.JointVelocityCommand_OUTPORT" to="output_conv.head_dq_desired_INPORT" name="cmd_dq_head" latex="\dot{q}_{h,cmd}" />
+    <connection from="output_conv.head_q_desired_OUTPORT" to="stConcate.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="output_conv.head_dq_desired_OUTPORT" to="stConcate.head_dq_desired_INPORT" name="cmd_dq_head" latex="q_{h,cmd}" />
     <connection from="JTG_head.generator_status_OUTPORT" to="stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
@@ -331,13 +338,17 @@
     <connection from="b_stSplit.hpMotor_enabled_OUTPORT" to="safe.hp_enabled_INPORT" />
 
     <connection from="safe.ht_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" />
+    <connection from="safe.ht_dq_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" />
     <connection from="safe.hp_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" />
+    <connection from="safe.hp_dq_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" />
 
     <connection from="idle.cmd_sc_OUTPORT" to="b_cmdConcate.sc_INPORT" />
     <connection from="master_component.b_st_OUTPORT" to="idle.status_INPORT" latex="st_{b}" />
     <connection from="idle.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
     <connection from="idle.cmd_hpMotor_q_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
+    <connection from="idle.cmd_hpMotor_dq_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" name="cmd_dq_hp" latex="\dot{q}_{hp,cmd}" />
     <connection from="idle.cmd_htMotor_q_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
+    <connection from="idle.cmd_htMotor_dq_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" name="cmd_dq_ht" latex="\dot{q}_{ht,cmd}" />
     <connection from="b_stSplit.test_OUTPORT" to="b_cmdConcate.test_INPORT" />
     <connection from="C_q_all.Out" to="output_conv.q_INPORT" name="q" latex="q" />
     <connection from="output_conv.q_OUTPORT" to="stConcate.q_INPORT" name="q" latex="q" />

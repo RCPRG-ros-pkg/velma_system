@@ -46,6 +46,7 @@ OutputConverter::OutputConverter(const std::string &name)
     : subsystem_common::MultiConverterComponent(name)
 {
     addConverter<Eigen::Matrix<double, 2, 1 >, boost::array<double, 2 > >( "head_q_desired" );
+    addConverter<Eigen::Matrix<double, 2, 1 >, boost::array<double, 2 > >( "head_dq_desired" );
     addConverter<Eigen::Matrix<double, 15, 1 >, boost::array<double, 15 > >( "jnt_q_desired" );
     addConverter<Eigen::Matrix<double, 33, 1 >, boost::array<double, 33 > >( "q" );
     addConverter<Eigen::Matrix<double, 33, 1 >, boost::array<double, 33 > >( "dq" );
