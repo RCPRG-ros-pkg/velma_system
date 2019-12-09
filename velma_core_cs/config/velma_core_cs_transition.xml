@@ -171,6 +171,7 @@
 
 <!--    <connection from="S_q_head.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
     <connection from="S_q_head.OutputPort_0" to="VL_hp.Position_INPORT" name="q_hp" latex="q_{hp}" />
+    <connection from="S_dq_head.OutputPort_0" to="VL_hp.Velocity_INPORT" name="dq_hp" latex="\dot{q}_{hp}" />
 
 
     <connection from="input_conv.htMotor_q_OUTPORT" to="VL_ht.PositionMsr_INPORT" name="q_ht" latex="q_{ht}" />
@@ -180,13 +181,14 @@
     <connection from="b_stSplit.htMotor_dq_OUTPORT" to="input_conv.htMotor_dq_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
     <connection from="input_conv.htMotor_dq_OUTPORT" to="C_dq_head.In1" name="dq_ht" latex="\dot{q}_{ht}" />
     <connection from="S_q_head.OutputPort_1" to="VL_ht.Position_INPORT" name="q_ht" latex="q_{ht}" />
+    <connection from="S_dq_head.OutputPort_1" to="VL_ht.Velocity_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
 <!--    <connection from="S_q_head.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" /> TODO: check if dq is used-->
 
     <connection from="input_conv.hpMotor_q_OUTPORT" to="VL_hp.PositionMsr_INPORT" name="q_hp" latex="q_{hp}" />
     <connection from="VL_hp.Position_OUTPORT" to="b_cmdConcate.hpMotor_q_INPORT" name="cmd_q_hp" latex="q_{hp,cmd}" />
     <connection from="VL_ht.Position_OUTPORT" to="b_cmdConcate.htMotor_q_INPORT" name="cmd_q_ht" latex="q_{ht,cmd}" />
-    <connection from="S_dq_head.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" name="dq_hp" latex="\dot{q}_{hp}" />
-    <connection from="S_dq_head.OutputPort_1" to="b_cmdConcate.htMotor_dq_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
+    <connection from="VL_hp.Velocity_OUTPORT" to="b_cmdConcate.hpMotor_dq_INPORT" name="dq_hp" latex="\dot{q}_{hp}" />
+    <connection from="VL_ht.Velocity_OUTPORT" to="b_cmdConcate.htMotor_dq_INPORT" name="dq_ht" latex="\dot{q}_{ht}" />
 
 
     <connection from="b_stSplit.rArm_q_OUTPORT" to="input_conv.rArm_q_INPORT" latex="q_{ra}" />
