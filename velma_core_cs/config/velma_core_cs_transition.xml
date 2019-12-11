@@ -17,6 +17,8 @@
     <import package="rtt_velma_core_cs_task_cs_subsystem_buffers" />
 
     <component name="MassStatCtrl"   type="MassStaticControl15"  latex="\text{MassStatCtrl}" />
+    
+    <component name="DataWriter"    type="DataBufferManager"    latex="\text{DataWriter}" /> 
 
     <component name="ColDet"    type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
@@ -94,7 +96,6 @@
     <component name="stConcate"     latex="\text{stConcate}" />
     <component name="b_cmdConcate"  latex="\text{b\_cmdConcate}" />
 
-
 <!--    <component name="b_stRx"        latex="\text{x}_{b,st}" />
     <component name="cmdRx"         latex="\text{x}_{task,cmd}" />-->
 <!--    <component name="stTx"          latex="\text{y}_{task,st}" />
@@ -107,7 +108,6 @@
 
     <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
     <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
-
 
     <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
     <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="stConcate.hp_homing_in_progress_INPORT" />
@@ -125,7 +125,6 @@
     <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="stConcate.t_homing_in_progress_INPORT" />
     <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="stConcate.t_enabled_INPORT" />
     <connection from="cmdSplit.t_enable_OUTPORT"                    to="b_cmdConcate.tMotor_enable_INPORT" />
-
 
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRep.mInv_INPORT" name="M" latex="M" />
     <connection from="C_q_all.Out" to="ColDetRep.q_INPORT" name="q" latex="q" />
@@ -173,7 +172,6 @@
 <!--    <connection from="S_q_head.OutputPort_0" to="b_cmdConcate.hpMotor_dq_INPORT" /> TODO: check if dq is used-->
     <connection from="S_q_head.OutputPort_0" to="VL_hp.Position_INPORT" name="q_hp" latex="q_{hp}" />
 
-
     <connection from="input_conv.htMotor_q_OUTPORT" to="VL_ht.PositionMsr_INPORT" name="q_ht" latex="q_{ht}" />
 
     <connection from="b_stSplit.htMotor_q_OUTPORT" to="input_conv.htMotor_q_INPORT" name="q_ht" latex="q_{ht}" />
@@ -197,17 +195,16 @@
     <connection from="input_conv.rArm_dq_OUTPORT" to="C_dq_body.In1" latex="\dot{q}_{ra}" />
     <connection from="input_conv.lArm_dq_OUTPORT" to="C_dq_body.In2" latex="\dot{q}_{la}" />
 
-
     <connection from="b_stSplit.rHand_q_OUTPORT" to="input_conv.rHand_q_INPORT" latex="q_{rh}" />
     <connection from="input_conv.rHand_q_OUTPORT" to="C_q_all.In2" latex="q_{rh}" />
     <connection from="b_stSplit.lHand_q_OUTPORT" to="input_conv.lHand_q_INPORT" latex="q_{lh}" />
     <connection from="input_conv.lHand_q_OUTPORT" to="C_q_all.In3" latex="q_{lh}" />
     <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In2" name="0" />
     <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In3" name="0" />
-    <connection from="S_t_body.Out1" to="output_conv.rArm_t_INPORT" name="t_ra" latex="t_{ra,cmd}" />
-    <connection from="output_conv.rArm_t_OUTPORT" to="b_cmdConcate.rArm_t_INPORT" name="t_ra" latex="t_{ra,cmd}" />
-    <connection from="S_t_body.Out2" to="output_conv.lArm_t_INPORT" name="t_la" latex="t_{la,cmd}" />
-    <connection from="output_conv.lArm_t_OUTPORT" to="b_cmdConcate.lArm_t_INPORT" name="t_la" latex="t_{la,cmd}" />
+    <connection from="S_t_body.Out1" to="output_conv.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="output_conv.rArm_t_OUTPORT" to="b_cmdConcate.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="S_t_body.Out2" to="output_conv.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="output_conv.lArm_t_OUTPORT" to="b_cmdConcate.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
     <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="input_conv.lArm_mmx_INPORT" latex="M_{la}" />
     <connection from="input_conv.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" latex="M_{la}" />
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="input_conv.rArm_mmx_INPORT" latex="M_{ra}" />
@@ -228,8 +225,8 @@
     <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{b}" />
 <!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
-    <connection from="S_t_body.Out0" to="output_conv.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
-    <connection from="output_conv.tMotor_i_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" latex="t_{t}" />
+    <connection from="S_t_body.Out0" to="output_conv.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="output_conv.tMotor_i_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
 <!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
     <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
 
@@ -237,14 +234,14 @@
     <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="CImp.MassMatrixInv_INPORT" name="M" latex="M" />
 <!--    <connection from="CImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" />-->
-    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" name="cmd_pos_r" latex="p_{r,pos}" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand0_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
     <connection from="cmdSplit.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
     <connection from="INT_pose_r.generator_status_OUTPORT" to="stConcate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="stConcate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos}" />
-    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand1_INPORT" name="cmd_pos_l" latex="p_{l,pos}" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="stConcate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="CImp.CartPositionCommand1_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
     <connection from="cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
     <connection from="INT_pose_l.generator_status_OUTPORT" to="stConcate.lCart_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="stConcate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="stConcate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand0_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="cmdSplit.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="CImp.ToolPositionCommand1_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
@@ -265,16 +262,30 @@
     <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />    
 <!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
     <!-- <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" /> -->
+
     <connection from="C_q_body.Out" to="MassStatCtrl.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="ColDetRepJntImp.t_OUTPORT" to="MassStatCtrl.ControlLawTorqueCommand_INPORT" name="ctrl_law_t_body" latex="t_{cmd,b}" />
     <connection from="cmdSplit.objectGraspedRight_OUTPORT" to="MassStatCtrl.ObjectGraspedRightCommand_INPORT" />
     <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassStatCtrl.ObjectGraspedLeftCommand_INPORT" />    
     <connection from="MassStatCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
 
+    <connection from="C_q_body.Out" to="DataWriter.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="DataWriter.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />    
+    <connection from="C_dq_body.Out" to="DataWriter.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
+    <connection from="b_stSplit.rArm_t_OUTPORT" to="DataWriter.RightArmTorque_INPORT" name="t_ra" latex="t_{ra}" />
+    <connection from="b_stSplit.lArm_t_OUTPORT" to="DataWriter.LeftArmTorque_INPORT" name="t_la" latex="t_{la}" />
+    <connection from="S_t_body.Out0" to="DataWriter.TorsoTorqueCommand_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="S_t_body.Out1" to="DataWriter.RightArmTorqueCommand_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="S_t_body.Out2" to="DataWriter.LeftArmTorqueCommand_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="CImp.CartesianPosition0_OUTPORT" to="DataWriter.RightEffectorCartesianPosition_INPORT" name="pos_r" latex="p_{r,pos}" />
+    <connection from="CImp.CartesianPosition1_OUTPORT" to="DataWriter.LeftEffectorCartesianPosition_INPORT" name="pos_l" latex="p_{l,pos}" />    
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorCartesianPositionCommand_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorCartesianPositionCommand_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <ros_stream port="DataWriter.WriteDataCommand_INPORT" topic="/velma_core_cs/write_data_cmd" />
+
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />    
     <connection from="C_q_all.Out" to="ColDetRepJntImp.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDetRepJntImp.dq_INPORT" name="dq" latex="\dot{q}" />
-
 
     <connection from="C_q_body.Out" to="JntImpSafe.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntImpSafe.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
@@ -368,7 +379,6 @@
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
     <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
-
 
 <!--
 //    <connection from="TGR.Trigger" to="EC.torso.subnode0.DigitalOutput1" />

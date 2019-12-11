@@ -60,13 +60,14 @@ orocos_component(velma_core_cs
     src/components/double_joint_constraint.cpp
     src/components/collision_detector.cpp
     src/components/double_joint_collision_detector.cpp
-		src/components/mass_static_control.cpp
+    src/components/mass_static_control.cpp
     src/components/vector_concate1_1_0_0.cpp
     src/components/vector_split1_7_7_0.cpp
     src/components/vector_concate1_7_7_0.cpp
     src/components/vector_concate15_2_8_8.cpp
     src/components/input_converter.cpp
     src/components/output_converter.cpp
+    src/components/data_buffer_manager.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
