@@ -71,11 +71,14 @@ private:
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_lEffector_command_data_;
 	DataBufferManagerSupport<VectorD> mass_static_torque_command_data_;
 
+	RTT::InputPort<std::string> port_write_experiment_name_;
+	std::string write_experiment_name_;
 	RTT::InputPort<std_msgs::Int32> port_write_data_command_;
 	std_msgs::Int32 write_data_command_;
 
-	int buffer_length;
-	int file_number;
+	int buffer_length, file_number, exp_number;
+	int experiments_start_indices[1000];
+	std::string experiments_names[1000];
 
 	void writeVectorD(std::ofstream &logfile, VectorD data, bool data_valid)
 	{
@@ -153,14 +156,17 @@ DataBufferManager::DataBufferManager(const std::string &name)
 	, cartesian_position_rEffector_command_data_(*this, "RightEffectorCartesianPositionCommand_INPORT")
 	, cartesian_position_lEffector_command_data_(*this, "LeftEffectorCartesianPositionCommand_INPORT")
 	, mass_static_torque_command_data_(*this, "MassStaticTorqueCommand_INPORT")
+	, port_write_experiment_name_("WriteExperimentName_INPORT")
 	, port_write_data_command_("WriteDataCommand_INPORT")
 {	
+	this->ports()->addPort(port_write_experiment_name_);
 	this->ports()->addPort(port_write_data_command_);	
 }
 
 bool DataBufferManager::configureHook()
 {
 	file_number = 0;
+	exp_number = 0;
 	return true;
 }
 
@@ -191,6 +197,13 @@ void DataBufferManager::updateHook()
 	cartesian_position_lEffector_command_data_.port_read();
 	mass_static_torque_command_data_.port_read();
 
+	if (port_write_experiment_name_.read(write_experiment_name_) == RTT::NewData)
+	{
+		experiments_start_indices[exp_number] = joint_position_data_.getSize();
+		experiments_names[exp_number] = write_experiment_name_;
+		exp_number++;
+	}
+
 	if (port_write_data_command_.read(write_data_command_) == RTT::NewData)
 	{
 		std::ofstream logfile;
@@ -202,6 +215,7 @@ void DataBufferManager::updateHook()
 		logfile.open(ss.str());
 		std::cout << "writing data from velma_core_cs subsystem" << std::endl;
 
+		int j = 0;
 		buffer_length = joint_position_data_.getSize();
 		for (int i = 0; i < buffer_length; ++i) 
 		{
@@ -209,6 +223,15 @@ void DataBufferManager::updateHook()
 			// {
 			// 	std::cout << "data log " << i << "/" << buffer_length-1 << std::endl;				
 			// }
+
+			if (exp_number - j > 0)
+			{
+				if(experiments_start_indices[j] == i)
+				{
+					logfile << experiments_names[j] << std::endl;
+					j++;				
+				}
+			}
 
 			VectorD joint_position = joint_position_data_.getData(i);
 			bool joint_position_valid = joint_position_data_.isValid(i);
