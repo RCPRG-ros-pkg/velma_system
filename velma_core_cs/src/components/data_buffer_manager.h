@@ -41,7 +41,7 @@ public:
 	DataBufferManagerSupport(RTT::TaskContext& tc, const std::string& port_name)
 			: port_(port_name)
 			, history_idx_(0)
-			, max_history_length_(1000*60*60*10) // 1000 Hz * 60*60*10 s = 36 000 000 // maximum duration: 10h
+			, max_history_length_(1000*60*60*10) // 1000 Hz * 60*60*10 s = 36 000 000 // maximum duration: 10 hours
 			, history_(max_history_length_)
 			, history_valid_(max_history_length_)
 			, buffer_full_(false)

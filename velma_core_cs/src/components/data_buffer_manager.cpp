@@ -69,6 +69,7 @@ private:
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_lEffector_data_;
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_rEffector_command_data_;
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_lEffector_command_data_;
+	DataBufferManagerSupport<VectorD> mass_static_torque_command_data_;
 
 	RTT::InputPort<std_msgs::Int32> port_write_data_command_;
 	std_msgs::Int32 write_data_command_;
@@ -151,6 +152,7 @@ DataBufferManager::DataBufferManager(const std::string &name)
 	, cartesian_position_lEffector_data_(*this, "LeftEffectorCartesianPosition_INPORT")	
 	, cartesian_position_rEffector_command_data_(*this, "RightEffectorCartesianPositionCommand_INPORT")
 	, cartesian_position_lEffector_command_data_(*this, "LeftEffectorCartesianPositionCommand_INPORT")
+	, mass_static_torque_command_data_(*this, "MassStaticTorqueCommand_INPORT")
 	, port_write_data_command_("WriteDataCommand_INPORT")
 {	
 	this->ports()->addPort(port_write_data_command_);	
@@ -161,7 +163,6 @@ bool DataBufferManager::configureHook()
 	file_number = 0;
 	return true;
 }
-
 
 bool DataBufferManager::startHook()
 {
@@ -188,6 +189,7 @@ void DataBufferManager::updateHook()
 	cartesian_position_lEffector_data_.port_read();
 	cartesian_position_rEffector_command_data_.port_read();
 	cartesian_position_lEffector_command_data_.port_read();
+	mass_static_torque_command_data_.port_read();
 
 	if (port_write_data_command_.read(write_data_command_) == RTT::NewData)
 	{
@@ -255,6 +257,10 @@ void DataBufferManager::updateHook()
 			geometry_msgs::Pose cartesian_position_lEffector_command = cartesian_position_lEffector_command_data_.getData(i);
 			bool cartesian_position_lEffector_command_valid = cartesian_position_lEffector_command_data_.isValid(i);
 			writeGeometryMsgsPose(logfile, cartesian_position_lEffector_command, cartesian_position_lEffector_command_valid);
+
+			VectorD mass_static_torque_command = mass_static_torque_command_data_.getData(i);
+			bool mass_static_torque_command_valid = mass_static_torque_command_data_.isValid(i);
+			writeVectorD(logfile, mass_static_torque_command, mass_static_torque_command_valid);
 
 			logfile << std::endl;
 		}

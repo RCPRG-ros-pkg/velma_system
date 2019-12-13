@@ -281,6 +281,7 @@
     <connection from="CImp.CartesianPosition1_OUTPORT" to="DataWriter.LeftEffectorCartesianPosition_INPORT" name="pos_l" latex="p_{l,pos}" />    
     <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorCartesianPositionCommand_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
     <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorCartesianPositionCommand_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="MassStatCtrl.MassStaticTorqueCommand_OUTPORT" to="DataWriter.MassStaticTorqueCommand_INPORT" name="cmd_t_msc" latex="t_{cmd,msc}" />    
     <ros_stream port="DataWriter.WriteDataCommand_INPORT" topic="/velma_core_cs/write_data_cmd" />
 
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />    

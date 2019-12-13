@@ -1430,8 +1430,8 @@ class VelmaInterface:
         """!
         @param side string: Hand name, can be one of two values ('left' or 'right').        
         @exception NameError: If side is not 'left' or 'right'.         
-        If some object is grasped: status == True
-        If nothing is grasped: status == False       
+        If some object is grasped and object's gravity compensation is active (from Velma's point of view): status == True
+        If Velma thinks nothing is grasped: status == False       
         """
         if side != 'left' and side != 'right':
             raise NameError('wrong side name: ' + str(side))
@@ -1444,7 +1444,7 @@ class VelmaInterface:
 
         self._action_grasped_client[side].send_goal(goal)
 
-        print "Manipulator:", side, "--> object_grasped:", status 
+        print "Manipulator:", side, "--> object_grasped_flag_status:", status 
 
         self._action_grasped_client[side].wait_for_result(timeout=rospy.Duration(0))
         result = self._action_grasped_client[side].get_result()
