@@ -16,7 +16,9 @@
     <import package="rtt_velma_core_cs_task_cs_msgs" />
     <import package="rtt_velma_core_cs_task_cs_subsystem_buffers" />
 
-    <component name="MassStatCtrl"   type="MassStaticControl15"  latex="\text{MassStatCtrl}" />
+    <component name="ObjParamIdentif" type="ObjectParamsIdentification" latex="\text{ObjParamIdentif}" />
+    <component name="MassStatCtrl"   type="MassStaticControl15" latex="\text{MassStatCtrl}" />
+<!--     <component name="MassDynCtrl"   type="MassDynamicControl15_2"   latex="\text{MassDynCtrl}" />    -->
     
     <component name="DataWriter"    type="DataBufferManager"    latex="\text{DataWriter}" /> 
 
@@ -269,6 +271,13 @@
     <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassStatCtrl.ObjectGraspedLeftCommand_INPORT" />    
     <connection from="MassStatCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
 
+<!--     <connection from="C_q_body.Out" to="MassDynCtrl.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_dq_body.Out" to="MassDynCtrl.Jointvelocity_INPORT" name="dq_body" latex="dq_{b}" />    
+    <connection from="MassStatCtrl.JointTorqueCommand_OUTPORT" to="MassDynCtrl.MSCJointTorqueCommand_INPORT" name="msc_cmd_t_body" latex="t_{msc,cmd,b}" />
+    <connection from="cmdSplit.objectGraspedRight_OUTPORT" to="MassDynCtrl.ObjectGraspedRightCommand_INPORT" />
+    <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassDynCtrl.ObjectGraspedLeftCommand_INPORT" />    
+    <connection from="MassDynCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
+ -->
     <connection from="C_q_body.Out" to="DataWriter.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="JTG_body.JointPositionCommand_OUTPORT" to="DataWriter.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />    
     <connection from="C_dq_body.Out" to="DataWriter.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
@@ -281,6 +290,8 @@
     <connection from="CImp.CartesianPosition1_OUTPORT" to="DataWriter.LeftEffectorCartesianPosition_INPORT" name="pos_l" latex="p_{l,pos}" />    
     <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorCartesianPositionCommand_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
     <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorCartesianPositionCommand_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorToolPositionCommand_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorToolPositionCommand_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />    
     <connection from="MassStatCtrl.MassStaticTorqueCommand_OUTPORT" to="DataWriter.MassStaticTorqueCommand_INPORT" name="cmd_t_msc" latex="t_{cmd,msc}" />
     <ros_stream port="DataWriter.WriteExperimentName_INPORT" topic="/velma_core_cs/write_experiment_name" />        
     <ros_stream port="DataWriter.WriteDataCommand_INPORT" topic="/velma_core_cs/write_data_cmd" />
@@ -294,6 +305,12 @@
     <connection from="Mass.MassMatrix_OUTPORT" to="JntImpSafe.MassMatrix_INPORT" name="M" latex="M" />
     <connection from="JntImpSafe.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />
 
+    <connection from="b_stSplit.rFt_sfw_OUTPORT" to="ObjParamIdentif.CurrentSensorRightSlowFilteredWrench_INPORT" />
+    <connection from="b_stSplit.lFt_sfw_OUTPORT" to="ObjParamIdentif.CurrentSensorLeftSlowFilteredWrench_INPORT" /> 
+<!--     <connection from="b_stSplit.rFt_ffw_OUTPORT" to="ObjParamIdentif.CurrentSensorRightFastFilteredWrench_INPORT" />
+    <connection from="b_stSplit.lFt_ffw_OUTPORT" to="ObjParamIdentif.CurrentSensorLeftFastFilteredWrench_INPORT" />   -->
+    <connection from="cmdSplit.identificationMeasurementRightCmd_OUTPORT" to="ObjParamIdentif.IdentificationMeasurementRightCommand_INPORT" />
+    <connection from="cmdSplit.identificationMeasurementLeftCmd_OUTPORT" to="ObjParamIdentif.IdentificationMeasurementLeftCommand_INPORT" />    
 <!--
     <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
     <connection from="FK.RightWrist_OUTPORT" to="RightForceTransformation.CurrentWristPose" />

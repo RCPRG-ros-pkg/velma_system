@@ -69,6 +69,8 @@ private:
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_lEffector_data_;
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_rEffector_command_data_;
 	DataBufferManagerSupport<geometry_msgs::Pose> cartesian_position_lEffector_command_data_;
+	DataBufferManagerSupport<geometry_msgs::Pose> tool_position_rEffector_command_data_;
+	DataBufferManagerSupport<geometry_msgs::Pose> tool_position_lEffector_command_data_;	
 	DataBufferManagerSupport<VectorD> mass_static_torque_command_data_;
 
 	RTT::InputPort<std::string> port_write_experiment_name_;
@@ -155,6 +157,8 @@ DataBufferManager::DataBufferManager(const std::string &name)
 	, cartesian_position_lEffector_data_(*this, "LeftEffectorCartesianPosition_INPORT")	
 	, cartesian_position_rEffector_command_data_(*this, "RightEffectorCartesianPositionCommand_INPORT")
 	, cartesian_position_lEffector_command_data_(*this, "LeftEffectorCartesianPositionCommand_INPORT")
+	, tool_position_rEffector_command_data_(*this, "RightEffectorToolPositionCommand_INPORT")
+	, tool_position_lEffector_command_data_(*this, "LeftEffectorToolPositionCommand_INPORT")	
 	, mass_static_torque_command_data_(*this, "MassStaticTorqueCommand_INPORT")
 	, port_write_experiment_name_("WriteExperimentName_INPORT")
 	, port_write_data_command_("WriteDataCommand_INPORT")
@@ -195,6 +199,8 @@ void DataBufferManager::updateHook()
 	cartesian_position_lEffector_data_.port_read();
 	cartesian_position_rEffector_command_data_.port_read();
 	cartesian_position_lEffector_command_data_.port_read();
+	tool_position_rEffector_command_data_.port_read();
+	tool_position_lEffector_command_data_.port_read();
 	mass_static_torque_command_data_.port_read();
 
 	if (port_write_experiment_name_.read(write_experiment_name_) == RTT::NewData)
@@ -280,6 +286,14 @@ void DataBufferManager::updateHook()
 			geometry_msgs::Pose cartesian_position_lEffector_command = cartesian_position_lEffector_command_data_.getData(i);
 			bool cartesian_position_lEffector_command_valid = cartesian_position_lEffector_command_data_.isValid(i);
 			writeGeometryMsgsPose(logfile, cartesian_position_lEffector_command, cartesian_position_lEffector_command_valid);
+
+			geometry_msgs::Pose tool_position_rEffector_command = tool_position_rEffector_command_data_.getData(i);
+			bool tool_position_rEffector_command_valid = tool_position_rEffector_command_data_.isValid(i);
+			writeGeometryMsgsPose(logfile, tool_position_rEffector_command, tool_position_rEffector_command_valid);
+
+			geometry_msgs::Pose tool_position_lEffector_command = tool_position_lEffector_command_data_.getData(i);
+			bool tool_position_lEffector_command_valid = tool_position_lEffector_command_data_.isValid(i);
+			writeGeometryMsgsPose(logfile, tool_position_lEffector_command, tool_position_lEffector_command_valid);		
 
 			VectorD mass_static_torque_command = mass_static_torque_command_data_.getData(i);
 			bool mass_static_torque_command_valid = mass_static_torque_command_data_.isValid(i);

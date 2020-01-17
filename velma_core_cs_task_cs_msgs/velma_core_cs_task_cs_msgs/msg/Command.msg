@@ -30,7 +30,13 @@ CommandServo ht
 CommandServo t
 
 bool objectGraspedRight
-bool objectGraspedRight_valid
+bool objectGraspedRight_validgit 
 
 bool objectGraspedLeft
 bool objectGraspedLeft_valid
+
+uint32 identificationMeasurementRightCmd
+bool identificationMeasurementRightCmd_valid
+
+uint32 identificationMeasurementLeftCmd
+bool identificationMeasurementLeftCmd_valid

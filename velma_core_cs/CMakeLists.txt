@@ -44,30 +44,32 @@ include_directories(${USE_OROCOS_INCLUDE_DIRS} include)
 ros_generate_rtt_master()
 
 orocos_component(velma_core_cs
-    src/velma_core_cs.cpp
-    src/predicates.cpp
-    src/components/idle.cpp
-    src/components/safe.cpp
-    src/components/safe_col.cpp
-    src/components/cart_imp.cpp
-    src/components/jnt_imp.cpp
-    src/components/fcl.cpp
-    src/components/cartesian_interpolator.cpp
-    src/components/cartesian_impedance_interpolator.cpp
-    src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
-    src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
-    src/components/vector_dummy.cpp
-    src/components/double_joint_constraint.cpp
-    src/components/collision_detector.cpp
-    src/components/double_joint_collision_detector.cpp
-    src/components/mass_static_control.cpp
-    src/components/vector_concate1_1_0_0.cpp
-    src/components/vector_split1_7_7_0.cpp
-    src/components/vector_concate1_7_7_0.cpp
-    src/components/vector_concate15_2_8_8.cpp
-    src/components/input_converter.cpp
-    src/components/output_converter.cpp
-    src/components/data_buffer_manager.cpp
+  src/velma_core_cs.cpp
+  src/predicates.cpp
+  src/components/idle.cpp
+  src/components/safe.cpp
+  src/components/safe_col.cpp
+  src/components/cart_imp.cpp
+  src/components/jnt_imp.cpp
+  src/components/fcl.cpp
+  src/components/cartesian_interpolator.cpp
+  src/components/cartesian_impedance_interpolator.cpp
+  src/components/InternalSpaceSplineTrajectoryGeneratorVelmaBody.cpp
+  src/components/InternalSpaceSplineTrajectoryGeneratorVelmaHead.cpp
+  src/components/vector_dummy.cpp
+  src/components/double_joint_constraint.cpp
+  src/components/collision_detector.cpp
+  src/components/double_joint_collision_detector.cpp
+  src/components/object_params_identification.cpp  
+  src/components/mass_static_control.cpp
+#  src/components/mass_dynamic_control.cpp
+  src/components/vector_concate1_1_0_0.cpp
+  src/components/vector_split1_7_7_0.cpp
+  src/components/vector_concate1_7_7_0.cpp
+  src/components/vector_concate15_2_8_8.cpp
+  src/components/input_converter.cpp
+  src/components/output_converter.cpp
+  src/components/data_buffer_manager.cpp
 )
 target_link_libraries(velma_core_cs ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 

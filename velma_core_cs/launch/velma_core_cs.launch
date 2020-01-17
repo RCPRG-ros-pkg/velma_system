@@ -82,7 +82,7 @@
       VL_ht:
         max_vel: 50.0
       JntImp:
-        initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.0, 200.01]
+        initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01]
         damping: 0.5
       JntImpSafe:
         initial_stiffness: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
@@ -172,7 +172,9 @@
         articulated_joint_names: [torso_0_joint, right_arm_0_joint, right_arm_1_joint, right_arm_2_joint, right_arm_3_joint, right_arm_4_joint, right_arm_5_joint, right_arm_6_joint, left_arm_0_joint, left_arm_1_joint, left_arm_2_joint, left_arm_3_joint, left_arm_4_joint, left_arm_5_joint, left_arm_6_joint ]
         rightLWR_joint0_idx: 1
         leftLWR_joint0_idx: 8
-        mass_of_the_object: 1.5        
+        mass_of_the_object: 2.0
+<!--       MassDynCtrl:
+        mass_of_the_object: 2.0     -->           
     </rosparam>
   </group>
 </launch>
