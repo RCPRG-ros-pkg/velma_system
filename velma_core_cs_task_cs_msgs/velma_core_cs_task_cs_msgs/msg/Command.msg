@@ -30,7 +30,7 @@ CommandServo ht
 CommandServo t
 
 bool objectGraspedRight
-bool objectGraspedRight_validgit 
+bool objectGraspedRight_valid
 
 bool objectGraspedLeft
 bool objectGraspedLeft_valid
