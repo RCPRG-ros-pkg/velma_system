@@ -311,7 +311,9 @@
     <connection from="b_stSplit.lFt_ffw_OUTPORT" to="ObjParamIdentif.CurrentSensorLeftFastFilteredWrench_INPORT" />   -->
     <connection from="cmdSplit.identificationMeasurementRightCmd_OUTPORT" to="ObjParamIdentif.IdentificationMeasurementRightCommand_INPORT" />
     <connection from="cmdSplit.identificationMeasurementLeftCmd_OUTPORT" to="ObjParamIdentif.IdentificationMeasurementLeftCommand_INPORT" />  
-    <connection from="ObjParamIdentif.WeightOfTheObject_OUTPORT" to="MassStatCtrl.IdentifiedWeightOfTheObject_INPORT" name="object_weight" latex="w_{obj}" />       
+    <connection from="ObjParamIdentif.WeightOfTheObject_OUTPORT" to="MassStatCtrl.IdentifiedWeightOfTheObject_INPORT" name="object_weight" latex="w_{obj}" />  
+    <connection from="ObjParamIdentif.CenterOfMassLocationRight_OUTPORT" to="MassStatCtrl.IdentifiedCenterOfMassLocationRight_INPORT" name="mass_pos_r" latex="p_{r,CoM}" />      
+    <connection from="ObjParamIdentif.CenterOfMassLocationLeft_OUTPORT" to="MassStatCtrl.IdentifiedCenterOfMassLocationLeft_INPORT" name="mass_pos_l" latex="p_{l,CoM}" />           
 <!--
     <connection from="fcl.subsystem_state_OUTPORT"      to="stConcate.subsystem_state_INPORT" />
     <connection from="FK.RightWrist_OUTPORT" to="RightForceTransformation.CurrentWristPose" />
