@@ -50,12 +50,13 @@ public:
     void updateHook();
 
 private:
-    void calculateAndSendWeightOfTheObject(geometry_msgs::Wrench first_wrench_, geometry_msgs::Wrench second_wrench_, std::string side_);
+    typedef geometry_msgs::Wrench gW;
+    void calculateAndSendParametersOfTheObject(gW first_wrench_, gW second_wrench_, gW third_wrench_, gW fourth_wrench_, std::string side_);
 
-    RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_right_slow_filtered_wrench_;  
-    RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_left_slow_filtered_wrench_;      
-    // RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_right_fast_filtered_wrench_;
-    // RTT::InputPort<geometry_msgs::Wrench> port_current_sensor_left_fast_filtered_wrench_;
+    RTT::InputPort<gW> port_current_sensor_right_slow_filtered_wrench_;  
+    RTT::InputPort<gW> port_current_sensor_left_slow_filtered_wrench_;      
+    // RTT::InputPort<gW> port_current_sensor_right_fast_filtered_wrench_;
+    // RTT::InputPort<gW> port_current_sensor_left_fast_filtered_wrench_;
 
     RTT::InputPort<unsigned int> port_identification_measurement_right_command_;  
     RTT::InputPort<unsigned int> port_identification_measurement_left_command_;
@@ -63,18 +64,15 @@ private:
     RTT::OutputPort<KDL::Vector> port_center_of_mass_location_right_;      
     RTT::OutputPort<KDL::Vector> port_center_of_mass_location_left_; 
 
-    geometry_msgs::Wrench current_sensor_right_slow_filtered_wrench_;
-    geometry_msgs::Wrench current_sensor_left_slow_filtered_wrench_;    
-    // geometry_msgs::Wrench current_sensor_right_fast_filtered_wrench_;
-    // geometry_msgs::Wrench current_sensor_left_fast_filtered_wrench_;
+    gW current_sensor_right_slow_filtered_wrench_, current_sensor_left_slow_filtered_wrench_;    
+    // gW current_sensor_right_fast_filtered_wrench_, current_sensor_left_fast_filtered_wrench_;
 
-    unsigned int identification_measurement_right_command_;
-    unsigned int identification_measurement_left_command_;
-    double weight_of_the_object_;
-    KDL::Vector center_of_mass_location_;
+    unsigned int identification_measurement_right_command_, identification_measurement_left_command_;
+    double weight_of_the_object_, sign_;
+    KDL::Vector position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_;
 
-    geometry_msgs::Wrench first_right_sensor_identification_wrench_, second_right_sensor_identification_wrench_;
-    geometry_msgs::Wrench first_left_sensor_identification_wrench_, second_left_sensor_identification_wrench_;    
+    gW first_right_wrench_, second_right_wrench_, third_right_wrench_, fourth_right_wrench_;
+    gW first_left_wrench_, second_left_wrench_, third_left_wrench_, fourth_left_wrench_;    
     int command_index_right_, command_index_left_;
 };
 
@@ -147,13 +145,23 @@ void ObjectParamsIdentification::updateHook()
 
         if (identification_measurement_right_command_ == 1 && command_index_right_ == 1)
         {
-            first_right_sensor_identification_wrench_ = current_sensor_right_slow_filtered_wrench_;
+            first_right_wrench_ = current_sensor_right_slow_filtered_wrench_;
             command_index_right_ = 2;
         }
         else if (identification_measurement_right_command_ == 2 && command_index_right_ == 2)
         {
-            second_right_sensor_identification_wrench_ = current_sensor_right_slow_filtered_wrench_;
-            calculateAndSendWeightOfTheObject(first_right_sensor_identification_wrench_, second_right_sensor_identification_wrench_, "right");
+            second_right_wrench_ = current_sensor_right_slow_filtered_wrench_;
+            command_index_right_ = 3;
+        }
+        else if (identification_measurement_right_command_ == 3 && command_index_right_ == 3)
+        {
+            third_right_wrench_ = current_sensor_right_slow_filtered_wrench_;
+            command_index_right_ = 4;
+        }
+        else if (identification_measurement_right_command_ == 4 && command_index_right_ == 4)
+        {
+            fourth_right_wrench_ = current_sensor_right_slow_filtered_wrench_;
+            calculateAndSendParametersOfTheObject(first_right_wrench_, second_right_wrench_, third_right_wrench_, fourth_right_wrench_, "right");
             command_index_right_ = 1;
         }
     }
@@ -165,13 +173,23 @@ void ObjectParamsIdentification::updateHook()
 
         if (identification_measurement_left_command_ == 1 && command_index_left_ == 1)
         {
-            first_left_sensor_identification_wrench_ = current_sensor_left_slow_filtered_wrench_;
+            first_left_wrench_ = current_sensor_left_slow_filtered_wrench_;
             command_index_left_ = 2;
         }
         else if (identification_measurement_left_command_ == 2 && command_index_left_ == 2)
         {
-            second_left_sensor_identification_wrench_ = current_sensor_left_slow_filtered_wrench_;
-            calculateAndSendWeightOfTheObject(first_left_sensor_identification_wrench_, second_left_sensor_identification_wrench_, "left");
+            second_left_wrench_ = current_sensor_left_slow_filtered_wrench_;
+            command_index_left_ = 3;
+        }
+        else if (identification_measurement_left_command_ == 3 && command_index_left_ == 3)
+        {
+            third_left_wrench_ = current_sensor_left_slow_filtered_wrench_;
+            command_index_left_ = 4;
+        }
+        else if (identification_measurement_left_command_ == 4 && command_index_left_ == 4)
+        {
+            fourth_left_wrench_ = current_sensor_left_slow_filtered_wrench_;
+            calculateAndSendParametersOfTheObject(first_left_wrench_, second_left_wrench_, third_left_wrench_, fourth_left_wrench_, "left");
             command_index_left_ = 1;
         }
     }
@@ -190,27 +208,41 @@ void ObjectParamsIdentification::updateHook()
     // std::cout << "current_sensor_left_slow_filtered_wrench_.torque.y: " << current_sensor_left_slow_filtered_wrench_.torque.y << std::endl;
     // std::cout << "current_sensor_left_slow_filtered_wrench_.torque.z: " << current_sensor_left_slow_filtered_wrench_.torque.z << std::endl;    
 }
-void ObjectParamsIdentification::calculateAndSendWeightOfTheObject(geometry_msgs::Wrench first_wrench_, geometry_msgs::Wrench second_wrench_, std::string side_)
+void ObjectParamsIdentification::calculateAndSendParametersOfTheObject(gW first_wrench_, gW second_wrench_, gW third_wrench_, gW fourth_wrench_, std::string side_)
 {
-    weight_of_the_object_ = sqrt(pow(first_wrench_.force.x - second_wrench_.force.x, 2) + pow(first_wrench_.force.y - second_wrench_.force.y, 2) + pow(first_wrench_.force.z - second_wrench_.force.z, 2));
-    // center_of_mass_location_[0] = abs(first_wrench_.torque.y - second_wrench_.torque.y)/weight_of_the_object_;
-    // center_of_mass_location_[1] = abs(first_wrench_.torque.x - second_wrench_.torque.x)/weight_of_the_object_;
-    // center_of_mass_location_[2] = 0.0;
-
+    //weight_of_the_object_ = sqrt(pow(first_wrench_.force.x - third_wrench_.force.x, 2) + pow(first_wrench_.force.y - third_wrench_.force.y, 2) + pow(first_wrench_.force.z - third_wrench_.force.z, 2));
+    weight_of_the_object_ = first_wrench_.force.z - third_wrench_.force.z;
     std::cout << "weight_of_the_object_: " << weight_of_the_object_ << std::endl;
-    // std::cout << "center_of_mass_location_x: " << center_of_mass_location_[0] << std::endl;
-    // std::cout << "center_of_mass_location_y: " << center_of_mass_location_[1] << std::endl;
-
-    port_weight_of_the_object_.write(weight_of_the_object_);
 
     // if (side_ == "right")
     // {
-    //     port_center_of_mass_location_right_.write(center_of_mass_location_);        
+    //     sign_ = 1.0;
     // }
     // else if (side_ == "left")
     // {
-    //     port_center_of_mass_location_left_.write(center_of_mass_location_);        
-    // }
+    //     sign_ = -1.0; 
+    // } 
+    // position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[0] = sign_*(third_wrench_.torque.y - first_wrench_.torque.y)/weight_of_the_object_; // x_wrist_axis || z_sensor_axis
+    // position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[1] = -sign_*(third_wrench_.torque.z - first_wrench_.torque.z)/weight_of_the_object_; // y_wrist_axis || y_sensor_axis; 
+    // position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[2] = sign_*(fourth_wrench_.torque.z - second_wrench_.torque.z)/weight_of_the_object_; // z_wrist_axis || x_sensor_axis;
+
+    position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[0] = (third_wrench_.torque.y - first_wrench_.torque.y)/weight_of_the_object_;
+    position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[1] = -(third_wrench_.torque.x - first_wrench_.torque.x)/weight_of_the_object_;
+    position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[2] = -(fourth_wrench_.torque.x - second_wrench_.torque.x)/weight_of_the_object_;
+    std::cout << "position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_x: " << position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[0] << std::endl;
+    std::cout << "position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_y: " << position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[1] << std::endl;
+    std::cout << "position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_z: " << position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_[2] << std::endl;
+
+    port_weight_of_the_object_.write(weight_of_the_object_);
+
+    if (side_ == "right")
+    {
+        port_center_of_mass_location_right_.write(position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_);        
+    }
+    else if (side_ == "left")
+    {
+        port_center_of_mass_location_left_.write(position_vector_from_ft_sensor_to_center_of_mass_location_in_wrist_frame_);        
+    }
 }
 
 ORO_LIST_COMPONENT_TYPE(ObjectParamsIdentification)

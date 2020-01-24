@@ -1469,16 +1469,20 @@ class VelmaInterface:
         """!
         @param side string: Hand name, can be one of two values ('left' or 'right').        
         @exception NameError: If side is not 'left' or 'right'.         
-        Identification action requires two measurements: before and after object is grasped.       
+        This identification action requires four measurements: two before and two after object is grasped.       
         """
         if side != 'left' and side != 'right':
             raise NameError('wrong side name: ' + str(side))
 
         goal = IdentificationGoal()
         if command_index == 1:
-            goal.action = IdentificationGoal.ACTION_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
         elif command_index == 2:
-            goal.action = IdentificationGoal.ACTION_MEASUREMENT_AFTER_OBJECT_IS_GRASPED
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+        elif command_index == 3:
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_AFTER_OBJECT_IS_GRASPED            
+        elif command_index == 4:
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_AFTER_OBJECT_IS_GRASPED
 
         self._action_identification_client[side].send_goal(goal)
 

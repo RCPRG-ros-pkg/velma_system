@@ -1,4 +1,4 @@
-// Copyright (c) 2019-20, Robot Control and Pattern Recognition Group,
+// Copyright (c) 2019-2020, Robot Control and Pattern Recognition Group,
 // Institute of Control and Computation Engineering
 // Warsaw University of Technology
 //
