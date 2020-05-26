@@ -54,8 +54,8 @@
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx_l" type="CanQueueTxComponent10" />
-    <component name="can_queue_tx_r" type="CanQueueTxComponent10" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent" />
 
     <component name="FtSensorLeft" type="FtSensor" />
     <component name="FtSensorRight" type="FtSensor" />

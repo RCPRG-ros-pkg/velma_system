@@ -4,7 +4,7 @@
 
 # Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -15,7 +15,7 @@
 #     * Neither the name of the Warsaw University of Technology nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -227,7 +227,7 @@ class VelmaInterface:
         with self._joint_states_lock:
             if self._js_pos_history_idx < 0:
                 return None
-                
+
             hist_len = len(self._js_pos_history)
             for step in range(hist_len-1):
                 h1_idx = (self._js_pos_history_idx - step - 1) % hist_len
@@ -552,7 +552,7 @@ class VelmaInterface:
         #self.br = tf.TransformBroadcaster()
 
         rospy.sleep(1.0)
-        
+
         #self.wrench_tab = []
         #self.wrench_tab_index = 0
         #self.wrench_tab_len = 4000
@@ -1251,10 +1251,7 @@ class VelmaInterface:
         action_goal.t = t
         action_goal.maxPressure = maxPressure
         action_goal.reset = False
-        if hold == True:
-            action_goal.hold = 1
-        else:
-            action_goal.hold = 0
+        action_goal.hold = 1 if hold else 0
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def moveHandLeft(self, q, v, t, maxPressure, hold=False):
