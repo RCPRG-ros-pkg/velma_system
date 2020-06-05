@@ -107,21 +107,28 @@ if __name__ == "__main__":
                 velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
                 velma.moveHandRight(dest_q, [1.25, 1.25, 1.25, 1.25], [4000,4000,4000,4000], 1000, hold=False)
                 # TODO: waitForhand... does not work
-                #if velma.waitForHandLeft() != 0:
-                #    exitError(2)
-                #if velma.waitForHandRight() != 0:
-                #    exitError(4)
-                rospy.sleep(3)
+                if velma.waitForHandLeft() != 0:
+                    exitError(2)
+                if velma.waitForHandRight() != 0:
+                    exitError(4)
+                #rospy.sleep(3)
 
     dest_q = [deg2rad(30), deg2rad(30), deg2rad(30), deg2rad(180)]
     velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
     velma.moveHandRight(dest_q, [1.25, 1.25, 1.25, 1.25], [4000,4000,4000,4000], 1000, hold=False)
-    rospy.sleep(3)
+    if velma.waitForHandLeft() != 0:
+        exitError(2)
+    if velma.waitForHandRight() != 0:
+        exitError(2)
+#    rospy.sleep(3)
 
     dest_q = [deg2rad(140), deg2rad(140), deg2rad(140), deg2rad(180)]
     velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
     velma.moveHandRight(dest_q, [1.25, 1.25, 1.25, 1.25], [4000,4000,4000,4000], 1000, hold=False)
-    rospy.sleep(3)
+    if velma.waitForHandLeft() != 0:
+        exitError(2)
+    if velma.waitForHandRight() != 0:
+        exitError(2)
 
     #dest_q = [45.0 / 180.0*math.pi, 0, 0, 0]
     #dest_q = [deg2rad(0), deg2rad(0), deg2rad(0), deg2rad(0)]
