@@ -113,6 +113,8 @@ template<unsigned DOFS >
     , port_joint_velocity_("JointVelocity_INPORT")
     , port_mass_matrix_inv_("MassMatrixInv_INPORT")
     , port_nullspace_torque_command_("NullSpaceTorqueCommand_INPORT")
+    , diag_min_v_(DoubleJointCC::Joints::Zero())
+    , diag_min_dist_(0.0)
     , d0_(0.0)
     , joint0_idx_(0)
     , joint1_idx_(0)
