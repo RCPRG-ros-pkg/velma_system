@@ -3,6 +3,7 @@
   <arg name="ORO_LOGLEVEL" default="3"/>
   <arg name="debug" default="false"/>
   <arg name="cset" default="false"/>
+  <arg name="valgrind" default="false"/>
 
   <arg unless="$(arg cset)"  name="CSET_LAUNCH_PREFIX" value=""/>
   <arg     if="$(arg cset)"  name="CSET_LAUNCH_PREFIX" value="cset proc -s user -e --"/>
@@ -10,12 +11,15 @@
   <arg unless="$(arg debug)" name="LAUNCH_PREFIX" value=""/>
   <arg     if="$(arg debug)" name="LAUNCH_PREFIX" value="gdb -ex run --args "/>
 
+  <arg unless="$(arg valgrind)" name="LAUNCH_PREFIX_2" value=""/>
+  <arg     if="$(arg valgrind)" name="LAUNCH_PREFIX_2" value="valgrind --leak-check=yes "/>
+
   <node
     name="velma_core_ve_body"
     pkg="subsystem_deployer"
     type="deployer"
     output="screen"
-    launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
+    launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX_2) $(arg LAUNCH_PREFIX)"
     args="--DeployerName velma_core_ve_body -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 20 -c 2 --"
   >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
