@@ -80,7 +80,9 @@ private:
     RTT::InputPort<double > port_ht_q_in_;
     RTT::InputPort<double > port_hp_q_in_;
     RTT::OutputPort<double > port_ht_q_out_;
+    RTT::OutputPort<double > port_ht_dq_out_;
     RTT::OutputPort<double > port_hp_q_out_;
+    RTT::OutputPort<double > port_hp_dq_out_;
     RTT::InputPort<uint8_t > port_ht_enabled_in_;
     RTT::InputPort<uint8_t > port_hp_enabled_in_;
     RTT::InputPort<uint8_t > port_ht_homing_in_progress_in_;
@@ -113,7 +115,9 @@ SafeComponent::SafeComponent(const std::string &name)
     this->ports()->addPort("ht_q_INPORT", port_ht_q_in_);
     this->ports()->addPort("hp_q_INPORT", port_hp_q_in_);
     this->ports()->addPort("ht_q_OUTPORT", port_ht_q_out_);
+    this->ports()->addPort("ht_dq_OUTPORT", port_ht_dq_out_);
     this->ports()->addPort("hp_q_OUTPORT", port_hp_q_out_);
+    this->ports()->addPort("hp_dq_OUTPORT", port_hp_dq_out_);
     this->ports()->addPort("ht_enabled_INPORT", port_ht_enabled_in_);
     this->ports()->addPort("hp_enabled_INPORT", port_hp_enabled_in_);
     this->ports()->addPort("ht_homing_in_progress_INPORT", port_ht_homing_in_progress_in_);
@@ -210,7 +214,9 @@ void SafeComponent::updateHook() {
     }
 
     port_ht_q_out_.write(ht_q_);
+    port_ht_dq_out_.write(0.0);
     port_hp_q_out_.write(hp_q_);
+    port_hp_dq_out_.write(0.0);
 
 //    internal_space_position_.setZero();
     port_internal_space_position_command_out_.write(internal_space_position_);

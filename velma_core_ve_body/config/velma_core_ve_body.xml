@@ -54,8 +54,8 @@
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx_l" type="CanQueueTxComponent10" />
-    <component name="can_queue_tx_r" type="CanQueueTxComponent10" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent" />
 
     <component name="FtSensorLeft" type="FtSensor" />
     <component name="FtSensorRight" type="FtSensor" />
@@ -87,8 +87,10 @@
     <connection from="safe_t.i_OUTPORT" to="driver_t.desired_i_INPORT" />
 
     <connection from="safe_hp.q_OUTPORT" to="driver_hp.desired_q_INPORT" />
+    <connection from="safe_hp.dq_OUTPORT" to="driver_hp.desired_dq_INPORT" />
 
     <connection from="safe_ht.q_OUTPORT" to="driver_ht.desired_q_INPORT" />
+    <connection from="safe_ht.dq_OUTPORT" to="driver_ht.desired_dq_INPORT" />
 
     <connection from="lo_ec_stSplit.FTsensorleft_Data_FxGage0_OUTPORT"          to="FtSensorLeft.FxGage0_INPORT" name="ft_l_fx"/>
     <connection from="lo_ec_stSplit.FTsensorleft_Data_FyGage1_OUTPORT"          to="FtSensorLeft.FyGage1_INPORT" name="ft_l_fy"/>
@@ -123,8 +125,10 @@
 <!--    <connection from="hi_cmdSplit._OUTPORT" to="cmd_buffer.cmd_INPORT" />-->
 
     <connection from="hi_cmdSplit.hpMotor_q_OUTPORT" to="HeadPanTransmisionInv.JointPosition_INPORT" />
+    <connection from="hi_cmdSplit.hpMotor_dq_OUTPORT" to="HeadPanTransmisionInv.JointVelocity_INPORT" />
 
     <connection from="hi_cmdSplit.htMotor_q_OUTPORT" to="HeadTiltTransmisionInv.JointPosition_INPORT" />
+    <connection from="hi_cmdSplit.htMotor_dq_OUTPORT" to="HeadTiltTransmisionInv.JointVelocity_INPORT" />
 
     <connection from="lo_ec_stSplit.HeadPan_Inputs_Positionactualvalue_OUTPORT"         to="HeadPanTransmision.MotorPosition_INPORT" name="q_hp"/>
     <connection from="lo_ec_stSplit.HeadPan_Inputs_Velocityactualvalue_OUTPORT"         to="HeadPanTransmision.MotorVelocity_INPORT" name="dq_hp"/>
@@ -166,6 +170,7 @@
     <connection from="driver_t.controlWord_OUTPORT"       to="lo_ec_cmdConcate.TorsoPan_Outputs_Controlword_INPORT" />
     <connection from="driver_t.modeOfOperation_OUTPORT"   to="lo_ec_cmdConcate.TorsoPan_Outputs1_Modeofoperation_INPORT" />
     <connection from="driver_hp.q_OUTPORT"                to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
+    <connection from="driver_hp.dq_OUTPORT"                to="lo_ec_cmdConcate.HeadPan_Outputs_VelocityOffset_INPORT" />
     <connection from="driver_hp.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_Controlword_INPORT" />
     <connection from="driver_hp.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadPan_Outputs1_Modeofoperation_INPORT" />
     <connection from="driver_hp.homing_required_OUTPORT"        to="hi_stConcate.hpMotor_homing_required_INPORT" />
@@ -176,6 +181,7 @@
     <connection from="safe_hp.disable_OUTPORT"                  to="driver_hp.disable_INPORT" />
 
     <connection from="driver_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
+    <connection from="driver_ht.dq_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_VelocityOffset_INPORT" />
     <connection from="driver_ht.controlWord_OUTPORT"      to="lo_ec_cmdConcate.HeadTilt_Outputs_Controlword_INPORT" />
     <connection from="driver_ht.modeOfOperation_OUTPORT"  to="lo_ec_cmdConcate.HeadTilt_Outputs1_Modeofoperation_INPORT" />
     <connection from="driver_ht.homing_required_OUTPORT"        to="hi_stConcate.htMotor_homing_required_INPORT" />
@@ -252,7 +258,9 @@
     <connection from="bypass.tMotor_i_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
 -->
     <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT"     to="driver_ht.desired_q_INPORT" />
+    <connection from="HeadTiltTransmisionInv.MotorVelocity_OUTPORT"     to="driver_ht.desired_dq_INPORT" />
     <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"      to="driver_hp.desired_q_INPORT" />
+    <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT"      to="driver_hp.desired_dq_INPORT" />
     <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"      to="driver_t.desired_i_INPORT" />
 
     <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />

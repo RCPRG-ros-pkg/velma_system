@@ -110,6 +110,7 @@ bool SafeElmo::configureHook() {
         this->ports()->addPort("q_INPORT", port_q_in_);
         this->ports()->addPort("q_OUTPORT", port_desired_q_out_);
         this->ports()->addPort("cycle_counter_INPORT", port_cycle_counter_in_);
+        this->ports()->addPort("dq_OUTPORT", port_desired_dq_out_);
         control_mode_ = CYCLIC_POSITION;
         Logger::log() << Logger::Info << "Control mode is set to '" << control_mode_str_ << "'" << Logger::endl;
     }
@@ -210,6 +211,7 @@ void SafeElmo::updateHook() {
             }
         }
         port_desired_q_out_.write(q_in_);
+        port_desired_dq_out_.write(0);
     }
     else {
         Logger::In in( std::string("SafeElmo::updateHook ") + getName());
