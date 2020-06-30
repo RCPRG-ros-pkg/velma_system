@@ -162,7 +162,7 @@ void SafeLWR::updateHook() {
         // try to switch LWR mode
         if (lwrOk && fri_state_.state == lwr_msgs::FriIntfState::FRI_STATE_MON) {
             std_msgs::Int32 cmd;
-            cmd.data = 1;
+            cmd.data = lwr_msgs::FriIntfState::FRI_STATE_CMD;
             port_fri_cmd_out_.write(cmd);
         }
     }
