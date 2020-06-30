@@ -54,6 +54,7 @@
             <running_component name="b_stSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
+<!--             <running_component name="DataWriter" />           -->   
             <running_component name="Y" />
         </behavior>
 
@@ -78,6 +79,8 @@
             <running_component name="ColDet" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />  
+            <running_component name="DataWriter" />           
             <running_component name="Y" />
         </behavior>
 
@@ -100,6 +103,10 @@
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />   
+            <running_component name="MassStatCtrl" /> 
+            <!-- <running_component name="MassDynCtrl" />              -->
+            <running_component name="DataWriter" />            
             <running_component name="Y" />
         </behavior>
 
@@ -129,10 +136,14 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-<!--            <running_component name="ColDet" />-->
+    <!--            <running_component name="ColDet" />-->
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />
+            <running_component name="MassStatCtrl" />
+            <!-- <running_component name="MassDynCtrl" />              -->
+            <running_component name="DataWriter" />             
             <running_component name="Y" />
         </behavior>
 
@@ -142,7 +153,7 @@
             <running_component name="jnt_imp" />
             <running_component name="Mass" />
             <running_component name="JTG_body" />
-<!--            <running_component name="FK" />-->
+    <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
             <running_component name="C_q_body" />
@@ -154,10 +165,14 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-<!--            <running_component name="ColDet" />-->
+    <!--            <running_component name="ColDet" />-->
             <running_component name="ColDetRepJntImp" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />
+            <running_component name="MassStatCtrl" />
+            <!-- <running_component name="MassDynCtrl" />              -->
+            <running_component name="DataWriter" />             
             <running_component name="Y" />
         </behavior>
 <!--

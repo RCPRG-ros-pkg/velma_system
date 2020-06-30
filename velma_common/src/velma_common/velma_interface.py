@@ -42,6 +42,8 @@ from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from motor_action_msgs.msg import *
+from grasped_action_msgs.msg import *
+from identification_action_msgs.msg import *
 from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -351,6 +353,15 @@ class VelmaInterface:
                 self._action_motor_client_connected[motor] = self._action_motor_client[motor].wait_for_server(rospy.Duration.from_sec(0.001))
             allConnected = allConnected and self._action_motor_client_connected[motor]
 
+        for side in self._action_grasped_client_connected:
+            if not self._action_grasped_client_connected[side]:
+                self._action_grasped_client_connected[side] = self._action_grasped_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self._action_grasped_client_connected[side]    
+
+        for side in self._action_identification_client_connected:
+            if not self._action_identification_client_connected[side]:
+                self._action_identification_client_connected[side] = self._action_identification_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self._action_identification_client_connected[side]    
         return allConnected
 
     def waitForInit(self, timeout_s = None):
@@ -383,7 +394,8 @@ class VelmaInterface:
                     self._action_move_hand_client_connected["left"], self._action_cart_traj_client_connected["right"],\
                     self._action_cart_traj_client_connected["left"], self._action_joint_traj_client_connected,\
                     self._action_head_joint_traj_client_connected, self._action_motor_client_connected,\
-                    self._action_safe_col_client_connected
+                    self._action_safe_col_client_connected, self._action_grasped_client_connected,\
+                    self._action_identification_client_connected
                 return False
         return True
 
@@ -505,6 +517,10 @@ class VelmaInterface:
 
         self._action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
 
+        self._action_grasped_client_connected = {'right':False, 'left':False}
+
+        self._action_identification_client_connected = {'right':False, 'left':False}        
+
         # cartesian wrist trajectory for right arm
         self._action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
@@ -518,6 +534,16 @@ class VelmaInterface:
         self._action_head_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         self._action_safe_col_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction)
+
+        self._action_grasped_client = {
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/grasped_action", GraspedAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/grasped_action", GraspedAction)
+            }
+
+        self._action_identification_client = {
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/identification_action", IdentificationAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/identification_action", IdentificationAction)
+            }
 
         # motor actions for head
         self._action_motor_client = {
@@ -1410,3 +1436,58 @@ class VelmaInterface:
 
         return self._getKDLtf( frame_from_name, frame_to_name, time, timeout_s )
 
+    def setGraspedFlag(self, side, status):
+        """!
+        @param side string: Hand name, can be one of two values ('left' or 'right').        
+        @exception NameError: If side is not 'left' or 'right'.         
+        If some object is grasped and object's gravity compensation is active (from Velma's point of view): status == True
+        If Velma thinks nothing is grasped: status == False       
+        """
+        if side != 'left' and side != 'right':
+            raise NameError('wrong side name: ' + str(side))
+
+        goal = GraspedGoal()
+        if status == True:
+            goal.action = GraspedGoal.ACTION_OBJECT_GRASPED
+        elif status == False:
+            goal.action = GraspedGoal.ACTION_NOTHING_GRASPED
+
+        self._action_grasped_client[side].send_goal(goal)
+
+        print "Manipulator:", side, "--> object_grasped_flag_status:", status 
+
+        self._action_grasped_client[side].wait_for_result(timeout=rospy.Duration(0))
+        result = self._action_grasped_client[side].get_result()
+        error_code = result.error_code
+        if error_code != 0:
+            print "setGraspedFlag: action failed (error)"
+
+    def sendIdentificationMeasurementCommand(self, side, command_index):
+        """!
+        @param side string: Hand name, can be one of two values ('left' or 'right').        
+        @exception NameError: If side is not 'left' or 'right'.         
+        This identification action requires four measurements: two before and two after object is grasped.       
+        """
+        if side != 'left' and side != 'right':
+            raise NameError('wrong side name: ' + str(side))
+
+        goal = IdentificationGoal()
+        if command_index == 1:
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+        elif command_index == 2:
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+        elif command_index == 3:
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_AFTER_OBJECT_IS_GRASPED            
+        elif command_index == 4:
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_AFTER_OBJECT_IS_GRASPED
+
+        self._action_identification_client[side].send_goal(goal)
+
+        print "Manipulator:", side, "--> identification_command:", command_index 
+
+        self._action_identification_client[side].wait_for_result(timeout=rospy.Duration(0))
+        result = self._action_identification_client[side].get_result()
+        error_code = result.error_code
+        if error_code != 0:
+            print "sendIdentificationMeasurementCommand: action failed (error)"
+            
