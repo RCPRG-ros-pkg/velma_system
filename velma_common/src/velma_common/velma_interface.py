@@ -929,7 +929,7 @@ class VelmaInterface:
         """
         return self.waitForMotor("t", timeout_s=timeout_s)
 
-    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode.
 
@@ -997,14 +997,14 @@ class VelmaInterface:
 
         return True
 
-    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode for the right end-effector.
         @see moveCartImp
         """
         return self.moveCartImp("right", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
-    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode for the left end-effector.
         @see moveCartImp
