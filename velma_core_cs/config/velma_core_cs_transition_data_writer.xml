@@ -20,6 +20,8 @@
     <component name="MassStatCtrl"   type="MassStaticControl15" latex="\text{MassStatCtrl}" />
 <!--     <component name="MassDynCtrl"   type="MassDynamicControl15_2"   latex="\text{MassDynCtrl}" />    -->
     
+    <component name="DataWriter"    type="DataBufferManager"    latex="\text{DataWriter}" running="true" /> 
+
     <component name="ColDet"    type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
     <component name="ColDetRepJntImp"     type="CollisionDetectorVelma" latex="\text{ColDetRepJntImp}" />
@@ -285,6 +287,23 @@
     <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassDynCtrl.ObjectGraspedLeftCommand_INPORT" />    
     <connection from="MassDynCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
  -->
+    <connection from="C_q_body.Out" to="DataWriter.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="DataWriter.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />    
+    <connection from="C_dq_body.Out" to="DataWriter.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
+    <connection from="b_stSplit.rArm_t_OUTPORT" to="DataWriter.RightArmTorque_INPORT" name="t_ra" latex="t_{ra}" />
+    <connection from="b_stSplit.lArm_t_OUTPORT" to="DataWriter.LeftArmTorque_INPORT" name="t_la" latex="t_{la}" />
+    <connection from="S_t_body.Out0" to="DataWriter.TorsoTorqueCommand_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="S_t_body.Out1" to="DataWriter.RightArmTorqueCommand_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="S_t_body.Out2" to="DataWriter.LeftArmTorqueCommand_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="CImp.CartesianPosition0_OUTPORT" to="DataWriter.RightEffectorCartesianPosition_INPORT" name="pos_r" latex="p_{r,pos}" />
+    <connection from="CImp.CartesianPosition1_OUTPORT" to="DataWriter.LeftEffectorCartesianPosition_INPORT" name="pos_l" latex="p_{l,pos}" />    
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorCartesianPositionCommand_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorCartesianPositionCommand_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorToolPositionCommand_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorToolPositionCommand_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />    
+    <connection from="MassStatCtrl.MassStaticTorqueCommand_OUTPORT" to="DataWriter.MassStaticTorqueCommand_INPORT" name="cmd_t_msc" latex="t_{cmd,msc}" />
+    <ros_stream port="DataWriter.WriteExperimentName_INPORT" topic="/velma_core_cs/write_experiment_name" />        
+    <ros_stream port="DataWriter.WriteDataCommand_INPORT" topic="/velma_core_cs/write_data_cmd" />
 
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />    
     <connection from="C_q_all.Out" to="ColDetRepJntImp.q_INPORT" name="q" latex="q" />

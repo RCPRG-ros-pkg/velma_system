@@ -69,7 +69,7 @@ bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<const R
 }
 
 bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->cmd.jnt_valid;
+    return in_data->cmd.jnt_valid || in_data->pred_ctrl_cmd_valid;
 }
 
 bool recvSafeColCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {

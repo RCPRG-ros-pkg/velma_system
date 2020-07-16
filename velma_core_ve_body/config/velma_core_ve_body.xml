@@ -60,8 +60,8 @@
     <component name="FtSensorLeft" type="FtSensor" />
     <component name="FtSensorRight" type="FtSensor" />
 
-    <io_buffer alias="hi_st" name="velma_core_cs_ve_body_msgs_Status" />
-    <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_msgs_Command" />
+    <io_buffer alias="hi_st" name="velma_core_cs_ve_body_st" />
+    <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_cmd" />
 
     <io_buffer alias="lo_rLwr_st" name="rLwr_st" />
     <io_buffer alias="lo_rLwr_cmd" name="rLwr_cmd" />
