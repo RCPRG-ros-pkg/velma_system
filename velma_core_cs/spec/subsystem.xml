@@ -7,7 +7,7 @@
         <in  alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="top"/>
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"/>
 
-        <in  alias="pred_ctrl_cmd" type="velma_core_cs_task_cs_msgs::CommandJntImp"   side="top"/>
+        <in  alias="pred_ctrl_cmd" type="velma_core_cs_task_cs_msgs::Command"   side="top"/>
         <out alias="pred_ctrl_st"  type="velma_core_cs_task_cs_msgs::Status"    side="top"/>
     </buffers>
 

@@ -268,6 +268,9 @@
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
+    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{r}" />
+
     <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />    
 <!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
     <!-- <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" /> -->
@@ -329,7 +332,15 @@
     <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
 
-    <connection from="pred_ctrl_cmdSplit._OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+
+    <connection from="pred_ctrl_cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
+
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
@@ -459,5 +470,7 @@
     <connection from="b_stSplit.p_OUTPORT" to="pred_ctrl_stConcate.p_INPORT" latex="pred_ctrl_st_{tact}" />
     <connection from="b_stSplit.f_OUTPORT" to="pred_ctrl_stConcate.f_INPORT" latex="pred_ctrl_st_{of}" />
 
+    <connection from="FK.RightPosition_OUTPORT" to="pred_ctrl_stConcate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="pred_ctrl_stConcate.lWristPose_INPORT" latex="p_{r}" />
 
 </subsystem_configuration>
