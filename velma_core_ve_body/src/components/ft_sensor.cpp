@@ -29,6 +29,8 @@
 #include <rtt/Logger.hpp>
 #include <rtt/Component.hpp>
 
+#include <kdl/frames.hpp>
+
 #include <geometry_msgs/Wrench.h>
 
 using namespace RTT;
@@ -75,6 +77,12 @@ public:
 
     int slow_buffer_size_;
     int fast_buffer_size_;
+
+    std::vector<double> transform_xyz_;
+    std::vector<double> transform_rpy_;
+
+    KDL::Frame T_W_S_;
+    KDL::Wrench wr_W, wr_S;    
 };
 
 FtSensor::FtSensor(std::string const& name)
@@ -86,6 +94,8 @@ FtSensor::FtSensor(std::string const& name)
     , scaling_factor_(0.0)
 {
     addProperty("scaling_factor", scaling_factor_);
+    addProperty("transform_xyz", transform_xyz_);
+    addProperty("transform_rpy", transform_rpy_);      
 
     this->ports()->addPort("FxGage0_INPORT", port_FxGage0_in_);
     this->ports()->addPort("FyGage1_INPORT", port_FyGage1_in_);
@@ -101,7 +111,7 @@ FtSensor::FtSensor(std::string const& name)
 
     this->ports()->addPort("w_OUTPORT", port_w_out_);
     this->ports()->addPort("fw_OUTPORT", port_fw_out_);
-    this->ports()->addPort("ffw_OUTPORT", port_ffw_out_);
+    this->ports()->addPort("ffw_OUTPORT", port_ffw_out_);  
 
     slow_buffer_.resize(slow_buffer_size_);
     fast_buffer_.resize(fast_buffer_size_);
@@ -117,6 +127,18 @@ bool FtSensor::configureHook() {
         Logger::log() << Logger::Error << "Parameter 'scaling_factor' is not set." << Logger::endl;
         return false;
     }
+
+    if (transform_xyz_.size() != 3) {
+        Logger::log() << Logger::Error << "wrong transform_xyz: vector size is " << transform_xyz_.size() << ", should be 3" << Logger::endl;
+        return false;
+    }
+
+    if (transform_rpy_.size() != 3) {
+        Logger::log() << Logger::Error << "wrong transform_rpy: vector size is " << transform_rpy_.size() << ", should be 3" << Logger::endl;
+        return false;
+    }
+
+    T_W_S_ = KDL::Frame(KDL::Rotation::RPY(transform_rpy_[0], transform_rpy_[1], transform_rpy_[2]), KDL::Vector(transform_xyz_[0], transform_xyz_[1], transform_xyz_[2])); 
 
     return true;
 }
@@ -152,13 +174,16 @@ void FtSensor::updateHook() {
     //port_StatusCode_in_.read(StatusCode_in);
     //port_SampleCounter_in_.read(SampleCounter_in);
 
+    wr_S = KDL::Wrench(KDL::Vector(FxGage0_in, FyGage1_in, FzGage2_in)*scaling_factor_, KDL::Vector(TxGage3_in, TyGage4_in, TzGage5_in)*scaling_factor_);
+    wr_W = T_W_S_ * wr_S;
+
     geometry_msgs::Wrench w;
-    w.force.x = FxGage0_in * scaling_factor_;
-    w.force.y = FyGage1_in * scaling_factor_;
-    w.force.z = FzGage2_in * scaling_factor_;
-    w.torque.x = TxGage3_in * scaling_factor_;
-    w.torque.y = TyGage4_in * scaling_factor_;
-    w.torque.z = TzGage5_in * scaling_factor_;
+    w.force.x = wr_W.force.x();
+    w.force.y = wr_W.force.y();
+    w.force.z = wr_W.force.z();
+    w.torque.x = wr_W.torque.x();
+    w.torque.y = wr_W.torque.y();
+    w.torque.z = wr_W.torque.z();
 
     // slow filtered F/T
     fw_.force.x -= slow_buffer_[slow_buffer_index_].force.x / slow_buffer_size_;
