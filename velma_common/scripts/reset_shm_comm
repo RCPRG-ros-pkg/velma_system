@@ -5,38 +5,37 @@
 # @file reset_shm_comm
 # @namespace scripts.reset_shm_comm Resets shared memory for IPC for Velma system.
 
-import roslib; roslib.load_manifest('velma_common')
-import subprocess
+import os
 
 if __name__ == "__main__":
 
-    shm_files = [
-        'EC_Command_data',
-        'EC_Command_hdr',
-        'EC_Status_data',
-        'EC_Status_hdr',
-        'lLwr_cmd_data',
-        'lLwr_cmd_hdr',
-        'lLwr_st_data',
-        'lLwr_st_hdr',
-        'rLwr_cmd_data',
-        'rLwr_cmd_hdr',
-        'rLwr_st_data',
-        'rLwr_st_hdr',
-        'velma_core_cs_task_cs_msgs_Command_data',
-        'velma_core_cs_task_cs_msgs_Command_hdr',
-        'velma_core_cs_task_cs_msgs_Status_data',
-        'velma_core_cs_task_cs_msgs_Status_hdr',
-        'velma_core_cs_ve_body_msgs_Command_data',
-        'velma_core_cs_ve_body_msgs_Command_hdr',
-        'velma_core_cs_ve_body_msgs_Status_data',
-        'velma_core_cs_ve_body_msgs_Status_hdr',
+    shm_channels = [
+        'EC_Command',
+        'EC_Status',
+        'lLwr_cmd',
+        'lLwr_st',
+        'rLwr_cmd',
+        'rLwr_st',
+        'velma_core_cs_task_cs_cmd',
+        'velma_core_cs_task_cs_st',
+        'velma_core_cs_ve_body_cmd',
+        'velma_core_cs_ve_body_st',
+        'velma_core_cs_pred_ctrl_cmd',
+        'velma_core_cs_pred_ctrl_st',
     ]
 
+    shm_files = []
+    for channel_name in shm_channels:
+        shm_files.append( '{}_data'.format(channel_name) )
+        shm_files.append( '{}_hdr'.format(channel_name) )
+
     for file_name in shm_files:
-        print 'rm /dev/shm/' + file_name
-        subprocess.call(['rm', '/dev/shm/' + file_name])
+        full_path = '/dev/shm/{}'.format(file_name)
+        if os.path.exists(full_path):
+            os.remove(full_path)
+            print('Removed file "{}"'.format(full_path)) 
+        else:
+            print('The file "{}" does not exist'.format(full_path)) 
 
-    print "Cleanup done."
-    print "You can now run the control system of Velma."
-
+    print("Cleanup done.")
+    print("You can now run the control system of Velma.")

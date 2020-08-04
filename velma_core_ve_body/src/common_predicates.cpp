@@ -90,7 +90,8 @@ bool isCommandValidSc(const velma_core_ve_body_re_body_msgs::CommandSimple &cmd)
 */
 
 bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd) {
-    double arm_t_limits[7] = {50.0, 50.0, 30.0, 20.0, 20.0, 10.0, 10.0};
+    // double arm_t_limits[7] = {50.0, 50.0, 30.0, 20.0, 20.0, 10.0, 10.0};
+    double arm_t_limits[7] = {100.0, 100.0, 60.0, 50.0, 40.0, 20.0, 20.0};
     for (int i = 0; i < cmd.t.size(); ++i) {
         if (!isInLim(cmd.t[i], -arm_t_limits[i], arm_t_limits[i])) {
             return false;

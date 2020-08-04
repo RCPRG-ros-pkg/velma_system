@@ -124,7 +124,7 @@ using namespace RTT;
     void LWRSim::updateHook() {
 
         if (port_KRL_CMD_in_.read(KRL_CMD_in_) == RTT::NewData) {
-            if (1 == KRL_CMD_in_.data) {
+            if (2 == KRL_CMD_in_.data) {
                 if (!command_mode_) {
                     command_mode_ = true;
                     //Logger::log() << Logger::Info <<  "switched to command mode" << Logger::endl;
@@ -133,7 +133,7 @@ using namespace RTT;
                     //Logger::log() << Logger::Warning <<  "tried to switch to command mode while in command mode" << Logger::endl;
                 }
             }
-            else if (2 == KRL_CMD_in_.data) {
+            else if (1 == KRL_CMD_in_.data) {
                 if (command_mode_) {
                     command_mode_ = false;
                     //Logger::log() << Logger::Info << "switched to monitor mode" << Logger::endl;

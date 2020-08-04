@@ -54,14 +54,14 @@
         <service name="can_queue" />
     </component>
 
-    <component name="can_queue_tx_l" type="CanQueueTxComponent10" />
-    <component name="can_queue_tx_r" type="CanQueueTxComponent10" />
+    <component name="can_queue_tx_l" type="CanQueueTxComponent" />
+    <component name="can_queue_tx_r" type="CanQueueTxComponent" />
 
     <component name="FtSensorLeft" type="FtSensor" />
     <component name="FtSensorRight" type="FtSensor" />
 
-    <io_buffer alias="hi_st" name="velma_core_cs_ve_body_msgs_Status" />
-    <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_msgs_Command" />
+    <io_buffer alias="hi_st" name="velma_core_cs_ve_body_st" />
+    <io_buffer alias="hi_cmd" name="velma_core_cs_ve_body_cmd" />
 
     <io_buffer alias="lo_rLwr_st" name="rLwr_st" />
     <io_buffer alias="lo_rLwr_cmd" name="rLwr_cmd" />

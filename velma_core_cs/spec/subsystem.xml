@@ -1,17 +1,21 @@
 <subsystem_definition>
 
     <buffers>
-        <in alias="b_st"    type="velma_core_cs_ve_body_msgs::Status"     side="bottom" />
+        <in  alias="b_st"   type="velma_core_cs_ve_body_msgs::Status"     side="bottom" />
         <out alias="b_cmd"  type="velma_core_cs_ve_body_msgs::Command"    side="bottom"/>
 
-        <in alias="cmd"     type="velma_core_cs_task_cs_msgs::Command"    side="top"/>
+        <in  alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="top"/>
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"/>
+
+        <in  alias="pred_ctrl_cmd" type="velma_core_cs_task_cs_msgs::Command"   side="top"/>
+        <out alias="pred_ctrl_st"  type="velma_core_cs_task_cs_msgs::Status"    side="top"/>
     </buffers>
 
     <buffer_groups>
         <buffer_group name="all_inputs" >
             <obligatory name="b_st" />
             <optional name="cmd" />
+            <optional name="pred_ctrl_cmd" />
         </buffer_group>
     </buffer_groups>
 
@@ -78,6 +82,7 @@
             <running_component name="ColDet" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />  
             <running_component name="Y" />
         </behavior>
 
@@ -100,6 +105,9 @@
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />   
+            <running_component name="MassStatCtrl" /> 
+            <!-- <running_component name="MassDynCtrl" />              -->
             <running_component name="Y" />
         </behavior>
 
@@ -129,10 +137,13 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-<!--            <running_component name="ColDet" />-->
+    <!--            <running_component name="ColDet" />-->
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />
+            <running_component name="MassStatCtrl" />
+            <!-- <running_component name="MassDynCtrl" />              -->
             <running_component name="Y" />
         </behavior>
 
@@ -142,7 +153,7 @@
             <running_component name="jnt_imp" />
             <running_component name="Mass" />
             <running_component name="JTG_body" />
-<!--            <running_component name="FK" />-->
+    <!--            <running_component name="FK" />-->
             <running_component name="JntImp" />
             <running_component name="S_t_body" />
             <running_component name="C_q_body" />
@@ -154,10 +165,13 @@
             <running_component name="cmdSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-<!--            <running_component name="ColDet" />-->
+    <!--            <running_component name="ColDet" />-->
             <running_component name="ColDetRepJntImp" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
+            <running_component name="ObjParamIdentif" />
+            <running_component name="MassStatCtrl" />
+            <!-- <running_component name="MassDynCtrl" />              -->
             <running_component name="Y" />
         </behavior>
 <!--
@@ -183,7 +197,7 @@
         <state name="idle">
             <behavior name="idle" />
             <next_state name="safe" init_cond="TRUE"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="safe">
@@ -193,7 +207,7 @@
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="safe_col">
@@ -202,7 +216,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="cart_imp">
@@ -212,7 +226,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="jnt_imp">
@@ -222,7 +236,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
             <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" />
+            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
     </states>
 

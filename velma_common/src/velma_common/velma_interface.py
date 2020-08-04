@@ -4,7 +4,7 @@
 
 # Copyright (c) 2014, Robot Control and Pattern Recognition Group, Warsaw University of Technology
 # All rights reserved.
-# 
+#
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
 #     * Redistributions of source code must retain the above copyright
@@ -15,7 +15,7 @@
 #     * Neither the name of the Warsaw University of Technology nor the
 #       names of its contributors may be used to endorse or promote products
 #       derived from this software without specific prior written permission.
-# 
+#
 # THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 # ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 # WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -42,6 +42,8 @@ from barrett_hand_msgs.msg import *
 from barrett_hand_action_msgs.msg import *
 from cartesian_trajectory_msgs.msg import *
 from motor_action_msgs.msg import *
+from grasped_action_msgs.msg import *
+from identification_action_msgs.msg import *
 from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
@@ -192,14 +194,13 @@ class VelmaInterface:
     _task_cs_name = "/velma_task_cs_ros_interface"
 
     _joint_groups = {"impedance_joints":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
-        'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
-        'right_arm_6_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
-        'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
-        "right_arm":['right_arm_0_joint', 'right_arm_1_joint',
-        'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
-        'right_arm_6_joint'],
-        "left_arm":['left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
-        'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']}
+            'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
+            'right_arm_6_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
+            'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
+        "right_arm":['right_arm_0_joint', 'right_arm_1_joint', 'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint', 'right_arm_6_joint'],
+        "right_arm_torso":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint', 'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint', 'right_arm_6_joint'],        
+        "left_arm":['left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint', 'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
+        "left_arm_torso":['torso_0_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint', 'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']}
 
     def getLastJointState(self):
         """!
@@ -227,7 +228,7 @@ class VelmaInterface:
         with self._joint_states_lock:
             if self._js_pos_history_idx < 0:
                 return None
-                
+
             hist_len = len(self._js_pos_history)
             for step in range(hist_len-1):
                 h1_idx = (self._js_pos_history_idx - step - 1) % hist_len
@@ -351,6 +352,15 @@ class VelmaInterface:
                 self._action_motor_client_connected[motor] = self._action_motor_client[motor].wait_for_server(rospy.Duration.from_sec(0.001))
             allConnected = allConnected and self._action_motor_client_connected[motor]
 
+        for side in self._action_grasped_client_connected:
+            if not self._action_grasped_client_connected[side]:
+                self._action_grasped_client_connected[side] = self._action_grasped_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self._action_grasped_client_connected[side]    
+
+        for side in self._action_identification_client_connected:
+            if not self._action_identification_client_connected[side]:
+                self._action_identification_client_connected[side] = self._action_identification_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
+            allConnected = allConnected and self._action_identification_client_connected[side]    
         return allConnected
 
     def waitForInit(self, timeout_s = None):
@@ -383,7 +393,8 @@ class VelmaInterface:
                     self._action_move_hand_client_connected["left"], self._action_cart_traj_client_connected["right"],\
                     self._action_cart_traj_client_connected["left"], self._action_joint_traj_client_connected,\
                     self._action_head_joint_traj_client_connected, self._action_motor_client_connected,\
-                    self._action_safe_col_client_connected
+                    self._action_safe_col_client_connected, self._action_grasped_client_connected,\
+                    self._action_identification_client_connected
                 return False
         return True
 
@@ -505,6 +516,10 @@ class VelmaInterface:
 
         self._action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
 
+        self._action_grasped_client_connected = {'right':False, 'left':False}
+
+        self._action_identification_client_connected = {'right':False, 'left':False}        
+
         # cartesian wrist trajectory for right arm
         self._action_cart_traj_client = {
             'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
@@ -518,6 +533,16 @@ class VelmaInterface:
         self._action_head_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
 
         self._action_safe_col_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction)
+
+        self._action_grasped_client = {
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/grasped_action", GraspedAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/grasped_action", GraspedAction)
+            }
+
+        self._action_identification_client = {
+            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/identification_action", IdentificationAction),
+            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/identification_action", IdentificationAction)
+            }
 
         # motor actions for head
         self._action_motor_client = {
@@ -552,7 +577,7 @@ class VelmaInterface:
         #self.br = tf.TransformBroadcaster()
 
         rospy.sleep(1.0)
-        
+
         #self.wrench_tab = []
         #self.wrench_tab_index = 0
         #self.wrench_tab_len = 4000
@@ -903,7 +928,7 @@ class VelmaInterface:
         """
         return self.waitForMotor("t", timeout_s=timeout_s)
 
-    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode.
 
@@ -971,14 +996,14 @@ class VelmaInterface:
 
         return True
 
-    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImpRight(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode for the right end-effector.
         @see moveCartImp
         """
         return self.moveCartImp("right", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
-    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.7, 0.7, 0.7),PyKDL.Vector(0.7, 0.7, 0.7)), path_tol=None):
+    def moveCartImpLeft(self, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
         Execute motion in cartesian impedance mode for the left end-effector.
         @see moveCartImp
@@ -1251,10 +1276,7 @@ class VelmaInterface:
         action_goal.t = t
         action_goal.maxPressure = maxPressure
         action_goal.reset = False
-        if hold == True:
-            action_goal.hold = 1
-        else:
-            action_goal.hold = 0
+        action_goal.hold = 1 if hold else 0
         self._action_move_hand_client[prefix].send_goal(action_goal)
 
     def moveHandLeft(self, q, v, t, maxPressure, hold=False):
@@ -1413,3 +1435,58 @@ class VelmaInterface:
 
         return self._getKDLtf( frame_from_name, frame_to_name, time, timeout_s )
 
+    def setGraspedFlag(self, side, status):
+        """!
+        @param side string: Hand name, can be one of two values ('left' or 'right').        
+        @exception NameError: If side is not 'left' or 'right'.         
+        If some object is grasped and object's gravity compensation is active (from Velma's point of view): status == True
+        If Velma thinks nothing is grasped: status == False       
+        """
+        if side != 'left' and side != 'right':
+            raise NameError('wrong side name: ' + str(side))
+
+        goal = GraspedGoal()
+        if status == True:
+            goal.action = GraspedGoal.ACTION_OBJECT_GRASPED
+        elif status == False:
+            goal.action = GraspedGoal.ACTION_NOTHING_GRASPED
+
+        self._action_grasped_client[side].send_goal(goal)
+
+        print "Manipulator:", side, "--> object_grasped_flag_status:", status 
+
+        self._action_grasped_client[side].wait_for_result(timeout=rospy.Duration(0))
+        result = self._action_grasped_client[side].get_result()
+        error_code = result.error_code
+        if error_code != 0:
+            print "setGraspedFlag: action failed (error)"
+
+    def sendIdentificationMeasurementCommand(self, side, command_index):
+        """!
+        @param side string: Hand name, can be one of two values ('left' or 'right').        
+        @exception NameError: If side is not 'left' or 'right'.         
+        This identification action requires four measurements: two before and two after object is grasped.       
+        """
+        if side != 'left' and side != 'right':
+            raise NameError('wrong side name: ' + str(side))
+
+        goal = IdentificationGoal()
+        if command_index == 1:
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+        elif command_index == 2:
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_BEFORE_OBJECT_IS_GRASPED
+        elif command_index == 3:
+            goal.action = IdentificationGoal.ACTION_FIRST_MEASUREMENT_AFTER_OBJECT_IS_GRASPED            
+        elif command_index == 4:
+            goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_AFTER_OBJECT_IS_GRASPED
+
+        self._action_identification_client[side].send_goal(goal)
+
+        print "Manipulator:", side, "--> identification_command:", command_index 
+
+        self._action_identification_client[side].wait_for_result(timeout=rospy.Duration(0))
+        result = self._action_identification_client[side].get_result()
+        error_code = result.error_code
+        if error_code != 0:
+            print "sendIdentificationMeasurementCommand: action failed (error)"
+            
