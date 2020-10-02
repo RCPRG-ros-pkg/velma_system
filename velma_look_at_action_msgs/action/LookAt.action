@@ -1,0 +1,13 @@
+string frame_id
+geometry_msgs/Point target
+---
+int32 error_code
+int32 SUCCESSFUL = 0
+int32 OUT_OF_RANGE = -1
+int32 WRONG_BEHAVIOUR = -2
+int32 MOTION_FAILED = -3
+---
+Header header
+float32 quality
+float32 view_x_factor
+float32 view_y_factor
