@@ -1240,12 +1240,16 @@ class VelmaInterface:
         traj.points.append(pt)
         return self.moveHeadTraj(traj, start_time=start_time, stamp=stamp, position_tol=position_tol, velocity_tol=velocity_tol)
 
-    def waitForHead(self):
+    def waitForHead(self, timeout_s=None):
         """!
         Wait for head movement to complete.
         @return Returns error code.
         """
-        self._action_head_joint_traj_client.wait_for_result()
+        if timeout_s == None:
+            timeout_s = 0
+
+        if not self._action_head_joint_traj_client.wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
         result = self._action_head_joint_traj_client.get_result()
         if result.error_code != 0:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
