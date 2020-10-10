@@ -325,43 +325,38 @@ class VelmaInterface:
             js[1]["head_tilt_joint"] )
         return q
 
-    # Private method used in waitForInit.
-    def _allActionsConnected(self):
-        allConnected = True
-        for side in self._action_move_hand_client_connected:
-            if not self._action_move_hand_client_connected[side]:
-                self._action_move_hand_client_connected[side] = self._action_move_hand_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
-            if not self._action_cart_traj_client_connected[side]:
-                self._action_cart_traj_client_connected[side] = self._action_cart_traj_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
-            allConnected = allConnected and self._action_move_hand_client_connected[side] and\
-                self._action_cart_traj_client_connected[side]
-        if not self._action_joint_traj_client_connected:
-            self._action_joint_traj_client_connected = self._action_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self._action_joint_traj_client_connected
+    def __connectAction(self, action_name, action, timeout_s):
+        is_connected = action.wait_for_server(rospy.Duration(timeout_s))
+        with self.__action_is_connected_lock:
+            self.__action_is_connected[action_name] = is_connected
 
-        if not self._action_head_joint_traj_client_connected:
-            self._action_head_joint_traj_client_connected = self._action_head_joint_traj_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self._action_head_joint_traj_client_connected
+    def __getDiagInfo(self, timeout_s):
+        self.__received_diag_info = False
+        time_start = time.time()
+        while not rospy.is_shutdown():
+            try:
+                diag = self.getCoreCsDiag()
+                if len(diag.history) > 0:
+                    self.__received_diag_info = True
+                    return
+            except:
+                pass
+            rospy.sleep(0.1)
+            time_now = time.time()
+            if timeout_s and (time_now-time_start) > timeout_s:
+                break
 
-        if not self._action_safe_col_client_connected:
-            self._action_safe_col_client_connected = self._action_safe_col_client.wait_for_server(rospy.Duration.from_sec(0.001))
-        allConnected = allConnected and self._action_safe_col_client_connected
-
-        for motor in self._action_motor_client_connected:
-            if not self._action_motor_client_connected[motor]:
-                self._action_motor_client_connected[motor] = self._action_motor_client[motor].wait_for_server(rospy.Duration.from_sec(0.001))
-            allConnected = allConnected and self._action_motor_client_connected[motor]
-
-        for side in self._action_grasped_client_connected:
-            if not self._action_grasped_client_connected[side]:
-                self._action_grasped_client_connected[side] = self._action_grasped_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
-            allConnected = allConnected and self._action_grasped_client_connected[side]    
-
-        for side in self._action_identification_client_connected:
-            if not self._action_identification_client_connected[side]:
-                self._action_identification_client_connected[side] = self._action_identification_client[side].wait_for_server(rospy.Duration.from_sec(0.001))
-            allConnected = allConnected and self._action_identification_client_connected[side]    
-        return allConnected
+    def __isInitialized(self):
+        for action_name in self.__action_map:
+            if not action_name in self.__action_is_connected:
+                return False
+            if not self.__action_is_connected[action_name]:
+                return False
+        if not self.__received_diag_info:
+            return False
+        if self._js_pos_history_idx < 0:
+            return False
+        return True
 
     def waitForInit(self, timeout_s = None):
         """!
@@ -372,30 +367,35 @@ class VelmaInterface:
         @return True if the interface was succesfully initialized within timeout, False otherwise.
         """
         time_start = time.time()
-        can_break = False
-        while not rospy.is_shutdown():
-            with self._joint_states_lock:
-                if self._js_pos_history_idx >= 0:
-                    can_break = True
-            diag_info = False
-            try:
-                diag = self.getCoreCsDiag()
-                if len(diag.history) > 0:
-                    diag_info = True
-            except:
-                pass
-            if can_break and self._allActionsConnected() and diag_info:
-                break
-            rospy.sleep(0.1)
-            time_now = time.time()
-            if timeout_s and (time_now-time_start) > timeout_s:
-                print "ERROR: waitForInit: ", can_break, self._action_move_hand_client_connected["right"],\
-                    self._action_move_hand_client_connected["left"], self._action_cart_traj_client_connected["right"],\
-                    self._action_cart_traj_client_connected["left"], self._action_joint_traj_client_connected,\
-                    self._action_head_joint_traj_client_connected, self._action_motor_client_connected,\
-                    self._action_safe_col_client_connected, self._action_grasped_client_connected,\
-                    self._action_identification_client_connected
-                return False
+
+        self.__action_is_connected_lock = threading.Lock()
+        self.__action_is_connected = {}
+        threads = []
+        for action_name, action in self.__action_map.iteritems():
+            t = threading.Thread(name='action-{}'.format(action_name),
+            			target=self.__connectAction, args=(action_name, action, timeout_s))
+            t.start()
+            threads.append( t )
+
+        t = threading.Thread(name='get-diag-info',
+                        		target=self.__getDiagInfo, args=(timeout_s,))
+        t.start()
+        threads.append( t )
+
+        for t in threads:
+            t.join()
+
+        print("ERROR: waitForInit: timeout")
+        if not self.__isInitialized():
+            for action_name in self.__action_map:
+                if not action_name in self.__action_is_connected:
+                    print('    is_action_connected({}): information is missing'.format(action_name))
+                else:
+                    print('    is_action_connected({}): {}'.format(action_name, self.__action_is_connected[action_name]))
+
+            print('    joint_state_received: {}'.format(self._js_pos_history_idx >= 0))
+            print('    received_diag_info: {}'.format(self.__received_diag_info))
+            return False
         return True
 
     def waitForJointState(self, abs_time):
@@ -508,73 +508,22 @@ class VelmaInterface:
 
         self._joint_states_lock = threading.Lock()
 
-        self._action_move_hand_client_connected = {'right':False, 'left':False}
-        self._action_cart_traj_client_connected = {'right':False, 'left':False}
-        self._action_joint_traj_client_connected = False
-        self._action_head_joint_traj_client_connected = False
-        self._action_safe_col_client_connected = False
-
-        self._action_motor_client_connected = {'hp':False, 'ht':False, 't':False}
-
-        self._action_grasped_client_connected = {'right':False, 'left':False}
-
-        self._action_identification_client_connected = {'right':False, 'left':False}        
-
-        # cartesian wrist trajectory for right arm
-        self._action_cart_traj_client = {
-            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
-            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/cartesian_trajectory", CartImpAction)
-            }
-
-        # joint trajectory for arms and torso
-        self._action_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/spline_trajectory_action_joint", FollowJointTrajectoryAction)
-
-        # joint trajectory for head
-        self._action_head_joint_traj_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction)
-
-        self._action_safe_col_client = actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction)
-
-        self._action_grasped_client = {
-            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/grasped_action", GraspedAction),
-            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/grasped_action", GraspedAction)
-            }
-
-        self._action_identification_client = {
-            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/identification_action", IdentificationAction),
-            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/identification_action", IdentificationAction)
-            }
-
-        # motor actions for head
-        self._action_motor_client = {
+        self.__action_map = {
+        	'jimp':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/spline_trajectory_action_joint", FollowJointTrajectoryAction),
+        	'head':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction),
+        	'safe_col':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction),
+        	'grasped_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/grasped_action", GraspedAction),
+        	'grasped_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/grasped_action", GraspedAction),
+        	'identification_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/identification_action", IdentificationAction),
+        	'identification_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/identification_action", IdentificationAction),
             'hp':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/hp", MotorAction),
             'ht':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/ht", MotorAction),
-            't':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/t", MotorAction)
-            }
-
-        # cartesian tool trajectory for arms in the wrist frames
-#        self._action_tool_client = {
-#            'right':actionlib.SimpleActionClient("/right_arm/tool_trajectory", CartesianTrajectoryAction),
-#            'left':actionlib.SimpleActionClient("/left_arm/tool_trajectory", CartesianTrajectoryAction) }
-#        self._action_tool_client["right"].wait_for_server()
-#        self._action_tool_client["left"].wait_for_server()
-
-        # cartesian impedance trajectory for right arm
-#        self._action_impedance_client = {
-#            'right':actionlib.SimpleActionClient("/right_arm/cartesian_impedance", CartesianImpedanceAction),
-#            'left':actionlib.SimpleActionClient("/left_arm/cartesian_impedance", CartesianImpedanceAction) }
-#        self._action_impedance_client["right"].wait_for_server()
-#        self._action_impedance_client["left"].wait_for_server()
-
-        self._action_move_hand_client = {
-            'right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_hand/move_hand", BHMoveAction),
-            'left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_hand/move_hand", BHMoveAction) }
-#        self._action_move_hand_client["right"].wait_for_server()    # this check is done in waitForInit
-#        self._action_move_hand_client["left"].wait_for_server()     # this check is done in waitForInit
-
-#        self.pub_reset_left = rospy.Publisher("/left_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
-#        self.pub_reset_right = rospy.Publisher("/right_hand/reset_fingers", std_msgs.msg.Empty, queue_size=100)
-
-        #self.br = tf.TransformBroadcaster()
+            't':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/t", MotorAction),
+            'hand_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_hand/move_hand", BHMoveAction),
+            'hand_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_hand/move_hand", BHMoveAction),
+            'cimp_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
+            'cimp_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/cartesian_trajectory", CartImpAction)
+        }
 
         rospy.sleep(1.0)
 
@@ -801,7 +750,7 @@ class VelmaInterface:
         """
         goal = BehaviorSwitchGoal()
         goal.command = 1
-        self._action_safe_col_client.send_goal(goal)
+        self.__action_map['safe_col'].send_goal(goal)
 
     def enableMotor(self, motor):
         """!
@@ -815,7 +764,7 @@ class VelmaInterface:
             raise NameError(motor)
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_ENABLE
-        self._action_motor_client[motor].send_goal(goal)
+        self.__action_map[motor].send_goal(goal)
 
     def startHomingMotor(self, motor):
         """!
@@ -829,7 +778,7 @@ class VelmaInterface:
             raise NameError(motor)
         goal = MotorGoal()
         goal.action = MotorGoal.ACTION_START_HOMING
-        self._action_motor_client[motor].send_goal(goal)
+        self.__action_map[motor].send_goal(goal)
 
     def waitForMotor(self, motor, timeout_s=0):
         """!
@@ -845,9 +794,9 @@ class VelmaInterface:
         if motor != 'hp' and motor != 'ht' and motor != 't':
             raise NameError(motor)
 
-        if not self._action_motor_client[motor].wait_for_result(timeout=rospy.Duration(timeout_s)):
+        if not self.__action_map[motor].wait_for_result(timeout=rospy.Duration(timeout_s)):
             return None
-        result = self._action_motor_client[motor].get_result()
+        result = self.__action_map[motor].get_result()
 
         error_code = result.error_code
 
@@ -992,7 +941,7 @@ class VelmaInterface:
             action_trajectory_goal.goal_tolerance.rotation = geometry_msgs.msg.Vector3( path_tol.rot.x(), path_tol.rot.y(), path_tol.rot.z() )
 
         action_trajectory_goal.wrench_constraint = self._wrenchKDLtoROS(max_wrench)
-        self._action_cart_traj_client[prefix].send_goal(action_trajectory_goal)
+        self.__action_map['cimp_'+prefix].send_goal(action_trajectory_goal)
 
         return True
 
@@ -1039,16 +988,16 @@ class VelmaInterface:
 
         if timeout_s == None:
             timeout_s = 0
-        if not self._action_cart_traj_client[prefix].wait_for_result(timeout=rospy.Duration(timeout_s)):
+        if not self.__action_map['cimp_'+prefix].wait_for_result(timeout=rospy.Duration(timeout_s)):
             return None
-        result = self._action_cart_traj_client[prefix].get_result()
+        result = self.__action_map['cimp_'+prefix].get_result()
         if result.error_code != 0:
             error_str = "UNKNOWN"
             if result.error_code in self._cartesian_trajectory_result_names:
                 error_str = self._cartesian_trajectory_result_names[result.error_code]
             print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
 
-        self.waitForJointState( self._action_cart_traj_client[prefix].gh.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self.__action_map['cimp_'+prefix].gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
@@ -1132,7 +1081,7 @@ class VelmaInterface:
             goal.trajectory.header.stamp = stamp
         else:
             goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        self._action_joint_traj_client.send_goal(goal)
+        self.__action_map['jimp'].send_goal(goal)
         return True
 
     def moveJoint(self, q_dest_map, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
@@ -1168,15 +1117,15 @@ class VelmaInterface:
         Wait for joint space movement to complete.
         @return Returns error code.
         """
-        self._action_joint_traj_client.wait_for_result()
-        result = self._action_joint_traj_client.get_result()
+        self.__action_map['jimp'].wait_for_result()
+        result = self.__action_map['jimp'].get_result()
         if result.error_code != 0:
             error_str = "UNKNOWN"
             if result.error_code in self._joint_trajectory_result_names:
                 error_str = self._joint_trajectory_result_names[result.error_code]
             print "waitForJoint(): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
 
-        self.waitForJointState( self._action_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self.__action_map['jimp'].gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
@@ -1216,7 +1165,7 @@ class VelmaInterface:
             goal.trajectory.header.stamp = stamp
         else:
             goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
-        self._action_head_joint_traj_client.send_goal(goal)
+        self.__action_map['head'].send_goal(goal)
         return True
 
     def moveHead(self, q_dest, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
@@ -1248,13 +1197,13 @@ class VelmaInterface:
         if timeout_s == None:
             timeout_s = 0
 
-        if not self._action_head_joint_traj_client.wait_for_result(timeout=rospy.Duration(timeout_s)):
+        if not self.__action_map['head'].wait_for_result(timeout=rospy.Duration(timeout_s)):
             return None
-        result = self._action_head_joint_traj_client.get_result()
+        result = self.__action_map['head'].get_result()
         if result.error_code != 0:
             print "waitForHead(): action failed with error_code=" + str(result.error_code)
 
-        self.waitForJointState( self._action_head_joint_traj_client.gh.comm_state_machine.latest_result.header.stamp )
+        self.waitForJointState( self.__action_map['head'].gh.comm_state_machine.latest_result.header.stamp )
 
         return result.error_code
 
@@ -1281,7 +1230,7 @@ class VelmaInterface:
         action_goal.maxPressure = maxPressure
         action_goal.reset = False
         action_goal.hold = 1 if hold else 0
-        self._action_move_hand_client[prefix].send_goal(action_goal)
+        self.__action_map['hand_'+prefix].send_goal(action_goal)
 
     def moveHandLeft(self, q, v, t, maxPressure, hold=False):
         """!
@@ -1306,7 +1255,7 @@ class VelmaInterface:
         assert (prefix == 'left' or prefix == 'right')
         action_goal = BHMoveGoal()
         action_goal.reset = True
-        self._action_move_hand_client[prefix].send_goal(action_goal)
+        self.__action_map['hand_'+prefix].send_goal(action_goal)
 
     def resetHandLeft(self):
         """!
@@ -1329,8 +1278,8 @@ class VelmaInterface:
         @exception AssertionError when prefix is neither 'left' nor 'right'
         """
         assert (prefix == 'left' or prefix == 'right')
-        self._action_move_hand_client[prefix].wait_for_result()
-        result = self._action_move_hand_client[prefix].get_result()
+        self.__action_map['hand_'+prefix].wait_for_result()
+        result = self.__action_map['hand_'+prefix].get_result()
         if result.error_code != 0:
             print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._moveHand_action_error_codes_names[result.error_code] + ")"
         return result.error_code
@@ -1455,12 +1404,12 @@ class VelmaInterface:
         elif status == False:
             goal.action = GraspedGoal.ACTION_NOTHING_GRASPED
 
-        self._action_grasped_client[side].send_goal(goal)
+        self.__action_map['grasped_'+side].send_goal(goal)
 
         print "Manipulator:", side, "--> object_grasped_flag_status:", status 
 
-        self._action_grasped_client[side].wait_for_result(timeout=rospy.Duration(0))
-        result = self._action_grasped_client[side].get_result()
+        self.__action_map['grasped_'+side].wait_for_result(timeout=rospy.Duration(0))
+        result = self.__action_map['grasped_'+side].get_result()
         error_code = result.error_code
         if error_code != 0:
             print "setGraspedFlag: action failed (error)"
@@ -1484,12 +1433,12 @@ class VelmaInterface:
         elif command_index == 4:
             goal.action = IdentificationGoal.ACTION_SECOND_MEASUREMENT_AFTER_OBJECT_IS_GRASPED
 
-        self._action_identification_client[side].send_goal(goal)
+        self.__action_map['identification_'+side].send_goal(goal)
 
         print "Manipulator:", side, "--> identification_command:", command_index 
 
-        self._action_identification_client[side].wait_for_result(timeout=rospy.Duration(0))
-        result = self._action_identification_client[side].get_result()
+        self.__action_map['identification_'+side].wait_for_result(timeout=rospy.Duration(0))
+        result = self.__action_map['identification_'+side].get_result()
         error_code = result.error_code
         if error_code != 0:
             print "sendIdentificationMeasurementCommand: action failed (error)"
