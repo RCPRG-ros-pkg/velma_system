@@ -385,8 +385,8 @@ class VelmaInterface:
         for t in threads:
             t.join()
 
-        print("ERROR: waitForInit: timeout")
         if not self.__isInitialized():
+            print("ERROR: waitForInit: timeout")
             for action_name in self.__action_map:
                 if not action_name in self.__action_is_connected:
                     print('    is_action_connected({}): information is missing'.format(action_name))
