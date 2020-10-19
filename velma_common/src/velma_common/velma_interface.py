@@ -358,7 +358,7 @@ class VelmaInterface:
             return False
         return True
 
-    def waitForInit(self, timeout_s = None):
+    def waitForInit(self, timeout_s=None):
         """!
         Wait for the interface until it is initialized.
 
@@ -367,6 +367,8 @@ class VelmaInterface:
         @return True if the interface was succesfully initialized within timeout, False otherwise.
         """
         time_start = time.time()
+        if timeout_s is None:
+            timeout_s = 10.0
 
         self.__action_is_connected_lock = threading.Lock()
         self.__action_is_connected = {}
