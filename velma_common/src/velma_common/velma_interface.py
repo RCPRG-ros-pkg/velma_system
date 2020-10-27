@@ -193,14 +193,23 @@ class VelmaInterface:
     _core_cs_name = "/velma_core_cs"
     _task_cs_name = "/velma_task_cs_ros_interface"
 
-    _joint_groups = {"impedance_joints":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
+    _joint_groups = {
+        "impedance_joints":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
             'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
             'right_arm_6_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint',
             'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
-        "right_arm":['right_arm_0_joint', 'right_arm_1_joint', 'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint', 'right_arm_6_joint'],
-        "right_arm_torso":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint', 'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint', 'right_arm_6_joint'],        
-        "left_arm":['left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint', 'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
-        "left_arm_torso":['torso_0_joint', 'left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint', 'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']}
+        "right_arm":['right_arm_0_joint', 'right_arm_1_joint', 'right_arm_2_joint',
+            'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint', 'right_arm_6_joint'],
+        "right_arm_torso":['torso_0_joint', 'right_arm_0_joint', 'right_arm_1_joint',
+            'right_arm_2_joint', 'right_arm_3_joint', 'right_arm_4_joint', 'right_arm_5_joint',
+            'right_arm_6_joint'],        
+        "left_arm":['left_arm_0_joint', 'left_arm_1_joint', 'left_arm_2_joint', 'left_arm_3_joint',
+            'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint'],
+        "left_arm_torso":['torso_0_joint', 'left_arm_0_joint', 'left_arm_1_joint',
+            'left_arm_2_joint', 'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint',
+            'left_arm_6_joint'],
+        "head":["head_pan_joint", "head_tilt_joint"]
+        }
 
     def getLastJointState(self):
         """!
