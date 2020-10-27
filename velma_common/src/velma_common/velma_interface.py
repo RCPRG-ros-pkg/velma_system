@@ -55,6 +55,24 @@ import subsystem_common
 
 import xml.dom.minidom as minidom
 
+def getSymmetricalJointName(joint_name):
+    if joint_name.startswith('left'):
+        return 'right' + joint_name[4:]
+    elif joint_name.startswith('right'):
+        return 'left' + joint_name[5:]
+    return None
+
+def symmetricalConfiguration(q_map):
+    result = {}
+    for joint_name in q_map:
+        assert not joint_name in result
+        result[joint_name] = q_map[joint_name]
+        sym_joint_name = getSymmetricalJointName(joint_name)
+        if not sym_joint_name is None:
+            assert not sym_joint_name in result
+            result[sym_joint_name] = -q_map[joint_name]
+    return result
+
 def isConfigurationClose(q_map1, q_map2, tolerance=0.1):
     """!
     Check if two configurations of robot body are close within tolerance.
@@ -1095,7 +1113,15 @@ class VelmaInterface:
         self.__action_map['jimp'].send_goal(goal)
         return True
 
-    def moveJoint(self, q_dest_map, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+    def __getJntImpMovementTime(self, q_dest_map, max_vel):
+        js = self.getLastJointState()[1]
+        max_dist = float('-inf')
+        for joint_name in q_dest_map:
+            dist = abs(q_dest_map[joint_name] - js[joint_name])
+            max_dist = max(max_dist, dist)
+        return max_dist / max_vel
+
+    def moveJoint(self, q_dest_map, time, max_vel=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         """!
         Execute simple joint space motion in joint impedance mode.
         @param q_dest_map   dictionary: dictionary {name:position} of goal configuration
@@ -1105,6 +1131,10 @@ class VelmaInterface:
         @velocity_tol       float: velocity tolerance.
         @return Returns True.
         """
+        if time is None:
+            assert not max_vel is None
+            time = max(0.1, self.__getJntImpMovementTime(q_dest_map, max_vel))
+            print('moveJoint calculated time: {}'.format(time))
         traj = JointTrajectory()
         pt = JointTrajectoryPoint()
         for name in q_dest_map:
