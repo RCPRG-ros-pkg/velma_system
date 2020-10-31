@@ -29,6 +29,7 @@
 
 import rospy
 import tf
+import tf2_ros
 import math
 import time
 import copy
@@ -591,6 +592,42 @@ class VelmaInterface:
                 return mcd
         return None
 
+    class CoreVeBodyDiag(subsystem_common.SubsystemDiag):
+        """!
+        This class contains subsystem-specific diagnostic information for velma_core_cs.
+        """
+        def __init__(self, parent):
+            """!
+            Initialization of diagnostics data using subsystem-independent diagnostics object.
+
+            @param parent               subsystem_common.SubsystemDiag: subsystem-independent diagnostics object.
+            @exception AssertionError   Raised when current state name cannot be obtained or state history is not present.
+            """
+            assert (len(parent.history) > 0)
+
+            self.history = parent.history
+            self.current_predicates = parent.current_predicates
+            self.current_period = parent.current_period
+
+            self.__current_state = parent.history[0].state_name
+            assert (self.__current_state == "idle" or self.__current_state == "transp" or
+                self.__current_state == "transp_st" or self.__current_state == "safe" or
+                self.__current_state == "safe_st" or self.__current_state == "safe_st_ok")
+
+        def getCurrentStateName(self):
+            return self.__current_state
+
+        def getCurrentStateModeName(self):
+            if self.__current_state == 'idle':
+                return 'idle'
+            elif self.__current_state == 'safe' or self.__current_state == 'safe_st' or\
+                    self.__current_state == 'safe_st_ok':
+                return 'safe / safe_st / safe_st_ok'
+            elif self.__current_state == 'transp' or self.__current_state == 'transp_st':
+                return 'transp / transp_st'
+            else:
+                raise Exception()
+
     def getCoreVeDiag(self):
         """!
         Get diagnostic information for core VE.
@@ -598,7 +635,7 @@ class VelmaInterface:
         @return Returns object of type subsystem_common.SubsystemDiag, with
             diagnostic information about subsystem.
         """
-        return self._getSubsystemDiag(self._core_ve_name)
+        return self.CoreVeBodyDiag(self._getSubsystemDiag(self._core_ve_name))
 
     class CoreCsDiag(subsystem_common.SubsystemDiag):
         """!
@@ -617,45 +654,48 @@ class VelmaInterface:
             self.current_predicates = parent.current_predicates
             self.current_period = parent.current_period
 
-            self.current_state = parent.history[0].state_name
-            assert (self.current_state == "idle" or self.current_state == "safe" or
-                self.current_state == "cart_imp" or self.current_state == "jnt_imp" or
-                self.current_state == "safe_col")
+            self.__current_state = parent.history[0].state_name
+            assert (self.__current_state == "idle" or self.__current_state == "safe" or
+                self.__current_state == "cart_imp" or self.__current_state == "jnt_imp" or
+                self.__current_state == "safe_col")
+
+        def getCurrentStateName(self):
+            return self.__current_state
 
         def inStateIdle(self):
             """!
             Information about current state.
             @return True if the subsystem is in 'idle' state, False otherwise.
             """
-            return self.current_state == "idle"
+            return self.__current_state == "idle"
 
         def inStateSafe(self):
             """!
             Information about current state.
             @return True if the subsystem is in 'safe' state, False otherwise.
             """
-            return self.current_state == "safe"
+            return self.__current_state == "safe"
 
         def inStateCartImp(self):
             """!
             Information about current state.
             @return True if the subsystem is in 'cart_imp' state, False otherwise.
             """
-            return self.current_state == "cart_imp"
+            return self.__current_state == "cart_imp"
 
         def inStateJntImp(self):
             """!
             Information about current state.
             @return True if the subsystem is in 'jnt_imp' state, False otherwise.
             """
-            return self.current_state == "jnt_imp"
+            return self.__current_state == "jnt_imp"
 
         def inStateSafeCol(self):
             """!
             Information about current state.
             @return True if the subsystem is in 'safe_col' state, False otherwise.
             """
-            return self.current_state == "safe_col"
+            return self.__current_state == "safe_col"
 
         def isSafeReasonSelfCol(self):
             """!
@@ -665,7 +705,7 @@ class VelmaInterface:
             @exception AssertionError   Raised when current state is not 'safe'.
             @exception KeyError         Raised when 'inSelfCollision' predicate cannot be obtained.
             """
-            assert (self.current_state == "safe" and self.history[0].state_name == "safe")
+            assert (self.__current_state == "safe" and self.history[0].state_name == "safe")
             for pv in self.history[0].predicates:
                 if pv.name == "inSelfCollision":
                     return pv.value
@@ -677,7 +717,7 @@ class VelmaInterface:
             @return True if the subsystem entered 'safe' state just after 'idle' state.
             @exception AssertionError   Raised when current state is not 'safe' or history contain only one entry.
             """
-            assert (self.current_state == "safe" and self.history[0].state_name == "safe" and len(self.history) >= 2)
+            assert (self.__current_state == "safe" and self.history[0].state_name == "safe" and len(self.history) >= 2)
 
             return (self.history[1].state_name == "idle")
 
@@ -905,6 +945,21 @@ class VelmaInterface:
         @see waitForMotor
         """
         return self.waitForMotor("t", timeout_s=timeout_s)
+
+    def getCartImpMvTime(self, side, T_B_T, max_vel_lin, max_vel_rot, current_T_B_T=None):
+        if current_T_B_T is None:
+            if side == 'left':
+                current_T_B_T = self.getTf('B', 'Tl', time=None, timeout_s=0.1)
+                if current_T_B_T is None:
+                    current_T_B_T = self.getTf('B', 'Wl', time=None, timeout_s=0.1)
+            elif side == 'right':
+                current_T_B_T = self.getTf('B', 'Tr', time=None, timeout_s=0.1)
+                if current_T_B_T is None:
+                    current_T_B_T = self.getTf('B', 'Wr', time=None, timeout_s=0.1)
+            else:
+                raise Exception('Wrong side: "{}"'.format(side))
+        twist = PyKDL.diff(current_T_B_T, T_B_T, 1.0)
+        return max( twist.vel.Norm()/max_vel_lin, twist.rot.Norm()/max_vel_rot )
 
     def moveCartImp(self, prefix, pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=0.01, stamp=None, damping=PyKDL.Wrench(PyKDL.Vector(0.35, 0.35, 0.35),PyKDL.Vector(0.35, 0.35, 0.35)), path_tol=None):
         """!
@@ -1352,8 +1407,12 @@ class VelmaInterface:
         """
         if time == None:
             time = rospy.Time.now()
-        self._listener.waitForTransform(base_frame, frame, time, rospy.Duration(timeout_s))
-        pose = self._listener.lookupTransform(base_frame, frame, time)
+        try:
+            self._listener.waitForTransform(base_frame, frame, time, rospy.Duration(timeout_s))
+            pose = self._listener.lookupTransform(base_frame, frame, time)
+        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException,
+                tf2_ros.TransformException):
+            return None
         return pm.fromTf(pose)
 
     def getAllLinksTf(self, base_frame, time=None, timeout_s=1.0):

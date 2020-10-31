@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>VelmaControlPanelWidget</class>
+ <widget class="QWidget" name="VelmaControlPanelWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>400</width>
+    <height>443</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>VelmaControlPanelWidget</string>
+  </property>
+  <layout class="QHBoxLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <property name="leftMargin">
+      <number>5</number>
+     </property>
+     <property name="topMargin">
+      <number>5</number>
+     </property>
+     <property name="rightMargin">
+      <number>5</number>
+     </property>
+     <property name="bottomMargin">
+      <number>5</number>
+     </property>
+     <item row="0" column="0">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QLabel" name="label_panel_state">
+         <property name="text">
+          <string>label_panel_state</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label1">
+         <property name="text">
+          <string>Current state of velma_core_cs:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_current_state_core_cs">
+         <property name="text">
+          <string>label_current_state_core_cs</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_motors_ready">
+         <property name="text">
+          <string>label_motors_ready</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label2">
+         <property name="text">
+          <string>Current state of velma_core_ve_body:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="label_current_state_core_ve_body">
+         <property name="text">
+          <string>label_current_state_core_ve_body</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_initialize_robot">
+         <property name="text">
+          <string>Initialize Robot</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_enable_motors">
+         <property name="text">
+          <string>Enable Motors</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_switch_to_safe_col">
+         <property name="text">
+          <string>Switch To safe_col</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_switch_to_cart_imp">
+         <property name="text">
+          <string>Switch To cart_imp</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_switch_to_jnt_imp">
+         <property name="text">
+          <string>Switch To jnt_imp</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_move_to_initial_configuration">
+         <property name="text">
+          <string>Move to the initial configuration</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QListView" name="list_messages"/>
+       </item>
+       <item>
+        <widget class="QPlainTextEdit" name="text_messages2">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="button_clear_messages">
+         <property name="text">
+          <string>Clear Messages</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
