@@ -73,13 +73,12 @@ if __name__ == "__main__":
     velma.moveJointImpToCurrentPos(start_time=0.5)
     error = velma.waitForJoint()
     if error != 0:
-        print()
         exitError(4, msg='The action should have ended without error,'\
                             ' but the error code is {}'.format(error))
 
+    rospy.sleep(0.5)
     diag = velma.getCoreCsDiag()
     if not diag.inStateJntImp():
-        exitError(5, msg='The action should have ended without error,'\
-                            ' but the error code is {}'.format(error))
+        exitError(5, msg='The control system should be in jnt_imp mode')
 
     exitError(0)
