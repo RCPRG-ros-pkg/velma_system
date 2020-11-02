@@ -357,6 +357,9 @@ class VelmaControlPanelWidget(QWidget):
                 self.__velma_command = VelmaCommandThread(self.__velma)
                 self.__velma_command.start()
             self.label_panel_state.setText('Waiting for initialization of Velma Interface')
+            self.label_current_state_core_cs.setText( 'unknown' )
+            self.label_motors_ready.setText('motors state is unknown')
+            self.label_current_state_core_ve_body.setText( 'unknown' )
         else:
             self.label_panel_state.setText('Velma Interface is initialized')
 
