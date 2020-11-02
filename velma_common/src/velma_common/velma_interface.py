@@ -1227,12 +1227,15 @@ class VelmaInterface:
         traj = JointTrajectory()
         return self.moveJointTraj(traj, start_time=start_time, stamp=stamp)
 
-    def waitForJoint(self):
+    def waitForJoint(self, timeout_s=None):
         """!
         Wait for joint space movement to complete.
         @return Returns error code.
         """
-        self.__action_map['jimp'].wait_for_result()
+        if timeout_s == None:
+            timeout_s = 0
+        if not self.__action_map['jimp'].wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
         result = self.__action_map['jimp'].get_result()
         if result.error_code != 0:
             error_str = "UNKNOWN"
@@ -1386,14 +1389,20 @@ class VelmaInterface:
         """
         self.resetHand("right")
 
-    def waitForHand(self, prefix):
+    def waitForHand(self, prefix, timeout_s=None):
         """!
         Wait for completion of hand movement.
         @param prefix       string: name of hand, either 'left' or 'right'
         @exception AssertionError when prefix is neither 'left' nor 'right'
         """
         assert (prefix == 'left' or prefix == 'right')
-        self.__action_map['hand_'+prefix].wait_for_result()
+
+        if timeout_s == None:
+            timeout_s = 0
+
+        if not self.__action_map['hand_'+prefix].wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
+
         result = self.__action_map['hand_'+prefix].get_result()
         if result.error_code != 0:
             print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._moveHand_action_error_codes_names[result.error_code] + ")"

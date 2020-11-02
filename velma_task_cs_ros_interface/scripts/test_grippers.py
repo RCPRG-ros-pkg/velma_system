@@ -76,42 +76,37 @@ if __name__ == "__main__":
         exitError(3)
 
     reset_left = True
-    #reset_left = False
     reset_right = True
-    #reset_right = False
     move_both = True
-    #move_both = False
     if reset_left:
         print "reset left"
-        #rospy.sleep(2)
         velma.resetHandLeft()
         if velma.waitForHandLeft() != 0:
           exitError(2)
-    #rospy.sleep(0.5)
-    #if not isHandConfigurationClose( velma.getHandLeftCurrentConfiguration(), [0,0,0,0]):
-    #  exitError(3)
+
+    rospy.sleep(0.5)
+    if not isHandConfigurationClose( velma.getHandLeftCurrentConfiguration(), [0,0,0,0]):
+        exitError(3, msg="configuration of hand should be 0")
 
     if reset_right:
         print "reset right"
         velma.resetHandRight()
         if velma.waitForHandRight() != 0:
             exitError(4)
-    #rospy.sleep(0.5)
-    #exitError(0)
-    #if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), [0,0,0,0]):
-#        exitError(5)
+
+    rospy.sleep(0.5)
+    if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), [0,0,0,0]):
+        exitError(5, msg="configuration of hand should be 0")
 
     if move_both:
         for it in range(3):
             for dest_q in [[deg2rad(30), deg2rad(30), deg2rad(30), deg2rad(30)], [deg2rad(10), deg2rad(10), deg2rad(10), deg2rad(10)]]:
                 velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
                 velma.moveHandRight(dest_q, [1.25, 1.25, 1.25, 1.25], [4000,4000,4000,4000], 1000, hold=False)
-                # TODO: waitForhand... does not work
                 if velma.waitForHandLeft() != 0:
                     exitError(2)
                 if velma.waitForHandRight() != 0:
                     exitError(4)
-                #rospy.sleep(3)
 
     dest_q = [deg2rad(30), deg2rad(30), deg2rad(30), deg2rad(180)]
     velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
@@ -120,7 +115,6 @@ if __name__ == "__main__":
         exitError(2)
     if velma.waitForHandRight() != 0:
         exitError(2)
-#    rospy.sleep(3)
 
     dest_q = [deg2rad(140), deg2rad(140), deg2rad(140), deg2rad(180)]
     velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
@@ -130,108 +124,4 @@ if __name__ == "__main__":
     if velma.waitForHandRight() != 0:
         exitError(2)
 
-    #dest_q = [45.0 / 180.0*math.pi, 0, 0, 0]
-    #dest_q = [deg2rad(0), deg2rad(0), deg2rad(0), deg2rad(0)]
-    #dest_q = [deg2rad(30), deg2rad(30), deg2rad(30), deg2rad(30)]
-    #print "move left:", dest_q
-    #velma.moveHandLeft(dest_q, [1, 1, 1, 1], [8000, 8000, 8000, 8000], 100000000, hold=False)
-    #if velma.waitForHandLeft() != 0:
-    #    exitError(6)
-    #rospy.sleep(0.5)
-    #if not isHandConfigurationClose(velma.getHandLeftCurrentConfiguration(), dest_q):
-    #    print velma.getHandLeftCurrentConfiguration(), dest_q
-    #    exitError(7)
-
-    #angle = 30.0
-    #dest_q_r = [deg2rad(0), deg2rad(0), deg2rad(0), deg2rad(0)]
-    #dest_q_r = [deg2rad(30), deg2rad(30), deg2rad(30), deg2rad(30)]
-    #print "move right:", dest_q_r
-    #velma.moveHandRight(dest_q_r, [1.25, 1.25, 1.25, 1.25], [4000,4000,4000,4000], 1000, hold=False)
-    #if velma.waitForHandRight() != 0:
-    #   exitError(8)
-    #rospy.sleep(0.5)
-    # if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), dest_q_r):
-    #     exitError(9)
-
-    # while True:
-    #     dest_q_r = [0.0/180.0*math.pi, 0.0/180.0*math.pi, 0.0/180.0*math.pi, 60.0/180.0*math.pi]
-    #     dest_q_l = [0.0/180.0*math.pi, 0.0/180.0*math.pi, -90.0/180.0*math.pi, 120.0/180.0*math.pi]
-    #     print "move right:", dest_q_r
-    #     velma.moveHandRight(dest_q_r, [2.0, 2.0, 2.0, 2.0], [4000,4000,4000,4000], 1000, hold=False)
-    #     velma.moveHandLeft(dest_q_l, [2.0, 2.0, 2.0, 2.0], [4000,4000,4000,4000], 1000, hold=False)
-    #     if velma.waitForHandRight() != 0:
-    #         exitError(8)
-    #     rospy.sleep(0.5)
-    #     # if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), dest_q_r):
-    #         # exitError(9)
-
-    #     dest_q_r = [90.0/180.0*math.pi, 90.0/180.0*math.pi, 90.0/180.0*math.pi, -30.0/180.0*math.pi]
-    #     dest_q_l = [90.0/180.0*math.pi, 90.0/180.0*math.pi, 0.0/180.0*math.pi, 0]
-    #     print "move right:", dest_q_r
-    #     velma.moveHandRight(dest_q_r, [2.0, 2.0, 2.0, 2.0], [4000,4000,4000,4000], 1000, hold=False)
-    #     velma.moveHandLeft(dest_q_l, [2.0, 2.0, 2.0, 2.0], [4000,4000,4000,4000], 1000, hold=False)
-    #     if velma.waitForHandRight() != 0:
-    #         exitError(8)
-    #     rospy.sleep(0.5)
-        # if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), dest_q_r):
-        #     exitError(9)
-
-                        # dest_q_r = [90.0/180.0*math.pi, 60.0/180.0*math.pi, 60.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-                        # dest_q_r = [90.0/180.0*math.pi, 90.0/180.0*math.pi, 60.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-                        # dest_q_r = [90.0/180.0*math.pi, 90.0/180.0*math.pi, 90.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-                        # dest_q_r = [60.0/180.0*math.pi, 90.0/180.0*math.pi, 90.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-                        # dest_q_r = [60.0/180.0*math.pi, 60.0/180.0*math.pi, 90.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-                        # dest_q_r = [60.0/180.0*math.pi, 60.0/180.0*math.pi, 60.0/180.0*math.pi, 0]
-                        # print "move right:", dest_q_r
-                        # velma.moveHandRight(dest_q_r, [1.5, 1.5, 1.5, 1.5], [4000,4000,4000,4000], 1000, hold=False)
-                        # rospy.sleep(0.25)
-
-
-
-    # dest_q = [0,90.0/180.0*math.pi,0,180.0/180.0*math.pi]
-    # print "move right:", dest_q
-    # velma.moveHandRight(dest_q, [1,1,1,1], [2000,2000,2000,2000], 1000, hold=False)
-    # if velma.waitForHandRight() != 0:
-    #     exitError(10)
-    # rospy.sleep(0.5)
-    # if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), dest_q):
-    #     exitError(11)
-
-    # print "reset left"
-    # velma.resetHandLeft()
-    # if velma.waitForHandLeft() != 0:
-    #     exitError(12)
-    # rospy.sleep(0.5)
-    # if not isHandConfigurationClose( velma.getHandLeftCurrentConfiguration(), [0,0,0,0]):
-    #     exitError(13)
-
-    # print "reset right"
-    # velma.resetHandRight()
-    # if velma.waitForHandRight() != 0:
-    #     exitError(14)
-    # rospy.sleep(0.5)
-    # if not isHandConfigurationClose( velma.getHandRightCurrentConfiguration(), [0,0,0,0]):
-    #     exitError(15)
-
     exitError(0)
-
