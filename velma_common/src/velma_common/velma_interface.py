@@ -577,13 +577,39 @@ class VelmaInterface:
 
         self._subscribed_topics = {}
 
-        for topic in subscribed_topics_list:
-            self._subscribed_topics[topic[0]] = [threading.Lock(), None]
-            sub = rospy.Subscriber(topic[0], topic[1], partial( self._topicCallback, topic = topic[0] ))
-            self._subscribed_topics[topic[0]].append(sub)
+        for topic_name, topic_type in subscribed_topics_list:
+            self._subscribed_topics[topic_name] = VelmaInterface.SubscribedTopic(
+                                                                    topic_name, topic_type)
 
-    def _getSubsystemDiag(self, subsystem_name):
-        data = self._getTopicData(subsystem_name + "/diag")
+    class SubscribedTopic:
+        def __init__(self, topic_name, topic_type):
+            self.__mutex = threading.Lock()
+            self.__topic_name = topic_name
+            self.__data = None
+            self.sub = rospy.Subscriber(self.__topic_name, topic_type, self.__callback)
+
+        def __callback(self, data):
+            with self.__mutex:
+                self.__data = data
+
+        def getData(self, timeout_s=None):
+            if not timeout_s is None:
+                end_time = rospy.Time.now() + rospy.Duration(timeout_s)
+            result = None
+            while not rospy.is_shutdown():
+                with self.__mutex:
+                    if self.__data:
+                        result = copy.copy( self.__data )
+                if not result is None or timeout_s is None or rospy.Time.now() >= end_time:
+                    return result
+                try:
+                    rospy.sleep(0.1)
+                except:
+                    return None
+            return None
+
+    def _getSubsystemDiag(self, subsystem_name, timeout_s=None):
+        data = self._getTopicData(subsystem_name + "/diag", timeout_s=timeout_s)
         if data == None:
             return None
         for v in data.status[1].values:
@@ -603,6 +629,7 @@ class VelmaInterface:
             @param parent               subsystem_common.SubsystemDiag: subsystem-independent diagnostics object.
             @exception AssertionError   Raised when current state name cannot be obtained or state history is not present.
             """
+
             assert (len(parent.history) > 0)
 
             self.history = parent.history
@@ -628,14 +655,14 @@ class VelmaInterface:
             else:
                 raise Exception()
 
-    def getCoreVeDiag(self):
+    def getCoreVeDiag(self, timeout_s=None):
         """!
         Get diagnostic information for core VE.
 
         @return Returns object of type subsystem_common.SubsystemDiag, with
             diagnostic information about subsystem.
         """
-        return self.CoreVeBodyDiag(self._getSubsystemDiag(self._core_ve_name))
+        return self.CoreVeBodyDiag(self._getSubsystemDiag(self._core_ve_name, timeout_s=timeout_s))
 
     class CoreCsDiag(subsystem_common.SubsystemDiag):
         """!
@@ -732,26 +759,18 @@ class VelmaInterface:
                     return pv.value
             raise KeyError("Could not obtain current 'motorsReady' predicate value.")
 
-    def getCoreCsDiag(self):
+    def getCoreCsDiag(self, timeout_s=None):
         """!
         Get diagnostic information for core CS.
 
         @return Returns object of type VelmaInterface.CoreCsDiag, with
             diagnostic information about control subsystem.
         """
-        return self.CoreCsDiag(self._getSubsystemDiag(self._core_cs_name))
+        return self.CoreCsDiag(self._getSubsystemDiag(self._core_cs_name, timeout_s=timeout_s))
 
     # Private method
-    def _topicCallback(self, data, topic):
-        with self._subscribed_topics[topic][0]:
-            self._subscribed_topics[topic][1] = data
-
-    # Private method
-    def _getTopicData(self, topic):
-        with self._subscribed_topics[topic][0]:
-            if self._subscribed_topics[topic][1] != None:
-                return copy.copy(self._subscribed_topics[topic][1])
-        return None
+    def _getTopicData(self, topic, timeout_s=None):
+        return self._subscribed_topics[topic].getData(timeout_s=timeout_s)
 
     def getRawFTr(self):
         """!

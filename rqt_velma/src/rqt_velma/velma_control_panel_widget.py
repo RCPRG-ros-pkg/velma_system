@@ -363,14 +363,14 @@ class VelmaControlPanelWidget(QWidget):
         else:
             self.label_panel_state.setText('Velma Interface is initialized')
 
-            diag_cs = self.__velma.getCoreCsDiag()
+            diag_cs = self.__velma.getCoreCsDiag(timeout_s=1.0)
             self.label_current_state_core_cs.setText( diag_cs.getCurrentStateName() )
             if diag_cs.motorsReady():
                 self.label_motors_ready.setText('motors are ready')
             else:
                 self.label_motors_ready.setText('motors are not ready')
 
-            diag_ve_body = self.__velma.getCoreVeDiag()
+            diag_ve_body = self.__velma.getCoreVeDiag(timeout_s=1.0)
             self.label_current_state_core_ve_body.setText( diag_ve_body.getCurrentStateModeName() )
 
             while True:

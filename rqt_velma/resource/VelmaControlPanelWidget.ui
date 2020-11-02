@@ -159,8 +159,14 @@
        </item>
        <item>
         <widget class="QPushButton" name="button_clear_messages">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Clear Messages</string>
+         </property>
+         <property name="flat">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
