@@ -127,8 +127,22 @@ class VelmaLookAtAction(object):
 
         self.__as = actionlib.SimpleActionServer(self.__action_name, LookAtAction,
                         execute_cb=self.execute_cb, auto_start=False)
+
+        #self.__as = actionlib.SimpleActionServer(self.__action_name, LookAtAction,
+        #                goal_cb=self.goal_cb, cancel_cb=self.cancel_cb, auto_start=False)
+
         self.__as.start()
         print('Initialization of action server ok!')
+        print('Action name: {}'.format(self.__action_name))
+
+    #def __del__(self):
+    #    with self.terminate_mutex:
+    #        self.need_to_terminate = True
+    #    assert(self.execute_thread)
+    #    self.execute_thread.join()
+
+    #def cancel_cb(self):
+    #    pass
 
     def execute_cb(self, goal):
         print('VelmaLookAtAction: Received a new goal: {} ({}, {}, {})'.format(goal.frame_id,
@@ -195,5 +209,5 @@ if __name__ == '__main__':
     #exit(0)
 
     rospy.init_node('velma_look_at_action')
-    server = VelmaLookAtAction(rospy.get_name())
+    server = VelmaLookAtAction('velma_look_at_action')
     rospy.spin()

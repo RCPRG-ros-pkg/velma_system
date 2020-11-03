@@ -48,7 +48,9 @@ from identification_action_msgs.msg import *
 from behavior_switch_action_msgs.msg import BehaviorSwitchAction, BehaviorSwitchGoal
 import actionlib
 from trajectory_msgs.msg import JointTrajectory, JointTrajectoryPoint
-from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryResult, FollowJointTrajectoryGoal, JointTolerance
+from control_msgs.msg import FollowJointTrajectoryAction, FollowJointTrajectoryResult,\
+    FollowJointTrajectoryGoal, JointTolerance
+from velma_look_at_action_msgs.msg import LookAtAction, LookAtGoal, LookAtResult
 import diagnostic_msgs.msg
 import tf_conversions.posemath as pm
 
@@ -190,7 +192,7 @@ class VelmaInterface:
         CartImpResult.OLD_HEADER_TIMESTAMP:'OLD_HEADER_TIMESTAMP',
         CartImpResult.PATH_TOLERANCE_VIOLATED:'PATH_TOLERANCE_VIOLATED',
         CartImpResult.GOAL_TOLERANCE_VIOLATED:'GOAL_TOLERANCE_VIOLATED',
-        CartImpResult.UNKNOWN_ERROR:'UNKNOWN_ERROR', }
+        CartImpResult.UNKNOWN_ERROR:'UNKNOWN_ERROR' }
 
     _joint_trajectory_result_names = {
         FollowJointTrajectoryResult.SUCCESSFUL:"SUCCESSFUL",
@@ -198,7 +200,13 @@ class VelmaInterface:
         FollowJointTrajectoryResult.INVALID_JOINTS:"INVALID_JOINTS",
         FollowJointTrajectoryResult.OLD_HEADER_TIMESTAMP:"OLD_HEADER_TIMESTAMP",
         FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:"PATH_TOLERANCE_VIOLATED",
-        FollowJointTrajectoryResult.GOAL_TOLERANCE_VIOLATED:"GOAL_TOLERANCE_VIOLATED",}
+        FollowJointTrajectoryResult.GOAL_TOLERANCE_VIOLATED:"GOAL_TOLERANCE_VIOLATED" }
+
+    _look_at_result_names = {
+        LookAtResult.SUCCESSFUL:'SUCCESSFUL',
+        LookAtResult.OUT_OF_RANGE:'OUT_OF_RANGE',
+        LookAtResult.WRONG_BEHAVIOUR:'WRONG_BEHAVIOUR',
+        LookAtResult.MOTION_FAILED:'MOTION_FAILED' }
 
     _moveHand_action_error_codes_names = {
         0:"SUCCESSFUL",
@@ -353,6 +361,14 @@ class VelmaInterface:
             js[1]["head_tilt_joint"] )
         return q
 
+    def __isActionConnected(self, action_name):
+        with self.__action_is_connected_lock:
+            if action_name in self.__action_is_connected:
+                is_connected = self.__action_is_connected[action_name]
+            else:
+                is_connected = False
+        return is_connected
+
     def __connectAction(self, action_name, action, timeout_s):
         is_connected = action.wait_for_server(rospy.Duration(timeout_s))
         with self.__action_is_connected_lock:
@@ -376,9 +392,9 @@ class VelmaInterface:
 
     def __isInitialized(self):
         for action_name in self.__action_map:
-            if not action_name in self.__action_is_connected:
-                return False
-            if not self.__action_is_connected[action_name]:
+            if not self.__action_obligatory_map[action_name]:
+                continue
+            if not self.__isActionConnected(action_name):
                 return False
         if not self.__received_diag_info:
             return False
@@ -405,15 +421,16 @@ class VelmaInterface:
             t = threading.Thread(name='action-{}'.format(action_name),
             			target=self.__connectAction, args=(action_name, action, timeout_s))
             t.start()
-            threads.append( t )
+            threads.append( (action_name, t) )
 
         t = threading.Thread(name='get-diag-info',
                         		target=self.__getDiagInfo, args=(timeout_s,))
         t.start()
-        threads.append( t )
+        threads.append( (None, t) )
 
-        for t in threads:
-            t.join()
+        for action_name, t in threads:
+            if action_name is None or self.__action_obligatory_map[action_name]:
+                t.join()
 
         if not self.__isInitialized():
             print("ERROR: waitForInit: timeout")
@@ -421,7 +438,8 @@ class VelmaInterface:
                 if not action_name in self.__action_is_connected:
                     print('    is_action_connected({}): information is missing'.format(action_name))
                 else:
-                    print('    is_action_connected({}): {}'.format(action_name, self.__action_is_connected[action_name]))
+                    print('    is_action_connected({}): {}'.format(action_name,
+                                                        self.__action_is_connected[action_name]))
 
             print('    joint_state_received: {}'.format(self._js_pos_history_idx >= 0))
             print('    received_diag_info: {}'.format(self.__received_diag_info))
@@ -538,24 +556,77 @@ class VelmaInterface:
 
         self._joint_states_lock = threading.Lock()
 
+        # The map of ROS actions:
+        # self.__action_map[name] = (is_obligatory, action_client)
         self.__action_map = {
-        	'jimp':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/spline_trajectory_action_joint", FollowJointTrajectoryAction),
-        	'head':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/head_spline_trajectory_action_joint", FollowJointTrajectoryAction),
-        	'safe_col':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/safe_col_action", BehaviorSwitchAction),
-        	'grasped_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/grasped_action", GraspedAction),
-        	'grasped_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/grasped_action", GraspedAction),
-        	'identification_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/identification_action", IdentificationAction),
-        	'identification_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/identification_action", IdentificationAction),
-            'hp':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/hp", MotorAction),
-            'ht':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/ht", MotorAction),
-            't':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/motors/t", MotorAction),
-            'hand_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_hand/move_hand", BHMoveAction),
-            'hand_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_hand/move_hand", BHMoveAction),
-            'cimp_right':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/right_arm/cartesian_trajectory", CartImpAction),
-            'cimp_left':actionlib.SimpleActionClient("/velma_task_cs_ros_interface/left_arm/cartesian_trajectory", CartImpAction)
+        	'jimp':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/spline_trajectory_action_joint",
+                FollowJointTrajectoryAction),
+        	'head':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/head_spline_trajectory_action_joint",
+                FollowJointTrajectoryAction),
+        	'safe_col':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/safe_col_action",
+                BehaviorSwitchAction),
+        	'grasped_right':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/right_arm/grasped_action",
+                GraspedAction),
+        	'grasped_left':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/left_arm/grasped_action",
+                GraspedAction),
+        	'identification_right':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/right_arm/identification_action",
+                IdentificationAction),
+        	'identification_left':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/left_arm/identification_action",
+                IdentificationAction),
+            'hp':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/motors/hp",
+                MotorAction),
+            'ht':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/motors/ht",
+                MotorAction),
+            't':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/motors/t",
+                MotorAction),
+            'hand_right':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/right_hand/move_hand",
+                BHMoveAction),
+            'hand_left':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/left_hand/move_hand",
+                BHMoveAction),
+            'cimp_right':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/right_arm/cartesian_trajectory",
+                CartImpAction),
+            'cimp_left':
+                actionlib.SimpleActionClient(
+                "/velma_task_cs_ros_interface/left_arm/cartesian_trajectory",
+                CartImpAction),
+            'look_at':
+                actionlib.SimpleActionClient(
+                '/velma_look_at_action',
+                LookAtAction),
         }
+        self.__action_obligatory_map  = {}
+        for name in self.__action_map:
+            self.__action_obligatory_map[name] = True
+        self.__action_obligatory_map['look_at'] = False
 
-        rospy.sleep(1.0)
+        # TODO: verify if this is really needed:
+        #rospy.sleep(1.0)
 
         #self.wrench_tab = []
         #self.wrench_tab_index = 0
@@ -1120,6 +1191,64 @@ class VelmaInterface:
         """
         return self.waitForEffector("right", timeout_s=timeout_s)
 
+
+
+    def lookAt(self, point, frame_id='torso_base'):
+        """!
+        Execute look at motion of head.
+
+        @return Returns True
+
+        """
+
+        assert self.__isActionConnected('look_at')
+
+        goal = LookAtGoal()
+        goal.frame_id = frame_id
+        goal.target = geometry_msgs.msg.Point(point.x(), point.y(), point.z())
+        self.__action_map['look_at'].send_goal(goal)
+
+        return True
+
+    def cancelLookAt(self):
+        """!
+        Cancel look at motion of head.
+
+        @return Returns True.
+
+        """
+
+        assert self.__isActionConnected('look_at')
+
+    def isLookAtConnected(self):
+        return self.__isActionConnected('look_at')
+
+    def waitForLookAt(self, timeout_s=None):
+        """!
+        Wait for completion of look at motion.
+
+        @param timeout_s    float: timeout in seconds.
+
+        @return Returns error code.
+
+        """
+
+        assert self.__isActionConnected('look_at')
+
+        if timeout_s == None:
+            timeout_s = 0
+        if not self.__action_map['look_at'].wait_for_result(timeout=rospy.Duration(timeout_s)):
+            return None
+        result = self.__action_map['look_at'].get_result()
+        if result.error_code != 0:
+            error_str = "UNKNOWN"
+            if result.error_code in self._look_at_result_names:
+                error_str = self._look_at_result_names[result.error_code]
+            print('waitForLookAt(): action failed with error_code={} ({})'.format(
+                                                                    result.error_code, error_str))
+        self.waitForJointState( self.__action_map['look_at'].gh.comm_state_machine.latest_result.header.stamp )
+        return result.error_code
+
     def maxJointTrajLen(self):
         """!
         Get maximum number of nodes in single joint trajectory.
@@ -1286,7 +1415,14 @@ class VelmaInterface:
         self.__action_map['head'].send_goal(goal)
         return True
 
-    def moveHead(self, q_dest, time, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+    def __getHeadMovementTime(self, q_dest, max_vel):
+        js = self.getLastJointState()[1]
+        dist1 = abs(q_dest[0] - js["head_pan_joint"])
+        dist2 = abs(q_dest[1] - js["head_tilt_joint"])
+        max_dist = max(dist1, dist2)
+        return max_dist / max_vel
+
+    def moveHead(self, q_dest, time, max_vel=None, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         """!
         Execute simple head motion in joint space.
         @param q_dest       2-tuple:  goal configuration of head ('head_pan_joint', 'head_tilt_joint')
@@ -1298,6 +1434,12 @@ class VelmaInterface:
         @exception AssertionError   When q_dest has wrong length.
         """
         assert (len(q_dest) == 2)
+
+        if time is None:
+            assert not max_vel is None
+            time = max(0.1, self.__getHeadMovementTime(q_dest, max_vel))
+            print('moveHead calculated time: {}'.format(time))
+
         traj = JointTrajectory()
         traj.joint_names = ["head_pan_joint", "head_tilt_joint"]
         pt = JointTrajectoryPoint()

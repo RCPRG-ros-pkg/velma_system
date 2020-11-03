@@ -175,21 +175,31 @@ class VelmaCommandThread:
                 rospy.sleep(0.5)
 
             elif cmd_name == 'moveToInitialConfiguration':
-                q_map_starting = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,
-                    'right_arm_2_joint':1.25, 'right_arm_3_joint':0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
-                    'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
-                    'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
+                q_map_initial = symmetricalConfiguration( {'torso_0_joint':0,
+                    'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8, 'right_arm_2_joint':1.25,
+                    'right_arm_3_joint':0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+                    'right_arm_6_joint':0} )
 
-                self.__velma.moveJoint(q_map_starting, None, max_vel=15.0/180.0*math.pi, start_time=0.5, position_tol=15.0/180.0*math.pi)
+                self.__velma.moveJoint(q_map_initial, None, max_vel=15.0/180.0*math.pi,
+                                                start_time=0.5, position_tol=15.0/180.0*math.pi)
+                rospy.sleep(0.5)
+                self.__velma.moveHead([0.0, 0.0], None, max_vel=15.0/180.0*math.pi,
+                                                start_time=0.2, position_tol=5.0/180.0*math.pi)
+  
                 error = self.__velma.waitForJoint()
                 if error != 0:
                     self.__setMessage('ERROR: Could not move - error code: {}'.format(error))
                 else:
-                    self.__setMessage('INFO: moved to the starting configuration')
+                    self.__setMessage('INFO: moved to the initial configuration')
+
+                error = self.__velma.waitForHead()
+                if error != 0:
+                    self.__setMessage('ERROR: Could not move head - error code: {}'.format(error))
+                else:
+                    self.__setMessage('INFO: moved head to the initial configuration')
 
             else:
                 raise Exception('Unknown command: {}'.format(cmd_name))
-
 
         self.setActive( False )
 

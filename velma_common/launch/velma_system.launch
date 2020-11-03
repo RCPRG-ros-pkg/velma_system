@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  <node name="termtitle" pkg="rcprg_ros_utils" type="termtitle.py" output="screen"
+    args="velma_system" />
+
   <arg name="use_kinect" default="true" />
   <arg name="use_stereo_pair" default="false" />
   <arg name="world_name" default="$(find rcprg_gazebo_utils)/data/gazebo/worlds/blank.world" />
