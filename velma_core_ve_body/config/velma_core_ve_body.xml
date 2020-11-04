@@ -20,6 +20,8 @@
     <import package="barrett_hand_controller" />
     <import package="velma_common_components" />
 
+     <component name="CameraTrigger"       type="TriggerGenerator" running="true" />
+
     <component name="TorsoPanTransmision"       type="SimpleTransmisionInt" />
     <component name="TorsoPanTransmisionInv"    type="SimpleTransmisionInvInt" />
     <component name="HeadPanTransmision"        type="SimpleTransmisionInt" />
@@ -179,6 +181,9 @@
     <connection from="hi_cmdSplit.hpMotor_homing_start_OUTPORT" to="driver_hp.homing_start_INPORT" />
     <connection from="hi_cmdSplit.hpMotor_enable_OUTPORT"       to="driver_hp.enable_INPORT" />
     <connection from="safe_hp.disable_OUTPORT"                  to="driver_hp.disable_INPORT" />
+
+    <connection from="CameraTrigger.Trigger_OUTPORT"      to="lo_ec_cmdConcate.HeadPan_Outputs_DigitalOutputs_INPORT" />
+    <ros_stream port="CameraTrigger.TriggerStamp_OUTPORT" topic="/velma_core_ve_body/TriggerStamp" />
 
     <connection from="driver_ht.q_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
     <connection from="driver_ht.dq_OUTPORT"                to="lo_ec_cmdConcate.HeadTilt_Outputs_VelocityOffset_INPORT" />

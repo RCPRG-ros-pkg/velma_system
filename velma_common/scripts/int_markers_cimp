@@ -180,18 +180,19 @@ class IntMarkersCimp:
         control = InteractiveMarkerControl()
         control.orientation_mode = InteractiveMarkerControl.FIXED
         if mode == InteractiveMarkerControl.ROTATE_AXIS:
-            control.name = 'rotate_';
-        if mode == InteractiveMarkerControl.MOVE_AXIS:
-            control.name = 'move_';
+            control.name = 'rotate_' + axis;
+        elif mode == InteractiveMarkerControl.MOVE_AXIS:
+            control.name = 'move_' + axis;
+        else:
+            raise Exception('Wrong axis mode: "{}"'.format(mode))
         if axis == 'x':
             control.orientation = Quaternion(1,0,0,1)
-            control.name = control.name+'x';
-        if axis == 'y':
+        elif axis == 'y':
             control.orientation = Quaternion(0,1,0,1)
-            control.name = control.name+'x';
-        if axis == 'z':
+        elif axis == 'z':
             control.orientation = Quaternion(0,0,1,1)
-            control.name = control.name+'x';
+        else:
+            raise Exception('Wrong axis name: "{}"'.format(axis))
         control.interaction_mode = mode
         return control
 

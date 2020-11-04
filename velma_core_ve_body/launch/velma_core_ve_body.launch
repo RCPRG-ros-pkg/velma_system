@@ -119,6 +119,9 @@
         scaling_factor: 0.000001
         transform_xyz: [0, 0, 0]      
         transform_rpy: [-1.570796327, 0.5235987756, 1.570796327] <!-- rotations from wrist to sensor frame -->
+      CameraTrigger:
+        skip_cycles: 50
+        bits: [16, 17, 18]
     </rosparam>
   </group>
 </launch>

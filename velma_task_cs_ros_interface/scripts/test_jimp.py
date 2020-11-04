@@ -42,110 +42,108 @@ import rospy
 import math
 import PyKDL
 
-from velma_common.velma_interface import *
+from velma_common.velma_interface import VelmaInterface, isConfigurationClose,\
+    symmetricalConfiguration
 from control_msgs.msg import FollowJointTrajectoryResult
-
-def exitError(code):
-    if code == 0:
-        print "OK"
-        exit(0)
-    print "ERROR:", code
-    exit(code)
+from rcprg_ros_utils import exitError
 
 if __name__ == "__main__":
-    # define some configurations
+    # Define some configurations
 
     # every joint in position 0
-    q_map_0 = {'torso_0_joint':0, 'right_arm_0_joint':0, 'right_arm_1_joint':0,
-        'right_arm_2_joint':0, 'right_arm_3_joint':0, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0, 'left_arm_1_joint':0, 'left_arm_2_joint':0,
-        'left_arm_3_joint':0, 'left_arm_4_joint':0, 'left_arm_5_joint':0, 'left_arm_6_joint':0 }
+    q_map_0 = symmetricalConfiguration( {'torso_0_joint':0,
+        'right_arm_0_joint':0, 'right_arm_1_joint':0, 'right_arm_2_joint':0,
+        'right_arm_3_joint':0, 'right_arm_4_joint':0, 'right_arm_5_joint':0,
+        'right_arm_6_joint':0} )
 
     # starting position
-    q_map_starting = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,
-        'right_arm_2_joint':1.25, 'right_arm_3_joint':0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
-        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
+    q_map_starting = symmetricalConfiguration( {'torso_0_joint':0,
+        'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8, 'right_arm_2_joint':1.25,
+        'right_arm_3_joint':0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+        'right_arm_6_joint':0,} )
 
     # goal position
-    q_map_goal = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8,
-        'right_arm_2_joint':-1.25, 'right_arm_3_joint':1.57, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
-        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
+    q_map_goal = {'torso_0_joint':0,
+        'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8, 'right_arm_2_joint':-1.25,
+        'right_arm_3_joint':1.57, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+        'right_arm_6_joint':0,
+        'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
+        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5,
+        'left_arm_6_joint':0 }
 
     # intermediate position
-    q_map_intermediate = {'torso_0_joint':0, 'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.6,
-        'right_arm_2_joint':-1.25, 'right_arm_3_joint':-0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
-        'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
-        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
+    q_map_intermediate = {'torso_0_joint':0,
+        'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.6, 'right_arm_2_joint':-1.25,
+        'right_arm_3_joint':-0.85, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+        'right_arm_6_joint':0,
+        'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
+        'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5,
+        'left_arm_6_joint':0 }
 
     rospy.init_node('test_jimp')
 
     rospy.sleep(0.5)
 
-    print "This test/tutorial executes simple motions"\
+    print("This test/tutorial executes simple motions"\
         " in joint impedance mode. Planning is not used"\
-        " in this example.\n"
+        " in this example.")
 
-    print "Running python interface for Velma..."
+    print("Running python interface for Velma...")
     velma = VelmaInterface()
-    print "Waiting for VelmaInterface initialization..."
+    print("Waiting for VelmaInterface initialization...")
     if not velma.waitForInit(timeout_s=10.0):
-        print "Could not initialize VelmaInterface\n"
-        exitError(1)
-    print "Initialization ok!\n"
+        exitError(1, msg="Could not initialize VelmaInterface")
+    print("Initialization ok!")
 
-    print "Motors must be enabled every time after the robot enters safe state."
-    print "If the motors are already enabled, enabling them has no effect."
-    print "Enabling motors..."
+    print("Motors must be enabled every time after the robot enters safe state.")
+    print("If the motors are already enabled, enabling them has no effect.")
+    print("Enabling motors...")
     if velma.enableMotors() != 0:
-        exitError(2)
+        exitError(2, msg="Could not enable motors")
 
     rospy.sleep(0.5)
 
     diag = velma.getCoreCsDiag()
     if not diag.motorsReady():
-        print "Motors must be homed and ready to use for this test."
-        exitError(1)
+        exitError(1, msg="Motors must be homed and ready to use for this test.")
 
-    print "Switch to jnt_imp mode (no trajectory)..."
+    print("Switch to jnt_imp mode (no trajectory)...")
     velma.moveJointImpToCurrentPos(start_time=0.5)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(3)
+        exitError(3, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
-    print "Checking if the starting configuration is as expected..."
+    print("Checking if the starting configuration is as expected...")
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_starting, js[1], tolerance=0.3):
-        print "This test requires starting pose:"
-        print q_map_starting
-        exitError(10)
+        exitError(10, msg="This test requires starting pose: {}".format(q_map_starting))
 
-    print "Moving to position 0 (this motion is too fast and should cause error condition, that leads to safe mode in velma_core_cs)."
+    print("Moving to position 0 (this motion is too fast and should cause error condition,"\
+            " that leads to safe mode in velma_core_cs).")
     velma.moveJoint(q_map_0, 0.05, start_time=0.5, position_tol=0, velocity_tol=0)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
-        print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
-        exitError(4)
+        exitError(4, msg="The action should have ended with PATH_TOLERANCE_VIOLATED"\
+                    " error status, but the error code is {}".format(error) )
 
-    print "Checking if current pose is close to the starting pose..."
+    print("Checking if current pose is close to the starting pose...")
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_starting, js[1], tolerance=0.3):
         exitError(10)
 
-    print "waiting 2 seconds..."
+    print("waiting 2 seconds...")
     rospy.sleep(2)
 
-    print "Motors must be enabled every time after the robot enters safe state."
-    print "If the motors are already enabled, enabling them has no effect."
-    print "Enabling motors..."
+    print("Motors must be enabled every time after the robot enters safe state.")
+    print("If the motors are already enabled, enabling them has no effect.")
+    print("Enabling motors...")
     if velma.enableMotors() != 0:
         exitError(5)
 
-    print "Moving to position 0 (slowly)."
+    print("Moving to position 0 (slowly).")
     velma.moveJoint(q_map_0, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     velma.waitForJoint()
 
@@ -156,93 +154,95 @@ if __name__ == "__main__":
 
     rospy.sleep(1.0)
 
-    print "Moving to the starting position..."
+    print("Moving to the starting position...")
     velma.moveJoint(q_map_starting, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(6)
+        exitError(6, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_starting, js[1], tolerance=0.1):
         exitError(10)
 
-    print "Moving to valid position, using invalid self-colliding trajectory (this motion should cause error condition, that leads to safe mode in velma_core_cs)."
+    print("Moving to valid position, using invalid self-colliding trajectory"\
+        " (this motion should cause error condition, that leads to safe mode in velma_core_cs).")
     velma.moveJoint(q_map_goal, 9.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != FollowJointTrajectoryResult.PATH_TOLERANCE_VIOLATED:
-        print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
-        exitError(7)
+        exitError(7, msg="The action should have ended with PATH_TOLERANCE_VIOLATED"\
+                    " error status, but the error code is {}".format(error) )
 
-    print "Using SafeCol behavior to exit self collision..."
+    print("Using SafeCol behavior to exit self collision...")
     velma.switchToSafeColBehavior()
 
-    print "waiting 2 seconds..."
+    print("waiting 2 seconds...")
     rospy.sleep(2)
 
-    print "Motors must be enabled every time after the robot enters safe state."
-    print "If the motors are already enabled, enabling them has no effect."
-    print "Enabling motors..."
+    print("Motors must be enabled every time after the robot enters safe state.")
+    print("If the motors are already enabled, enabling them has no effect.")
+    print("Enabling motors...")
     if velma.enableMotors() != 0:
         exitError(8)
 
-    print "Moving to the starting position..."
+    print("Moving to the starting position...")
     velma.moveJoint(q_map_starting, 4.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(9)
+        exitError(9, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_starting, js[1], tolerance=0.1):
         exitError(10)
 
-    print "To reach the goal position, some trajectory must be exetuted that contains additional, intermediate nodes"
+    print("To reach the goal position, some trajectory must be exetuted that contains additional,"\
+            " intermediate nodes")
 
-    print "Moving to the intermediate position..."
+    print("Moving to the intermediate position...")
     velma.moveJoint(q_map_intermediate, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(10)
+        exitError(10, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_intermediate, js[1], tolerance=0.1):
         exitError(10)
 
-    print "Moving to the goal position."
+    print("Moving to the goal position.")
     velma.moveJoint(q_map_goal, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended with PATH_TOLERANCE_VIOLATED error status, but the error code is", error
-        exitError(11)
+        exitError(11, msg="The action should have ended with PATH_TOLERANCE_VIOLATED"\
+                        " error status, but the error code is {}".format(error) )
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_goal, js[1], tolerance=0.1):
         exitError(10)
 
-    print "Moving to the intermediate position..."
+    print("Moving to the intermediate position...")
     velma.moveJoint(q_map_intermediate, 8.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(12)
+        exitError(12, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
     if not isConfigurationClose(q_map_intermediate, js[1], tolerance=0.1):
         exitError(10)
 
-    print "Moving to the starting position..."
+    print("Moving to the starting position...")
     velma.moveJoint(q_map_starting, 5.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
     error = velma.waitForJoint()
     if error != 0:
-        print "The action should have ended without error, but the error code is", error
-        exitError(13)
+        exitError(13, msg="The action should have ended without error,"\
+                        " but the error code is {}".format(error))
 
     rospy.sleep(0.5)
     js = velma.getLastJointState()
