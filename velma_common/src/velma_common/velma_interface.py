@@ -625,8 +625,7 @@ class VelmaInterface:
             self.__action_obligatory_map[name] = True
         self.__action_obligatory_map['look_at'] = False
 
-        # TODO: verify if this is really needed:
-        #rospy.sleep(1.0)
+        rospy.sleep(1.0)
 
         #self.wrench_tab = []
         #self.wrench_tab_index = 0
