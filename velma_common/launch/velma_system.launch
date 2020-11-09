@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <launch>
-  <node name="termtitle" pkg="rcprg_ros_utils" type="termtitle.py" output="screen"
+  <node name="termtitle-velma_system" pkg="rcprg_ros_utils" type="termtitle.py" output="screen"
     args="velma_system" />
 
   <arg name="use_kinect" default="true" />
