@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  <node name="termtitle_ws_tool" pkg="rcprg_ros_utils" type="termtitle.py" output="screen"
+    args="ws_tool" />
+
   <!-- Debug Info -->
   <arg name="debug" default="false" />
   <arg name="planning_plugin" default="ompl_interface/OMPLPlanner" />
