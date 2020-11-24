@@ -19,6 +19,8 @@
   <arg name="run_steps" default="-1"/>
   <arg name="gui" default="false"/>
 
+  <arg name="use_gpu_ray" default="true"/>
+
   <!-- <param
     name="/robot_description"
     command="$(find xacro)/xacro
@@ -49,6 +51,7 @@
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)" />
     <arg name="mobile_base" value="$(arg mobile_base)" />
     <arg name="run_steps" value="$(arg run_steps)" />
+    <arg name="use_gpu_ray" value="$(arg use_gpu_ray)" />
   </include>
 
   <include file="$(find velma_core_ve_body)/launch/velma_core_ve_body.launch" >
