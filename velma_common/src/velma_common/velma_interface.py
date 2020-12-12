@@ -494,7 +494,7 @@ class VelmaInterface:
             if self._body_joint_limits is None:
                 body_joint_lower_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/lower_limits")
                 body_joint_upper_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/upper_limits")
-                if not body_joint_lower_limits is None and not body_joint_upper_limits:
+                if not body_joint_lower_limits is None and not body_joint_upper_limits is None:
                     self._body_joint_limits = {}
                     for i in range(len(self._body_joint_names)):
                         self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
@@ -505,7 +505,7 @@ class VelmaInterface:
             if self._head_joint_limits is None:
                 head_joint_lower_limits = rospy.get_param(self._task_cs_name+"/HeadAction/lower_limits")
                 head_joint_upper_limits = rospy.get_param(self._task_cs_name+"/HeadAction/upper_limits")
-                if not head_joint_lower_limits is None and not head_joint_upper_limits:
+                if not head_joint_lower_limits is None and not head_joint_upper_limits is None:
                     self._head_joint_limits = {}
                     for i in range(len(self._head_joint_names)):
                         self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
@@ -558,12 +558,18 @@ class VelmaInterface:
         except:
             pass
 
+        print self._body_joint_names
+        print self._body_joint_limits
+        print self._head_joint_names
+        print self._head_joint_limits
+        print self._all_joint_names
+        print self._all_links
         if self._body_joint_names is None or\
                 self._body_joint_limits is None or\
                 self._head_joint_names is None or\
                 self._head_joint_limits is None or\
                 self._all_joint_names is None or\
-                self._all_links:
+                self._all_links is None:
             return False
         return True
 
