@@ -558,12 +558,6 @@ class VelmaInterface:
         except:
             pass
 
-        print self._body_joint_names
-        print self._body_joint_limits
-        print self._head_joint_names
-        print self._head_joint_limits
-        print self._all_joint_names
-        print self._all_links
         if self._body_joint_names is None or\
                 self._body_joint_limits is None or\
                 self._head_joint_names is None or\
