@@ -1411,6 +1411,7 @@ class VelmaInterface:
             goal.trajectory.header.stamp = stamp
         else:
             goal.trajectory.header.stamp = rospy.Time.now() + rospy.Duration(start_time)
+        self.__action_map['head'].cancel_goal()
         self.__action_map['head'].send_goal(goal)
         return True
 

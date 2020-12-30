@@ -193,6 +193,28 @@ class VelmaLookAtAction(object):
                     print('VelmaLookAtAction: aborted: MOTION_FAILED')
                     self.__as.set_preempted(self.__result)
                     return
+            # check that preempt has not been requested by the client
+            if self.__as.is_preempt_requested():
+                # set the action state to preempted
+                js = self.__velma.getLastJointState()
+                print "js: ", js[1]['head_pan_joint'],js[1]['head_tilt_joint']
+                max_vel = 0.5   # radians per second
+                time = 0.1
+                self.__velma.moveHead((js[1]['head_pan_joint'],js[1]['head_tilt_joint']), time, start_time=0.01)
+                while not rospy.is_shutdown():
+                    result = self.__velma.waitForHead(timeout_s=0.1)
+                    if not result is None:
+                        if result == 0:
+                            break
+                        else:
+                            self.__result.error_code = LookAtResult.MOTION_FAILED
+                            print('VelmaLookAtAction: aborted: MOTION_FAILED')
+                            self.__as.set_preempted(self.__result)
+                            return
+                self.__result.error_code = LookAtResult.CANCELLED
+                self.__as.set_preempted(self.__result)
+                return
+            
             self.__as.publish_feedback(self.__feedback)
 
         self.__result.error_code = LookAtResult.SUCCESSFUL
