@@ -120,10 +120,13 @@ class VelmaLookAtAction(object):
         self.__head_pan_limits = [-1.56, 1.56]
 
         self.__velma = VelmaInterface()
-        print('Waiting for VelmaInterface initialization...')
+        print('VelmaLookAtAction: Waiting for VelmaInterface initialization...')
         if not self.__velma.waitForInit(timeout_s=10.0):
-            raise Exception('Could not initialize VelmaInterface')
-        print('Initialization of VelmaInterface ok!')
+            self.__velma = None
+            print('VelmaLookAtAction: Could not initialize VelmaInterface')
+            return
+            #raise Exception('Could not initialize VelmaInterface')
+        print('VelmaLookAtAction: Initialization of VelmaInterface ok!')
 
         self.__as = actionlib.SimpleActionServer(self.__action_name, LookAtAction,
                         execute_cb=self.execute_cb, auto_start=False)
@@ -132,8 +135,11 @@ class VelmaLookAtAction(object):
         #                goal_cb=self.goal_cb, cancel_cb=self.cancel_cb, auto_start=False)
 
         self.__as.start()
-        print('Initialization of action server ok!')
-        print('Action name: {}'.format(self.__action_name))
+        print('VelmaLookAtAction: Initialization of action server ok!')
+        print('VelmaLookAtAction: Action name: {}'.format(self.__action_name))
+
+    def isOk(self):
+        return not self.__velma is None
 
     #def __del__(self):
     #    with self.terminate_mutex:
@@ -232,4 +238,8 @@ if __name__ == '__main__':
 
     rospy.init_node('velma_look_at_action')
     server = VelmaLookAtAction('velma_look_at_action')
-    rospy.spin()
+    if server.isOk():
+        rospy.spin()
+        exit(0)
+    else:
+        exit(1)

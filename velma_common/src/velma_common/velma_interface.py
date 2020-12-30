@@ -410,6 +410,9 @@ class VelmaInterface:
 
         @return True if the interface was succesfully initialized within timeout, False otherwise.
         """
+        if not self.__tryGetRosParams():
+            return False
+
         time_start = time.time()
         if timeout_s is None:
             timeout_s = 10.0
@@ -481,73 +484,104 @@ class VelmaInterface:
         """
         return self._head_joint_limits
 
+    def __tryGetRosParams(self):
+        try:
+            if self._body_joint_names is None:
+                self._body_joint_names = rospy.get_param(self._task_cs_name+"/JntImpAction/joint_names")
+                if len(self._body_joint_names) != 15:
+                    raise RuntimeError("Wrong number of joints")
+
+            if self._body_joint_limits is None:
+                body_joint_lower_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/lower_limits")
+                body_joint_upper_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/upper_limits")
+                if not body_joint_lower_limits is None and not body_joint_upper_limits is None:
+                    self._body_joint_limits = {}
+                    for i in range(len(self._body_joint_names)):
+                        self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
+
+            if self._head_joint_names is None:
+                self._head_joint_names = rospy.get_param(self._task_cs_name+"/HeadAction/joint_names")
+
+            if self._head_joint_limits is None:
+                head_joint_lower_limits = rospy.get_param(self._task_cs_name+"/HeadAction/lower_limits")
+                head_joint_upper_limits = rospy.get_param(self._task_cs_name+"/HeadAction/upper_limits")
+                if not head_joint_lower_limits is None and not head_joint_upper_limits is None:
+                    self._head_joint_limits = {}
+                    for i in range(len(self._head_joint_names)):
+                        self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
+
+            if self._all_joint_names is None:
+                self._all_joint_names = rospy.get_param(self._task_cs_name+"/JntPub/joint_names")
+
+            if self._all_links is None:
+                self._all_links = []
+
+                robot_description_xml = rospy.get_param("/robot_description")
+                #print robot_description_xml
+
+                dom = minidom.parseString(robot_description_xml)
+                robot = dom.getElementsByTagName("robot")
+                if len(robot) != 1:
+                    raise Exception("Could not parse robot_description xml: wrong number of 'robot' elements.")
+                links = robot[0].getElementsByTagName("link")
+                for l in links:
+                    name = l.getAttribute("name")
+                    if name == None:
+                        raise Exception("Could not parse robot_description xml: link element has no name.")
+
+                    obj_link = self.Link()
+                    obj_link.name = name
+
+                    visual = l.getElementsByTagName("visual")
+                    for v in visual:
+                        origin = v.getElementsByTagName("origin")
+                        if len(origin) != 1:
+                            raise Exception("Could not parse robot_description xml: wrong number of origin elements in link " + name)
+                        rpy = origin[0].getAttribute("rpy").split()
+                        xyz = origin[0].getAttribute("xyz").split()
+                        frame = PyKDL.Frame(PyKDL.Rotation.RPY(float(rpy[0]), float(rpy[1]), float(rpy[2])), PyKDL.Vector(float(xyz[0]), float(xyz[1]), float(xyz[2])))
+                        geometry = v.getElementsByTagName("geometry")
+                        if len(geometry) != 1:
+                            raise Exception("Could not parse robot_description xml: wrong number of geometry elements in link " + name)
+                        mesh = geometry[0].getElementsByTagName("mesh")
+                        if len(mesh) == 1:
+                            obj_visual = self.VisualMesh()
+                            obj_visual.filename = mesh[0].getAttribute("filename")
+                            #print "link:", name, " mesh:", obj_visual.filename
+                            obj_visual.origin = frame
+                            obj_link.visuals.append( obj_visual )
+                        else:
+                            pass
+                            #print "link:", name, " other visual"
+
+                    self._all_links.append(obj_link)
+        except:
+            pass
+
+        if self._body_joint_names is None or\
+                self._body_joint_limits is None or\
+                self._head_joint_names is None or\
+                self._head_joint_limits is None or\
+                self._all_joint_names is None or\
+                self._all_links is None:
+            return False
+        return True
+
     def __init__(self):
         """!
         Initialization of the interface.
         """
 
+        self._body_joint_names = None
+        self._body_joint_limits = None
+        self._head_joint_names = None
+        self._head_joint_limits = None
+        self._all_joint_names = None
+        self._all_links = None
+
         self._listener = tf.TransformListener()
 
         # read the joint information from the ROS parameter server
-        self._body_joint_names = rospy.get_param(self._task_cs_name+"/JntImpAction/joint_names")
-        if self._body_joint_names == None or len(self._body_joint_names) != 15:
-            raise RuntimeError("Could not read ROS param '" + self._task_cs_name+"/JntImpAction/joint_names'")
-        body_joint_lower_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/lower_limits")
-        body_joint_upper_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/upper_limits")
-        self._body_joint_limits = {}
-        for i in range(len(self._body_joint_names)):
-            self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
-
-        self._head_joint_names = rospy.get_param(self._task_cs_name+"/HeadAction/joint_names")
-        head_joint_lower_limits = rospy.get_param(self._task_cs_name+"/HeadAction/lower_limits")
-        head_joint_upper_limits = rospy.get_param(self._task_cs_name+"/HeadAction/upper_limits")
-        self._head_joint_limits = {}
-        for i in range(len(self._head_joint_names)):
-            self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
-
-        self._all_joint_names = rospy.get_param(self._task_cs_name+"/JntPub/joint_names")
-
-        self._all_links = []
-
-        robot_description_xml = rospy.get_param("/robot_description")
-        #print robot_description_xml
-
-        dom = minidom.parseString(robot_description_xml)
-        robot = dom.getElementsByTagName("robot")
-        if len(robot) != 1:
-            raise Exception("Could not parse robot_description xml: wrong number of 'robot' elements.")
-        links = robot[0].getElementsByTagName("link")
-        for l in links:
-            name = l.getAttribute("name")
-            if name == None:
-                raise Exception("Could not parse robot_description xml: link element has no name.")
-
-            obj_link = self.Link()
-            obj_link.name = name
-
-            visual = l.getElementsByTagName("visual")
-            for v in visual:
-                origin = v.getElementsByTagName("origin")
-                if len(origin) != 1:
-                    raise Exception("Could not parse robot_description xml: wrong number of origin elements in link " + name)
-                rpy = origin[0].getAttribute("rpy").split()
-                xyz = origin[0].getAttribute("xyz").split()
-                frame = PyKDL.Frame(PyKDL.Rotation.RPY(float(rpy[0]), float(rpy[1]), float(rpy[2])), PyKDL.Vector(float(xyz[0]), float(xyz[1]), float(xyz[2])))
-                geometry = v.getElementsByTagName("geometry")
-                if len(geometry) != 1:
-                    raise Exception("Could not parse robot_description xml: wrong number of geometry elements in link " + name)
-                mesh = geometry[0].getElementsByTagName("mesh")
-                if len(mesh) == 1:
-                    obj_visual = self.VisualMesh()
-                    obj_visual.filename = mesh[0].getAttribute("filename")
-                    #print "link:", name, " mesh:", obj_visual.filename
-                    obj_visual.origin = frame
-                    obj_link.visuals.append( obj_visual )
-                else:
-                    pass
-                    #print "link:", name, " other visual"
-
-            self._all_links.append(obj_link)
 
         self._js_pos_history = []
         for i in range(200):
