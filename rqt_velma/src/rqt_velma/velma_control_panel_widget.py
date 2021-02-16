@@ -198,6 +198,16 @@ class VelmaCommandThread:
                 else:
                     self.__setMessage('INFO: moved head to the initial configuration')
 
+            elif cmd_name == 'gripperCmd':
+                side = cmd[1]
+                gr_cmd = cmd[2]
+                if gr_cmd == 'open':
+                    q = [0, 0, 0, 0]
+                elif gr_cmd == 'close':
+                    q = [math.radians(110), math.radians(110), math.radians(110), 0]
+                self.__velma.moveHand(side, q, [1, 1, 1, 1], [4000,4000,4000,4000], 1000, hold=False)
+                if self.__velma.waitForHand(side) != 0:
+                    exitError(6)
             else:
                 raise Exception('Unknown command: {}'.format(cmd_name))
 
@@ -276,6 +286,9 @@ class VelmaCommandThread:
     def moveToInitialConfiguration(self):
         self.__addCommand( ('moveToInitialConfiguration',) )
 
+    def gripperCmd(self, side, cmd):
+        self.__addCommand( ('gripperCmd', side, cmd) )
+
 class VelmaControlPanelWidget(QWidget):
     """
     main class inherits from the ui window class.
@@ -311,6 +324,11 @@ class VelmaControlPanelWidget(QWidget):
         self.button_switch_to_jnt_imp.clicked.connect( self.clicked_switch_to_jnt_imp )
         self.button_clear_messages.clicked.connect( self.clicked_clear_messages )
         self.button_move_to_initial_configuration.clicked.connect( self.clicked_move_to_initial_configuration )
+
+        self.button_right_gripper_open.clicked.connect( self.right_gripper_open )
+        self.button_right_gripper_close.clicked.connect( self.right_gripper_close )
+        self.button_left_gripper_open.clicked.connect( self.left_gripper_open )
+        self.button_left_gripper_close.clicked.connect( self.left_gripper_close )
 
         self.__velma_init = VelmaInitThread()
         self.__velma_init.start()
@@ -349,6 +367,22 @@ class VelmaControlPanelWidget(QWidget):
         #self.list_messages
         #self.button_clear_messages.
         pass
+
+    def right_gripper_open(self):
+        if not self.__velma_command is None:
+            self.__velma_command.gripperCmd('right', 'open')
+
+    def right_gripper_close(self):
+        if not self.__velma_command is None:
+            self.__velma_command.gripperCmd('right', 'close')
+
+    def left_gripper_open(self):
+        if not self.__velma_command is None:
+            self.__velma_command.gripperCmd('left', 'open')
+
+    def left_gripper_close(self):
+        if not self.__velma_command is None:
+            self.__velma_command.gripperCmd('left', 'close')
 
     def start(self):
         """
