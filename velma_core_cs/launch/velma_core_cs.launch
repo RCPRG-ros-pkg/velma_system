@@ -40,6 +40,7 @@
   <!-- <param name="/use_sim_time" value="false" /> -->
 
   <rosparam command="load" ns="velma_core_cs" file="$(find velma_common)/config/wcc.yaml" />
+  <rosparam command="load" ns="velma_core_cs" file="$(find velma_common)/config/joint_limits_cimp.yaml" />
 
   <group ns="velma_core_cs">
     <rosparam>
@@ -93,24 +94,6 @@
       JntImpSafe:
         initial_stiffness: [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0]
         damping: 1.9
-      JntLimit:
-        limits_0: [-1.56, 1.56]
-        limits_1: [-2.96, 2.96]
-        limits_2: [-2.09, -0.2, 0.2, 2.09]
-        limits_3: [-2.96, 2.96]
-        limits_4: [-2.095, -0.2, 0.2, 2.095]
-        limits_5: [-2.96, 2.96]
-        limits_6: [-2.09, -0.2, 0.2, 2.09]
-        limits_7: [-2.96, 2.96]
-        limits_8: [-2.96, 2.96]
-        limits_9: [-2.09, -0.2, 0.2, 2.09]
-        limits_10: [-2.96, 2.96]
-        limits_11: [-2.09, -0.2, 0.2, 2.09]
-        limits_12: [-2.96, 2.96]
-        limits_13: [-2.09, -0.2, 0.2, 2.09]
-        limits_14: [-2.96, 2.96]
-        limit_range: [0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26, 0.26]
-        max_trq: [10.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0, 10.0, 10.0, 10.0, 10.0, 10.0, 6.0, 6.0]
       INT_tool_r:
         activate_pose_init: true
         init_setpoint:

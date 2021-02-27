@@ -76,7 +76,7 @@ def symmetricalConfiguration(q_map):
             result[sym_joint_name] = -q_map[joint_name]
     return result
 
-def isConfigurationClose(q_map1, q_map2, tolerance=0.1):
+def isConfigurationClose(q_map1, q_map2, tolerance=0.1, allow_subset=False):
     """!
     Check if two configurations of robot body are close within tolerance.
 
@@ -94,6 +94,8 @@ def isConfigurationClose(q_map1, q_map2, tolerance=0.1):
         'left_arm_3_joint', 'left_arm_4_joint', 'left_arm_5_joint', 'left_arm_6_joint']
 
     for joint_name in joint_names:
+        if allow_subset and (not joint_name in q_map1 or not joint_name in q_map2):
+            continue
         if abs(q_map1[joint_name] - q_map2[joint_name]) > tolerance:
             return False
     return True

@@ -45,6 +45,11 @@
 #include "planer_utils/activation_function.h"
 #include "planer_utils/double_joint_collision_checker.h"
 
+#include "fabric_logger/fabric_logger.h"
+
+using fabric_logger::FabricLoggerInterfaceRtPtr;
+using fabric_logger::FabricLogger;
+
 using namespace RTT;
 
 template<unsigned DOFS >
@@ -96,6 +101,8 @@ class DoubleJointConstraint: public RTT::TaskContext {
   unsigned joint0_idx_;
   unsigned joint1_idx_;
   std::vector<double > constraint_polygon_;
+
+  FabricLoggerInterfaceRtPtr m_fabric_logger;
 };
 
 #ifdef EIGEN_RUNTIME_NO_MALLOC
@@ -118,6 +125,7 @@ template<unsigned DOFS >
     , d0_(0.0)
     , joint0_idx_(0)
     , joint1_idx_(0)
+    , m_fabric_logger( FabricLogger::createNewInterfaceRt( std::string("DoubleJointConstraint: ") + name, 10000) )
   {
 
     this->ports()->addPort(port_joint_position_);
@@ -147,27 +155,40 @@ template<unsigned DOFS >
     RTT::Logger::In in("DoubleJointConstraint::configureHook");
 
     if (constraint_polygon_.size() == 0 || (constraint_polygon_.size()%2) != 0) {
-        Logger::log() << Logger::Error << "property \'constraint_polygon\' has wrong size: " << constraint_polygon_.size() << Logger::endl;
+        Logger::log() << Logger::Error << "property \'constraint_polygon\' has wrong size: "
+                                                  << constraint_polygon_.size() << Logger::endl;
+        m_fabric_logger << "ERROR: property \'constraint_polygon\' has wrong size: "
+                                            << constraint_polygon_.size() << FabricLogger::End();
         return false;
     }
 
     if (joint0_idx_ == joint1_idx_) {
-        Logger::log() << Logger::Error << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: " << joint0_idx_ << Logger::endl;
+        Logger::log() << Logger::Error << "properties \'joint0_idx\' and \'joint1_idx\' have the same value: "
+                                                                << joint0_idx_ << Logger::endl;
+        m_fabric_logger << "ERROR: properties \'joint0_idx\' and \'joint1_idx\' have the same value: "
+                                                          << joint0_idx_ << FabricLogger::End();
         return false;
     }
 
     if (joint0_idx_ >= DOFS) {
-        Logger::log() << Logger::Error << "property \'joint0_idx\' has wrong value: " << joint0_idx_ << Logger::endl;
+        Logger::log() << Logger::Error << "property \'joint0_idx\' has wrong value: "
+                                                                  << joint0_idx_ << Logger::endl;
+        m_fabric_logger << "ERROR: property \'joint0_idx\' has wrong value: "
+                                                            << joint0_idx_ << FabricLogger::End();
         return false;
     }
 
     if (joint1_idx_ >= DOFS) {
-        Logger::log() << Logger::Error << "property \'joint1_idx\' has wrong value: " << joint1_idx_ << Logger::endl;
+        Logger::log() << Logger::Error << "property \'joint1_idx\' has wrong value: "
+                                                                  << joint1_idx_ << Logger::endl;
+        m_fabric_logger << "ERROR: property \'joint1_idx\' has wrong value: "
+                                                          << joint1_idx_ << FabricLogger::End();
         return false;
     }
 
     if (d0_ == 0.0) {
         Logger::log() << Logger::Error << "property \'d0\' is not set" << Logger::endl;
+        m_fabric_logger << "ERROR: property \'d0\' is not set" << FabricLogger::End();
         return false;
     }
 
@@ -187,67 +208,78 @@ template<unsigned DOFS >
 
     // read inputs
     if (port_joint_position_.read(joint_position_) != RTT::NewData) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: could not read port \'" << port_joint_position_.getName() << "\'" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_position_.getName() << "\'" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_position_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!joint_position_.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: joint_position_ contains NaN or inf" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " joint_position_ contains NaN or inf" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " joint_position_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_joint_velocity_.read(joint_velocity_) != RTT::NewData) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: could not read port \'" << port_joint_velocity_.getName() << "\'" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_velocity_.getName() << "\'" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " could not read port \'" << port_joint_velocity_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!joint_velocity_.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: joint_velocity_ contains NaN or inf" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " joint_velocity_ contains NaN or inf" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " joint_velocity_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_nullspace_torque_command_.read(nullspace_torque_command_) != RTT::NewData) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: could not read port \'" << port_nullspace_torque_command_.getName() << "\'" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_nullspace_torque_command_.getName() << "\'" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " could not read port \'" << port_nullspace_torque_command_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!nullspace_torque_command_.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: nullspace_torque_command_ contains NaN or inf" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " nullspace_torque_command_ contains NaN or inf" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " nullspace_torque_command_ contains NaN or inf" << Logger::endl;
         return;
     }
 
     if (port_mass_matrix_inv_.read(Minv) != RTT::NewData) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: could not read port \'" << port_mass_matrix_inv_.getName() << "\'" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " could not read port \'" << port_mass_matrix_inv_.getName() << "\'" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " could not read port \'" << port_mass_matrix_inv_.getName() << "\'" << Logger::endl;
         return;
     }
 
     if (!Minv.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: Minv contains NaN or inf" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << getName() << " Minv contains NaN or inf" << Logger::endl;
+        //Logger::log() << Logger::Error << getName() << " Minv contains NaN or inf" << Logger::endl;
         return;
     }
 
     DoubleJointCC::Joints q2(joint_position_(joint0_idx_), joint_position_(joint1_idx_));
 
     if (cc_->inCollision(q2)) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: collision" << FabricLogger::End();
         error();
+        // TODO: remove these logs:
         Logger::log() << Logger::Error << getName() << " collision" << Logger::endl;
+        std::cout << getName() << " collision" << std::endl;
         return;
     }
 
@@ -297,25 +329,51 @@ template<unsigned DOFS >
         // calculate collision mass (1 dof)
         double Mdij_inv = (J * Minv * JT)(0,0);
 
-        double D = 0;//2.0 * 0.7 * sqrt(Mdij_inv * K);  // sqrt(K/M)
+        // Damping is disabled
+        double D = 0;
+        //double D = 2.0 * 0.7 * sqrt(Mdij_inv * K);  // sqrt(K/M)
+
         joint_torque_command_.noalias() = JT * (Frep - D * ddij);
 
+        // Limit the generated torques - rescale them if needed
+        double t0 = joint_torque_command_(joint0_idx_);
+        double t1 = joint_torque_command_(joint1_idx_);
+        const double t0_lim = 8.0;
+        const double t1_lim = 8.0;
+        double rescale_factor = std::max( fabs(t0) / t0_lim, fabs(t1) / t1_lim );
+        if (rescale_factor > 1.0) {
+          t0 /= rescale_factor;
+          t1 /= rescale_factor;
+          m_fabric_logger << "limited joint_torque_command from ("
+              << joint_torque_command_(joint0_idx_) << ", "
+              << joint_torque_command_(joint1_idx_) << ") to (" << t0 << ", " << t1 << ")"
+                                                                        << FabricLogger::End();
+          joint_torque_command_(joint0_idx_) = t0;
+          joint_torque_command_(joint1_idx_) = t1;
+        }
+
 //        RTT::log(RTT::Info) << joint_torque_command_.transpose() << Logger::endl;
+        //m_fabric_logger << "found" << FabricLogger::End();
+    }
+    else {
+        //m_fabric_logger << "not found" << FabricLogger::End();
     }
 
     if (!joint_torque_command_.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: joint_torque_command_ contains NaN or inf (#1)" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#1)" << Logger::endl;
+        //Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#1)" << Logger::endl;
         return;
     }
 
     joint_torque_command_.noalias() += P * nullspace_torque_command_;
 
     if (!joint_torque_command_.allFinite()) {
-        RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        //RTT::Logger::In in("DoubleJointConstraint::updateHook");
+        m_fabric_logger << "ERROR: joint_torque_command_ contains NaN or inf (#2)" << FabricLogger::End();
         error();
-        Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#2)" << Logger::endl;
+        //Logger::log() << Logger::Error << "joint_torque_command_ contains NaN or inf (#2)" << Logger::endl;
         return;
     }
 

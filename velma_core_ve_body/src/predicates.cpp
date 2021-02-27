@@ -29,9 +29,16 @@
 #include "velma_core_ve_body/master.h"
 #include "common_predicates.h"
 
+#include "fabric_logger/fabric_logger.h"
+
+using fabric_logger::FabricLoggerInterfaceRtPtr;
+using fabric_logger::FabricLogger;
+
 using namespace RTT;
 
 namespace velma_core_ve_body_types {
+
+FabricLoggerInterfaceRtPtr m_fabric_logger = FabricLogger::createNewInterfaceRt( "predicates: ", 10000);
 
 static const RTT::Attribute<bool >* getBoolAttribute(const std::string& component_name, const std::string& attribute_name, const std::vector<const RTT::TaskContext*> &components) {
     for (int i = 0; i < components.size(); ++i) {
@@ -90,11 +97,31 @@ bool htMotorOk( const InputDataConstPtr& in_data, const std::vector<const RTT::T
 }
 
 bool rLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->hi_cmd.rArm_valid && isCmdArmValid(in_data->hi_cmd.rArm);
+    bool is_cmd_ok = in_data->hi_cmd.rArm_valid && isCmdArmValid(in_data->hi_cmd.rArm);
+    if (in_data->hi_cmd.rArm_valid && !is_cmd_ok) {
+        m_fabric_logger << "bad rLwr cmd: (" << in_data->hi_cmd.rArm.t[0] << ", "
+                << in_data->hi_cmd.rArm.t[1] << ", "
+                << in_data->hi_cmd.rArm.t[2] << ", "
+                << in_data->hi_cmd.rArm.t[3] << ", "
+                << in_data->hi_cmd.rArm.t[4] << ", "
+                << in_data->hi_cmd.rArm.t[5] << ", "
+                << in_data->hi_cmd.rArm.t[6] << ")" << FabricLogger::End();
+    }
+    return is_cmd_ok;
 }
 
 bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->hi_cmd.lArm_valid && isCmdArmValid(in_data->hi_cmd.lArm);
+    bool is_cmd_ok = in_data->hi_cmd.lArm_valid && isCmdArmValid(in_data->hi_cmd.lArm);
+    if (in_data->hi_cmd.lArm_valid && !is_cmd_ok) {
+        m_fabric_logger << "bad lLwr cmd: (" << in_data->hi_cmd.lArm.t[0] << ", "
+                << in_data->hi_cmd.lArm.t[1] << ", "
+                << in_data->hi_cmd.lArm.t[2] << ", "
+                << in_data->hi_cmd.lArm.t[3] << ", "
+                << in_data->hi_cmd.lArm.t[4] << ", "
+                << in_data->hi_cmd.lArm.t[5] << ", "
+                << in_data->hi_cmd.lArm.t[6] << ")" << FabricLogger::End();
+    }
+    return is_cmd_ok;
 }
 
 bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {

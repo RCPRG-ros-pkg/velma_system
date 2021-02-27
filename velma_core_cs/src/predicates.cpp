@@ -102,4 +102,3 @@ REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvSafeColCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvOneCmd );
 REGISTER_PREDICATE( velma_core_cs_types::motorsReady );
-
