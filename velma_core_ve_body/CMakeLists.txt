@@ -15,6 +15,7 @@ find_package(catkin REQUIRED COMPONENTS
   lwr_msgs
   geometry_msgs
   velma_ec_gen_msgs
+  fabric_logger
   )
 
 find_package(Eigen3 REQUIRED)
