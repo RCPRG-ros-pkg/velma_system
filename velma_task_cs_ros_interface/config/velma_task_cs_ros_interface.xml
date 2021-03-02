@@ -42,8 +42,8 @@
 
     <component type="TfPublisher"                                   name="TfPub"                running="true" />
 
-    <io_buffer alias="st" name="velma_core_cs_task_cs_st" />
-    <io_buffer alias="cmd" name="velma_core_cs_task_cs_cmd" />
+    <io_buffer alias="st" name="velma_core_st" />
+    <io_buffer alias="cmd" name="velma_core_cmd" />
 
     <connection from="stSplit.rToolInWristPose_OUTPORT"         to="TfPub.In0" />
     <connection from="stSplit.lToolInWristPose_OUTPORT"         to="TfPub.In1" />

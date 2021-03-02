@@ -16,12 +16,12 @@ if __name__ == "__main__":
         'lLwr_st',
         'rLwr_cmd',
         'rLwr_st',
-        'velma_core_cs_task_cs_cmd',
-        'velma_core_cs_task_cs_st',
+        'velma_core_cmd',
+        'velma_core_st',
         'velma_core_cs_ve_body_cmd',
         'velma_core_cs_ve_body_st',
-        'velma_core_cs_pred_ctrl_cmd',
-        'velma_core_cs_pred_ctrl_st',
+        'velma_core_cmd2',
+        'velma_core_st2',
     ]
 
     shm_files = []

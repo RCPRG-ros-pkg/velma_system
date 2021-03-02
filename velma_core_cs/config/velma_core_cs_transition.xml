@@ -107,11 +107,11 @@
     <io_buffer alias="b_st"     name="velma_core_cs_ve_body_st" />
     <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_cmd" />
 
-    <io_buffer alias="st" name="velma_core_cs_task_cs_st" />
-    <io_buffer alias="cmd" name="velma_core_cs_task_cs_cmd" />
+    <io_buffer alias="st" name="velma_core_st" />
+    <io_buffer alias="cmd" name="velma_core_cmd" />
 
-    <io_buffer alias="pred_ctrl_st" name="velma_core_cs_pred_ctrl_st" />
-    <io_buffer alias="pred_ctrl_cmd" name="velma_core_cs_pred_ctrl_cmd" />
+    <io_buffer alias="pred_ctrl_st" name="velma_core_st2" />
+    <io_buffer alias="pred_ctrl_cmd" name="velma_core_cmd2" />
 
     <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
     <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="stConcate.hp_homing_in_progress_INPORT" />
@@ -340,7 +340,7 @@
     <connection from="pred_ctrl_cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
     <connection from="pred_ctrl_cmdSplit.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
     <connection from="pred_ctrl_cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
-
+    <connection from="pred_ctrl_cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
