@@ -1,6 +1,8 @@
 CommandCartImp cart_r
+bool cart_r_valid
 
 CommandCartImp cart_l
+bool cart_l_valid
 
 CommandJntImp jnt
 bool jnt_valid
@@ -24,10 +26,13 @@ bool handLeftReset
 bool handLeftReset_valid
 
 CommandServo hp
+bool hp_valid
 
 CommandServo ht
+bool ht_valid
 
 CommandServo t
+bool t_valid
 
 bool objectGraspedRight
 bool objectGraspedRight_valid
