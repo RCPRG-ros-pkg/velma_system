@@ -425,6 +425,7 @@ class VelmaInterface:
         for action_name, action in self.__action_map.iteritems():
             t = threading.Thread(name='action-{}'.format(action_name),
             			target=self.__connectAction, args=(action_name, action, timeout_s))
+            t.daemon = True  # thread dies with the program
             t.start()
             threads.append( (action_name, t) )
 
