@@ -54,7 +54,7 @@
             <running_component name="b_stSplit" />
             <running_component name="stConcate" />
             <running_component name="b_cmdConcate" />
-<!--             <running_component name="DataWriter" />           -->   
+            <running_component name="DataWriter" />             
             <running_component name="Y" />
         </behavior>
 

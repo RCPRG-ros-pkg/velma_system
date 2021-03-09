@@ -20,7 +20,7 @@
     type="deployer"
     output="screen"
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX_2) $(arg LAUNCH_PREFIX)"
-    args="--DeployerName velma_core_ve_body -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 20 -c 2 --"
+    args="--DeployerName velma_core_ve_body -x $(find velma_core_ve_body)/config/velma_core_ve_body.xml -m velma_core_ve_body -p 30 -c 1 --"
   >
     <env name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)"/>
     <!-- <env name="LD_PRELOAD" value="librtt_malloc_hook.so" /> -->
@@ -111,10 +111,14 @@
         device_name: TODO
         prefix: left
         can_id_base: 11
-      FtSensorLeft:
-        scaling_factor: 0.000001
       FtSensorRight:
         scaling_factor: 0.000001
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [-1.570796327, 0.5235987756, -1.570796327] <!-- rotations from wrist to sensor frame (trasform coordinates from sensor to wrist frame)-->
+      FtSensorLeft:
+        scaling_factor: 0.000001
+        transform_xyz: [0, 0, 0]
+        transform_rpy: [-1.570796327, 0.5235987756, 1.570796327] <!-- rotations from wrist to sensor frame -->
     </rosparam>
   </group>
 </launch>
