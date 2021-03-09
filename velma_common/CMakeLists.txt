@@ -13,6 +13,7 @@ install(DIRECTORY launch/
 
 catkin_install_python(PROGRAMS
     scripts/int_markers_cimp
+    scripts/int_markers_jimp
     scripts/reset_shm_comm
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 

@@ -72,16 +72,20 @@ install(DIRECTORY config/
   )
 
 catkin_install_python(PROGRAMS
-    scripts/test_all.py
     scripts/initialize_robot.py
+    scripts/reset_head_position.py
+    scripts/set_gripper_configuration.py
+    scripts/switch_to_jimp.py
+    scripts/test_all.py
+    scripts/test_cimp_imp.py
     scripts/test_cimp_pose.py
     scripts/test_cimp_tool.py
-    scripts/test_cimp_imp.py
-    scripts/test_jimp.py
-    scripts/test_safe_col.py
-    scripts/test_head.py
     scripts/test_grippers.py
+    scripts/test_head.py
     scripts/test_head_complex.py
+    scripts/test_jimp.py
+    scripts/test_jimp_endless.py
+    scripts/test_safe_col.py
     scripts/test_jimp_planning.py
     scripts/test_jimp_planning_attached.py
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

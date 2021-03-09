@@ -16,6 +16,7 @@ find_package(catkin REQUIRED COMPONENTS
   planer_utils
   common_core_cs_components
 	grasped_object_in_robot_control
+  fabric_logger
   )
 
 find_package(OROCOS-RTT REQUIRED COMPONENTS rtt-scripting rtt-transport-corba)

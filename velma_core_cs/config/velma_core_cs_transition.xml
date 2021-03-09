@@ -20,8 +20,6 @@
     <component name="MassStatCtrl"   type="MassStaticControl15" latex="\text{MassStatCtrl}" />
 <!--     <component name="MassDynCtrl"   type="MassDynamicControl15_2"   latex="\text{MassDynCtrl}" />    -->
     
-    <component name="DataWriter"    type="DataBufferManager"    latex="\text{DataWriter}" /> 
-
     <component name="ColDet"    type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
     <component name="ColDetRepJntImp"     type="CollisionDetectorVelma" latex="\text{ColDetRepJntImp}" />
@@ -106,11 +104,14 @@
     <component name="master_component"      latex="\text{master\_component}" />
     <component name="Y"      latex="\text{Y}" />
 
-    <io_buffer alias="b_st"     name="velma_core_cs_ve_body_msgs_Status" />
-    <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_msgs_Command" />
+    <io_buffer alias="b_st"     name="velma_core_cs_ve_body_st" />
+    <io_buffer alias="b_cmd"    name="velma_core_cs_ve_body_cmd" />
 
-    <io_buffer alias="st" name="velma_core_cs_task_cs_msgs_Status" />
-    <io_buffer alias="cmd" name="velma_core_cs_task_cs_msgs_Command" />
+    <io_buffer alias="st" name="velma_core_st" />
+    <io_buffer alias="cmd" name="velma_core_cmd" />
+
+    <io_buffer alias="pred_ctrl_st" name="velma_core_st2" />
+    <io_buffer alias="pred_ctrl_cmd" name="velma_core_cmd2" />
 
     <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
     <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="stConcate.hp_homing_in_progress_INPORT" />
@@ -267,6 +268,9 @@
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
+    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{r}" />
+
     <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />    
 <!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
     <!-- <connection from="ColDetRepJntImp.t_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" /> -->
@@ -284,23 +288,6 @@
     <connection from="cmdSplit.objectGraspedLeft_OUTPORT" to="MassDynCtrl.ObjectGraspedLeftCommand_INPORT" />    
     <connection from="MassDynCtrl.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{cmd,b}" />
  -->
-    <connection from="C_q_body.Out" to="DataWriter.JointPosition_INPORT" name="q_body" latex="q_{b}" />
-    <connection from="JTG_body.JointPositionCommand_OUTPORT" to="DataWriter.JointPositionCommand_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />    
-    <connection from="C_dq_body.Out" to="DataWriter.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
-    <connection from="b_stSplit.rArm_t_OUTPORT" to="DataWriter.RightArmTorque_INPORT" name="t_ra" latex="t_{ra}" />
-    <connection from="b_stSplit.lArm_t_OUTPORT" to="DataWriter.LeftArmTorque_INPORT" name="t_la" latex="t_{la}" />
-    <connection from="S_t_body.Out0" to="DataWriter.TorsoTorqueCommand_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
-    <connection from="S_t_body.Out1" to="DataWriter.RightArmTorqueCommand_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
-    <connection from="S_t_body.Out2" to="DataWriter.LeftArmTorqueCommand_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
-    <connection from="CImp.CartesianPosition0_OUTPORT" to="DataWriter.RightEffectorCartesianPosition_INPORT" name="pos_r" latex="p_{r,pos}" />
-    <connection from="CImp.CartesianPosition1_OUTPORT" to="DataWriter.LeftEffectorCartesianPosition_INPORT" name="pos_l" latex="p_{l,pos}" />    
-    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorCartesianPositionCommand_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
-    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorCartesianPositionCommand_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
-    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="DataWriter.RightEffectorToolPositionCommand_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
-    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="DataWriter.LeftEffectorToolPositionCommand_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />    
-    <connection from="MassStatCtrl.MassStaticTorqueCommand_OUTPORT" to="DataWriter.MassStaticTorqueCommand_INPORT" name="cmd_t_msc" latex="t_{cmd,msc}" />
-    <ros_stream port="DataWriter.WriteExperimentName_INPORT" topic="/velma_core_cs/write_experiment_name" />        
-    <ros_stream port="DataWriter.WriteDataCommand_INPORT" topic="/velma_core_cs/write_data_cmd" />
 
     <connection from="Mass.MassMatrix_OUTPORT" to="ColDetRepJntImp.mInv_INPORT" name="M" latex="M" />    
     <connection from="C_q_all.Out" to="ColDetRepJntImp.q_INPORT" name="q" latex="q" />
@@ -344,6 +331,16 @@
     <connection from="JTG_body.generator_status_OUTPORT" to="stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="JTG_body.stiffness_command_OUTPORT" to="JntImp.JointStiffnessCommand_INPORT" name="cmd_stif_body" latex="k_{b,cmd}" />
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+
+
+    <connection from="pred_ctrl_cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
+    <connection from="pred_ctrl_cmdSplit.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
+    <connection from="pred_ctrl_cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
+    <connection from="pred_ctrl_cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
@@ -413,6 +410,7 @@
 
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
     <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
+    <ros_stream port="pred_ctrl_cmdSplit._OUTPORT" topic="/velma_core_cs/pred_ctrl_cmd"/>
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!--
@@ -435,4 +433,44 @@
 //    <connection from="TJ.NullSpaceTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 #    <connection from="VG.GravTrq" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 -->
+    <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="pred_ctrl_stConcate.hp_homing_required_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="pred_ctrl_stConcate.hp_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT"            to="pred_ctrl_stConcate.hp_enabled_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_required_OUTPORT"    to="pred_ctrl_stConcate.ht_homing_required_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="pred_ctrl_stConcate.ht_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.htMotor_enabled_OUTPORT"            to="pred_ctrl_stConcate.ht_enabled_INPORT" />
+
+    <connection from="b_stSplit.tMotor_homing_required_OUTPORT"     to="pred_ctrl_stConcate.t_homing_required_INPORT" />
+    <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="pred_ctrl_stConcate.t_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="pred_ctrl_stConcate.t_enabled_INPORT" />
+
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="pred_ctrl_stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="pred_ctrl_stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
+
+    <connection from="idle.subsystem_state_OUTPORT"     to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+    <connection from="safe.subsystem_state_OUTPORT"     to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+    <connection from="cart_imp.subsystem_state_OUTPORT" to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+    <connection from="safe_col.subsystem_state_OUTPORT" to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+
+    <connection from="INT_pose_r.generator_status_OUTPORT" to="pred_ctrl_stConcate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="pred_ctrl_stConcate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.generator_status_OUTPORT" to="pred_ctrl_stConcate.lCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="pred_ctrl_stConcate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="output_conv.jnt_q_desired_OUTPORT" to="pred_ctrl_stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="JTG_body.generator_status_OUTPORT" to="pred_ctrl_stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="output_conv.head_q_desired_OUTPORT" to="pred_ctrl_stConcate.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="output_conv.head_dq_desired_OUTPORT" to="pred_ctrl_stConcate.head_dq_desired_INPORT" name="cmd_dq_head" latex="q_{h,cmd}" />
+    <connection from="JTG_head.generator_status_OUTPORT" to="pred_ctrl_stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
+
+    <connection from="output_conv.q_OUTPORT" to="pred_ctrl_stConcate.q_INPORT" name="q" latex="q" />
+    <connection from="output_conv.dq_OUTPORT" to="pred_ctrl_stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="pred_ctrl_stConcate.handRight_INPORT" latex="pred_ctrl_st_{hand,r}" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="pred_ctrl_stConcate.handLeft_INPORT" latex="pred_ctrl_st_{hand,l}" />
+    <connection from="b_stSplit.p_OUTPORT" to="pred_ctrl_stConcate.p_INPORT" latex="pred_ctrl_st_{tact}" />
+    <connection from="b_stSplit.f_OUTPORT" to="pred_ctrl_stConcate.f_INPORT" latex="pred_ctrl_st_{of}" />
+
+    <connection from="FK.RightPosition_OUTPORT" to="pred_ctrl_stConcate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="pred_ctrl_stConcate.lWristPose_INPORT" latex="p_{r}" />
+
 </subsystem_configuration>

@@ -23,8 +23,11 @@
   <build_depend>lwr_msgs</build_depend>
   <build_depend>velma_ec_gen_msgs</build_depend>
   <build_depend>velma_common_components</build_depend>
+  <build_depend>fabric_logger</build_depend>
+
   <run_depend>velma_common_components</run_depend>
   <run_depend>geometry_msgs</run_depend>
+  <run_depend>fabric_logger</run_depend>
 
   <build_depend>velma_core_ve_re_lwr_msgs</build_depend>
   <run_depend>velma_core_ve_re_lwr_msgs</run_depend>

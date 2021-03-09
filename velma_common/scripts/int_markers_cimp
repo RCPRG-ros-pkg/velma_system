@@ -23,6 +23,9 @@ import actionlib
 from velma_common import *
 from rcprg_ros_utils import exitError
 
+def makeWrench(lx,ly,lz,rx,ry,rz):
+    return PyKDL.Wrench(PyKDL.Vector(lx,ly,lz), PyKDL.Vector(rx,ry,rz))
+
 class IntMarkersCimp:
     def __init__(self, prefix, velma_interface):
         self.prefix = prefix
@@ -104,7 +107,11 @@ class IntMarkersCimp:
         if ( feedback.marker_name == self.prefix+'_arm_position_marker' ) and ( feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK ) and ( feedback.control_name == "button" ):
             T_B_Td = pm.fromMsg(feedback.pose)
             self.p = pm.toMsg(T_B_Td)
-            self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5)
+            #self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5)
+            dmp = 0.35
+            imp = makeWrench(1500,1500,1500,150,150,150)
+            #print 'damping is {}'.format(dmp)
+            self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, [imp], [5.0], PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, damping=PyKDL.Wrench(PyKDL.Vector(dmp, dmp, dmp),PyKDL.Vector(dmp, dmp, dmp)))
 
     def createSphereMarkerControl(self, scale, position, color):
         marker = Marker()
@@ -173,18 +180,19 @@ class IntMarkersCimp:
         control = InteractiveMarkerControl()
         control.orientation_mode = InteractiveMarkerControl.FIXED
         if mode == InteractiveMarkerControl.ROTATE_AXIS:
-            control.name = 'rotate_';
-        if mode == InteractiveMarkerControl.MOVE_AXIS:
-            control.name = 'move_';
+            control.name = 'rotate_' + axis;
+        elif mode == InteractiveMarkerControl.MOVE_AXIS:
+            control.name = 'move_' + axis;
+        else:
+            raise Exception('Wrong axis mode: "{}"'.format(mode))
         if axis == 'x':
             control.orientation = Quaternion(1,0,0,1)
-            control.name = control.name+'x';
-        if axis == 'y':
+        elif axis == 'y':
             control.orientation = Quaternion(0,1,0,1)
-            control.name = control.name+'x';
-        if axis == 'z':
+        elif axis == 'z':
             control.orientation = Quaternion(0,0,1,1)
-            control.name = control.name+'x';
+        else:
+            raise Exception('Wrong axis name: "{}"'.format(axis))
         control.interaction_mode = mode
         return control
 

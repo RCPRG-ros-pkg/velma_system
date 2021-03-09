@@ -1,5 +1,8 @@
 <?xml version="1.0"?>
 <launch>
+  <node name="termtitle_velma_system" pkg="rcprg_ros_utils" type="termtitle.py" output="screen"
+    args="velma_system" />
+
   <arg name="use_kinect" default="true" />
   <arg name="use_stereo_pair" default="false" />
   <arg name="world_name" default="$(find rcprg_gazebo_utils)/data/gazebo/worlds/blank.world" />
@@ -11,6 +14,12 @@
   <arg name="spawn_velma" default="true"/>
 
   <arg name="ORO_LOGLEVEL" default="3"/>
+
+  <arg name="mobile_base" default="false"/>
+  <arg name="run_steps" default="-1"/>
+  <arg name="gui" default="false"/>
+
+  <arg name="use_gpu_ray" default="true"/>
 
   <!-- <param
     name="/robot_description"
@@ -29,17 +38,20 @@
   <include file="$(find velma_sim_gazebo)/launch/velma_gazebo_re.launch">
     <!-- Note: the world_name is with respect to GAZEBO_RESOURCE_PATH environmental variable -->
     <arg name="world_name" value="$(arg world_name)" />
-    <arg name="use_kinect" default="$(arg use_kinect)" />
-    <arg name="use_stereo_pair" default="$(arg use_stereo_pair)" />
-    <arg name="gui" default="false" />
+    <arg name="use_kinect" value="$(arg use_kinect)" />
+    <arg name="use_stereo_pair" value="$(arg use_stereo_pair)" />
+    <arg name="gui" value="$(arg gui)" />
     <arg name="debug" value="false" />
-    <arg name="load_robot_description" default="true" />
+    <arg name="load_robot_description" value="true" />
     <arg name="GAZEBO_MODEL_PATH" value="$(arg GAZEBO_MODEL_PATH):$(find rcprg_gazebo_utils)/data/gazebo/models" />
     <arg name="GAZEBO_RESOURCE_PATH" value="$(arg GAZEBO_RESOURCE_PATH):$(find rcprg_gazebo_utils)/data/gazebo" />
     <arg name="profile" value="$(arg profile)" />
     <arg name="state_snapshot" value="$(arg state_snapshot)" />
     <arg name="spawn_velma" value="$(arg spawn_velma)" />
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)" />
+    <arg name="mobile_base" value="$(arg mobile_base)" />
+    <arg name="run_steps" value="$(arg run_steps)" />
+    <arg name="use_gpu_ray" value="$(arg use_gpu_ray)" />
   </include>
 
   <include file="$(find velma_core_ve_body)/launch/velma_core_ve_body.launch" >
@@ -51,4 +63,12 @@
   <include file="$(find velma_task_cs_ros_interface)/launch/velma_task_cs_ros_interface.launch" >
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)" />
   </include>
+
+  <!--<group if="$(arg mobile_base)">
+    <node
+      name="odom_localization"
+      pkg="velma_common" type="odom_localization.py" output="screen" >
+    </node>
+  </group>
+-->
 </launch>

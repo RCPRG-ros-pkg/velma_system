@@ -64,12 +64,24 @@ bool veBodyStatusValid( const InputDataConstPtr& in_data, const std::vector<cons
 }
 
 bool recvCartImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->cmd.cart_r.imp_valid || in_data->cmd.cart_r.pose_valid || in_data->cmd.cart_r.tool_valid ||
-           in_data->cmd.cart_l.imp_valid || in_data->cmd.cart_l.pose_valid || in_data->cmd.cart_l.tool_valid;
+    bool r_cart_valid = in_data->cmd.cart_r_valid && (in_data->cmd.cart_r.imp_valid ||
+                        in_data->cmd.cart_r.pose_valid || in_data->cmd.cart_r.tool_valid);
+    bool r_cart2_valid = in_data->pred_ctrl_cmd.cart_r_valid &&
+                        (in_data->pred_ctrl_cmd.cart_r.imp_valid ||
+                        in_data->pred_ctrl_cmd.cart_r.pose_valid ||
+                        in_data->pred_ctrl_cmd.cart_r.tool_valid);
+
+    bool l_cart_valid = in_data->cmd.cart_l_valid && (in_data->cmd.cart_l.imp_valid ||
+                        in_data->cmd.cart_l.pose_valid || in_data->cmd.cart_l.tool_valid);
+    bool l_cart2_valid = in_data->pred_ctrl_cmd.cart_l_valid &&
+                        (in_data->pred_ctrl_cmd.cart_l.imp_valid ||
+                        in_data->pred_ctrl_cmd.cart_l.pose_valid ||
+                        in_data->pred_ctrl_cmd.cart_l.tool_valid);
+    return r_cart_valid || r_cart2_valid || l_cart_valid || l_cart2_valid;
 }
 
 bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->cmd.jnt_valid;
+    return in_data->cmd.jnt_valid || in_data->pred_ctrl_cmd.jnt_valid;
 }
 
 bool recvSafeColCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
@@ -100,4 +112,3 @@ REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvSafeColCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvOneCmd );
 REGISTER_PREDICATE( velma_core_cs_types::motorsReady );
-
