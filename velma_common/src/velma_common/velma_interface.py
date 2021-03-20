@@ -162,10 +162,14 @@ class VelmaInterface:
         'B':'torso_base',
         'Wr':'right_arm_7_link',
         'Wl':'left_arm_7_link',
+        'Er':'right_arm_7_link',
+        'El':'left_arm_7_link',
         'Wright':'right_arm_7_link',
         'Wleft':'left_arm_7_link',
         'Gr':'right_HandGripLink',
         'Gl':'left_HandGripLink',
+        'Pr':'right_HandPalmLink',
+        'Pl':'left_HandPalmLink',
         'Tr':'right_arm_tool',
         'Tl':'left_arm_tool',
         'Tright':'right_arm_tool',
@@ -437,6 +441,11 @@ class VelmaInterface:
         for action_name, t in threads:
             if action_name is None or self.__action_obligatory_map[action_name]:
                 t.join()
+
+        while (time.time()-time_start) < timeout_s:
+            if self.__isInitialized():
+                break
+            rospy.sleep(0.1)
 
         if not self.__isInitialized():
             print("ERROR: waitForInit: timeout")
@@ -1652,8 +1661,12 @@ class VelmaInterface:
          - 'B' - robot base frame ('torso_base')
          - 'Wr' - right wrist ('right_arm_7_link')
          - 'Wl' - left wrist ('left_arm_7_link')
+         - 'Er' - same as 'Wr'
+         - 'El' - same as 'Wl'
          - 'Gr' - right grip frame ('right_HandGripLink')
          - 'Gl' - left grip frame ('left_HandGripLink')
+         - 'Pr' - right palm frame ('right_HandPalmLink')
+         - 'Pl' - left palm frame ('left_HandPalmLink')
          - 'Tr' - right tool frame ('right_arm_tool')
          - 'Tl' - left tool frame ('left_arm_tool')
          - 'Fr00' - 'right_HandFingerOneKnuckleOneLink'
