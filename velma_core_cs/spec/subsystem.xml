@@ -105,8 +105,8 @@
             <running_component name="ColDetRep" />
             <running_component name="ColDetWrR" />
             <running_component name="ColDetWrL" />
-            <running_component name="ObjParamIdentif" />   
-            <running_component name="MassStatCtrl" /> 
+            <running_component name="ObjParamIdentif" />
+            <running_component name="MassStatCtrl" />
             <!-- <running_component name="MassDynCtrl" />              -->
             <running_component name="Y" />
         </behavior>

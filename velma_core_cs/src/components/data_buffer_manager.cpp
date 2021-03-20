@@ -216,7 +216,7 @@ void DataBufferManager::updateHook()
 		std::ostringstream ss;
 
 		file_number++;
-		ss << "/tmp/velma_core_cs_data_" << file_number <<".txt";
+		ss << "/home/robot/velma_core_cs_data_" << file_number <<".txt";
 
 		logfile.open(ss.str());
 		std::cout << "writing data from velma_core_cs subsystem" << std::endl;
