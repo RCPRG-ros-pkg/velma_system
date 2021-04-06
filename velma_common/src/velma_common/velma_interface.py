@@ -291,11 +291,9 @@ class VelmaInterface:
     # Private method used as callback for joint_states ROS topic.
     def _jointStatesCallback(self, data):
         with self._joint_states_lock:
-            joint_idx = 0
             js_pos = {}
-            for joint_name in data.name:
+            for joint_idx, joint_name in enumerate(data.name):
                 js_pos[joint_name] = data.position[joint_idx]
-                joint_idx += 1
 
             self._js_pos_history_idx = (self._js_pos_history_idx + 1) % len(self._js_pos_history)
             self._js_pos_history[self._js_pos_history_idx] = (data.header.stamp, copy.copy(js_pos))
