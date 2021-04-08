@@ -11,6 +11,10 @@ install(DIRECTORY launch/
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
   )
 
+install(DIRECTORY config/
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}/config
+  )
+
 catkin_install_python(PROGRAMS
     scripts/int_markers_cimp
     scripts/int_markers_jimp
