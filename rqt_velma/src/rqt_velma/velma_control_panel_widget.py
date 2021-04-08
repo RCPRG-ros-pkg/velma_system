@@ -289,6 +289,63 @@ class VelmaCommandThread:
     def gripperCmd(self, side, cmd):
         self.__addCommand( ('gripperCmd', side, cmd) )
 
+from python_qt_binding.QtCore import Qt, Signal, Slot, QRectF, QPointF, QSize, QRect, QPoint
+from python_qt_binding.QtWidgets import QDialog, QGraphicsView, QGraphicsScene, QGraphicsPathItem, QGraphicsPolygonItem, QSizePolicy
+from python_qt_binding.QtGui import QColor, QPen, QBrush, QPainterPath, QPolygonF, QTransform, QPainter
+
+class JointVis(QGraphicsView):
+    def __init__(self, parent=None):
+        super (JointVis, self).__init__ (parent)
+
+        self.__lim = None
+        self.__pos_rect = None
+        self.__pos = None
+
+        self.__scene = QGraphicsScene(QRectF(0, 0, 1, 1))
+        self.setScene(self.__scene)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                                                 QSizePolicy.Fixed))
+        self.setMaximumHeight(10)
+        self.setStyleSheet("border: 0px")
+
+    def paintEvent(self, event):
+        if not self.__pos is None and not self.__pos_rect is None:
+            limit_range = self.__lim[-1] - self.__lim[0]
+            self.__pos_rect.setRect( (self.__pos - self.__lim[0]) / limit_range, 0, 2.0/(self.width()-2), 1)
+        self.fitInView(self.__scene.sceneRect(), Qt.IgnoreAspectRatio);
+        super(JointVis, self).paintEvent(event)
+
+    def setLimits(self, lim):
+        if self.__lim is None:
+            self.__lim = lim
+            soft_lim = 0.26
+            limit_range = self.__lim[-1] - self.__lim[0]
+            soft_size = soft_lim/limit_range
+            good_brush = QBrush(QColor(0,255,0))
+            soft_brush = QBrush(QColor(255,200,0))
+            hard_brush = QBrush(QColor(255,100,0))
+            self.__scene.addRect(0, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+            self.__scene.addRect(1.0-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+
+            self.__scene.addRect(soft_size, 0, (self.__lim[1]-self.__lim[0])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
+
+            if len(self.__lim) == 4:
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range, 0, (self.__lim[2]-self.__lim[1])/limit_range, 1, QPen(Qt.NoPen), hard_brush)
+
+                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range+soft_size, 0, (self.__lim[3]-self.__lim[2])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
+
+            self.__pos_rect = self.__scene.addRect(0, 0, 0.05, 1, QPen(Qt.NoPen), QBrush(QColor(0,0,0)))
+
+    def setPosition(self, pos):
+        self.__pos = pos
+        limit_range = self.__lim[-1] - self.__lim[0]
+        self.__pos_rect.setRect( (self.__pos - self.__lim[0]) / limit_range, 0, 2.0/(self.width()-2), 1)
+
 class VelmaControlPanelWidget(QWidget):
     """
     main class inherits from the ui window class.
@@ -314,9 +371,6 @@ class VelmaControlPanelWidget(QWidget):
         self.__list_model = QStandardItemModel()
         self.list_messages.setModel(self.__list_model)
 
-        #for i in entries:
-
-
         self.button_initialize_robot.clicked.connect( self.clicked_initialize_robot)
         self.button_enable_motors.clicked.connect( self.clicked_enable_motors )
         self.button_switch_to_safe_col.clicked.connect( self.clicked_switch_to_safe_col )
@@ -338,6 +392,8 @@ class VelmaControlPanelWidget(QWidget):
         # init and start update timer
         self._timer_refresh_topics = QTimer(self)
         self._timer_refresh_topics.timeout.connect(self.refresh_topics)
+
+        self.__joint_vis_map = None
 
     def clicked_initialize_robot(self):
         if not self.__velma_command is None:
@@ -400,6 +456,35 @@ class VelmaControlPanelWidget(QWidget):
                 self.__velma = self.__velma_init.getVelmaInterface()
                 self.__velma_command = VelmaCommandThread(self.__velma)
                 self.__velma_command.start()
+                self.__joint_vis_map = {}
+                for idx in range(7):
+                    left_name = 'left_arm_{}_joint'.format(idx)
+                    self.__joint_vis_map[left_name] = JointVis()
+                    self.verticalLayout_4.insertWidget(idx+1, self.__joint_vis_map[left_name])
+
+                    right_name = 'right_arm_{}_joint'.format(idx)
+                    self.__joint_vis_map[right_name] = JointVis()
+                    self.verticalLayout_5.insertWidget(idx+1, self.__joint_vis_map[right_name])
+
+                self.__joint_vis_map['torso_0_joint'] = JointVis()
+                self.gridLayout_2.addWidget(self.__joint_vis_map['torso_0_joint'], 0, 1)
+
+                self.__joint_vis_map['head_pan_joint'] = JointVis()
+                self.gridLayout_2.addWidget(self.__joint_vis_map['head_pan_joint'], 1, 1)
+
+                self.__joint_vis_map['head_tilt_joint'] = JointVis()
+                self.gridLayout_2.addWidget(self.__joint_vis_map['head_tilt_joint'], 2, 1)
+
+                self.__jnt_lim_cart = self.__velma.getCartImpJointLimits()
+                self.__head_limits = self.__velma.getHeadJointLimits()
+                for joint_name in self.__joint_vis_map:
+                    if joint_name in self.__jnt_lim_cart:
+                        self.__joint_vis_map[joint_name].setLimits( self.__jnt_lim_cart[joint_name] )
+                    elif joint_name in self.__head_limits:
+                        self.__joint_vis_map[joint_name].setLimits( self.__head_limits[joint_name] )
+                    else:
+                        print('WARNING: could not get limits for joint "{}"'.format(joint_name))
+
             self.label_panel_state.setText('Waiting for initialization of Velma Interface')
             self.label_current_state_core_cs.setText( 'unknown' )
             self.label_motors_ready.setText('motors state is unknown')
@@ -425,6 +510,13 @@ class VelmaControlPanelWidget(QWidget):
                 self.__list_model.appendRow(item)
             self.list_messages.scrollToBottom()
 
+
+            js = self.__velma.getLastJointState()
+            if not js is None:
+                js = js[1]
+                for joint_name in self.__joint_vis_map:
+                    self.__joint_vis_map[joint_name].setPosition( js[joint_name] )
+
     def shutdown_plugin(self):
         if not self.__velma_init is None:
             self.__velma_init.cancelAndWait()
@@ -442,4 +534,3 @@ class VelmaControlPanelWidget(QWidget):
             header_state = instance_settings.value('tree_widget_header_state')
             if not self.topics_tree_widget.header().restoreState(header_state):
                 rospy.logwarn("rqt_topic: Failed to restore header state.")
-

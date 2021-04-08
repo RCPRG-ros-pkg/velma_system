@@ -485,6 +485,17 @@ class VelmaInterface:
         """
         return self._body_joint_limits
 
+    def getCartImpJointLimits(self):
+        """!
+        Gets limits of joints of both arms and torso in cart_imp mode.
+        Joints of neck and grippers are not included.
+        The joints are used in impedance control (cart_imp mode).
+
+        @return dictionary: Returns a dictionary {name:(lower_limit, upper_limit, [lower_limit, upper_limit)])} that maps joint name to
+        a 2-tupe or 4-tupe with lower and upper joint limit.
+        """
+        return self._cimp_joint_limits_map
+
     def getHeadJointLimits(self):
         """!
         Gets limits of joints of neck.
@@ -508,6 +519,16 @@ class VelmaInterface:
                     self._body_joint_limits = {}
                     for i in range(len(self._body_joint_names)):
                         self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
+
+            if self._cimp_joint_limits_map is None:
+                joint_names = rospy.get_param(self._core_cs_name+"/JntLimit/joint_names")
+                if not joint_names is None:
+                    self._cimp_joint_limits_map = {}
+                    for idx, joint_name in enumerate(joint_names):
+                        jnt_limits = rospy.get_param('{}/JntLimit/limits_{}'.format(self._core_cs_name, idx))
+                        self._cimp_joint_limits_map[joint_name] = []
+                        for lim in jnt_limits:
+                            self._cimp_joint_limits_map[joint_name].append( float(lim) )
 
             if self._head_joint_names is None:
                 self._head_joint_names = rospy.get_param(self._task_cs_name+"/HeadAction/joint_names")
@@ -570,6 +591,7 @@ class VelmaInterface:
 
         if self._body_joint_names is None or\
                 self._body_joint_limits is None or\
+                self._cimp_joint_limits_map is None or\
                 self._head_joint_names is None or\
                 self._head_joint_limits is None or\
                 self._all_joint_names is None or\
@@ -584,6 +606,7 @@ class VelmaInterface:
 
         self._body_joint_names = None
         self._body_joint_limits = None
+        self._cimp_joint_limits_map = None
         self._head_joint_names = None
         self._head_joint_limits = None
         self._all_joint_names = None
