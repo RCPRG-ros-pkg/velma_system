@@ -112,8 +112,11 @@
     <io_buffer alias="st" name="velma_core_st" />
     <io_buffer alias="cmd" name="velma_core_cmd" />
 
-    <io_buffer alias="pred_ctrl_st" name="velma_core_st2" />
-    <io_buffer alias="pred_ctrl_cmd" name="velma_core_cmd2" />
+    <io_buffer alias="st2" name="velma_core_st2" />
+    <io_buffer alias="cmd2" name="velma_core_cmd2" />
+
+    <io_buffer alias="st3" name="velma_core_st3" />
+    <io_buffer alias="cmd3" name="velma_core_cmd3" />
 
     <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="stConcate.hp_homing_required_INPORT" />
     <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="stConcate.hp_homing_in_progress_INPORT" />
@@ -352,14 +355,23 @@
     <connection from="cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
 
 
-    <connection from="pred_ctrl_cmdSplit.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
-    <connection from="pred_ctrl_cmdSplit.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
-    <connection from="pred_ctrl_cmdSplit.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
-    <connection from="pred_ctrl_cmdSplit.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
-    <connection from="pred_ctrl_cmdSplit.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
-    <connection from="pred_ctrl_cmdSplit.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
-    <connection from="pred_ctrl_cmdSplit.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
-    <connection from="pred_ctrl_cmdSplit.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
+    <connection from="cmd2Split.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+    <connection from="cmd2Split.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
+    <connection from="cmd2Split.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
+    <connection from="cmd2Split.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
+    <connection from="cmd2Split.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
+    <connection from="cmd2Split.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
+    <connection from="cmd2Split.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
+    <connection from="cmd2Split.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
+
+    <connection from="cmd3Split.jnt_OUTPORT" to="JTG_body.jnt_INPORT" latex="tr_{jnt}" />
+    <connection from="cmd3Split.cart_r_pose_OUTPORT" to="INT_pose_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,pos}" />
+    <connection from="cmd3Split.cart_r_tool_OUTPORT" to="INT_tool_r.CartesianTrajectoryCommand_INPORT" latex="tr_{r,tool}" />
+    <connection from="cmd3Split.cart_r_imp_OUTPORT" to="INT_imp_r.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{r,imp}" />
+    <connection from="cmd3Split.cart_l_pose_OUTPORT" to="INT_pose_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,pos}" />
+    <connection from="cmd3Split.cart_l_tool_OUTPORT" to="INT_tool_l.CartesianTrajectoryCommand_INPORT" latex="tr_{l,tool}" />
+    <connection from="cmd3Split.cart_l_imp_OUTPORT" to="INT_imp_l.CartesianImpedanceTrajectoryCommand_INPORT" latex="tr_{l,imp}" />
+    <connection from="cmd3Split.head_OUTPORT" to="JTG_head.jnt_INPORT" latex="tr_{head}" />
 
     <connection from="C_q_head.Out" to="JTG_head.JointPosition_INPORT" name="q_head" latex="q_{h}" />
     <connection from="JTG_head.JointPositionCommand_OUTPORT" to="S_q_head.InputPort" name="cmd_q_head" latex="q_{h,cmd}" />
@@ -429,7 +441,8 @@
 
     <ros_stream port="b_stSplit._OUTPORT" topic="/velma_core_cs/b_st"/>
     <ros_stream port="cmdSplit._OUTPORT" topic="/velma_core_cs/cmd"/>
-    <ros_stream port="pred_ctrl_cmdSplit._OUTPORT" topic="/velma_core_cs/pred_ctrl_cmd"/>
+    <ros_stream port="cmd2Split._OUTPORT" topic="/velma_core_cs/cmd2"/>
+    <ros_stream port="cmd3Split._OUTPORT" topic="/velma_core_cs/cmd3"/>
     <ros_stream port="b_cmdConcate.msg_OUTPORT" topic="/velma_core_cs/ve_body_msgs_CommandConcate" />
 
 <!--
@@ -452,44 +465,86 @@
 //    <connection from="TJ.NullSpaceTorqueCommand_OUTPORT" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 #    <connection from="VG.GravTrq" to="JntLimit.NullSpaceTorqueCommand_INPORT" />
 -->
-    <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="pred_ctrl_stConcate.hp_homing_required_INPORT" />
-    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="pred_ctrl_stConcate.hp_homing_in_progress_INPORT" />
-    <connection from="b_stSplit.hpMotor_enabled_OUTPORT"            to="pred_ctrl_stConcate.hp_enabled_INPORT" />
-    <connection from="b_stSplit.htMotor_homing_required_OUTPORT"    to="pred_ctrl_stConcate.ht_homing_required_INPORT" />
-    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="pred_ctrl_stConcate.ht_homing_in_progress_INPORT" />
-    <connection from="b_stSplit.htMotor_enabled_OUTPORT"            to="pred_ctrl_stConcate.ht_enabled_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="st2Concate.hp_homing_required_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="st2Concate.hp_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT"            to="st2Concate.hp_enabled_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_required_OUTPORT"    to="st2Concate.ht_homing_required_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="st2Concate.ht_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.htMotor_enabled_OUTPORT"            to="st2Concate.ht_enabled_INPORT" />
 
-    <connection from="b_stSplit.tMotor_homing_required_OUTPORT"     to="pred_ctrl_stConcate.t_homing_required_INPORT" />
-    <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="pred_ctrl_stConcate.t_homing_in_progress_INPORT" />
-    <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="pred_ctrl_stConcate.t_enabled_INPORT" />
+    <connection from="b_stSplit.tMotor_homing_required_OUTPORT"     to="st2Concate.t_homing_required_INPORT" />
+    <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="st2Concate.t_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="st2Concate.t_enabled_INPORT" />
 
-    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="pred_ctrl_stConcate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
-    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="pred_ctrl_stConcate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="st2Concate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="st2Concate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
 
-    <connection from="idle.subsystem_state_OUTPORT"     to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
-    <connection from="safe.subsystem_state_OUTPORT"     to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
-    <connection from="cart_imp.subsystem_state_OUTPORT" to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
-    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
-    <connection from="safe_col.subsystem_state_OUTPORT" to="pred_ctrl_stConcate.subsystem_state_INPORT" name="pred_ctrl_st_id" latex="beh_{id}" />
+    <connection from="idle.subsystem_state_OUTPORT"     to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
+    <connection from="safe.subsystem_state_OUTPORT"     to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
+    <connection from="cart_imp.subsystem_state_OUTPORT" to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
+    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
+    <connection from="safe_col.subsystem_state_OUTPORT" to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
 
-    <connection from="INT_pose_r.generator_status_OUTPORT" to="pred_ctrl_stConcate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="pred_ctrl_stConcate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
-    <connection from="INT_pose_l.generator_status_OUTPORT" to="pred_ctrl_stConcate.lCart_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="pred_ctrl_stConcate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
-    <connection from="output_conv.jnt_q_desired_OUTPORT" to="pred_ctrl_stConcate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
-    <connection from="JTG_body.generator_status_OUTPORT" to="pred_ctrl_stConcate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
-    <connection from="output_conv.head_q_desired_OUTPORT" to="pred_ctrl_stConcate.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
-    <connection from="output_conv.head_dq_desired_OUTPORT" to="pred_ctrl_stConcate.head_dq_desired_INPORT" name="cmd_dq_head" latex="q_{h,cmd}" />
-    <connection from="JTG_head.generator_status_OUTPORT" to="pred_ctrl_stConcate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_r.generator_status_OUTPORT" to="st2Concate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="st2Concate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.generator_status_OUTPORT" to="st2Concate.lCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="st2Concate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="output_conv.jnt_q_desired_OUTPORT" to="st2Concate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="JTG_body.generator_status_OUTPORT" to="st2Concate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="output_conv.head_q_desired_OUTPORT" to="st2Concate.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="output_conv.head_dq_desired_OUTPORT" to="st2Concate.head_dq_desired_INPORT" name="cmd_dq_head" latex="q_{h,cmd}" />
+    <connection from="JTG_head.generator_status_OUTPORT" to="st2Concate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
 
-    <connection from="output_conv.q_OUTPORT" to="pred_ctrl_stConcate.q_INPORT" name="q" latex="q" />
-    <connection from="output_conv.dq_OUTPORT" to="pred_ctrl_stConcate.dq_INPORT" name="dq" latex="\dot{q}" />
-    <connection from="b_stSplit.rHand_OUTPORT" to="pred_ctrl_stConcate.handRight_INPORT" latex="pred_ctrl_st_{hand,r}" />
-    <connection from="b_stSplit.lHand_OUTPORT" to="pred_ctrl_stConcate.handLeft_INPORT" latex="pred_ctrl_st_{hand,l}" />
-    <connection from="b_stSplit.p_OUTPORT" to="pred_ctrl_stConcate.p_INPORT" latex="pred_ctrl_st_{tact}" />
-    <connection from="b_stSplit.f_OUTPORT" to="pred_ctrl_stConcate.f_INPORT" latex="pred_ctrl_st_{of}" />
+    <connection from="output_conv.q_OUTPORT" to="st2Concate.q_INPORT" name="q" latex="q" />
+    <connection from="output_conv.dq_OUTPORT" to="st2Concate.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="st2Concate.handRight_INPORT" latex="st2_{hand,r}" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="st2Concate.handLeft_INPORT" latex="st2_{hand,l}" />
+    <connection from="b_stSplit.p_OUTPORT" to="st2Concate.p_INPORT" latex="st2_{tact}" />
+    <connection from="b_stSplit.f_OUTPORT" to="st2Concate.f_INPORT" latex="st2_{of}" />
 
-    <connection from="FK.RightPosition_OUTPORT" to="pred_ctrl_stConcate.rWristPose_INPORT" latex="p_{l}" />
-    <connection from="FK.LeftPosition_OUTPORT" to="pred_ctrl_stConcate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightPosition_OUTPORT" to="st2Concate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="st2Concate.lWristPose_INPORT" latex="p_{r}" />
+
+
+
+    <connection from="b_stSplit.hpMotor_homing_required_OUTPORT"    to="st3Concate.hp_homing_required_INPORT" />
+    <connection from="b_stSplit.hpMotor_homing_in_progress_OUTPORT" to="st3Concate.hp_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.hpMotor_enabled_OUTPORT"            to="st3Concate.hp_enabled_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_required_OUTPORT"    to="st3Concate.ht_homing_required_INPORT" />
+    <connection from="b_stSplit.htMotor_homing_in_progress_OUTPORT" to="st3Concate.ht_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.htMotor_enabled_OUTPORT"            to="st3Concate.ht_enabled_INPORT" />
+
+    <connection from="b_stSplit.tMotor_homing_required_OUTPORT"     to="st3Concate.t_homing_required_INPORT" />
+    <connection from="b_stSplit.tMotor_homing_in_progress_OUTPORT"  to="st3Concate.t_homing_in_progress_INPORT" />
+    <connection from="b_stSplit.tMotor_enabled_OUTPORT"             to="st3Concate.t_enabled_INPORT" />
+
+    <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT"    to="st3Concate.rToolInWristPose_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
+    <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT"     to="st3Concate.lToolInWristPose_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
+
+    <connection from="idle.subsystem_state_OUTPORT"     to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+    <connection from="safe.subsystem_state_OUTPORT"     to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+    <connection from="cart_imp.subsystem_state_OUTPORT" to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+    <connection from="jnt_imp.subsystem_state_OUTPORT"  to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+    <connection from="safe_col.subsystem_state_OUTPORT" to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+
+    <connection from="INT_pose_r.generator_status_OUTPORT" to="st3Concate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="st3Concate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
+    <connection from="INT_pose_l.generator_status_OUTPORT" to="st3Concate.lCart_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="INT_pose_l.CartesianPositionCommand_OUTPORT" to="st3Concate.lCart_cmd_INPORT" name="cmd_pos_l" latex="p_{l,pos,cmd}" />
+    <connection from="output_conv.jnt_q_desired_OUTPORT" to="st3Concate.jnt_q_desired_INPORT" name="cmd_q_body" latex="q_{b,cmd}" />
+    <connection from="JTG_body.generator_status_OUTPORT" to="st3Concate.jnt_status_INPORT" name="gen_st" latex="s_{gen}" />
+    <connection from="output_conv.head_q_desired_OUTPORT" to="st3Concate.head_q_desired_INPORT" name="cmd_q_head" latex="q_{h,cmd}" />
+    <connection from="output_conv.head_dq_desired_OUTPORT" to="st3Concate.head_dq_desired_INPORT" name="cmd_dq_head" latex="q_{h,cmd}" />
+    <connection from="JTG_head.generator_status_OUTPORT" to="st3Concate.head_status_INPORT" name="gen_st" latex="s_{gen}" />
+
+    <connection from="output_conv.q_OUTPORT" to="st3Concate.q_INPORT" name="q" latex="q" />
+    <connection from="output_conv.dq_OUTPORT" to="st3Concate.dq_INPORT" name="dq" latex="\dot{q}" />
+    <connection from="b_stSplit.rHand_OUTPORT" to="st3Concate.handRight_INPORT" latex="st3_{hand,r}" />
+    <connection from="b_stSplit.lHand_OUTPORT" to="st3Concate.handLeft_INPORT" latex="st3_{hand,l}" />
+    <connection from="b_stSplit.p_OUTPORT" to="st3Concate.p_INPORT" latex="st3_{tact}" />
+    <connection from="b_stSplit.f_OUTPORT" to="st3Concate.f_INPORT" latex="st3_{of}" />
+
+    <connection from="FK.RightPosition_OUTPORT" to="st3Concate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftPosition_OUTPORT" to="st3Concate.lWristPose_INPORT" latex="p_{r}" />
 
 </subsystem_configuration>

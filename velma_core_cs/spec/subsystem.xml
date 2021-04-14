@@ -7,15 +7,19 @@
         <in  alias="cmd"    type="velma_core_cs_task_cs_msgs::Command"    side="top"/>
         <out alias="st"     type="velma_core_cs_task_cs_msgs::Status"     side="top"/>
 
-        <in  alias="pred_ctrl_cmd" type="velma_core_cs_task_cs_msgs::Command"   side="top"/>
-        <out alias="pred_ctrl_st"  type="velma_core_cs_task_cs_msgs::Status"    side="top"/>
+        <in  alias="cmd2"   type="velma_core_cs_task_cs_msgs::Command"   side="top"/>
+        <out alias="st2"    type="velma_core_cs_task_cs_msgs::Status"    side="top"/>
+
+        <in  alias="cmd3"   type="velma_core_cs_task_cs_msgs::Command"   side="top"/>
+        <out alias="st3"    type="velma_core_cs_task_cs_msgs::Status"    side="top"/>
     </buffers>
 
     <buffer_groups>
         <buffer_group name="all_inputs" >
             <obligatory name="b_st" />
             <optional name="cmd" />
-            <optional name="pred_ctrl_cmd" />
+            <optional name="cmd2" />
+            <optional name="cmd3" />
         </buffer_group>
     </buffer_groups>
 
