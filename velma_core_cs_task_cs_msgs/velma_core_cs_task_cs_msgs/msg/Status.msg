@@ -1,52 +1,77 @@
-StatusCartImp rCart     # status of left cartesian impedance trajectory generators
+# Status of right cartesian impedance trajectory generators
+StatusCartImp rCart
 bool rCart_valid
 
-StatusCartImp lCart     # status of left cartesian impedance trajectory generators
+# Status of left cartesian impedance trajectory generators
+StatusCartImp lCart
 bool lCart_valid
 
-StatusJntImp jnt        # status of joint impedance trajectory generator
+# Status of joint impedance trajectory generator
+StatusJntImp jnt
 bool jnt_valid
 
-StatusHead head         # status of head trajectory generator
+# Status of head trajectory generator
+StatusHead head
 bool head_valid
 
-float64[33] q       # position of all joints
+# Position of all joints
+float64[33] q
 bool q_valid
 
-float64[33] dq      # velocity of all joints
+# Velocity of all joints
+float64[33] dq
 bool dq_valid
 
-geometry_msgs/Pose rWristPose           # pose of right wrist wrt. base
+# Pose of the right wrist wrt. base
+geometry_msgs/Pose rWristPose
 bool rWristPose_valid
 
-geometry_msgs/Pose lWristPose           # pose of left wrist wrt. base
+# Pose of left wrist wrt. base
+geometry_msgs/Pose lWristPose
 bool lWristPose_valid
 
-geometry_msgs/Pose rToolInWristPose     # pose of right tool wrt. right wrist
+# Pose of right tool wrt. right wrist
+geometry_msgs/Pose rToolInWristPose
 bool rToolInWristPose_valid
 
-geometry_msgs/Pose lToolInWristPose     # pose of left tool wrt. left wrist
+# Pose of left tool wrt. left wrist
+geometry_msgs/Pose lToolInWristPose
 bool lToolInWristPose_valid
 
-barrett_hand_msgs/StatusHand handRight  # status of right hand
+# Pose of right tool wrt. base
+geometry_msgs/Pose rToolInBasePose
+bool rToolInBasePose_valid
+
+# Pose of left tool wrt. base
+geometry_msgs/Pose lToolInBasePose
+bool lToolInBasePose_valid
+
+# Status of the right hand
+barrett_hand_msgs/StatusHand handRight
 bool handRight_valid
 
-barrett_hand_msgs/StatusHand handLeft   # status of left hand
+# Status of the left hand
+barrett_hand_msgs/StatusHand handLeft
 bool handLeft_valid
 
-barrett_hand_status_msgs/BHPressureState p      # state of tactile sensors
+# State of tactile sensors
+barrett_hand_status_msgs/BHPressureState p
 bool p_valid
 
-geometry_msgs/Wrench[3] f                       # state of optoforce sensors
+# State of optoforce sensors
+geometry_msgs/Wrench[3] f
 bool f_valid
 
-StatusServo hp      # status of head pan motor
+# Status of head pan motor
+StatusServo hp
 
-StatusServo ht      # status of head tilt motor
+# Status of head tilt motor
+StatusServo ht
 
-StatusServo t       # status of torso motor
+# Status of torso motor
+StatusServo t
 
-# states of control subsystem
+# States of control subsystem
 uint32 STATE_IDLE = 0
 uint32 STATE_SAFE = 1
 uint32 STATE_CART_IMP = 2
@@ -54,6 +79,15 @@ uint32 STATE_JNT_IMP = 3
 uint32 STATE_SAFE_COL = 4
 uint32 STATE_FCL = 5   # currently unused
 
+# Current state of control subsystem
 uint32 subsystem_state
 bool subsystem_state_valid
 
+# Total commanded torque for the right arm
+float64[7] rArm_t
+
+# Total commanded torque for the left arm
+float64[7] lArm_t
+
+# Total commanded torque for the torso
+float64 torso_t

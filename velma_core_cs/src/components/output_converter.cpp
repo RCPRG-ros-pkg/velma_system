@@ -52,7 +52,7 @@ OutputConverter::OutputConverter(const std::string &name)
     addConverter<Eigen::Matrix<double, 33, 1 >, boost::array<double, 33 > >( "dq" );
     addConverter<Eigen::Matrix<double, 7, 1 >, boost::array<double, 7 > >( "rArm_t" );
     addConverter<Eigen::Matrix<double, 7, 1 >, boost::array<double, 7 > >( "lArm_t" );
-    addConverter<Eigen::Matrix<double, 1, 1 >, double >( "tMotor_i" );
+    addConverter<Eigen::Matrix<double, 1, 1 >, double >( "tMotor_t" );
 }
 
 }   //namespace velma_core_cs_types

@@ -125,7 +125,7 @@ bool lLwrCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::T
 }
 
 bool tCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->hi_cmd.tMotor_i_valid && isCmdTorsoValid(in_data->hi_cmd.tMotor_i);
+    return in_data->hi_cmd.tMotor_t_valid && isCmdTorsoValid(in_data->hi_cmd.tMotor_t);
 }
 
 bool hpCmdOk( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {

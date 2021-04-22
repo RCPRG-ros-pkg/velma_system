@@ -39,7 +39,7 @@ bool isLwrInCmdState(const lwr_msgs::FriIntfState& friIntf);
 bool isNaN(double d);
 bool isInLim(double d, double lo_lim, double hi_lim);
 bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd);
-bool isCmdTorsoValid(double cmd_tMotor_i);
+bool isCmdTorsoValid(double cmd_tMotor_t);
 bool isStatusValid(const velma_core_cs_ve_body_msgs::Status &st);
 
 #endif  // VELMA_CORE_VE_BODY_COMMON_PREDICATES_H__

@@ -67,7 +67,7 @@
     <component name="INT_imp_r"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT\_imp\_r}" />
     <component name="INT_imp_l"     type="CartesianImpedanceInterpolatorVelma" latex="\text{INT\_imp\_l}" />
     <component name="JntImp"        type="JointImpedance15" latex="\text{JntImp}" />
-    <component name="JntImpSafe"        type="JointImpedance15" latex="\text{JntImpSafe}" />
+    <component name="JntImpSafe"    type="JointImpedance15" latex="\text{JntImpSafe}" />
     <component name="FK"            type="VelmaFK" latex="\text{FK}" >
         <service name="robot" />
     </component>
@@ -215,8 +215,16 @@
     <connection from="ZeroVec8.vector_OUTPORT" to="C_dq_all.In3" name="0" />
     <connection from="S_t_body.Out1" to="output_conv.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
     <connection from="output_conv.rArm_t_OUTPORT" to="b_cmdConcate.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="output_conv.rArm_t_OUTPORT" to="stConcate.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="output_conv.rArm_t_OUTPORT" to="st2Concate.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+    <connection from="output_conv.rArm_t_OUTPORT" to="st3Concate.rArm_t_INPORT" name="cmd_t_ra" latex="t_{ra,cmd}" />
+
     <connection from="S_t_body.Out2" to="output_conv.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
     <connection from="output_conv.lArm_t_OUTPORT" to="b_cmdConcate.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="output_conv.lArm_t_OUTPORT" to="stConcate.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="output_conv.lArm_t_OUTPORT" to="st2Concate.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+    <connection from="output_conv.lArm_t_OUTPORT" to="st3Concate.lArm_t_INPORT" name="cmd_t_la" latex="t_{la,cmd}" />
+
     <connection from="b_stSplit.lArm_mmx_OUTPORT"  to="input_conv.lArm_mmx_INPORT" latex="M_{la}" />
     <connection from="input_conv.lArm_mmx_OUTPORT"  to="Mass.MassMatrixLeft_INPORT" latex="M_{la}" />
     <connection from="b_stSplit.rArm_mmx_OUTPORT"  to="input_conv.rArm_mmx_INPORT" latex="M_{ra}" />
@@ -237,10 +245,14 @@
     <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{b}" />
 <!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
-    <connection from="S_t_body.Out0" to="output_conv.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
-    <connection from="output_conv.tMotor_i_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="S_t_body.Out0" to="output_conv.tMotor_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="output_conv.tMotor_t_OUTPORT" to="b_cmdConcate.tMotor_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+
+    <connection from="output_conv.tMotor_t_OUTPORT" to="stConcate.torso_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="output_conv.tMotor_t_OUTPORT" to="st2Concate.torso_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="output_conv.tMotor_t_OUTPORT" to="st3Concate.torso_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
 <!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
-    <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
+    <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_t_INPORT" name="t_t" />-->
 
     <connection from="C_q_body.Out" to="CImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
@@ -271,8 +283,10 @@
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
-    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{l}" />
-    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightWrist_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{l}" />
+    <connection from="FK.LeftWrist_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightPosition_OUTPORT" to="stConcate.rToolInBasePose_INPORT" />
+    <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lToolInBasePose_INPORT" />
 
     <connection from="JntImp.JointTorqueCommand_OUTPORT" to="ColDetRepJntImp.Nt_INPORT" name="t" latex="t" />    
 <!--    <connection from="JntImp.JointTorqueCommand_OUTPORT" to="S_t_body.In" name="cmd_t_body" latex="t_{b,cmd}" />-->
@@ -485,6 +499,8 @@
 
     <connection from="FK.RightPosition_OUTPORT" to="st2Concate.rWristPose_INPORT" latex="p_{l}" />
     <connection from="FK.LeftPosition_OUTPORT" to="st2Concate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightPosition_OUTPORT" to="st2Concate.rToolInBasePose_INPORT" />
+    <connection from="FK.LeftPosition_OUTPORT" to="st2Concate.lToolInBasePose_INPORT" />
 
 
 
@@ -527,5 +543,7 @@
 
     <connection from="FK.RightPosition_OUTPORT" to="st3Concate.rWristPose_INPORT" latex="p_{l}" />
     <connection from="FK.LeftPosition_OUTPORT" to="st3Concate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightPosition_OUTPORT" to="st3Concate.rToolInBasePose_INPORT" />
+    <connection from="FK.LeftPosition_OUTPORT" to="st3Concate.lToolInBasePose_INPORT" />
 
 </subsystem_configuration>

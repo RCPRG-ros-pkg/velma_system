@@ -7,5 +7,3 @@ cartesian_trajectory_msgs/CartesianTolerance path_tolerance
 cartesian_trajectory_msgs/CartesianTolerance goal_tolerance
 
 duration goal_time_tolerance
-
-

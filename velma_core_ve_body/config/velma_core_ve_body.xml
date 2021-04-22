@@ -259,8 +259,8 @@
     <connection from="bypass.htMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadTilt_Outputs_TargetPosition_INPORT" />
     <connection from="HeadPanTransmisionInv.MotorPosition_OUTPORT"  to="bypass.hpMotor_q_INPORT" />
     <connection from="bypass.hpMotor_q_OUTPORT"     to="lo_ec_cmdConcate.HeadPan_Outputs_TargetPosition_INPORT" />
-    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_i_INPORT" />
-    <connection from="bypass.tMotor_i_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
+    <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"  to="bypass.tMotor_t_INPORT" />
+    <connection from="bypass.tMotor_t_OUTPORT"      to="lo_ec_cmdConcate.TorsoPan_Outputs_TargetTorque_INPORT" />
 -->
     <connection from="HeadTiltTransmisionInv.MotorPosition_OUTPORT"     to="driver_ht.desired_q_INPORT" />
     <connection from="HeadTiltTransmisionInv.MotorVelocity_OUTPORT"     to="driver_ht.desired_dq_INPORT" />
@@ -268,7 +268,7 @@
     <connection from="HeadPanTransmisionInv.MotorVelocity_OUTPORT"      to="driver_hp.desired_dq_INPORT" />
     <connection from="TorsoPanTransmisionInv.MotorCurrent_OUTPORT"      to="driver_t.desired_i_INPORT" />
 
-    <connection from="hi_cmdSplit.tMotor_i_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
+    <connection from="hi_cmdSplit.tMotor_t_OUTPORT" to="TorsoPanTransmisionInv.JointTorque_INPORT" />
 
     <connection from="packet_counter.packet_counter_OUTPORT"            to="hi_stConcate.test_INPORT" />
 

@@ -239,10 +239,10 @@
     <connection from="C_q_body.Out" to="C_q_all.In0" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="C_dq_all.In0" name="dq_body" latex="\dot{q}_{b}" />
 <!--    <connection from="S_t_body.Out0" to="TorsoTrqSplit.InputPort" name="t_t" />-->
-    <connection from="S_t_body.Out0" to="output_conv.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
-    <connection from="output_conv.tMotor_i_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="S_t_body.Out0" to="output_conv.tMotor_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
+    <connection from="output_conv.tMotor_t_OUTPORT" to="b_cmdConcate.tMotor_t_INPORT" name="cmd_t_t" latex="t_{t,cmd}" />
 <!--    <connection from="S_t_body.Out0" to="conv9.sc_INPORT" name="t_t" />
-    <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_i_INPORT" name="t_t" />-->
+    <connection from="conv9.sc_OUTPORT" to="b_cmdConcate.tMotor_t_INPORT" name="t_t" />-->
 
     <connection from="C_q_body.Out" to="CImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="CImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />

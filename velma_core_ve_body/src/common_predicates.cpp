@@ -104,9 +104,9 @@ bool isCmdArmValid(const velma_core_cs_ve_body_msgs::CommandArm& cmd) {
     return true;
 }
 
-bool isCmdTorsoValid(double cmd_tMotor_i) {
-    double tMotor_i_limit = 100;
-    if (!isInLim(cmd_tMotor_i, -tMotor_i_limit, tMotor_i_limit)) {
+bool isCmdTorsoValid(double cmd_tMotor_t) {
+    double tMotor_t_limit = 100;
+    if (!isInLim(cmd_tMotor_t, -tMotor_t_limit, tMotor_t_limit)) {
         return false;
     }
     return true;
