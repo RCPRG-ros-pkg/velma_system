@@ -19,5 +19,7 @@ catkin_install_python(PROGRAMS
     scripts/int_markers_cimp
     scripts/int_markers_jimp
     scripts/reset_shm_comm
+    scripts/velma_look_at_action_server.py
+    scripts/odom_localization.py
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
