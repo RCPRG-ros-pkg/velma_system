@@ -124,4 +124,6 @@
     <ros_stream port="stSplit.ht_OUTPORT"                       topic="/velma_task_cs_ros_interface/motors/ht_status" />
     <ros_stream port="stSplit.t_OUTPORT"                        topic="/velma_task_cs_ros_interface/motors/t_status" />
 
+    <ros_stream port="cmdConcate.allow_hands_col_INPORT"    topic="/velma_task_cs_ros_interface/allow_hands_col_in" />
+
 </subsystem_configuration>

@@ -50,6 +50,7 @@ bool t_valid
 bool objectGraspedRight
 bool objectGraspedRight_valid
 
+# Identification of mass of grasped object
 bool objectGraspedLeft
 bool objectGraspedLeft_valid
 
@@ -58,3 +59,7 @@ bool identificationMeasurementRightCmd_valid
 
 uint32 identificationMeasurementLeftCmd
 bool identificationMeasurementLeftCmd_valid
+
+# Flag that allows collision of hands
+int32 allow_hands_col
+bool allow_hands_col_valid

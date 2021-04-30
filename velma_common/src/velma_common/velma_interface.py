@@ -37,6 +37,7 @@ import threading
 from functools import partial
 import PyKDL
 
+from std_msgs.msg import Int32
 from geometry_msgs.msg import Wrench, Vector3, Twist
 from sensor_msgs.msg import JointState
 from barrett_hand_msgs.msg import *
@@ -694,6 +695,8 @@ class VelmaInterface:
 
         rospy.sleep(1.0)
 
+        self.__pub_allow_hands_col = rospy.Publisher('/velma_task_cs_ros_interface/allow_hands_col_in', Int32, queue_size=10)
+
         #self.wrench_tab = []
         #self.wrench_tab_index = 0
         #self.wrench_tab_len = 4000
@@ -908,6 +911,26 @@ class VelmaInterface:
     # Private method
     def _getTopicData(self, topic, timeout_s=None):
         return self._subscribed_topics[topic].getData(timeout_s=timeout_s)
+
+    def allowHandsCollisions(self):
+        """!
+        Allow self-collisions of hands.
+
+        @return None
+        """
+        data = Int32()
+        data.data = 1
+        self.__pub_allow_hands_col.publish( data )
+
+    def disallowHandsCollisions(self):
+        """!
+        Disallow self-collisions of hands.
+
+        @return None
+        """
+        data = Int32()
+        data.data = 0
+        self.__pub_allow_hands_col.publish( data )
 
     def getRawFTr(self):
         """!

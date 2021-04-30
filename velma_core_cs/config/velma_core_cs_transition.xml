@@ -140,6 +140,7 @@
     <connection from="ColDetRep.t_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
 
     <connection from="JntLimit.JointTorqueCommand_OUTPORT" to="ColDetRep.Nt_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />
+    <connection from="cmdSplit.allow_hands_col_OUTPORT" to="ColDetRep.allow_hands_col_INPORT" name="allow_h_col" latex="p_{hcol}" />
 
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDet.dq_INPORT" name="dq" latex="\dot{q}" />
