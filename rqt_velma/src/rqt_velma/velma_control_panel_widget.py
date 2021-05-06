@@ -31,6 +31,7 @@ import subprocess
 import tempfile
 import threading
 import math
+import time
 
 from python_qt_binding import loadUi
 from python_qt_binding.QtCore import Qt, QTimer, Signal, Slot, QRectF
@@ -127,7 +128,7 @@ class VelmaCommandThread:
     def __threadFunction(self):
         self.setActive( True )
         while (not self.__isCanceled() and not rospy.is_shutdown()):
-            rospy.sleep(0.1)
+            time.sleep(0.1)
             cmd = self.__getNextCommand()
             if cmd is None:
                 continue
@@ -171,8 +172,8 @@ class VelmaCommandThread:
 
             elif cmd_name == 'switchToSafeCol':
                 self.__velma.switchToSafeColBehavior()
-                self.__setMessage('INFO: switched to safe_col')
-                rospy.sleep(0.5)
+                self.__setMessage('INFO: switch to safe_col')
+                time.sleep(0.5)
 
             elif cmd_name == 'moveToInitialConfiguration':
                 q_map_initial = symmetricalConfiguration( {'torso_0_joint':0,
@@ -182,7 +183,7 @@ class VelmaCommandThread:
 
                 self.__velma.moveJoint(q_map_initial, None, max_vel=15.0/180.0*math.pi,
                                                 start_time=0.5, position_tol=15.0/180.0*math.pi)
-                rospy.sleep(0.5)
+                time.sleep(0.5)
                 self.__velma.moveHead([0.0, 0.0], None, max_vel=15.0/180.0*math.pi,
                                                 start_time=0.2, position_tol=5.0/180.0*math.pi)
   
@@ -371,7 +372,9 @@ class VelmaControlPanelWidget(QWidget):
         self.__list_model = QStandardItemModel()
         self.list_messages.setModel(self.__list_model)
 
-        self.button_initialize_robot.clicked.connect( self.clicked_initialize_robot)
+        #self.button_initialize_robot.clicked.connect(
+        #        lambda: self.__velma_cmd.initializeRobot() if not self.__velma_cmd is None)
+        self.button_initialize_robot.clicked.connect( self.clicked_initialize_robot )
         self.button_enable_motors.clicked.connect( self.clicked_enable_motors )
         self.button_switch_to_safe_col.clicked.connect( self.clicked_switch_to_safe_col )
         self.button_switch_to_cart_imp.clicked.connect( self.clicked_switch_to_cart_imp )
@@ -386,7 +389,7 @@ class VelmaControlPanelWidget(QWidget):
 
         self.__velma_init = VelmaInitThread()
         self.__velma_init.start()
-        self.__velma_command = None
+        self.__velma_cmd = None
         self.__velma = None
 
         # init and start update timer
@@ -396,28 +399,28 @@ class VelmaControlPanelWidget(QWidget):
         self.__joint_vis_map = None
 
     def clicked_initialize_robot(self):
-        if not self.__velma_command is None:
-            self.__velma_command.initializeRobot()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.initializeRobot()
 
     def clicked_enable_motors(self):
-        if not self.__velma_command is None:
-            self.__velma_command.enableMotors()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.enableMotors()
 
     def clicked_switch_to_jnt_imp(self):
-        if not self.__velma_command is None:
-            self.__velma_command.switchToJntImp()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.switchToJntImp()
 
     def clicked_switch_to_cart_imp(self):
-        if not self.__velma_command is None:
-            self.__velma_command.switchToCartImp()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.switchToCartImp()
 
     def clicked_switch_to_safe_col(self):
-        if not self.__velma_command is None:
-            self.__velma_command.switchToSafeCol()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.switchToSafeCol()
 
     def clicked_move_to_initial_configuration(self):
-        if not self.__velma_command is None:
-            self.__velma_command.moveToInitialConfiguration()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.moveToInitialConfiguration()
 
     def clicked_clear_messages(self):
         #self.list_messages
@@ -425,20 +428,20 @@ class VelmaControlPanelWidget(QWidget):
         pass
 
     def right_gripper_open(self):
-        if not self.__velma_command is None:
-            self.__velma_command.gripperCmd('right', 'open')
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.gripperCmd('right', 'open')
 
     def right_gripper_close(self):
-        if not self.__velma_command is None:
-            self.__velma_command.gripperCmd('right', 'close')
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.gripperCmd('right', 'close')
 
     def left_gripper_open(self):
-        if not self.__velma_command is None:
-            self.__velma_command.gripperCmd('left', 'open')
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.gripperCmd('left', 'open')
 
     def left_gripper_close(self):
-        if not self.__velma_command is None:
-            self.__velma_command.gripperCmd('left', 'close')
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.gripperCmd('left', 'close')
 
     def start(self):
         """
@@ -454,8 +457,8 @@ class VelmaControlPanelWidget(QWidget):
         if self.__velma is None:
             if self.__velma_init.isInitialized():
                 self.__velma = self.__velma_init.getVelmaInterface()
-                self.__velma_command = VelmaCommandThread(self.__velma)
-                self.__velma_command.start()
+                self.__velma_cmd = VelmaCommandThread(self.__velma)
+                self.__velma_cmd.start()
                 self.__joint_vis_map = {}
                 for idx in range(7):
                     left_name = 'left_arm_{}_joint'.format(idx)
@@ -503,7 +506,7 @@ class VelmaControlPanelWidget(QWidget):
             self.label_current_state_core_ve_body.setText( diag_ve_body.getCurrentStateModeName() )
 
             while True:
-                msg = self.__velma_command.getNextMessage()
+                msg = self.__velma_cmd.getNextMessage()
                 if msg is None:
                     break
                 item = QStandardItem(msg)
@@ -520,8 +523,8 @@ class VelmaControlPanelWidget(QWidget):
     def shutdown_plugin(self):
         if not self.__velma_init is None:
             self.__velma_init.cancelAndWait()
-        if not self.__velma_command is None:
-            self.__velma_command.cancelAndWait()
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.cancelAndWait()
         self._timer_refresh_topics.stop()
 
     # TODO(Enhancement) Save/Restore tree expansion state
