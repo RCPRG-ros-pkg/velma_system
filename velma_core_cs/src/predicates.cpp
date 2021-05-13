@@ -47,12 +47,14 @@ static const RTT::Attribute<bool >* getBoolAttribute(const std::string& componen
 }
 
 bool inSelfCollision( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    static const RTT::Attribute< bool >* inCollisionWristRight = getBoolAttribute("ColDetWrR", "inCollision", components);
-    static const RTT::Attribute< bool >* inCollisionWristLeft = getBoolAttribute("ColDetWrL", "inCollision", components);
+    //static const RTT::Attribute< bool >* inCollisionWristRight = getBoolAttribute("ColDetWrR", "inCollision", components);
+    //static const RTT::Attribute< bool >* inCollisionWristLeft = getBoolAttribute("ColDetWrL", "inCollision", components);
     static const RTT::Attribute< bool >* inCollision = getBoolAttribute("ColDet", "inCollision", components);
     static const RTT::Attribute< bool >* inCollision2 = getBoolAttribute("ColDetRep", "inCollision", components);
 
-    return inCollisionWristRight->get() || inCollisionWristLeft->get() || inCollision->get() || inCollision2->get();
+    // Do not check collisions in wrists, because the collision avoidance algorithms are doing quite a good job
+    //return inCollisionWristRight->get() || inCollisionWristLeft->get() || inCollision->get() || inCollision2->get();
+    return inCollision->get() || inCollision2->get();
 }
 
 bool veBodyInSafeState( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {

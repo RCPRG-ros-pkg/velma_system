@@ -275,12 +275,12 @@ template<unsigned DOFS >
 
     if (cc_->inCollision(q2)) {
         //RTT::Logger::In in("DoubleJointConstraint::updateHook");
-        m_fabric_logger << "ERROR: collision" << FabricLogger::End();
-        error();
+        m_fabric_logger << "WARNING: collision" << FabricLogger::End();
+        //error();
         // TODO: remove these logs:
-        Logger::log() << Logger::Error << getName() << " collision" << Logger::endl;
-        std::cout << getName() << " collision" << std::endl;
-        return;
+        //Logger::log() << Logger::Error << getName() << " collision" << Logger::endl;
+        //std::cout << getName() << " collision" << std::endl;
+        //return;
     }
 
     int min_idx;
@@ -288,7 +288,7 @@ template<unsigned DOFS >
     double min_dist;
     DoubleJointCC::Joints min_v;
 
-    bool found = cc_->getMinDistance(q2, min_v, min_dist, min_idx, min_type);
+    bool found_in = cc_->getMinDistanceIn(q2, min_v, min_dist, min_idx, min_type);
 
     diag_min_v_ = min_v;
     diag_min_dist_ = min_dist;
@@ -296,7 +296,7 @@ template<unsigned DOFS >
     P.noalias() = Inertia::Identity();
     joint_torque_command_.setZero();
 
-    if (found) {
+    if (found_in) {
         min_v.normalize();
 
         double depth = d0_ - min_dist;
@@ -357,6 +357,69 @@ template<unsigned DOFS >
     }
     else {
         //m_fabric_logger << "not found" << FabricLogger::End();
+        bool found_out = cc_->getMinDistanceOut(q2, min_v, min_dist, min_idx, min_type);
+
+        diag_min_v_ = min_v;
+        diag_min_dist_ = min_dist;
+
+        P.noalias() = Inertia::Identity();
+        joint_torque_command_.setZero();
+
+        if (found_out) {
+            m_fabric_logger << "position is outside constraints" << FabricLogger::End();
+            min_v.normalize();
+
+            // Apply full force, because we are outside constraints
+            double depth = d0_;
+
+            double Fmax_ = 50.0;
+            double f = depth / d0_;
+            double Frep = Fmax_ * f * f;
+            double K = 2.0 * Fmax_ / (d0_ * d0_);
+
+            J.setZero();
+
+            J(0, joint0_idx_) = min_v(0);
+            J(0, joint1_idx_) = min_v(1);
+
+            JT = J.transpose();
+
+            // calculate relative velocity between points (1 dof)
+            double ddij = (J * joint_velocity_)(0,0);
+
+            double activation_ = 1.0 - af_->func_Ndes(min_dist);
+
+            P.noalias() -= JT * activation_ * J;
+
+            // calculate collision mass (1 dof)
+            double Mdij_inv = (J * Minv * JT)(0,0);
+
+            // Damping is disabled
+            double D = 0;
+            //double D = 2.0 * 0.7 * sqrt(Mdij_inv * K);  // sqrt(K/M)
+
+            joint_torque_command_.noalias() = JT * (Frep - D * ddij);
+
+            // Limit the generated torques - rescale them if needed
+            double t0 = joint_torque_command_(joint0_idx_);
+            double t1 = joint_torque_command_(joint1_idx_);
+            const double t0_lim = 8.0;
+            const double t1_lim = 8.0;
+            double rescale_factor = std::max( fabs(t0) / t0_lim, fabs(t1) / t1_lim );
+            if (rescale_factor > 1.0) {
+              t0 /= rescale_factor;
+              t1 /= rescale_factor;
+              m_fabric_logger << "limited joint_torque_command from ("
+                  << joint_torque_command_(joint0_idx_) << ", "
+                  << joint_torque_command_(joint1_idx_) << ") to (" << t0 << ", " << t1 << ")"
+                                                                            << FabricLogger::End();
+              joint_torque_command_(joint0_idx_) = t0;
+              joint_torque_command_(joint1_idx_) = t1;
+            }
+
+    //        RTT::log(RTT::Info) << joint_torque_command_.transpose() << Logger::endl;
+            //m_fabric_logger << "found" << FabricLogger::End();
+        }
     }
 
     if (!joint_torque_command_.allFinite()) {

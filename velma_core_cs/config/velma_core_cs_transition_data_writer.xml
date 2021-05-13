@@ -25,8 +25,8 @@
     <component name="ColDet"    type="CollisionDetectorVelma" latex="\text{ColDet}" />
     <component name="ColDetRep"     type="CollisionDetectorVelma" latex="\text{ColDetRep}" />
     <component name="ColDetRepJntImp"     type="CollisionDetectorVelma" latex="\text{ColDetRepJntImp}" />
-    <component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrR}" />
-    <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrL}" />
+    <!--<component name="ColDetWrR"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrR}" />
+    <component name="ColDetWrL"     type="DoubleJointCollisionDetector15" latex="\text{ColDetWrL}" />-->
 
     <component name="VL_hp"     type="VelocityLimiter" latex="\text{VL\_hp}" />
     <component name="VL_ht"     type="VelocityLimiter" latex="\text{VL\_ht}" />
@@ -145,8 +145,8 @@
 
     <connection from="C_q_all.Out" to="ColDet.q_INPORT" name="q" latex="q" />
     <connection from="C_dq_all.Out" to="ColDet.dq_INPORT" name="dq" latex="\dot{q}" />
-    <connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
-    <connection from="C_q_body.Out" to="ColDetWrL.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <!--<connection from="C_q_body.Out" to="ColDetWrR.JointPosition_INPORT" name="q_body" latex="q_{b}" />
+    <connection from="C_q_body.Out" to="ColDetWrL.JointPosition_INPORT" name="q_body" latex="q_{b}" />-->
 
 <!--Cimp has lower priority than JntLimit    <connection from="CImp.JointTorqueCommand_OUTPORT" to="wcc_r.NullSpaceTorqueCommand_INPORT" name="cmd_t_body" latex="t_{cmd,b}" />-->
     <connection from="C_q_body.Out" to="wcc_r.JointPosition_INPORT" name="q_body" latex="q_{b}" />
