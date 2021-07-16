@@ -31,7 +31,7 @@
       use_stereo_pair:=$(arg use_stereo_pair)"
   />
   <param
-    name="/robot_semantic_description"
+    name="/robot_description_semantic"
     command="$(find xacro)/xacro '$(find velma_description)/robots/velma.srdf'"
   /> -->
 

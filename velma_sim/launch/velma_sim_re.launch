@@ -20,7 +20,7 @@
 
   <param name="/robot_description"
     command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
-  <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
+  <param name="/robot_description_semantic" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
 <!--  
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
     <param name="use_tf_static" value="false"/>

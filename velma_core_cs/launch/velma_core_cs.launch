@@ -28,11 +28,18 @@
   </node>
 
   <group if="$(arg load_robot_description)">
-    <param
-      name="/robot_description"
-      command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.urdf.xacro'" />
-    <param name="/robot_semantic_description" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma.srdf'" />
-    <param name="/robot_semantic_description_no_hands" command="$(find xacro)/xacro.py '$(find velma_description)/robots/velma_no_hands.srdf'" />
+    <!-- upload robot description -->
+    <include file="$(find velma_description)/launch/upload_robot.launch" >
+      <arg name="load_velma_sim_gazebo" value="false"/>
+      <arg name="use_dh_compatible_model" value="false"/>
+      <arg name="use_left_optoforces" value="false"/>
+      <arg name="use_right_optoforces" value="false"/>
+      <arg name="mobile_base" value="false"/>
+      <arg name="use_gpu_ray" value="false"/>
+      <arg name="collision_detector" value="dart"/>
+      <arg name="use_kinect" value="true"/>
+      <arg name="use_stereo_pair" value="true"/>
+    </include>
     <node pkg="robot_state_publisher" type="robot_state_publisher" name="rob_st_pub" >
       <param name="use_tf_static" value="true"/>
     </node>
