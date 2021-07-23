@@ -204,9 +204,14 @@ class VelmaCommandThread:
                 gr_cmd = cmd[2]
                 if gr_cmd == 'open':
                     q = [0, 0, 0, 0]
+                    self.__velma.moveHand(side, q, [1, 1, 1, 1], [4000,4000,4000,4000], 1000, hold=False)
                 elif gr_cmd == 'close':
                     q = [math.radians(110), math.radians(110), math.radians(110), 0]
-                self.__velma.moveHand(side, q, [1, 1, 1, 1], [4000,4000,4000,4000], 1000, hold=False)
+                    self.__velma.moveHand(side, q, [1, 1, 1, 1], [4000,4000,4000,4000], 1000, hold=False)
+                elif gr_cmd == 'reset':
+                    self.__velma.resetHand(side)
+                else:
+                    raise Exception('Unknown gripper command: "{}"'.format(gr_cmd))
                 if self.__velma.waitForHand(side) != 0:
                     exitError(6)
             else:
@@ -476,10 +481,12 @@ class VelmaControlPanelWidget(QWidget):
         self.button_clear_messages.clicked.connect( self.clicked_clear_messages )
         self.button_move_to_initial_configuration.clicked.connect( self.clicked_move_to_initial_configuration )
 
-        self.button_right_gripper_open.clicked.connect( self.right_gripper_open )
-        self.button_right_gripper_close.clicked.connect( self.right_gripper_close )
-        self.button_left_gripper_open.clicked.connect( self.left_gripper_open )
-        self.button_left_gripper_close.clicked.connect( self.left_gripper_close )
+        self.button_right_gripper_open.clicked.connect( lambda: self.gripper_cmd('right', 'open') )
+        self.button_right_gripper_close.clicked.connect( lambda: self.gripper_cmd('right', 'close') )
+        self.button_right_gripper_reset.clicked.connect( lambda: self.gripper_cmd('right', 'reset') )
+        self.button_left_gripper_open.clicked.connect( lambda: self.gripper_cmd('left', 'open') )
+        self.button_left_gripper_close.clicked.connect( lambda: self.gripper_cmd('left', 'close') )
+        self.button_left_gripper_reset.clicked.connect( lambda: self.gripper_cmd('left', 'reset') )
 
         self.__velma_init = VelmaInitThread()
         self.__velma_init.start()
@@ -521,21 +528,9 @@ class VelmaControlPanelWidget(QWidget):
         #self.button_clear_messages.
         pass
 
-    def right_gripper_open(self):
+    def gripper_cmd(self, side, cmd):
         if not self.__velma_cmd is None:
-            self.__velma_cmd.gripperCmd('right', 'open')
-
-    def right_gripper_close(self):
-        if not self.__velma_cmd is None:
-            self.__velma_cmd.gripperCmd('right', 'close')
-
-    def left_gripper_open(self):
-        if not self.__velma_cmd is None:
-            self.__velma_cmd.gripperCmd('left', 'open')
-
-    def left_gripper_close(self):
-        if not self.__velma_cmd is None:
-            self.__velma_cmd.gripperCmd('left', 'close')
+            self.__velma_cmd.gripperCmd(side, cmd)
 
     def start(self):
         """
