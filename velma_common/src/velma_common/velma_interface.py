@@ -587,6 +587,11 @@ class VelmaInterface:
                             #print "link:", name, " other visual"
 
                     self._all_links.append(obj_link)
+
+            if self.__wcc_l_poly is None:
+                self.__wcc_l_poly = rospy.get_param(self._core_cs_name+"/wcc_l/constraint_polygon")
+            if self.__wcc_r_poly is None:
+                self.__wcc_r_poly = rospy.get_param(self._core_cs_name+"/wcc_r/constraint_polygon")
         except:
             pass
 
@@ -596,7 +601,9 @@ class VelmaInterface:
                 self._head_joint_names is None or\
                 self._head_joint_limits is None or\
                 self._all_joint_names is None or\
-                self._all_links is None:
+                self._all_links is None or\
+                self.__wcc_l_poly is None or\
+                self.__wcc_r_poly is None:
             return False
         return True
 
@@ -612,6 +619,8 @@ class VelmaInterface:
         self._head_joint_limits = None
         self._all_joint_names = None
         self._all_links = None
+        self.__wcc_l_poly = None
+        self.__wcc_r_poly = None
 
         self._listener = tf.TransformListener()
 
@@ -979,6 +988,12 @@ class VelmaInterface:
         @return PyKDL.Wrench: Returns KDL wrench.
         """
         return self._wrenchROStoKDL( self._getTopicData('/left_arm/wrench') )
+
+    def getLeftWccPolygon(self):
+        return self.__wcc_l_poly
+
+    def getRightWccPolygon(self):
+        return self.__wcc_r_poly
 
     # Private method
     def _action_right_cart_traj_feedback_cb(self, feedback):

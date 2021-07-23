@@ -34,10 +34,10 @@ import math
 import time
 
 from python_qt_binding import loadUi
-from python_qt_binding.QtCore import Qt, QTimer, Signal, Slot, QRectF
+from python_qt_binding.QtCore import Qt, QTimer, Signal, Slot, QRectF, QPointF
 from python_qt_binding.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton, QHBoxLayout,\
     QScrollArea, QGraphicsScene
-from python_qt_binding.QtGui import QPixmap, QStandardItemModel, QStandardItem
+from python_qt_binding.QtGui import QPixmap, QStandardItemModel, QStandardItem, QPolygonF
 
 import roslib
 import rospkg
@@ -347,6 +347,100 @@ class JointVis(QGraphicsView):
         limit_range = self.__lim[-1] - self.__lim[0]
         self.__pos_rect.setRect( (self.__pos - self.__lim[0]) / limit_range, 0, 2.0/(self.width()-2), 1)
 
+class Joint2Vis(QGraphicsView):
+    def __init__(self, parent=None):
+        super (Joint2Vis, self).__init__ (parent)
+
+        self.__min_x = None
+        self.__max_x = None
+        self.__min_y = None
+        self.__max_y = None
+        self.__pos_rect = None
+        self.__pos1 = None
+        self.__pos2 = None
+
+        self.__scene = QGraphicsScene(QRectF(0, 0, 1, 1))
+        self.__scene.setBackgroundBrush(Qt.black);
+        self.setScene(self.__scene)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Expanding,
+                                                 QSizePolicy.Expanding))
+        #self.setMaximumHeight(10)
+        self.setStyleSheet("border: 0px")
+
+    def __confToScene(self, x, y):
+        return  (x - self.__min_x) / (self.__max_x - self.__min_x),\
+                (y - self.__min_y) / (self.__max_y - self.__min_y)
+
+    def paintEvent(self, event):
+        if not self.__pos1 is None and not self.__pos_rect is None:
+            self.__drawPos()
+        self.fitInView(self.__scene.sceneRect(), Qt.KeepAspectRatio);
+        super(Joint2Vis, self).paintEvent(event)
+
+    def setLimits(self, poly):
+        if self.__min_x is None:
+            self.__poly = poly
+            min_x = float('inf')
+            max_x = float('-inf')
+            min_y = float('inf')
+            max_y = float('-inf')
+            for idx in range(0, len(self.__poly), 2):
+                x = float(self.__poly[idx])
+                y = float(self.__poly[idx+1])
+                min_x = min(min_x, x)
+                max_x = max(max_x, x)
+                min_y = min(min_y, y)
+                max_y = max(max_y, y)
+            self.__min_x = min_x
+            self.__max_x = max_x
+            self.__min_y = min_y
+            self.__max_y = max_y
+            limit1_range = self.__max_x - self.__min_x
+            limit2_range = self.__max_y - self.__min_y
+            good_brush = QBrush(QColor(0,255,0))
+            soft_brush = QBrush(QColor(255,200,0))
+            hard_brush = QBrush(QColor(255,100,0))
+
+            self.__qt_poly = QPolygonF()
+
+            for idx in range(0, len(self.__poly), 2):
+                idx2 = (idx+2) % len(self.__poly)
+                x1, y1 = self.__confToScene( float(self.__poly[idx]), float(self.__poly[idx+1]) )
+                x2, y2 = self.__confToScene( float(self.__poly[idx2]), float(self.__poly[idx2+1]) )
+                self.__qt_poly.append(QPointF(x1, y1))
+            self.__scene.addPolygon(self.__qt_poly, QPen(QColor(255, 0, 0), 0.01, Qt.SolidLine, Qt.RoundCap), QBrush(QColor(0,150,0)))
+            self.__pos_point = None
+
+    def setPosition(self, pos1, pos2):
+        self.__pos1 = pos1
+        self.__pos2 = pos2
+        self.__drawPos()
+
+    def __drawPos(self):
+        x, y = self.__confToScene( self.__pos1, self.__pos2 )
+        if self.__pos_point is None:
+            self.__pos_point = (self.__scene.addLine(x-0.03, y-0.03, x+0.03, y+0.03,
+                                    QPen(QColor(255, 255, 255), 0.01, Qt.SolidLine, Qt.RoundCap)),
+                                self.__scene.addLine(x-0.03, y+0.03, x+0.03, y-0.03,
+                                    QPen(QColor(255, 255, 255), 0.01, Qt.SolidLine, Qt.RoundCap)))
+        else:
+            self.__pos_point[0].setLine(x-0.03, y-0.03, x+0.03, y+0.03)
+            self.__pos_point[1].setLine(x-0.03, y+0.03, x+0.03, y-0.03)
+
+    def resizeScene(self):
+        self.fitInView(self.__scene.sceneRect(), Qt.KeepAspectRatio)
+
+    def resizeEvent(self, event):
+        # call fitInView each time the widget is resized
+        self.resizeScene()
+
+    def showEvent(self, event):
+        # call fitInView each time the widget is shown
+        self.resizeScene()
+    
+
 class VelmaControlPanelWidget(QWidget):
     """
     main class inherits from the ui window class.
@@ -469,6 +563,19 @@ class VelmaControlPanelWidget(QWidget):
                     self.__joint_vis_map[right_name] = JointVis()
                     self.verticalLayout_5.insertWidget(idx+1, self.__joint_vis_map[right_name])
 
+
+
+                left_name = 'left_arm_double_joint'
+
+                self.__joint_vis_map[left_name] = Joint2Vis()
+                self.verticalLayout_4.insertWidget(8, self.__joint_vis_map[left_name])
+
+                right_name = 'right_arm_double_joint'
+                self.__joint_vis_map[right_name] = Joint2Vis()
+                self.verticalLayout_5.insertWidget(8, self.__joint_vis_map[right_name])
+
+
+
                 self.__joint_vis_map['torso_0_joint'] = JointVis()
                 self.gridLayout_2.addWidget(self.__joint_vis_map['torso_0_joint'], 0, 1)
 
@@ -487,6 +594,9 @@ class VelmaControlPanelWidget(QWidget):
                         self.__joint_vis_map[joint_name].setLimits( self.__head_limits[joint_name] )
                     else:
                         print('WARNING: could not get limits for joint "{}"'.format(joint_name))
+
+                self.__joint_vis_map['left_arm_double_joint'].setLimits( self.__velma.getLeftWccPolygon() )
+                self.__joint_vis_map['right_arm_double_joint'].setLimits( self.__velma.getRightWccPolygon() )
 
             self.label_panel_state.setText('Waiting for initialization of Velma Interface')
             self.label_current_state_core_cs.setText( 'unknown' )
@@ -518,7 +628,11 @@ class VelmaControlPanelWidget(QWidget):
             if not js is None:
                 js = js[1]
                 for joint_name in self.__joint_vis_map:
-                    self.__joint_vis_map[joint_name].setPosition( js[joint_name] )
+                    if joint_name in js:
+                        self.__joint_vis_map[joint_name].setPosition( js[joint_name] )
+
+                self.__joint_vis_map['left_arm_double_joint'].setPosition( js['left_arm_5_joint'], js['left_arm_6_joint'] )
+                self.__joint_vis_map['right_arm_double_joint'].setPosition( js['right_arm_5_joint'], js['right_arm_6_joint'] )
 
     def shutdown_plugin(self):
         if not self.__velma_init is None:
