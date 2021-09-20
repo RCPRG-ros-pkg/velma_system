@@ -93,9 +93,11 @@
         h_cam:  0.0
         v_cam:  0.225
       VL_hp:
-        max_vel: 50.0
+        max_vel: 1.04
+        timestep: 0.002
       VL_ht:
-        max_vel: 50.0
+        max_vel: 1.04
+        timestep: 0.002
       JntImp:
         initial_stiffness: [1200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01, 200.01]
         damping: 0.5
