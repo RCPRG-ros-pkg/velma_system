@@ -1,0 +1,282 @@
+#!/usr/bin/env python
+
+## Provides interactive 6D pose marker that ca be used to move end-effectors.
+# @ingroup utilities
+# @file int_markers_cimp
+# @namespace scripts.int_markers_cimp Provides interactive 6D pose marker that ca be used to move end-effectors.
+
+import roslib; roslib.load_manifest('velma_common')
+
+import sys
+import rospy
+import math
+
+from std_msgs.msg import ColorRGBA
+from interactive_markers.interactive_marker_server import *
+from interactive_markers.menu_handler import *
+from visualization_msgs.msg import *
+from geometry_msgs.msg import *
+from tf.transformations import * 
+import tf_conversions.posemath as pm
+import PyKDL
+import actionlib
+
+from rcprg_ros_utils import exitError
+
+import tf
+import tf2_ros
+from rcprg_ros_utils import exitError
+import tf_conversions.posemath as pm
+
+from rcprg_ros_utils.marker_publisher import MarkerPublisher
+
+def getTfPose(tf_listener, frame_id, tf_time, timeout_s):
+    try:
+        if not timeout_s is None:
+            tf_listener.waitForTransform('world', frame_id, tf_time, rospy.Duration(timeout_s))
+        pose = tf_listener.lookupTransform('world', frame_id, tf_time)
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException,
+            tf2_ros.TransformException):
+        return None
+    return pm.fromTf(pose)
+
+def getLatestTfPose(tf_listener, frame_id):
+    try:
+        pose = tf_listener.lookupTransform('world', frame_id, rospy.Time(0))
+    except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException,
+            tf2_ros.TransformException) as e:
+        #print e
+        return None
+    return pm.fromTf(pose)
+
+class IntMarkersCol:
+    def __init__(self, frame_id, size_dof, shape_type):
+        assert size_dof == 1 or size_dof == 3
+        self.__shape_type = shape_type
+
+        self.T_L_C = PyKDL.Frame()
+
+        # create an interactive marker server on the topic namespace simple_marker
+        self.server = InteractiveMarkerServer('int_markers_col')
+
+        self.insert6DofGlobalMarker(frame_id, size_dof)
+
+        self.server.applyChanges();
+
+    def insert6DofGlobalMarker(self, frame_id, size_dof):
+        T_B_T = PyKDL.Frame()
+        int_position_marker = InteractiveMarker()
+        int_position_marker.header.frame_id = frame_id
+        int_position_marker.name = 'col_marker'
+        int_position_marker.scale = 0.2
+        int_position_marker.pose = pm.toMsg(T_B_T)
+
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.ROTATE_AXIS,'x'));
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.ROTATE_AXIS,'y'));
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.ROTATE_AXIS,'z'));
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'x'));
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'y'));
+        int_position_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'z'));
+
+        self.server.insert(int_position_marker, self.processFeedback);
+
+        self.size = PyKDL.Vector(0.1, 0.1, 0.1)
+        self.size_base_pt = PyKDL.Vector(0.5, 0, 1)
+        T_B_T = PyKDL.Frame(self.size_base_pt + self.size)
+        int_size_marker = InteractiveMarker()
+        int_size_marker.header.frame_id = 'torso_base'
+        int_size_marker.name = 'col_marker_size'
+        int_size_marker.scale = 0.2
+        int_size_marker.pose = pm.toMsg(T_B_T)
+
+        int_size_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'x'));
+        if size_dof == 3:
+            int_size_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'y'));
+            int_size_marker.controls.append(self.createInteractiveMarkerControl6DOF(InteractiveMarkerControl.MOVE_AXIS,'z'));
+
+        self.server.insert(int_size_marker, self.processFeedbackSize);
+
+        self.server.applyChanges();
+
+    def processFeedback(self, feedback):
+        #print "feedback", feedback.marker_name, feedback.control_name, feedback.event_type
+
+        self.T_L_C = pm.fromMsg(feedback.pose)
+        #print feedback.pose
+        print(self.getUrdfCollision())
+
+        '''
+        if ( feedback.marker_name == self.prefix+'_arm_position_marker' ) and ( feedback.event_type == InteractiveMarkerFeedback.BUTTON_CLICK ) and ( feedback.control_name == "button" ):
+            T_B_Td = pm.fromMsg(feedback.pose)
+            self.p = pm.toMsg(T_B_Td)
+            #self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5)
+            dmp = 0.35
+            imp = makeWrench(1500,1500,1500,150,150,150)
+            #print 'damping is {}'.format(dmp)
+            self.velma.moveCartImp(self.prefix, [T_B_Td], [5.0], None, None, [imp], [5.0], PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=0.5, damping=PyKDL.Wrench(PyKDL.Vector(dmp, dmp, dmp),PyKDL.Vector(dmp, dmp, dmp)))
+        '''
+
+    def processFeedbackSize(self, feedback):
+        T_B_M = pm.fromMsg(feedback.pose)
+        size = T_B_M.p - self.size_base_pt
+        sx = max(0.005, size.x())
+        sy = max(0.005, size.y())
+        sz = max(0.005, size.z())
+        self.size = PyKDL.Vector(sx, sy, sz)
+        #print('new size: {}, {}, {}'.format(self.size.x(), self.size.y(), self.size.z()))
+        print(self.getUrdfCollision())
+
+    def getUrdfCollision(self):
+        rr, rp, ry = self.T_L_C.M.GetRPY()
+        pos = self.T_L_C.p
+        result = '<collision>\n'
+        result += '  <origin xyz="{} {} {}" rpy="{} {} {}"/>\n'.format(pos.x(), pos.y(), pos.z(),
+                                                                                        rr, rp, ry)
+        result += '  <geometry>\n'
+        if self.__shape_type == 'box':
+            result += '    <box size="{} {} {}"/>\n'.format(self.size.x(), self.size.y(),
+                                                                                    self.size.z())
+        elif self.__shape_type == 'sphere':
+            result += '    <sphere radius="{}"/>\n'.format(self.size.x()/2)
+        else:
+            raise Exception('not implemented')
+        result += '  </geometry>\n'
+        result += '</collision>'
+        return result
+
+    def createSphereMarkerControl(self, scale, position, color):
+        marker = Marker()
+        marker.type = Marker.SPHERE
+        marker.scale = scale
+        marker.pose.position = position
+        marker.color = color
+        control = InteractiveMarkerControl()
+        control.always_visible = True;
+        control.markers.append( marker );
+        return control
+
+    def createBoxMarkerControl(self, scale, position):
+        marker = Marker()
+        marker.type = Marker.CUBE
+        marker.scale = scale
+        marker.pose.position = position
+        marker.color = ColorRGBA(0.5,0.5,0.5,1)
+        control = InteractiveMarkerControl()
+        control.always_visible = True;
+        control.markers.append( marker );
+        return control
+
+    def createAxisMarkerControl(self, scale, position):
+        markerX = Marker()
+        markerX.type = Marker.ARROW
+        markerX.scale = scale
+        markerX.pose.position = position
+        ori = quaternion_about_axis(0, [0, 1 ,0])
+        markerX.pose.orientation = Quaternion(ori[0], ori[1], ori[2], ori[3])
+        markerX.color = ColorRGBA(1,0,0,1)
+        markerY = Marker()
+        markerY.type = Marker.ARROW
+        markerY.scale = scale
+        markerY.pose.position = position
+        ori = quaternion_about_axis(math.pi/2.0, [0, 0 ,1])
+        markerY.pose.orientation = Quaternion(ori[0], ori[1], ori[2], ori[3])
+        markerY.color = ColorRGBA(0,1,0,1)
+        markerZ = Marker()
+        markerZ.type = Marker.ARROW
+        markerZ.scale = scale
+        markerZ.pose.position = position
+        ori = quaternion_about_axis(-math.pi/2.0, [0, 1 ,0])
+        markerZ.pose.orientation = Quaternion(ori[0], ori[1], ori[2], ori[3])
+        markerZ.color = ColorRGBA(0,0,1,1)
+        control = InteractiveMarkerControl()
+        control.always_visible = True;
+        control.markers.append( markerX );
+        control.markers.append( markerY );
+        control.markers.append( markerZ );
+        return control
+
+    def createInteractiveMarkerControl6DOF(self, mode, axis):
+        control = InteractiveMarkerControl()
+        control.orientation_mode = InteractiveMarkerControl.INHERIT
+        print dir(InteractiveMarkerControl)
+        if mode == InteractiveMarkerControl.ROTATE_AXIS:
+            control.name = 'rotate_' + axis;
+        elif mode == InteractiveMarkerControl.MOVE_AXIS:
+            control.name = 'move_' + axis;
+        else:
+            raise Exception('Wrong axis mode: "{}"'.format(mode))
+        if axis == 'x':
+            control.orientation = Quaternion(1,0,0,1)
+        elif axis == 'y':
+            control.orientation = Quaternion(0,1,0,1)
+        elif axis == 'z':
+            control.orientation = Quaternion(0,0,1,1)
+        else:
+            raise Exception('Wrong axis name: "{}"'.format(axis))
+        control.interaction_mode = mode
+        return control
+
+class CollisionEditor:
+    def __init__(self, link_name, shape_type):
+        assert shape_type in ['sphere', 'box', 'ellipsoid']
+        self.__link_name = link_name
+        self.__shape_type = shape_type
+        #self.__sx = 0.1
+        #self.__sy = 0.1
+        #self.__sz = 0.1
+        if self.__shape_type == 'box':
+            self.__marker_type = Marker.CUBE
+        else:
+            self.__marker_type = Marker.SPHERE
+        self.__tf_listener = tf.TransformListener()
+        if self.__shape_type == 'sphere':
+            size_dof = 1
+        else:
+            size_dof = 3
+        self.__int_marker = IntMarkersCol(link_name, size_dof, shape_type)
+        self.__marker_pub = MarkerPublisher('collision_editor')
+
+    def spinOnce(self):
+        m_id = 0
+        size = self.__int_marker.size
+        size_base = self.__int_marker.size_base_pt
+
+        if self.__shape_type == 'sphere':
+            size = PyKDL.Vector(size.x(), size.x(), size.x())
+
+        m_id = self.__marker_pub.addSinglePointMarker(PyKDL.Vector(), m_id, r=1, g=1, b=0, a=0.5,
+            namespace='default', frame_id=self.__link_name, m_type=self.__marker_type,
+            scale=Vector3(size.x(), size.y(), size.z()), T=self.__int_marker.T_L_C)
+        
+        self.__marker_pub.addSinglePointMarker(size_base+0.5*size, m_id, r=1, g=1, b=0, a=1,
+            namespace='default', frame_id='torso_base', m_type=self.__marker_type,
+            scale=Vector3(size.x(), size.y(), size.z()), T=None)
+
+        self.__marker_pub.publishAll()
+
+def main():
+    link_name = sys.argv[1]
+    shape_type = sys.argv[2]
+
+    rospy.init_node('collisions_editor', anonymous=False)
+
+    rospy.sleep(0.5)
+
+    editor = CollisionEditor(link_name, shape_type)
+    while not rospy.is_shutdown():
+        editor.spinOnce()
+        try:
+            rospy.sleep(0.1)
+        except:
+            break
+
+    #int_right = IntMarkersCimp("right", velma)
+    #int_left = IntMarkersCimp("left", velma)
+
+    #rospy.spin()
+    return 0
+
+if __name__ == "__main__":
+
+    exit(main())
+

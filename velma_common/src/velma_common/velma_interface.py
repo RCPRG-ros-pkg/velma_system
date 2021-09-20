@@ -59,6 +59,8 @@ import subsystem_common
 
 import xml.dom.minidom as minidom
 
+# Do not use rospy.sleep(), because it hangs when simulation is stopped or terminated.
+
 def getSymmetricalJointName(joint_name):
     if joint_name.startswith('left'):
         return 'right' + joint_name[4:]
@@ -390,7 +392,7 @@ class VelmaInterface:
                     return
             except:
                 pass
-            rospy.sleep(0.1)
+            time.sleep(0.1)
             time_now = time.time()
             if timeout_s and (time_now-time_start) > timeout_s:
                 break
@@ -444,7 +446,7 @@ class VelmaInterface:
         while (time.time()-time_start) < timeout_s:
             if self.__isInitialized():
                 break
-            rospy.sleep(0.1)
+            time.sleep(0.1)
 
         if not self.__isInitialized():
             print("ERROR: waitForInit: timeout")
@@ -472,7 +474,7 @@ class VelmaInterface:
             js = self.getLastJointState()
             if (js[0] - abs_time).to_sec() > 0:
                 break
-            rospy.sleep(0.1)
+            time.sleep(0.1)
         return True
 
     def getBodyJointLimits(self):
@@ -587,6 +589,11 @@ class VelmaInterface:
                             #print "link:", name, " other visual"
 
                     self._all_links.append(obj_link)
+
+            if self.__wcc_l_poly is None:
+                self.__wcc_l_poly = rospy.get_param(self._core_cs_name+"/wcc_l/constraint_polygon")
+            if self.__wcc_r_poly is None:
+                self.__wcc_r_poly = rospy.get_param(self._core_cs_name+"/wcc_r/constraint_polygon")
         except:
             pass
 
@@ -596,7 +603,9 @@ class VelmaInterface:
                 self._head_joint_names is None or\
                 self._head_joint_limits is None or\
                 self._all_joint_names is None or\
-                self._all_links is None:
+                self._all_links is None or\
+                self.__wcc_l_poly is None or\
+                self.__wcc_r_poly is None:
             return False
         return True
 
@@ -612,6 +621,8 @@ class VelmaInterface:
         self._head_joint_limits = None
         self._all_joint_names = None
         self._all_links = None
+        self.__wcc_l_poly = None
+        self.__wcc_r_poly = None
 
         self._listener = tf.TransformListener()
 
@@ -693,7 +704,7 @@ class VelmaInterface:
             self.__action_obligatory_map[name] = True
         self.__action_obligatory_map['look_at'] = False
 
-        rospy.sleep(1.0)
+        time.sleep(1.0)
 
         self.__pub_allow_hands_col = rospy.Publisher('/velma_task_cs_ros_interface/allow_hands_col_in', Int32, queue_size=10)
 
@@ -743,7 +754,7 @@ class VelmaInterface:
                 if not result is None or timeout_s is None or rospy.Time.now() >= end_time:
                     return result
                 try:
-                    rospy.sleep(0.1)
+                    time.sleep(0.1)
                 except:
                     return None
             return None
@@ -979,6 +990,12 @@ class VelmaInterface:
         @return PyKDL.Wrench: Returns KDL wrench.
         """
         return self._wrenchROStoKDL( self._getTopicData('/left_arm/wrench') )
+
+    def getLeftWccPolygon(self):
+        return self.__wcc_l_poly
+
+    def getRightWccPolygon(self):
+        return self.__wcc_r_poly
 
     # Private method
     def _action_right_cart_traj_feedback_cb(self, feedback):
