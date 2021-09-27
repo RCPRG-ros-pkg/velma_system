@@ -164,13 +164,17 @@ class VelmaInterface:
         'Wo':'world',
         'B':'torso_base',
         'Wr':'right_arm_7_link',
+        'wrist_right':'right_arm_7_link',
         'Wl':'left_arm_7_link',
+        'wrist_left':'left_arm_7_link',
         'Er':'right_arm_7_link',
         'El':'left_arm_7_link',
         'Wright':'right_arm_7_link',
         'Wleft':'left_arm_7_link',
         'Gr':'right_HandGripLink',
+        'grip_right':'right_HandGripLink',
         'Gl':'left_HandGripLink',
+        'grip_left':'left_HandGripLink',
         'Pr':'right_HandPalmLink',
         'Pl':'left_HandPalmLink',
         'Tr':'right_arm_tool',
@@ -1239,19 +1243,26 @@ class VelmaInterface:
         """
         return self.moveCartImp("left", pose_list_T_B_Td, pose_times, tool_list_T_W_T, tool_times, imp_list, imp_times, max_wrench, start_time=start_time, stamp=stamp, damping=damping, path_tol=path_tol)
 
+    def moveCartImpCurrentPos(self, side, start_time=0.2, stamp=None):
+        """!
+        Move right end-effector to current position. Switch core_cs to cart_imp mode.
+        @return Returns True.
+        """
+        return self.moveCartImp(side, None, None, None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=start_time, stamp=stamp)
+
     def moveCartImpRightCurrentPos(self, start_time=0.2, stamp=None):
         """!
         Move right end-effector to current position. Switch core_cs to cart_imp mode.
         @return Returns True.
         """
-        return self.moveCartImp("right", None, None, None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=start_time, stamp=stamp)
+        return self.moveCartImpCurrentPos('right', start_time=start_time, stamp=stamp)
 
     def moveCartImpLeftCurrentPos(self, start_time=0.2, stamp=None):
         """!
         Move left end-effector to current position. Switch core_cs to cart_imp mode.
         @return Returns True.
         """
-        return self.moveCartImp("left", None, None, None, None, None, None, PyKDL.Wrench(PyKDL.Vector(5,5,5), PyKDL.Vector(5,5,5)), start_time=start_time, stamp=stamp)
+        return self.moveCartImpCurrentPos('left', start_time=start_time, stamp=stamp)
 
     def waitForEffector(self, prefix, timeout_s=None):
         """!
