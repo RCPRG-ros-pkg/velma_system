@@ -161,7 +161,7 @@
         rightLWR_joint0_idx: 1
         leftLWR_joint0_idx: 8
       CImp:
-        enable_rt_logging: true
+        enable_rt_logging: false
         <!-- mass_of_the_object: 2.0 -->
 <!--       MassDynCtrl:
         mass_of_the_object: 2.0     -->
