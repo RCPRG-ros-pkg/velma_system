@@ -122,6 +122,22 @@
       CameraTrigger:
         skip_cycles: 24
         bits: [16, 17, 18]
+      lwr_sync_r:
+        q0_offset: -0.0001
+        q1_offset: -0.0027
+        q2_offset: -0.0013
+        q3_offset: -0.0018
+        q4_offset: -0.0029
+        q5_offset: -0.0218
+        q6_offset: -0.0000
+      lwr_sync_l:
+        q0_offset: 0.0008
+        q1_offset: -0.0020
+        q2_offset: -0.0016
+        q3_offset: -0.0006
+        q4_offset: -0.0024
+        q5_offset: 0.0221
+        q6_offset: 0.0000
     </rosparam>
   </group>
 </launch>

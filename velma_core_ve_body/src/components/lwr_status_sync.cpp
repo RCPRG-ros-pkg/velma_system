@@ -73,6 +73,7 @@ private:
     RTT::OutputPort<lwr_msgs::FriRobotState > port_rob_out_;
 
     ArmJoints q_;
+    ArmJoints q_corrected_;
     ArmJoints dq_;
     ArmJoints t_;
     ArmJoints gt_;
@@ -85,10 +86,25 @@ private:
     bool valid_prev2_;
     bool valid_prev3_;
     bool valid_prev4_;
+
+    double q0_offset_;
+    double q1_offset_;
+    double q2_offset_;
+    double q3_offset_;
+    double q4_offset_;
+    double q5_offset_;
+    double q6_offset_;
 };
 
 LwrStatusSync::LwrStatusSync(const std::string &name)
     : TaskContext(name)
+    , q0_offset_(0.0)
+    , q1_offset_(0.0)
+    , q2_offset_(0.0)
+    , q3_offset_(0.0)
+    , q4_offset_(0.0)
+    , q5_offset_(0.0)
+    , q6_offset_(0.0)
 {
     this->ports()->addPort("q_INPORT", port_q_in_);
     this->ports()->addPort("dq_INPORT", port_dq_in_);
@@ -112,6 +128,14 @@ LwrStatusSync::LwrStatusSync(const std::string &name)
     valid_prev2_ = false;
     valid_prev3_ = false;
     valid_prev4_ = false;
+
+    addProperty("q0_offset", q0_offset_);
+    addProperty("q1_offset", q1_offset_);
+    addProperty("q2_offset", q2_offset_);
+    addProperty("q3_offset", q3_offset_);
+    addProperty("q4_offset", q4_offset_);
+    addProperty("q5_offset", q5_offset_);
+    addProperty("q6_offset", q6_offset_);
 }
 
 bool LwrStatusSync::startHook() {
@@ -133,7 +157,14 @@ void LwrStatusSync::updateHook() {
     valid &= (port_rob_in_.read(rob_) == RTT::NewData);
 
     if (valid || valid_prev1_ || valid_prev2_ || valid_prev3_ || valid_prev4_) {
-        port_q_out_.write(q_);
+        q_corrected_[0] = q_[0] + q0_offset_;
+        q_corrected_[1] = q_[1] + q1_offset_;
+        q_corrected_[2] = q_[2] + q2_offset_;
+        q_corrected_[3] = q_[3] + q3_offset_;
+        q_corrected_[4] = q_[4] + q4_offset_;
+        q_corrected_[5] = q_[5] + q5_offset_;
+        q_corrected_[6] = q_[6] + q6_offset_;
+        port_q_out_.write(q_corrected_);
         port_dq_out_.write(dq_);
         port_t_out_.write(t_);
         port_gt_out_.write(gt_);
