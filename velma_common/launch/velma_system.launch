@@ -64,11 +64,11 @@
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)" />
   </include>
 
-  <!--<group if="$(arg mobile_base)">
+  <group if="$(arg mobile_base)">
     <node
       name="odom_localization"
       pkg="velma_common" type="odom_localization.py" output="screen" >
     </node>
   </group>
--->
+
 </launch>
