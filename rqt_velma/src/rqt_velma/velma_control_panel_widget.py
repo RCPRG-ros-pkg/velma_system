@@ -332,16 +332,18 @@ class JointVis(QGraphicsView):
             good_brush = QBrush(QColor(0,255,0))
             soft_brush = QBrush(QColor(255,200,0))
             hard_brush = QBrush(QColor(255,100,0))
+            singularity_soft_brush = QBrush(QColor(0,200,255))
+            singularity_hard_brush = QBrush(QColor(0,100,255))
             self.__scene.addRect(0, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
             self.__scene.addRect(1.0-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
 
             self.__scene.addRect(soft_size, 0, (self.__lim[1]-self.__lim[0])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
 
             if len(self.__lim) == 4:
-                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
-                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), singularity_soft_brush)
+                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), singularity_soft_brush)
 
-                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range, 0, (self.__lim[2]-self.__lim[1])/limit_range, 1, QPen(Qt.NoPen), hard_brush)
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range, 0, (self.__lim[2]-self.__lim[1])/limit_range, 1, QPen(Qt.NoPen), singularity_hard_brush)
 
                 self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range+soft_size, 0, (self.__lim[3]-self.__lim[2])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
 
