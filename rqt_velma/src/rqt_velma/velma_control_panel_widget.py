@@ -184,15 +184,16 @@ class VelmaCommandThread:
                 self.__velma.moveJoint(q_map_initial, None, max_vel=15.0/180.0*math.pi,
                                                 start_time=0.5, position_tol=15.0/180.0*math.pi)
                 time.sleep(0.5)
-                self.__velma.moveHead([0.0, 0.0], None, max_vel=15.0/180.0*math.pi,
-                                                start_time=0.2, position_tol=5.0/180.0*math.pi)
-  
                 error = self.__velma.waitForJoint()
                 if error != 0:
                     self.__setMessage('ERROR: Could not move - error code: {}'.format(error))
                 else:
                     self.__setMessage('INFO: moved to the initial configuration')
 
+            elif cmd_name == 'moveHeadTo0':
+                self.__velma.moveHead([0.0, 0.0], None, max_vel=15.0/180.0*math.pi,
+                                                start_time=0.2, position_tol=5.0/180.0*math.pi)
+                time.sleep(0.5)
                 error = self.__velma.waitForHead()
                 if error != 0:
                     self.__setMessage('ERROR: Could not move head - error code: {}'.format(error))
@@ -292,6 +293,9 @@ class VelmaCommandThread:
     def moveToInitialConfiguration(self):
         self.__addCommand( ('moveToInitialConfiguration',) )
 
+    def moveHeadTo0(self):
+        self.__addCommand( ('moveHeadTo0',) )
+
     def gripperCmd(self, side, cmd):
         self.__addCommand( ('gripperCmd', side, cmd) )
 
@@ -306,6 +310,12 @@ class JointVis(QGraphicsView):
         self.__lim = None
         self.__pos_rect = None
         self.__pos = None
+
+        self.__good_brush = QBrush(QColor(0,255,0))
+        self.__soft_brush = QBrush(QColor(255,200,0))
+        self.__hard_brush = QBrush(QColor(255,100,0))
+        self.__singularity_soft_brush = QBrush(QColor(0,200,255))
+        self.__singularity_hard_brush = QBrush(QColor(0,100,255))
 
         self.__scene = QGraphicsScene(QRectF(0, 0, 1, 1))
         self.setScene(self.__scene)
@@ -329,30 +339,26 @@ class JointVis(QGraphicsView):
             soft_lim = 0.26
             limit_range = self.__lim[-1] - self.__lim[0]
             soft_size = soft_lim/limit_range
-            good_brush = QBrush(QColor(0,255,0))
-            soft_brush = QBrush(QColor(255,200,0))
-            hard_brush = QBrush(QColor(255,100,0))
-            singularity_soft_brush = QBrush(QColor(0,200,255))
-            singularity_hard_brush = QBrush(QColor(0,100,255))
-            self.__scene.addRect(0, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
-            self.__scene.addRect(1.0-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), soft_brush)
+            self.__scene.addRect(0, 0, soft_size, 1, QPen(Qt.NoPen), self.__soft_brush)
+            self.__scene.addRect(1.0-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), self.__soft_brush)
 
-            self.__scene.addRect(soft_size, 0, (self.__lim[1]-self.__lim[0])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
+            self.__scene.addRect(soft_size, 0, (self.__lim[1]-self.__lim[0])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), self.__good_brush)
 
             if len(self.__lim) == 4:
-                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), singularity_soft_brush)
-                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), singularity_soft_brush)
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), self.__singularity_soft_brush)
+                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), self.__singularity_soft_brush)
 
-                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range, 0, (self.__lim[2]-self.__lim[1])/limit_range, 1, QPen(Qt.NoPen), singularity_hard_brush)
+                self.__scene.addRect((self.__lim[1]-self.__lim[0])/limit_range, 0, (self.__lim[2]-self.__lim[1])/limit_range, 1, QPen(Qt.NoPen), self.__singularity_hard_brush)
 
-                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range+soft_size, 0, (self.__lim[3]-self.__lim[2])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), good_brush)
+                self.__scene.addRect((self.__lim[2]-self.__lim[0])/limit_range+soft_size, 0, (self.__lim[3]-self.__lim[2])/limit_range-2*soft_size, 1, QPen(Qt.NoPen), self.__good_brush)
 
-            self.__pos_rect = self.__scene.addRect(0, 0, 0.05, 1, QPen(Qt.NoPen), QBrush(QColor(0,0,0)))
+            self.__pos_rect = self.__scene.addRect(0, 0, 0.05, 1, QPen(Qt.NoPen), Qt.black)
 
     def setPosition(self, pos):
         self.__pos = pos
         limit_range = self.__lim[-1] - self.__lim[0]
         self.__pos_rect.setRect( (self.__pos - self.__lim[0]) / limit_range, 0, 2.0/(self.width()-2), 1)
+        self.setToolTip('range: ({:.2f}, {:.2f}), pos: {:.2f}'.format(self.__lim[0], self.__lim[-1], pos))
 
 class Joint2Vis(QGraphicsView):
     def __init__(self, parent=None):
@@ -366,8 +372,13 @@ class Joint2Vis(QGraphicsView):
         self.__pos1 = None
         self.__pos2 = None
 
+        self.__brush_bad = QBrush(QColor(150,0,0))
+        self.__brush_good = QBrush(QColor(0,150,0))
+        self.__singularity_soft_brush = QBrush(QColor(0,200,255,128))
+        self.__singularity_hard_brush = QBrush(QColor(0,100,255,128))
+
         self.__scene = QGraphicsScene(QRectF(0, 0, 1, 1))
-        self.__scene.setBackgroundBrush(Qt.black);
+        self.__scene.setBackgroundBrush( self.__brush_bad );
         self.setScene(self.__scene)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
@@ -386,7 +397,7 @@ class Joint2Vis(QGraphicsView):
         self.fitInView(self.__scene.sceneRect(), Qt.KeepAspectRatio);
         super(Joint2Vis, self).paintEvent(event)
 
-    def setLimits(self, poly):
+    def setLimits(self, poly, joint_5_limits):
         if self.__min_x is None:
             self.__poly = poly
             min_x = float('inf')
@@ -406,9 +417,6 @@ class Joint2Vis(QGraphicsView):
             self.__max_y = max_y
             limit1_range = self.__max_x - self.__min_x
             limit2_range = self.__max_y - self.__min_y
-            good_brush = QBrush(QColor(0,255,0))
-            soft_brush = QBrush(QColor(255,200,0))
-            hard_brush = QBrush(QColor(255,100,0))
 
             self.__qt_poly = QPolygonF()
 
@@ -417,7 +425,15 @@ class Joint2Vis(QGraphicsView):
                 x1, y1 = self.__confToScene( float(self.__poly[idx]), float(self.__poly[idx+1]) )
                 x2, y2 = self.__confToScene( float(self.__poly[idx2]), float(self.__poly[idx2+1]) )
                 self.__qt_poly.append(QPointF(x1, y1))
-            self.__scene.addPolygon(self.__qt_poly, QPen(QColor(255, 0, 0), 0.01, Qt.SolidLine, Qt.RoundCap), QBrush(QColor(0,150,0)))
+            self.__scene.addPolygon(self.__qt_poly, QPen(QColor(255, 0, 0), 0.01, Qt.SolidLine, Qt.RoundCap), self.__brush_good)
+
+            limit_range = joint_5_limits[-1] - joint_5_limits[0]
+            soft_lim = 0.26
+            soft_size = soft_lim/limit_range
+            self.__scene.addRect((joint_5_limits[1]-joint_5_limits[0])/limit_range-soft_size, 0, soft_size, 1, QPen(Qt.NoPen), self.__singularity_soft_brush)
+            self.__scene.addRect((joint_5_limits[2]-joint_5_limits[0])/limit_range, 0, soft_size, 1, QPen(Qt.NoPen), self.__singularity_soft_brush)
+            self.__scene.addRect((joint_5_limits[1]-joint_5_limits[0])/limit_range, 0, (joint_5_limits[2]-joint_5_limits[1])/limit_range, 1, QPen(Qt.NoPen), self.__singularity_hard_brush)
+
             self.__pos_point = None
 
     def setPosition(self, pos1, pos2):
@@ -482,6 +498,7 @@ class VelmaControlPanelWidget(QWidget):
         self.button_switch_to_jnt_imp.clicked.connect( self.clicked_switch_to_jnt_imp )
         self.button_clear_messages.clicked.connect( self.clicked_clear_messages )
         self.button_move_to_initial_configuration.clicked.connect( self.clicked_move_to_initial_configuration )
+        self.button_move_head_to_0.clicked.connect( self.clicked_move_head_to_0 )
 
         self.button_right_gripper_open.clicked.connect( lambda: self.gripper_cmd('right', 'open') )
         self.button_right_gripper_close.clicked.connect( lambda: self.gripper_cmd('right', 'close') )
@@ -525,6 +542,10 @@ class VelmaControlPanelWidget(QWidget):
         if not self.__velma_cmd is None:
             self.__velma_cmd.moveToInitialConfiguration()
 
+    def clicked_move_head_to_0(self):
+        if not self.__velma_cmd is None:
+            self.__velma_cmd.moveHeadTo0()
+
     def clicked_clear_messages(self):
         #self.list_messages
         #self.button_clear_messages.
@@ -546,30 +567,50 @@ class VelmaControlPanelWidget(QWidget):
     @Slot()
     def refresh_topics(self):
         if self.__velma is None:
+            print(type(self.verticalLayout_4))
+            print(self.verticalLayout_4)
+            print(dir(self.verticalLayout_4))
             if self.__velma_init.isInitialized():
                 self.__velma = self.__velma_init.getVelmaInterface()
                 self.__velma_cmd = VelmaCommandThread(self.__velma)
                 self.__velma_cmd.start()
                 self.__joint_vis_map = {}
+                self.__other_widgets = []
                 for idx in range(7):
                     left_name = 'left_arm_{}_joint'.format(idx)
+
                     self.__joint_vis_map[left_name] = JointVis()
-                    self.verticalLayout_4.insertWidget(idx+1, self.__joint_vis_map[left_name])
+                    #self.verticalLayout_4.insertWidget(idx+1, self.__joint_vis_map[left_name])
+
+                    h_layout = QHBoxLayout()
+                    label = QLabel()
+                    label.setText('{}'.format(idx))
+                    h_layout.addWidget( label )
+                    h_layout.addWidget( self.__joint_vis_map[left_name] )
+                    self.__other_widgets.append(h_layout)
+                    self.__other_widgets.append(label)
+                    self.verticalLayout_4.insertLayout(idx+1, h_layout)
 
                     right_name = 'right_arm_{}_joint'.format(idx)
                     self.__joint_vis_map[right_name] = JointVis()
-                    self.verticalLayout_5.insertWidget(idx+1, self.__joint_vis_map[right_name])
-
-
+#                    self.verticalLayout_5.insertWidget(idx+1, self.__joint_vis_map[right_name])
+                    h_layout = QHBoxLayout()
+                    label = QLabel()
+                    label.setText('{}'.format(idx))
+                    h_layout.addWidget( label )
+                    h_layout.addWidget( self.__joint_vis_map[right_name] )
+                    self.__other_widgets.append(h_layout)
+                    self.__other_widgets.append(label)
+                    self.verticalLayout_5.insertLayout(idx+1, h_layout)
 
                 left_name = 'left_arm_double_joint'
 
                 self.__joint_vis_map[left_name] = Joint2Vis()
-                self.verticalLayout_4.insertWidget(8, self.__joint_vis_map[left_name])
+                self.verticalLayout_4.insertWidget(9, self.__joint_vis_map[left_name])
 
                 right_name = 'right_arm_double_joint'
                 self.__joint_vis_map[right_name] = Joint2Vis()
-                self.verticalLayout_5.insertWidget(8, self.__joint_vis_map[right_name])
+                self.verticalLayout_5.insertWidget(9, self.__joint_vis_map[right_name])
 
 
 
@@ -592,8 +633,8 @@ class VelmaControlPanelWidget(QWidget):
                     else:
                         print('WARNING: could not get limits for joint "{}"'.format(joint_name))
 
-                self.__joint_vis_map['left_arm_double_joint'].setLimits( self.__velma.getLeftWccPolygon() )
-                self.__joint_vis_map['right_arm_double_joint'].setLimits( self.__velma.getRightWccPolygon() )
+                self.__joint_vis_map['left_arm_double_joint'].setLimits( self.__velma.getLeftWccPolygon(), self.__jnt_lim_cart['left_arm_5_joint'] )
+                self.__joint_vis_map['right_arm_double_joint'].setLimits( self.__velma.getRightWccPolygon(), self.__jnt_lim_cart['right_arm_5_joint'] )
 
             self.label_panel_state.setText('Waiting for initialization of Velma Interface')
             self.label_current_state_core_cs.setText( 'unknown' )
