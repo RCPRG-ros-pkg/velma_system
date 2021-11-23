@@ -62,6 +62,14 @@ import xml.dom.minidom as minidom
 # Do not use rospy.sleep(), because it hangs when simulation is stopped or terminated.
 
 def getSymmetricalJointName(joint_name):
+    """!
+    For joint names that refer to joints that are symmetrical (*left* or *right*), get the name
+    of the another joint.
+
+    @param joint_name string: name of joint.
+
+    @return name of the joint symmetrical to joint_name, or None, if such does not exist.
+    """
     if joint_name.startswith('left'):
         return 'right' + joint_name[4:]
     elif joint_name.startswith('right'):
@@ -69,6 +77,13 @@ def getSymmetricalJointName(joint_name):
     return None
 
 def symmetricalConfiguration(q_map):
+    """!
+    Get configuration based on the input configuration such that all joint positions are symmetrical.
+
+    @param q_map Dictionary: configuration {joint_name:joint_position}.
+
+    @return Dictionary with symmetrical configuration.
+    """
     result = {}
     for joint_name in q_map:
         assert not joint_name in result
@@ -650,9 +665,9 @@ class VelmaInterface:
                 actionlib.SimpleActionClient(
                 "/velma_task_cs_ros_interface/head_spline_trajectory_action_joint",
                 FollowJointTrajectoryAction),
-        	'safe_col':
+        	'relax':
                 actionlib.SimpleActionClient(
-                "/velma_task_cs_ros_interface/safe_col_action",
+                "/velma_task_cs_ros_interface/relax_action",
                 BehaviorSwitchAction),
         	'grasped_right':
                 actionlib.SimpleActionClient(
@@ -737,6 +752,11 @@ class VelmaInterface:
                                                                     topic_name, topic_type)
 
     class SubscribedTopic:
+        """!
+        Class used for subscription for various ROS topics from the VelmaInterface class.
+
+        """
+
         def __init__(self, topic_name, topic_type):
             self.__mutex = threading.Lock()
             self.__topic_name = topic_name
@@ -748,6 +768,16 @@ class VelmaInterface:
                 self.__data = data
 
         def getData(self, timeout_s=None):
+            """!
+            Get the newest topic data.
+
+            @param timeout_s float: timeout in seconds or None for no timeout. Default is None (no
+            timeout, return immediately).
+
+            @return Returns the newest data read on topic if it is available, or None otherwise.
+
+            """
+
             if not timeout_s is None:
                 end_time = rospy.Time.now() + rospy.Duration(timeout_s)
             result = None
@@ -839,7 +869,7 @@ class VelmaInterface:
             self.__current_state = parent.history[0].state_name
             assert (self.__current_state == "idle" or self.__current_state == "safe" or
                 self.__current_state == "cart_imp" or self.__current_state == "jnt_imp" or
-                self.__current_state == "safe_col")
+                self.__current_state == "relax")
 
         def getCurrentStateName(self):
             return self.__current_state
@@ -872,12 +902,12 @@ class VelmaInterface:
             """
             return self.__current_state == "jnt_imp"
 
-        def inStateSafeCol(self):
+        def inStateRelax(self):
             """!
             Information about current state.
-            @return True if the subsystem is in 'safe_col' state, False otherwise.
+            @return True if the subsystem is in 'relax' state, False otherwise.
             """
-            return self.__current_state == "safe_col"
+            return self.__current_state == "relax"
 
         def isSafeReasonSelfCol(self):
             """!
@@ -996,9 +1026,19 @@ class VelmaInterface:
         return self._wrenchROStoKDL( self._getTopicData('/left_arm/wrench') )
 
     def getLeftWccPolygon(self):
+        """!
+        Get Polygon that defines wrist collision constraints for joints 5 and 6 of the left arm.
+
+        @return list: Returns wrist collision constraint polygon as [x0, y0, x1, y1, x2, y2, ...].
+        """
         return self.__wcc_l_poly
 
     def getRightWccPolygon(self):
+        """!
+        Get Polygon that defines wrist collision constraints for joints 5 and 6 of the right arm.
+
+        @return list: Returns wrist collision constraint polygon as [x0, y0, x1, y1, x2, y2, ...].
+        """
         return self.__wcc_r_poly
 
     # Private method
@@ -1013,13 +1053,13 @@ class VelmaInterface:
     def _wrenchROStoKDL(self, wrROS):
         return PyKDL.Wrench( PyKDL.Vector(wrROS.force.x, wrROS.force.y, wrROS.force.z), PyKDL.Vector(wrROS.torque.x, wrROS.torque.y, wrROS.torque.z) )
 
-    def switchToSafeColBehavior(self):
+    def switchToRelaxBehavior(self):
         """!
-        Switches the robot to SafeCol behavior.
+        Switches the robot to relax behavior.
         """
         goal = BehaviorSwitchGoal()
         goal.command = 1
-        self.__action_map['safe_col'].send_goal(goal)
+        self.__action_map['relax'].send_goal(goal)
 
     def enableMotor(self, motor):
         """!
@@ -1147,6 +1187,21 @@ class VelmaInterface:
         return self.waitForMotor("t", timeout_s=timeout_s)
 
     def getCartImpMvTime(self, side, T_B_T, max_vel_lin, max_vel_rot, current_T_B_T=None):
+        """!
+        Calculate movement time for a given destination pose of end effector tool, given maximum
+        allowed linear and rotational velocities.
+
+        @param side string: side: 'left' or 'right'.
+        @param T_B_T PyKDL.Frame: destination pose.
+        @param max_vel_lin float: maximum linear velocity.
+        @param max_vel_rot float: maximum rotational velocity.
+        @param current_T_B_T PyKDL.Frame: (optional) current pose. If ommited, the current pose
+        from tf is considered.
+
+        @return Returns float: movement time in seconds.
+
+        @exception AssertionError Raised when prefix is neither 'left' nor 'right'.
+        """
         if current_T_B_T is None:
             if side == 'left':
                 current_T_B_T = self.getTf('B', 'Tl', time=None, timeout_s=0.1)
@@ -1338,6 +1393,12 @@ class VelmaInterface:
         assert self.__isActionConnected('look_at')
 
     def isLookAtConnected(self):
+        """!
+        Check if look at action is connected.
+
+        @return True if look at action is connected, False otherwise.
+
+        """
         return self.__isActionConnected('look_at')
 
     def waitForLookAt(self, timeout_s=None):
@@ -1782,10 +1843,13 @@ class VelmaInterface:
 
     def setGraspedFlag(self, side, status):
         """!
+        Inform control system about grasped object.
+
         @param side string: Hand name, can be one of two values ('left' or 'right').        
+        @param status bool: True when object is grasped and gravity compensation is active, False
+        otherwise.
+
         @exception NameError: If side is not 'left' or 'right'.         
-        If some object is grasped and object's gravity compensation is active (from Velma's point of view): status == True
-        If Velma thinks nothing is grasped: status == False       
         """
         if side != 'left' and side != 'right':
             raise NameError('wrong side name: ' + str(side))
@@ -1808,9 +1872,17 @@ class VelmaInterface:
 
     def sendIdentificationMeasurementCommand(self, side, command_index):
         """!
-        @param side string: Hand name, can be one of two values ('left' or 'right').        
+        Make measurement for gravity compensation. This identification action requires four
+        measurements: two before and two after object is grasped.
+
+        @param side string: Hand name, can be one of two values ('left' or 'right').
+        @param command_index int: measurement index - one of the following values: 1 - the first
+        measurement before the object is grasped, 2 - the second measurement before the object
+        is grasped, 3 - the first measurement after the object is grasped (in the same pose
+        as for measurement 1), 4 - the second measurement after the object is grasped (in the same
+        pose as for measurement 2).
+
         @exception NameError: If side is not 'left' or 'right'.         
-        This identification action requires four measurements: two before and two after object is grasped.       
         """
         if side != 'left' and side != 'right':
             raise NameError('wrong side name: ' + str(side))
@@ -1834,4 +1906,3 @@ class VelmaInterface:
         error_code = result.error_code
         if error_code != 0:
             print "sendIdentificationMeasurementCommand: action failed (error)"
-            

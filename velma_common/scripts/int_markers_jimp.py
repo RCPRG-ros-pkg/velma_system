@@ -2,8 +2,7 @@
 
 ## Provides interactive 1D pose marker that can be used to move individual joints.
 # @ingroup utilities
-# @file int_markers_jimp
-# @namespace scripts.int_markers_jimp Provides interactive 1D pose marker that can be used to move individual joints.
+# @file int_markers_jimp.py
 
 import roslib; roslib.load_manifest('velma_common')
 

@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
-## Provides interactive 6D pose marker that ca be used to move end-effectors.
+## Provides interactive 6D pose marker that can be used to move end-effectors.
 # @ingroup utilities
-# @file int_markers_cimp
-# @namespace scripts.int_markers_cimp Provides interactive 6D pose marker that ca be used to move end-effectors.
+# @file int_markers_cimp.py
 
 import roslib; roslib.load_manifest('velma_common')
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-## This node simulates perception of simulated Velma robot.
+## A ROS node that implements 'look at' action server for head of WUT Velma robot.
+# @ingroup utilities
+# @file velma_look_at_action_server.py
 
 # Copyright (c) 2017, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering

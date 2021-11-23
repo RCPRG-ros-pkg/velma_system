@@ -76,7 +76,7 @@ uint32 STATE_IDLE = 0
 uint32 STATE_SAFE = 1
 uint32 STATE_CART_IMP = 2
 uint32 STATE_JNT_IMP = 3
-uint32 STATE_SAFE_COL = 4
+uint32 STATE_RELAX = 4
 uint32 STATE_FCL = 5   # currently unused
 
 # Current state of control subsystem

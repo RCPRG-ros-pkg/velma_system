@@ -14,9 +14,9 @@ bool jnt_valid
 CommandHead head
 bool head_valid
 
-# Command to switch to the safe_col behaviour
-bool safe_col
-bool safe_col_valid
+# Command to switch to the relax behaviour
+bool relax
+bool relax_valid
 
 # Command for the right hand - move fingers
 barrett_hand_msgs/CommandHand handRight

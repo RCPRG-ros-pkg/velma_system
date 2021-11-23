@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 
-## Runs test for grippers motions.
-# @ingroup integration_tests
-# @file test_grippers.py
-# @namespace scripts.test_grippers Integration test
+## Sets configuration of gripper.
+# @file set_gripper_configuration.py
 
-# Copyright (c) 2017, Robot Control and Pattern Recognition Group,
+# Copyright (c) 2021, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
 # Warsaw University of Technology
 #

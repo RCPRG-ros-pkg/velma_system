@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
-## Runs test for simple head motions.
-# @ingroup integration_tests
-# @file test_head.py
-# @namespace scripts.test_head Integration test
+## Moves head to position (0, 0).
+# @file reset_head_position.py
 
 # Copyright (c) 2017, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
@@ -89,7 +87,7 @@ if __name__ == "__main__":
 
     print "moving head to position: 0"
     q_dest = (0,0)
-    velma.moveHead(q_dest, 2.0, start_time=0.5)
+    velma.moveHead(q_dest, 4.0, start_time=0.5)
     if velma.waitForHead() != 0:
         exitError(4)
     rospy.sleep(0.5)

@@ -106,15 +106,15 @@ bool recvJntImpCmd( const InputDataConstPtr& in_data, const std::vector<const RT
     return in_data->cmd.jnt_valid || in_data->cmd2.jnt_valid || in_data->cmd3.jnt_valid;
 }
 
-bool recvSafeColCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
-    return in_data->cmd.safe_col_valid && in_data->cmd.safe_col;
+bool recvRelaxCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
+    return in_data->cmd.relax_valid && in_data->cmd.relax;
 }
 
 bool recvOneCmd( const InputDataConstPtr& in_data, const std::vector<const RTT::TaskContext*> &components) {
     unsigned int valid_count = 0;
     valid_count += (recvCartImpCmd(in_data, components) ? 1 : 0);
     valid_count += (recvJntImpCmd(in_data, components) ? 1 : 0);
-    valid_count += (recvSafeColCmd(in_data, components) ? 1 : 0);
+    valid_count += (recvRelaxCmd(in_data, components) ? 1 : 0);
     return valid_count == 1;
 }
 
@@ -131,6 +131,6 @@ REGISTER_PREDICATE( velma_core_cs_types::veBodyInSafeState );
 REGISTER_PREDICATE( velma_core_cs_types::veBodyStatusValid );
 REGISTER_PREDICATE( velma_core_cs_types::recvCartImpCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvJntImpCmd );
-REGISTER_PREDICATE( velma_core_cs_types::recvSafeColCmd );
+REGISTER_PREDICATE( velma_core_cs_types::recvRelaxCmd );
 REGISTER_PREDICATE( velma_core_cs_types::recvOneCmd );
 REGISTER_PREDICATE( velma_core_cs_types::motorsReady );

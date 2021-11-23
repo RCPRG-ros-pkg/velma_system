@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-## Runs test for safe_col mode.
+## Runs test for relax mode.
 # @ingroup integration_tests
-# @file test_safe_col.py
-# @namespace scripts.test_safe_col Integration test
+# @file test_relax.py
+# @namespace scripts.test_relax Integration test
 
 # Copyright (c) 2017, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
@@ -49,7 +49,7 @@ if __name__ == "__main__":
         'right_arm_6_joint':0, 'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
         'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5, 'left_arm_6_joint':0 }
 
-    rospy.init_node('test_safe_col', anonymous=False)
+    rospy.init_node('test_relax', anonymous=False)
 
     rospy.sleep(0.5)
 
@@ -72,14 +72,14 @@ if __name__ == "__main__":
     if velma.enableMotors() != 0:
         exitError(3)
 
-    print "Switching to safe_col behavior..."
+    print "Switching to relax behavior..."
 
-    velma.switchToSafeColBehavior()
+    velma.switchToRelaxBehavior()
 
     rospy.sleep(0.5)
 
     diag = velma.getCoreCsDiag()
-    if not diag.inStateSafeCol():
+    if not diag.inStateRelax():
         exitError(4)
 
     rospy.sleep(2.0)

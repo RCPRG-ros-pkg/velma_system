@@ -33,9 +33,9 @@
 
 namespace velma_core_cs_types {
 
-class SafeColComponent: public RTT::TaskContext {
+class RelaxComponent: public RTT::TaskContext {
 public:
-    explicit SafeColComponent(const std::string &name)
+    explicit RelaxComponent(const std::string &name)
         : RTT::TaskContext(name)
         , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
     {
@@ -43,7 +43,7 @@ public:
     }
 
     void updateHook() {
-        port_status_subsystem_state_out_.write(velma_core_cs_task_cs_msgs::Status::STATE_SAFE_COL);
+        port_status_subsystem_state_out_.write(velma_core_cs_task_cs_msgs::Status::STATE_RELAX);
     }
 
 private:
@@ -53,5 +53,5 @@ private:
 
 }   // namespace velma_core_cs_types
 
-ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::SafeColComponent)
+ORO_LIST_COMPONENT_TYPE(velma_core_cs_types::RelaxComponent)
 

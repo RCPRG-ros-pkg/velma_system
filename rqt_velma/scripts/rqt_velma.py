@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-## Switches to jnt_imp mode.
-# @file switch_to_jimp.py
+## Runs control panel for WUT Velma robot.
+# @file rqt_velma.py
 
-# Copyright (c) 2017, Robot Control and Pattern Recognition Group,
+# Copyright (c) 2021, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
 # Warsaw University of Technology
 #
@@ -34,49 +34,11 @@
 # Author: Dawid Seredynski
 #
 
-import roslib; roslib.load_manifest('velma_task_cs_ros_interface')
+import sys
 
-import rospy
-import math
-import PyKDL
+from rqt_velma.my_module import VelmaControlPanelPlugin
+from rqt_gui.main import Main
 
-from velma_common.velma_interface import *
-from control_msgs.msg import FollowJointTrajectoryResult
-from rcprg_ros_utils import exitError
-
-if __name__ == "__main__":
-    rospy.init_node('switch_to_jimp')
-    rospy.sleep(0.5)
-
-    print('Running python interface for Velma...')
-    velma = VelmaInterface()
-    print('Waiting for VelmaInterface initialization...')
-    if not velma.waitForInit(timeout_s=10.0):
-        exitError(1, msg='Could not initialize VelmaInterface')
-    print('Initialization ok!')
-
-    print('Motors must be enabled every time after the robot enters safe state.')
-    print('If the motors are already enabled, enabling them has no effect.')
-    print('Enabling motors...')
-    if velma.enableMotors() != 0:
-        exitError(2, msg='Could not enable motors')
-
-    rospy.sleep(0.5)
-
-    diag = velma.getCoreCsDiag()
-    if not diag.motorsReady():
-        exitError(3, msg='Motors must be homed and ready to use for this test.')
-
-    print('Switch to jnt_imp mode (no trajectory)...')
-    velma.moveJointImpToCurrentPos(start_time=0.5)
-    error = velma.waitForJoint()
-    if error != 0:
-        exitError(4, msg='The action should have ended without error,'\
-                            ' but the error code is {}'.format(error))
-
-    rospy.sleep(0.5)
-    diag = velma.getCoreCsDiag()
-    if not diag.inStateJntImp():
-        exitError(5, msg='The control system should be in jnt_imp mode')
-
-    exitError(0)
+plugin = 'rqt_velma'
+main = Main(filename=plugin)
+sys.exit(main.main(standalone=plugin))

@@ -2,8 +2,7 @@
 
 ## Resets shared memory for IPC for Velma system.
 # @ingroup utilities
-# @file reset_shm_comm
-# @namespace scripts.reset_shm_comm Resets shared memory for IPC for Velma system.
+# @file reset_shm_comm.py
 
 import os
 

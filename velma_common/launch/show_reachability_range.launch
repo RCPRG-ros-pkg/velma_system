@@ -2,7 +2,7 @@
 <launch>
   <node
     name="show_reachability_range_right"
-    pkg="rcprg_ros_utils" type="reachability_range" output="screen">
+    pkg="rcprg_ros_utils" type="reachability_range.py" output="screen">
       <rosparam param="visualization_mode">icosphere</rosparam>
       <rosparam param="inner_size">0.75</rosparam>
       <rosparam param="outer_size">1.65</rosparam>
@@ -15,7 +15,7 @@
 
   <node
     name="show_reachability_range_left"
-    pkg="rcprg_ros_utils" type="reachability_range" output="screen">
+    pkg="rcprg_ros_utils" type="reachability_range.py" output="screen">
       <rosparam param="visualization_mode">icosphere</rosparam>
       <rosparam param="inner_size">0.75</rosparam>
       <rosparam param="outer_size">1.65</rosparam>

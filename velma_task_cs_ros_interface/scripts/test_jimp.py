@@ -174,8 +174,8 @@ if __name__ == "__main__":
         exitError(7, msg="The action should have ended with PATH_TOLERANCE_VIOLATED"\
                     " error status, but the error code is {}".format(error) )
 
-    print("Using SafeCol behavior to exit self collision...")
-    velma.switchToSafeColBehavior()
+    print("Using relax behavior to exit self collision...")
+    velma.switchToRelaxBehavior()
 
     print("waiting 2 seconds...")
     rospy.sleep(2)

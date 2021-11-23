@@ -40,14 +40,14 @@
 
 #include "rtt_rosclock/rtt_rosclock.h"
 
-class SafeColAction: public RTT::TaskContext {
+class RelaxAction: public RTT::TaskContext {
  private:
   typedef actionlib::ServerGoalHandle<behavior_switch_action_msgs::BehaviorSwitchAction> GoalHandle;
   typedef boost::shared_ptr<const behavior_switch_action_msgs::BehaviorSwitchGoal> Goal;
 
  public:
-  explicit SafeColAction(const std::string& name);
-  virtual ~SafeColAction();
+  explicit RelaxAction(const std::string& name);
+  virtual ~RelaxAction();
 
   bool startHook();
   void updateHook();
@@ -62,7 +62,7 @@ class SafeColAction: public RTT::TaskContext {
   bool goal_active_;
 };
 
-SafeColAction::SafeColAction(const std::string& name) 
+RelaxAction::RelaxAction(const std::string& name) 
     : RTT::TaskContext(name)
     , port_cmd_out_("cmd_OUTPORT")
     , goal_active_(false)
@@ -71,13 +71,13 @@ SafeColAction::SafeColAction(const std::string& name)
 
   this->ports()->addPort(port_cmd_out_);
 
-  as_.registerGoalCallback(boost::bind(&SafeColAction::goalCB, this, _1));
+  as_.registerGoalCallback(boost::bind(&RelaxAction::goalCB, this, _1));
 }
 
-SafeColAction::~SafeColAction() {
+RelaxAction::~RelaxAction() {
 }
 
-bool SafeColAction::startHook() {
+bool RelaxAction::startHook() {
   if (as_.ready()) {
     as_.start();
   } else {
@@ -86,7 +86,7 @@ bool SafeColAction::startHook() {
   return true;
 }
 
-void SafeColAction::updateHook() {
+void RelaxAction::updateHook() {
   behavior_switch_action_msgs::BehaviorSwitchResult res;
 
   if (goal_active_) {
@@ -96,8 +96,8 @@ void SafeColAction::updateHook() {
   }
 }
 
-void SafeColAction::goalCB(GoalHandle gh) {
-    RTT::Logger::In in(std::string("SafeColAction(") + getName() + ")::goalCB");
+void RelaxAction::goalCB(GoalHandle gh) {
+    RTT::Logger::In in(std::string("RelaxAction(") + getName() + ")::goalCB");
 
     // cancel active goal
     if (activeGoal_.isValid() && (activeGoal_.getGoalStatus().status == actionlib_msgs::GoalStatus::ACTIVE)) {
@@ -115,5 +115,5 @@ void SafeColAction::goalCB(GoalHandle gh) {
     goal_active_ = true;
 }
 
-ORO_LIST_COMPONENT_TYPE(SafeColAction)
+ORO_LIST_COMPONENT_TYPE(RelaxAction)
 

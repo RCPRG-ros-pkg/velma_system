@@ -81,7 +81,7 @@
 
     <component name="idle"          type="velma_core_cs_types::IdleComponent" latex="\text{idle}" />
     <component name="safe"          type="velma_core_cs_types::SafeComponent" latex="\text{safe}" />
-    <component name="safe_col"      type="velma_core_cs_types::SafeColComponent" latex="\text{safe\_col}" />
+    <component name="relax"      type="velma_core_cs_types::RelaxComponent" latex="\text{safe\_col}" />
     <component name="cart_imp"      type="velma_core_cs_types::CartImpComponent" latex="\text{cart\_imp}" />
     <component name="jnt_imp"       type="velma_core_cs_types::JntImpComponent" latex="\text{jnt\_imp}" />
 <!--    <component name="fcl"           type="velma_core_cs_types::FclComponent" />-->
@@ -166,7 +166,7 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
-    <connection from="safe_col.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
+    <connection from="relax.subsystem_state_OUTPORT" to="stConcate.subsystem_state_INPORT" name="st_id" latex="beh_{id}" />
 
     <connection from="b_stSplit.tMotor_q_OUTPORT" to="input_conv.tMotor_q_INPORT" name="q_t" latex="q_t" />
     <connection from="input_conv.tMotor_q_OUTPORT" to="C_q_body.In0" name="q_t" latex="q_t" />
@@ -479,7 +479,7 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
-    <connection from="safe_col.subsystem_state_OUTPORT" to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
+    <connection from="relax.subsystem_state_OUTPORT" to="st2Concate.subsystem_state_INPORT" name="st2_id" latex="beh_{id}" />
 
     <connection from="INT_pose_r.generator_status_OUTPORT" to="st2Concate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="st2Concate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />
@@ -523,7 +523,7 @@
     <connection from="safe.subsystem_state_OUTPORT"     to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
     <connection from="cart_imp.subsystem_state_OUTPORT" to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
     <connection from="jnt_imp.subsystem_state_OUTPORT"  to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
-    <connection from="safe_col.subsystem_state_OUTPORT" to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
+    <connection from="relax.subsystem_state_OUTPORT" to="st3Concate.subsystem_state_INPORT" name="st3_id" latex="beh_{id}" />
 
     <connection from="INT_pose_r.generator_status_OUTPORT" to="st3Concate.rCart_status_INPORT" name="gen_st" latex="s_{gen}" />
     <connection from="INT_pose_r.CartesianPositionCommand_OUTPORT" to="st3Concate.rCart_cmd_INPORT" name="cmd_pos_r" latex="p_{r,pos,cmd}" />

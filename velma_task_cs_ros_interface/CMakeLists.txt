@@ -46,7 +46,7 @@ orocos_component(velma_task_cs_ros_interface
     src/components/InternalSpaceSplineTrajectoryAction.cpp
     src/components/HeadInternalSpaceSplineTrajectoryAction.cpp
     src/components/vector_split15_2_8_8.cpp
-    src/components/safe_col_action.cpp
+    src/components/relax_action.cpp
 )
 target_link_libraries(velma_task_cs_ros_interface ${catkin_LIBRARIES} ${USE_OROCOS_LIBRARIES} rtt-${PROJECT_NAME}-master)
 
@@ -85,7 +85,7 @@ catkin_install_python(PROGRAMS
     scripts/test_head_complex.py
     scripts/test_jimp.py
     scripts/test_jimp_endless.py
-    scripts/test_safe_col.py
+    scripts/test_relax.py
     scripts/test_jimp_planning.py
     scripts/test_jimp_planning_attached.py
 DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})

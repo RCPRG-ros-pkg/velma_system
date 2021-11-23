@@ -38,7 +38,7 @@
     <component type="IdentificationActionServer"                    name="RightIdentifAction"   running="true" ros_action="/velma_task_cs_ros_interface/right_arm/identification_action" />    
     <component type="IdentificationActionServer"                    name="LeftIdentifAction"    running="true" ros_action="/velma_task_cs_ros_interface/left_arm/identification_action" /> 
 
-    <component type="SafeColAction"                                 name="SafeColAction"        running="true" ros_action="/velma_task_cs_ros_interface/safe_col_action" />
+    <component type="RelaxAction"                                   name="RelaxAction"        running="true" ros_action="/velma_task_cs_ros_interface/relax_action" />
 
     <component type="TfPublisher"                                   name="TfPub"                running="true" />
 
@@ -48,7 +48,7 @@
     <connection from="stSplit.rToolInWristPose_OUTPORT"         to="TfPub.In0" />
     <connection from="stSplit.lToolInWristPose_OUTPORT"         to="TfPub.In1" />
 
-    <connection from="SafeColAction.cmd_OUTPORT"                to="cmdConcate.safe_col_INPORT" />
+    <connection from="RelaxAction.cmd_OUTPORT"                to="cmdConcate.relax_INPORT" />
 
     <connection from="stSplit.hp_homing_required_OUTPORT"       to="hpAction.homing_required_INPORT" />
     <connection from="stSplit.hp_homing_in_progress_OUTPORT"    to="hpAction.homing_in_progress_INPORT" />

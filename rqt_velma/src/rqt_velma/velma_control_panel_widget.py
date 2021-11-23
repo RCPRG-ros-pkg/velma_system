@@ -170,9 +170,9 @@ class VelmaCommandThread:
                 else:
                     self.__setMessage('INFO: switched to cart_imp')
 
-            elif cmd_name == 'switchToSafeCol':
-                self.__velma.switchToSafeColBehavior()
-                self.__setMessage('INFO: switch to safe_col')
+            elif cmd_name == 'switchToRelax':
+                self.__velma.switchToRelaxBehavior()
+                self.__setMessage('INFO: switch to relax')
                 time.sleep(0.5)
 
             elif cmd_name == 'moveToInitialConfiguration':
@@ -287,8 +287,8 @@ class VelmaCommandThread:
     def switchToCartImp(self):
         self.__addCommand( ('switchToCartImp',) )
 
-    def switchToSafeCol(self):
-        self.__addCommand( ('switchToSafeCol',) )
+    def switchToRelax(self):
+        self.__addCommand( ('switchToRelax',) )
 
     def moveToInitialConfiguration(self):
         self.__addCommand( ('moveToInitialConfiguration',) )
@@ -493,7 +493,7 @@ class VelmaControlPanelWidget(QWidget):
         #        lambda: self.__velma_cmd.initializeRobot() if not self.__velma_cmd is None)
         self.button_initialize_robot.clicked.connect( self.clicked_initialize_robot )
         self.button_enable_motors.clicked.connect( self.clicked_enable_motors )
-        self.button_switch_to_safe_col.clicked.connect( self.clicked_switch_to_safe_col )
+        self.button_switch_to_relax.clicked.connect( self.clicked_switch_to_relax )
         self.button_switch_to_cart_imp.clicked.connect( self.clicked_switch_to_cart_imp )
         self.button_switch_to_jnt_imp.clicked.connect( self.clicked_switch_to_jnt_imp )
         self.button_clear_messages.clicked.connect( self.clicked_clear_messages )
@@ -534,9 +534,9 @@ class VelmaControlPanelWidget(QWidget):
         if not self.__velma_cmd is None:
             self.__velma_cmd.switchToCartImp()
 
-    def clicked_switch_to_safe_col(self):
+    def clicked_switch_to_relax(self):
         if not self.__velma_cmd is None:
-            self.__velma_cmd.switchToSafeCol()
+            self.__velma_cmd.switchToRelax()
 
     def clicked_move_to_initial_configuration(self):
         if not self.__velma_cmd is None:

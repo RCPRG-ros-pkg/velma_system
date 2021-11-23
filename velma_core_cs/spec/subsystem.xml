@@ -28,7 +28,7 @@
         <predicate name="veBodyStatusValid" />
         <predicate name="recvCartImpCmd" />
         <predicate name="recvJntImpCmd" />
-        <predicate name="recvSafeColCmd" />
+        <predicate name="recvRelaxCmd" />
         <predicate name="recvOneCmd" />
         <predicate name="inSelfCollision" />
         <predicate name="motorsReady" />
@@ -66,7 +66,7 @@
         </behavior>
 
         <behavior name="safe"
-            stop_cond="recvOneCmd and (((recvCartImpCmd or recvJntImpCmd) and (not inSelfCollision)) or recvSafeColCmd) and motorsReady"
+            stop_cond="recvOneCmd and (((recvCartImpCmd or recvJntImpCmd) and (not inSelfCollision)) or recvRelaxCmd) and motorsReady"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
             <running_component name="safe" />
             <running_component name="Mass" />
@@ -91,10 +91,10 @@
             <running_component name="Y" />
         </behavior>
 
-        <behavior name="safe_col"
+        <behavior name="relax"
             stop_cond="recvOneCmd and (recvCartImpCmd or recvJntImpCmd) and (not inSelfCollision)"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or veBodyInSafeState" >
-            <running_component name="safe_col" />
+            <running_component name="relax" />
             <running_component name="Mass" />
             <running_component name="S_t_body" />
             <running_component name="C_q_body" />
@@ -118,7 +118,7 @@
         </behavior>
 
         <behavior name="cart_imp"
-            stop_cond="(recvOneCmd and (recvJntImpCmd or recvSafeColCmd)) or inSelfCollision"
+            stop_cond="(recvOneCmd and (recvJntImpCmd or recvRelaxCmd)) or inSelfCollision"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="cart_imp" />
             <running_component name="CImp" />
@@ -154,7 +154,7 @@
         </behavior>
 
         <behavior name="jnt_imp"
-            stop_cond="(recvOneCmd and (recvCartImpCmd or recvSafeColCmd)) or inSelfCollision"
+            stop_cond="(recvOneCmd and (recvCartImpCmd or recvRelaxCmd)) or inSelfCollision"
             err_cond="(not CURRENT_BEHAVIOR_OK) or (not veBodyStatusValid) or (veBodyInSafeState)" >
             <running_component name="jnt_imp" />
             <running_component name="Mass" />
@@ -212,13 +212,13 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
-            <next_state name="safe_col" init_cond="(not IN_ERROR) and recvSafeColCmd"/>
+            <next_state name="relax" init_cond="(not IN_ERROR) and recvRelaxCmd"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
-        <state name="safe_col">
+        <state name="relax">
             <behavior name="position_hands_neck" />
-            <behavior name="safe_col" />
+            <behavior name="relax" />
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
@@ -231,7 +231,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
-            <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
+            <next_state name="relax" init_cond="(not IN_ERROR) and recvOneCmd and recvRelaxCmd"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
@@ -241,7 +241,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
-            <next_state name="safe_col" init_cond="(not IN_ERROR) and recvOneCmd and recvSafeColCmd"/>
+            <next_state name="relax" init_cond="(not IN_ERROR) and recvOneCmd and recvRelaxCmd"/>
             <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
     </states>
