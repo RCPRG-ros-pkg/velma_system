@@ -1,0 +1,77 @@
+#!/usr/bin/env python
+
+import roslib; roslib.load_manifest('velma_common')
+
+import sys
+import rospy
+import math
+
+from std_msgs.msg import ColorRGBA
+from visualization_msgs.msg import *
+from geometry_msgs.msg import *
+from tf.transformations import * 
+import tf_conversions.posemath as pm
+import PyKDL
+import actionlib
+
+import tf
+import tf2_ros
+from rcprg_ros_utils import exitError
+import tf_conversions.posemath as pm
+
+from rcprg_ros_utils.marker_publisher import MarkerPublisher
+
+class WccEditor:
+    def __init__(self):
+        self.__constraint_polygon = [
+        #-0.397855401039, -2.90307354927,
+        0.65, -2.90,   # modified
+        1.79, -2.91,
+        1.78, -1.43,
+        0.77, -1.39,
+        0.36, -1.00,
+        -0.15, -0.26,   # new
+        0.35, 0.41,
+        0.8, 0.94,
+        1.8, 1.01,
+        1.81 ,2.88,
+        -0.4, 2.89,
+        -0.81, 2.27,
+        -1.82, 2.29,
+        -1.83, -1.66,
+        -0.84, -1.73,
+        -0.42, -2.09]
+
+        self.__marker_pub = MarkerPublisher('collision_editor')
+
+    def spinOnce(self):
+        m_id = 0
+        size = 0.1
+
+        for idx in range(0, len(self.__constraint_polygon), 2):
+            pt = PyKDL.Vector( self.__constraint_polygon[idx], self.__constraint_polygon[idx+1], 0)
+            m_id = self.__marker_pub.addSinglePointMarker(pt, m_id, r=1, g=1, b=0, a=1,
+                namespace='default', frame_id='world', m_type=Marker.CUBE,
+                scale=Vector3(size, size, size), T=None)
+
+        self.__marker_pub.publishAll()
+
+def main():
+    rospy.init_node('wcc_editor', anonymous=False)
+
+    rospy.sleep(0.5)
+
+    editor = WccEditor()
+    while not rospy.is_shutdown():
+        editor.spinOnce()
+        try:
+            rospy.sleep(0.1)
+        except:
+            break
+
+    return 0
+
+if __name__ == "__main__":
+
+    exit(main())
+
