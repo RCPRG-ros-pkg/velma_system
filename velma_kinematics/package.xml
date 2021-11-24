@@ -1,0 +1,40 @@
+<package>
+  <name>velma_kinematics</name>
+  <version>1.0.0</version>
+  <description>
+    This package contains python scripts STERO course.
+  </description>
+  <author email="dawid.seredynski@gmail.com">Dawid Seredynski</author>
+  <maintainer email="dawid.seredynski@gmail.com">Dawid Seredynski</maintainer>
+
+  <license>GNU v.2</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>eigen_conversions</build_depend>
+  <build_depend>kdl_parser</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>rcprg_ros_utils</build_depend>
+  <build_depend>planer_utils</build_depend>
+
+  <build_depend>collision_convex_model</build_depend>
+  <build_depend>kin_dyn_model</build_depend>
+  <build_depend>moveit_core</build_depend>
+  <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>moveit_ros_perception</build_depend>
+  <build_depend>rcprg_planner</build_depend>
+
+  <run_depend>eigen_conversions</run_depend>  
+  <run_depend>kdl_parser</run_depend>  
+  <run_depend>sensor_msgs</run_depend>  
+  <run_depend>rcprg_ros_utils</run_depend>
+  <run_depend>planer_utils</run_depend>
+
+  <run_depend>collision_convex_model</run_depend>
+  <run_depend>kin_dyn_model</run_depend>
+  <run_depend>moveit_core</run_depend>
+  <run_depend>moveit_ros_planning_interface</run_depend>
+  <run_depend>moveit_ros_perception</run_depend>
+  <run_depend>rcprg_planner</run_depend>
+
+</package>
