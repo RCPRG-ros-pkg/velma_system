@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+## Inverse kinematics for KUKA LWR 4+ robot and WUT Velma robot
+# @file velma_ik_geom.py
+# @ingroup python_api
 
-# Inverse kinematics for KUKA LWR 4+ robot
 # Copyright (c) 2021, Robot Control and Pattern Recognition Group,
 # Institute of Control and Computation Engineering
 # Warsaw University of Technology
@@ -43,8 +44,14 @@ def wrapAngle(angle):
     return angle
 
 class KinematicsSolverLWR4:
+    """!
+    Kinematics solver (FK, IK) for Kuka LWR 4+
+    """
 
     def __init__(self):
+        """!
+        Initialization.
+        """
         self.__A = 0.078
         self.__B = 0.39
         self.__C = 0.2
@@ -56,9 +63,17 @@ class KinematicsSolverLWR4:
         self.m_lim_lo = [-2.96, -2.09, -2.96, -2.095, -2.96, -2.09, -2.96]
         self.m_lim_up = [2.96, 2.09, 2.96, 2.095, 2.96, 2.09, 2.96]
 
-    def getDebug(self, name):
-        if name in self.__debug:
-            return self.__debug[name]
+    def getDebug(self, key):
+        """!
+        Get some debug information after solving inverse kinematics.
+
+        @param key string: one of values: 'T_A0_A6d', 'pt_shoulder', 'elbow_pt'.
+
+        @return Value for the given key or None, if the key does not exist.
+        """
+
+        if key in self.__debug:
+            return self.__debug[key]
         else:
             return None
 
@@ -232,6 +247,19 @@ class KinematicsSolverLWR4:
         return q4, q5, q6
 
     def calculateIk(self, T_A0_A7d, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee):
+        """!
+        Calculate inverse kinematics (IK) for Kuka LWR 4+.
+
+        @param T_A0_A7d PyKDL.Frame: pose of the end-effector (the last link) wrt. the base of arm
+        (the first link).
+        @param elbow_circle_angle float: IK parameter.
+        @param flip_shoulder bool: IK parameter.
+        @param flip_elbow bool: IK parameter.
+        @param flip_ee bool: IK parameter.
+
+        @return 7-tuple: arm configuration or a tuple of Nones, if the solution does not exist.
+        """
+
         self.__debug = {}
         T_A6_A7 = PyKDL.Frame(PyKDL.Rotation(), PyKDL.Vector(0, 0, self.__A))
         T_A7_A6 = T_A6_A7.Inverse()
@@ -248,6 +276,13 @@ class KinematicsSolverLWR4:
         return q0, q1, q2, q3, q4, q5, q6
 
     def calculateFk(self, q):
+        """!
+        Calculate forward kinematics (FK) for Kuka LWR 4+.
+
+        @param q 7-tuple: arm configuration.
+
+        @return PyKDL.Frame: pose of the last link wrt. the first link of the arm.
+        """
         s1 = math.sin(q[0])
         c1 = math.cos(q[0])
         s2 = math.sin(q[1])
@@ -327,7 +362,15 @@ class KinematicsSolverLWR4:
 
 
 class KinematicsSolverVelma:
+    """!
+    Kinematics solver (FK, IK) for WUT Velma robot
+    """
+
     def __init__(self):
+        """!
+        Initialize.
+        """
+
         self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
         self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
         self.__T_Er_Pr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.115, 0, -0.078) )
@@ -339,15 +382,53 @@ class KinematicsSolverVelma:
 
         self.__ik_solver_lwr = KinematicsSolverLWR4()
 
+    def getArmShoulderPosition(self, side_str, torso_angle):
+        """!
+        Calculate forward kinematics for shoulder.
+
+        @param side_str string: either 'left' or 'right'.
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of the shoulder given by side_str.
+        """
+
+        if side_str == 'left':
+            return self.getLeftArmShoulderPosition(torso_angle)
+        elif side_str == 'right':
+            return self.getRightArmShoulderPosition(torso_angle)
+        else:
+            raise Exception()
+
     def getLeftArmShoulderPosition(self, torso_angle):
+        """!
+        Calculate forward kinematics for left shoulder.
+
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of the left shoulder.
+        """
         T_B_A = self.getLeftArmBaseFk(torso_angle)
         return T_B_A * PyKDL.Vector(0, 0, 0.2005+0.11)
 
     def getRightArmShoulderPosition(self, torso_angle):
+        """!
+        Calculate forward kinematics for right shoulder.
+
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of the right shoulder.
+        """
         T_B_A = self.getRightArmBaseFk(torso_angle)
         return T_B_A * PyKDL.Vector(0, 0, 0.2005+0.11)
 
     def getLeftArmBaseFk(self, torso_angle):
+        """!
+        Calculate forward kinematics for left arm base.
+
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of the left arm base.
+        """
         # FK for left ARM base
         s0 = math.sin(torso_angle)
         c0 = math.cos(torso_angle)
@@ -369,6 +450,13 @@ class KinematicsSolverVelma:
         return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
 
     def getRightArmBaseFk(self, torso_angle):
+        """!
+        Calculate forward kinematics for right arm base.
+
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of the right arm base.
+        """
         # FK for right arm base
         s0 = math.sin(torso_angle)
         c0 = math.cos(torso_angle)
@@ -390,31 +478,88 @@ class KinematicsSolverVelma:
         return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
 
     def getLeftArmFk(self, torso_angle, q):
+        """!
+        Calculate forward kinematics for left arm end-effector (the last link).
+
+        @param torso_angle float: angle of torso joint.
+        @param q 7-tuple: arm configuration.
+
+        @return PyKDL.Frame: pose of the left arm end-effector (the last link).
+        """
+
         T_B_AB = self.getLeftArmBaseFk(torso_angle)
         T_AB_E = self.__ik_solver_lwr.calculateFk(q)
         return T_B_AB * T_AB_E
 
     def getRightArmFk(self, torso_angle, q):
+        """!
+        Calculate forward kinematics for right arm end-effector (the last link).
+
+        @param torso_angle float: angle of torso joint.
+        @param q 7-tuple: arm configuration.
+
+        @return PyKDL.Frame: pose of the right arm end-effector (the last link).
+        """
         T_B_AB = self.getRightArmBaseFk(torso_angle)
         T_AB_E = self.__ik_solver_lwr.calculateFk(q)
         return T_B_AB * T_AB_E
 
     def getLeft_T_E_G(self):
+        """!
+        Get constant transformation from the left end-effector (the last link, frame 'E') to the left grasp frame 'G' in the center of the left gripper.
+
+        @return PyKDL.Frame: pose of frame 'G' wrt. frame 'E'.
+        """
         return self.__T_El_Gl
 
     def getRight_T_E_G(self):
+        """!
+        Get constant transformation from the right end-effector (the last link, frame 'E') to the right grasp frame 'G' in the center of the right gripper.
+
+        @return PyKDL.Frame: pose of frame 'G' wrt. frame 'E'.
+        """
         return self.__T_Er_Gr
 
     def getLeft_T_E_P(self):
+        """!
+        Get constant transformation from the left end-effector (the last link, frame 'E') to the left palm link (frame 'P').
+
+        @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
+        """
         return self.__T_El_Pl
 
     def getRight_T_E_P(self):
+        """!
+        Get constant transformation from the right end-effector (the last link, frame 'E') to the right palm link (frame 'P').
+
+        @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
+        """
         return self.__T_Er_Pr
 
     def getLeft_T_G_E(self):
+        """!
+        Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getLeft_T_E_G.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
+        """
         return self.__T_Gl_El
 
+    def getRight_T_G_E(self):
+        """!
+        Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getRight_T_E_G.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
+        """
+        return self.__T_Gr_Er
+
     def getT_G_E(self, side_str):
+        """!
+        Get constant transformation from the grasp frame 'G' in the center of the gripper to the end-effector (the last link, frame 'E').
+
+        @param side_str str: either 'left' or 'right'.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
+        """
         if side_str == 'left':
             return self.getLeft_T_G_E()
         elif side_str == 'right':
@@ -422,16 +567,35 @@ class KinematicsSolverVelma:
         # else:
         raise Exception('Wrong side_str: "{}"'.format(side_str))
 
-    def getRight_T_G_E(self):
-        return self.__T_Gr_Er
-
     def getLeft_T_P_E(self):
+        """!
+        Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getLeft_T_E_P.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'P'.
+        """
         return self.__T_Pl_El
 
     def getRight_T_P_E(self):
+        """!
+        Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getRight_T_E_P.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'P'.
+        """
         return self.__T_Pr_Er
 
     def calculateIkRightArm(self, T_B_Wr, torso_angle, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee):
+        """!
+        Calculate inverse kinematics (IK) for WUT Velma robot for right arm.
+
+        @param T_B_Wr PyKDL.Frame: pose of the end-effector (the last link) wrt. the robot base.
+        @param torso_angle float: angle of the torso joint.
+        @param elbow_circle_angle float: IK parameter.
+        @param flip_shoulder bool: IK parameter.
+        @param flip_elbow bool: IK parameter.
+        @param flip_ee bool: IK parameter.
+
+        @return 7-tuple: arm configuration or a tuple of Nones, if the solution does not exist.
+        """
         assert isinstance(T_B_Wr, PyKDL.Frame)
         assert isinstance(torso_angle, float)
         assert isinstance(elbow_circle_angle, float)
@@ -441,6 +605,18 @@ class KinematicsSolverVelma:
                                                                                 flip_elbow, flip_ee)
 
     def calculateIkLeftArm(self, T_B_Wr, torso_angle, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee):
+        """!
+        Calculate inverse kinematics (IK) for WUT Velma robot for left arm.
+
+        @param T_B_Wr PyKDL.Frame: pose of the end-effector (the last link) wrt. the robot base.
+        @param torso_angle float: angle of the torso joint.
+        @param elbow_circle_angle float: IK parameter.
+        @param flip_shoulder bool: IK parameter.
+        @param flip_elbow bool: IK parameter.
+        @param flip_ee bool: IK parameter.
+
+        @return 7-tuple: arm configuration or a tuple of Nones, if the solution does not exist.
+        """
         assert isinstance(T_B_Wr, PyKDL.Frame)
         assert isinstance(torso_angle, float)
         assert isinstance(elbow_circle_angle, float)
@@ -450,6 +626,19 @@ class KinematicsSolverVelma:
                                                                                 flip_elbow, flip_ee)
 
     def calculateIkArm(self, side_str, T_B_Wr, torso_angle, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee):
+        """!
+        Calculate inverse kinematics (IK) for WUT Velma robot.
+
+        @param side_str string: either 'left' or 'right'.
+        @param T_B_Wr PyKDL.Frame: pose of the end-effector (the last link) wrt. the robot base.
+        @param torso_angle float: angle of the torso joint.
+        @param elbow_circle_angle float: IK parameter.
+        @param flip_shoulder bool: IK parameter.
+        @param flip_elbow bool: IK parameter.
+        @param flip_ee bool: IK parameter.
+
+        @return 7-tuple: arm configuration or a tuple of Nones, if the solution does not exist.
+        """
         if side_str == 'left':
             return self.calculateIkLeftArm(T_B_Wr, torso_angle, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee)
         elif side_str == 'right':
