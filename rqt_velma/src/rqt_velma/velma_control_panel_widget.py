@@ -567,9 +567,6 @@ class VelmaControlPanelWidget(QWidget):
     @Slot()
     def refresh_topics(self):
         if self.__velma is None:
-            print(type(self.verticalLayout_4))
-            print(self.verticalLayout_4)
-            print(dir(self.verticalLayout_4))
             if self.__velma_init.isInitialized():
                 self.__velma = self.__velma_init.getVelmaInterface()
                 self.__velma_cmd = VelmaCommandThread(self.__velma)
