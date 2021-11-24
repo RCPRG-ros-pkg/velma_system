@@ -65,7 +65,7 @@ if __name__ == "__main__":
     # goal position
     q_map_goal = {'torso_0_joint':0,
         'right_arm_0_joint':-0.3, 'right_arm_1_joint':-1.8, 'right_arm_2_joint':-1.25,
-        'right_arm_3_joint':1.57, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
+        'right_arm_3_joint':2.0, 'right_arm_4_joint':0, 'right_arm_5_joint':-0.5,
         'right_arm_6_joint':0,
         'left_arm_0_joint':0.3, 'left_arm_1_joint':1.8, 'left_arm_2_joint':-1.25,
         'left_arm_3_joint':-0.85, 'left_arm_4_joint':0, 'left_arm_5_joint':0.5,
@@ -106,6 +106,7 @@ if __name__ == "__main__":
     diag = velma.getCoreCsDiag()
     if not diag.motorsReady():
         exitError(1, msg="Motors must be homed and ready to use for this test.")
+
 
     print("Switch to jnt_imp mode (no trajectory)...")
     velma.moveJointImpToCurrentPos(start_time=0.5)
