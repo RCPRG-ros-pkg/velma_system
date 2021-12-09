@@ -627,11 +627,12 @@ class VelmaControlPanelWidget(QWidget):
                         self.__joint_vis_map[joint_name].setLimits( self.__jnt_lim_cart[joint_name] )
                     elif joint_name in self.__head_limits:
                         self.__joint_vis_map[joint_name].setLimits( self.__head_limits[joint_name] )
+                    elif joint_name == 'left_arm_double_joint':
+                        self.__joint_vis_map[joint_name].setLimits( self.__velma.getLeftWccPolygon(), self.__jnt_lim_cart['left_arm_5_joint'] )
+                    elif joint_name == 'right_arm_double_joint':
+                        self.__joint_vis_map[joint_name].setLimits( self.__velma.getRightWccPolygon(), self.__jnt_lim_cart['right_arm_5_joint'] )
                     else:
                         print('WARNING: could not get limits for joint "{}"'.format(joint_name))
-
-                self.__joint_vis_map['left_arm_double_joint'].setLimits( self.__velma.getLeftWccPolygon(), self.__jnt_lim_cart['left_arm_5_joint'] )
-                self.__joint_vis_map['right_arm_double_joint'].setLimits( self.__velma.getRightWccPolygon(), self.__jnt_lim_cart['right_arm_5_joint'] )
 
             self.label_panel_state.setText('Waiting for initialization of Velma Interface')
             self.label_current_state_core_cs.setText( 'unknown' )
