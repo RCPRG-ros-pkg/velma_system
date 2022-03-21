@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <launch>
   <arg name="octomap_file"/>
-  <node name="om_server" pkg="octomap_server" type="octomap_server_node" output="screen" args="$(arg octomap_file)" />
+  <node name="om_server" pkg="octomap_server" type="octomap_server_node" output="screen" args="$(arg octomap_file)" >
+    <param name="frame_id" type="string" value="world" />
+  </node>
 </launch>
-

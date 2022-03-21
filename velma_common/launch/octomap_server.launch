@@ -2,6 +2,8 @@
 <launch>
   <arg name="use_hw_kinect" default="false"/>
   <arg name="octomap_file" default=""/>
+  <arg name="resolution" default="0.04"/>
+
 
   <arg unless="$(arg use_hw_kinect)"  name="POINTCLOUD_TOPIC" value="/head_kinect/depth/points"/>
   <arg     if="$(arg use_hw_kinect)"  name="POINTCLOUD_TOPIC" value="/head_kinect/depth_registered/points"/>
@@ -16,7 +18,7 @@
   </node>
 
   <node name="om_server" pkg="octomap_server" type="octomap_server_node" output="screen" args="$(arg octomap_file)">
-    <param name="resolution" value="0.04" />
+    <param name="resolution" value="$(arg resolution)" />
     <param name="frame_id" type="string" value="world" />
     <param name="sensor_model/max_range" value="2.2" />
     <param name="publish_free_space" value="true" />
