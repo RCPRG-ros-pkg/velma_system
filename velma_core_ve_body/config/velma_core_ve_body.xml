@@ -48,13 +48,8 @@
     <component name="packet_counter" type="velma_core_ve_body_types::PacketCounterComponent" />
     <component name="hw_state"      type="velma_core_ve_body_types::HwState" />
 
-    <component name="rHand" type="BarrettHand" >
-        <service name="can_queue" />
-    </component>
-
-    <component name="lHand" type="BarrettHand" >
-        <service name="can_queue" />
-    </component>
+    <component name="rHand" type="BarrettHand" />
+    <component name="lHand" type="BarrettHand" />
 
     <component name="can_queue_tx_l" type="CanQueueTxComponent" />
     <component name="can_queue_tx_r" type="CanQueueTxComponent" />
