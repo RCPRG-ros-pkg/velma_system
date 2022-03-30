@@ -14,7 +14,7 @@
     <arg name="debug" value="$(arg debug)" />
     <arg name="planning_plugin" value="$(arg planning_plugin)" />
     <arg name="planning_adapters" value="$(arg planning_adapters)" />
-    <arg name="robot_interface_plugin" value="velma_planner::VelmaInterface" />
+    <arg name="robot_interface_plugin" value="velma_planner::VelmaRosPlugin" />
     <arg name="map_filepath" value="$(env HOME)/.velma_system/data/reachability_maps/map_big" />
   </include>
 

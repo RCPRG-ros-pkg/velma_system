@@ -127,7 +127,13 @@ bool VelmaStateValidator::isArmInLimits(const ArmJntArray& q, const ArmLimits& a
 }
 
 VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
-: m_robot_interface_loader("rcprg_planner", "rcprg_planner::RobotInterface")
+    : m_robot_interface_loader("rcprg_planner", "rcprg_planner::RobotInterface")
+    , wcc_l_joint0_idx_(-1)
+    , wcc_l_joint1_idx_(-1)
+    , wcc_r_joint0_idx_(-1)
+    , wcc_r_joint1_idx_(-1)
+    , wcc_r_d0_(0)
+    , wcc_l_d0_(0)
 {
     std::cout << "VelmaStateValidator ROS namespace: " << nh.getNamespace() << std::endl;
 
@@ -168,6 +174,70 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
     // Initialize state variables
     m_ss.reset(new moveit::core::RobotState(m_robot_model));
     m_ss->setToDefaultValues();
+
+    nh.getParam("/velma_core_cs/wcc_l/constraint_polygon", wcc_l_constraint_polygon_);
+    nh.getParam("/velma_core_cs/wcc_l/joint0_idx", wcc_l_joint0_idx_);
+    nh.getParam("/velma_core_cs/wcc_l/joint1_idx", wcc_l_joint1_idx_);
+
+    nh.getParam("/velma_core_cs/wcc_r/constraint_polygon", wcc_r_constraint_polygon_);
+    nh.getParam("/velma_core_cs/wcc_r/joint0_idx", wcc_r_joint0_idx_);
+    nh.getParam("/velma_core_cs/wcc_r/joint1_idx", wcc_r_joint1_idx_);
+
+    nh.getParam("/velma_core_cs/wcc_r/d0", wcc_r_d0_);
+    nh.getParam("/velma_core_cs/wcc_l/d0", wcc_l_d0_);
+
+    if (wcc_l_constraint_polygon_.size() == 0 || (wcc_l_constraint_polygon_.size()%2) != 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_l/constraint_polygon\' (l) has wrong size: %lu", wcc_l_constraint_polygon_.size());
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_l_d0_ == 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_l/d0\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_r_d0_ == 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_r/d0\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_l_joint0_idx_ < 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_l/joint0_idx\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_l_joint1_idx_ < 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_l/joint1_idx\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_r_joint0_idx_ < 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_r/joint0_idx\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_r_joint1_idx_ < 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_r/joint1_idx\' is not set");
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_l_joint0_idx_ == wcc_l_joint1_idx_) {
+        ROS_ERROR("properties \'joint0_idx\' and \'joint1_idx\' (l) have the same value: %d", wcc_l_joint0_idx_);
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_r_constraint_polygon_.size() == 0 || (wcc_r_constraint_polygon_.size()%2) != 0) {
+        ROS_ERROR("property \'/velma_core_cs/wcc_r/constraint_polygon\' (r) has wrong size: %lu", wcc_r_constraint_polygon_.size());
+        throw std::runtime_error("error");
+    }
+
+    if (wcc_r_joint0_idx_ == wcc_r_joint1_idx_) {
+        ROS_ERROR("properties \'joint0_idx\' and \'joint1_idx\' (r) have the same value: %d", wcc_r_joint0_idx_);
+        throw std::runtime_error("error");
+    }
+
+    wcc_l_.reset(new DoubleJointCC(wcc_l_d0_, wcc_l_constraint_polygon_));
+    wcc_r_.reset(new DoubleJointCC(wcc_r_d0_, wcc_r_constraint_polygon_));
 }
 
 void VelmaStateValidator::setVariablePosition(const std::string& joint_name, double value) {
@@ -220,7 +290,6 @@ double VelmaStateValidator::getTorsoLimitUp() const {
     return m_torso_limit_up;
 }
 
-
 const std::array<std::string, 7 >& VelmaStateValidator::getRightArmJointNames() const {
   return m_right_arm_joint_names;
 }
@@ -243,6 +312,26 @@ double VelmaStateValidator::getArmLimitDist(const ArmJntArray& q, int q_idx) con
         }
     }
     return 0.0;
+}
+
+double VelmaStateValidator::getWristLimitDist(const ArmJntArray& q, ArmSide side) const {
+    DoubleJointCC::Joints min_v;
+    double min_dist = 0.0;
+    int min_idx;
+    int min_type;
+    if (side == ARM_R) {
+        DoubleJointCC::Joints q_wrist( q[5], q[6] );
+        if ( wcc_r_->getMinDistanceIn(q_wrist, min_v, min_dist, min_idx, min_type) ) {
+            return min_dist;
+        }
+    }
+    else if (side == ARM_L) {
+        DoubleJointCC::Joints q_wrist( q[5], q[6] );
+        if ( wcc_l_->getMinDistanceIn(q_wrist, min_v, min_dist, min_idx, min_type) ) {
+            return min_dist;
+        }
+    }
+    return 1.0;
 }
 
 //ArmLimits VelmaStateValidator::getArmLimits() const {

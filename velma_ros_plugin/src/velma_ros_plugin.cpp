@@ -35,7 +35,7 @@
 #include <planer_utils/double_joint_collision_checker.h>
 
 namespace velma_planner {
-    class VelmaInterface : public rcprg_planner::RobotInterface {
+    class VelmaRosPlugin : public rcprg_planner::RobotInterface {
     protected:
         ros::NodeHandle nh_;
 
@@ -52,7 +52,7 @@ namespace velma_planner {
         boost::shared_ptr<DoubleJointCC > wcc_r_;
 
     public:
-        VelmaInterface()
+        VelmaRosPlugin()
             : nh_()
             , wcc_l_joint0_idx_(-1)
             , wcc_l_joint1_idx_(-1)
@@ -109,7 +109,6 @@ namespace velma_planner {
 
             wcc_l_.reset(new DoubleJointCC(0.0, wcc_l_constraint_polygon_));
             wcc_r_.reset(new DoubleJointCC(0.0, wcc_r_constraint_polygon_));
-
         }
 
         virtual bool isStateValid(const robot_state::RobotState& ss, bool verbose) {
@@ -128,5 +127,5 @@ namespace velma_planner {
     };
 }
 
-PLUGINLIB_EXPORT_CLASS(velma_planner::VelmaInterface, rcprg_planner::RobotInterface)
+PLUGINLIB_EXPORT_CLASS(velma_planner::VelmaRosPlugin, rcprg_planner::RobotInterface)
 

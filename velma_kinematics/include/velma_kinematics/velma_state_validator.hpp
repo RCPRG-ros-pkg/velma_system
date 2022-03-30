@@ -13,6 +13,8 @@
 #include <pluginlib/class_loader.h>
 #include <rcprg_planner/robot_interface.h>
 
+#include <planer_utils/double_joint_collision_checker.h>
+
 class VelmaStateValidator {
 public:
   enum ArmSide {ARM_R=0, ARM_L=1};
@@ -34,6 +36,20 @@ protected:
 
   std::array<std::string, 7 > m_right_arm_joint_names;
   std::array<std::string, 7 > m_left_arm_joint_names;
+
+  // ROS parameters
+  std::vector<double > wcc_l_constraint_polygon_;
+  int wcc_l_joint0_idx_;
+  int wcc_l_joint1_idx_;
+  double wcc_r_d0_;
+  double wcc_l_d0_;
+
+  std::vector<double > wcc_r_constraint_polygon_;
+  int wcc_r_joint0_idx_;
+  int wcc_r_joint1_idx_;
+
+  boost::shared_ptr<DoubleJointCC > wcc_l_;
+  boost::shared_ptr<DoubleJointCC > wcc_r_;
 
   void readJointLimits(ros::NodeHandle& nh);
 
@@ -63,6 +79,8 @@ public:
   bool isLeftArmInLimits(const ArmJntArray& q) const;
 
   double getArmLimitDist(const ArmJntArray& q, int q_idx) const;
+
+  double getWristLimitDist(const ArmJntArray& q, ArmSide side) const;
 
   double getTorsoLimitLo() const;
 

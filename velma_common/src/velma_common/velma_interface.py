@@ -1494,11 +1494,16 @@ class VelmaInterface:
         self.__action_map['jimp'].send_goal(goal)
         return True
 
-    def __getJntImpMovementTime(self, q_dest_map, max_vel):
+    def getJntImpMovementTime(self, q_dest_map, max_vel):
         js = self.getLastJointState()[1]
-        max_dist = float('-inf')
-        for joint_name in q_dest_map:
-            dist = abs(q_dest_map[joint_name] - js[joint_name])
+        return self.getJntImpMovementTime2(js, q_dest_map, max_vel)
+
+    def getJntImpMovementTime2(self, q_dest_map_1, q_dest_map_2, max_vel):
+        max_dist = 0.0
+        for joint_name in q_dest_map_1:
+            if not joint_name in q_dest_map_2:
+                continue
+            dist = abs(q_dest_map_1[joint_name] - q_dest_map_2[joint_name])
             max_dist = max(max_dist, dist)
         return max_dist / max_vel
 
@@ -1514,7 +1519,7 @@ class VelmaInterface:
         """
         if time is None:
             assert not max_vel is None
-            time = max(0.1, self.__getJntImpMovementTime(q_dest_map, max_vel))
+            time = max(0.1, self.getJntImpMovementTime(q_dest_map, max_vel))
             print('moveJoint calculated time: {}'.format(time))
         traj = JointTrajectory()
         pt = JointTrajectoryPoint()
