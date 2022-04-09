@@ -75,10 +75,10 @@ int main (int argc, char** argv) {
 
       bool ik_possible = false;
       if (arm_side == "left") {
-        ik_possible = v_solv.calculateIkSetLeftArm(T_B_Wd);
+        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::LEFT, T_B_Wd);
       }
       else {
-        ik_possible = v_solv.calculateIkSetRightArm(T_B_Wd);
+        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::RIGHT, T_B_Wd);
       }
 
       if (ik_possible) {

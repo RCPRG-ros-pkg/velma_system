@@ -118,65 +118,31 @@ protected:
 public:
     KinematicsSolverVelma();
 
-    const KDL::Frame& getLeftArmBaseFk();
-    const KDL::Frame& getLeftArmBaseFkInv();
-    const KDL::Frame& getRightArmBaseFk();
-    const KDL::Frame& getRightArmBaseFkInv();
-
     const KDL::Frame& getArmBaseFk(Side side);
     const KDL::Frame& getArmBaseFkInv(Side side);
-
-    void getLeftArmFk(double q0, double q1, double q2, double q3, double q4,
-                                                double q5, double q6, KDL::Frame& out_T_B_E);
-
-    void getRightArmFk(double q0, double q1, double q2, double q3, double q4,
-                                                double q5, double q6, KDL::Frame& out_T_B_E);
 
     void getArmFk(Side side, double q0, double q1, double q2, double q3, double q4,
                                                 double q5, double q6, KDL::Frame& out_T_B_E);
 
-
-    void getLeftArmFk(const ArmJntArray& q, KDL::Frame& out_T_B_E);
-
-    void getRightArmFk(const ArmJntArray& q, KDL::Frame& out_T_B_E);
-
     void getArmFk(Side side, const ArmJntArray& q, KDL::Frame& out_T_B_E);
 
-    const KDL::Frame& getLeft_T_E_G() const;
-    const KDL::Frame& getRight_T_E_G() const;
-    const KDL::Frame& getLeft_T_E_P() const;
-    const KDL::Frame& getRight_T_E_P() const;
+    const KDL::Frame& getT_E_G(Side side) const;
+    const KDL::Frame& getT_E_P(Side side) const;
 
-    const KDL::Frame& getLeft_T_G_E() const;
-    const KDL::Frame& getRight_T_G_E() const;
-    const KDL::Frame& getLeft_T_P_E() const;
-    const KDL::Frame& getRight_T_P_E() const;
-
-    const KDL::Frame& get_T_E_G(Side side) const;
-    const KDL::Frame& get_T_E_P(Side side) const;
-
-    const KDL::Frame& get_T_G_E(Side side) const;
-    const KDL::Frame& get_T_P_E(Side side) const;
+    const KDL::Frame& getT_G_E(Side side) const;
+    const KDL::Frame& getT_P_E(Side side) const;
 
     void setTorsoAngle(const double& torso_angle);
 
-    bool calculateIkSetLeftArm(const KDL::Frame& T_B_Wl);
-
-    bool calculateIkSetRightArm(const KDL::Frame& T_B_Wr);
-
     bool calculateIkSetArm(Side side, const KDL::Frame& T_B_Wl);
-
-    bool calculateIkLeftArm(const KDL::Frame& T_B_Wl, double elbow_circle_angle,
-        bool flip_shoulder, bool flip_elbow, bool flip_ee, KinematicsSolverLWR4::Solution& out_sol);
-
-    bool calculateIkRightArm(const KDL::Frame& T_B_Wr, double elbow_circle_angle,
-        bool flip_shoulder, bool flip_elbow, bool flip_ee, KinematicsSolverLWR4::Solution& out_sol);
 
     bool calculateIkArm(Side side, const KDL::Frame& T_B_Wl, double elbow_circle_angle,
         bool flip_shoulder, bool flip_elbow, bool flip_ee, KinematicsSolverLWR4::Solution& out_sol);
 
     const KinematicsSolverLWR4::Solutions& getSolutions() const;
     int getSolutionsCount() const;
+
+protected:
 };
 
 #endif  // __VELMA_KINEMATICS__H__
