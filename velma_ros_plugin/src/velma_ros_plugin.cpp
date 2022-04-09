@@ -53,42 +53,44 @@ namespace velma_planner {
 
     public:
         VelmaRosPlugin()
-            : nh_()
+            : nh_("VelmaRosPlugin")
             , wcc_l_joint0_idx_(-1)
             , wcc_l_joint1_idx_(-1)
             , wcc_r_joint0_idx_(-1)
             , wcc_r_joint1_idx_(-1)
         {
-            nh_.getParam("/velma_core_cs/wcc_l/constraint_polygon", wcc_l_constraint_polygon_);
-            nh_.getParam("/velma_core_cs/wcc_l/joint0_idx", wcc_l_joint0_idx_);
-            nh_.getParam("/velma_core_cs/wcc_l/joint1_idx", wcc_l_joint1_idx_);
+            std::cout << "namespace: \"" << nh_.getNamespace() << "\"" << std::endl;
 
-            nh_.getParam("/velma_core_cs/wcc_r/constraint_polygon", wcc_r_constraint_polygon_);
-            nh_.getParam("/velma_core_cs/wcc_r/joint0_idx", wcc_r_joint0_idx_);
-            nh_.getParam("/velma_core_cs/wcc_r/joint1_idx", wcc_r_joint1_idx_);
+            nh_.getParam("wcc_l/constraint_polygon", wcc_l_constraint_polygon_);
+            nh_.getParam("wcc_l/joint0_idx", wcc_l_joint0_idx_);
+            nh_.getParam("wcc_l/joint1_idx", wcc_l_joint1_idx_);
+
+            nh_.getParam("wcc_r/constraint_polygon", wcc_r_constraint_polygon_);
+            nh_.getParam("wcc_r/joint0_idx", wcc_r_joint0_idx_);
+            nh_.getParam("wcc_r/joint1_idx", wcc_r_joint1_idx_);
 
             if (wcc_l_constraint_polygon_.size() == 0 || (wcc_l_constraint_polygon_.size()%2) != 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_l/constraint_polygon\' (l) has wrong size: %lu", wcc_l_constraint_polygon_.size());
+                ROS_ERROR("property \'wcc_l/constraint_polygon\' (l) has wrong size: %lu", wcc_l_constraint_polygon_.size());
                 throw std::runtime_error("error");
             }
 
             if (wcc_l_joint0_idx_ < 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_l/joint0_idx\' is not set");
+                ROS_ERROR("property \'wcc_l/joint0_idx\' is not set");
                 throw std::runtime_error("error");
             }
 
             if (wcc_l_joint1_idx_ < 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_l/joint1_idx\' is not set");
+                ROS_ERROR("property \'wcc_l/joint1_idx\' is not set");
                 throw std::runtime_error("error");
             }
 
             if (wcc_r_joint0_idx_ < 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_r/joint0_idx\' is not set");
+                ROS_ERROR("property \'wcc_r/joint0_idx\' is not set");
                 throw std::runtime_error("error");
             }
 
             if (wcc_r_joint1_idx_ < 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_r/joint1_idx\' is not set");
+                ROS_ERROR("property \'wcc_r/joint1_idx\' is not set");
                 throw std::runtime_error("error");
             }
 
@@ -98,7 +100,7 @@ namespace velma_planner {
             }
 
             if (wcc_r_constraint_polygon_.size() == 0 || (wcc_r_constraint_polygon_.size()%2) != 0) {
-                ROS_ERROR("property \'/velma_core_cs/wcc_r/constraint_polygon\' (r) has wrong size: %lu", wcc_r_constraint_polygon_.size());
+                ROS_ERROR("property \'wcc_r/constraint_polygon\' (r) has wrong size: %lu", wcc_r_constraint_polygon_.size());
                 throw std::runtime_error("error");
             }
 

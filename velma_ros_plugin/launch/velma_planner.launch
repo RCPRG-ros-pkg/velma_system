@@ -5,6 +5,9 @@
   <arg name="planning_plugin" default="ompl_interface/OMPLPlanner" />
   <arg name="planning_adapters" default="default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints" />
 
+  <rosparam command="load" ns="VelmaRosPlugin/wcc_l" file="$(find velma_common)/config/wcc_l.yaml" />
+  <rosparam command="load" ns="VelmaRosPlugin/wcc_r" file="$(find velma_common)/config/wcc_r.yaml" />
+
   <include file="$(find rcprg_planner)/launch/rcprg_planner.launch" >
     <arg name="debug" value="$(arg debug)" />
     <arg name="planning_plugin" value="$(arg planning_plugin)" />
