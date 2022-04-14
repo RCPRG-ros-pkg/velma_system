@@ -535,12 +535,31 @@ class VelmaInterface:
                     raise RuntimeError("Wrong number of joints")
 
             if self._body_joint_limits is None:
-                body_joint_lower_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/lower_limits")
-                body_joint_upper_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/upper_limits")
-                if not body_joint_lower_limits is None and not body_joint_upper_limits is None:
-                    self._body_joint_limits = {}
-                    for i in range(len(self._body_joint_names)):
-                        self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
+                # body_joint_lower_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/lower_limits")
+                # body_joint_upper_limits = rospy.get_param(self._task_cs_name+"/JntImpAction/upper_limits")
+                # if not body_joint_lower_limits is None and not body_joint_upper_limits is None:
+                #     self._body_joint_limits = {}
+                #     for i in range(len(self._body_joint_names)):
+                #         self._body_joint_limits[self._body_joint_names[i]] = (body_joint_lower_limits[i], body_joint_upper_limits[i])
+
+                # TODO: read limits from URDF
+                self._body_joint_limits = {
+                    "torso_0_joint": (-1.57, 1.57),
+                    "right_arm_0_joint": (-2.96706, 2.96706),
+                    "right_arm_1_joint": (-2.0944, 2.0944),
+                    "right_arm_2_joint": (-2.96706, 2.96706),
+                    "right_arm_3_joint": (-2.0944, 2.0944),
+                    "right_arm_4_joint": (-2.96706, 2.96706),
+                    "right_arm_5_joint": (-2.0944, 2.0944),
+                    "right_arm_6_joint": (-2.96706, 2.96706),
+                    "left_arm_0_joint": (-2.96706, 2.96706),
+                    "left_arm_1_joint": (-2.0944, 2.0944),
+                    "left_arm_2_joint": (-2.96706, 2.96706),
+                    "left_arm_3_joint": (-2.0944, 2.0944),
+                    "left_arm_4_joint": (-2.96706, 2.96706),
+                    "left_arm_5_joint": (-2.0944, 2.0944),
+                    "left_arm_6_joint": (-2.96706, 2.96706),
+                }
 
             if self._cimp_joint_limits_map is None:
                 joint_names = rospy.get_param(self._core_cs_name+"/JntLimit/joint_names")
@@ -556,12 +575,18 @@ class VelmaInterface:
                 self._head_joint_names = rospy.get_param(self._task_cs_name+"/HeadAction/joint_names")
 
             if self._head_joint_limits is None:
-                head_joint_lower_limits = rospy.get_param(self._task_cs_name+"/HeadAction/lower_limits")
-                head_joint_upper_limits = rospy.get_param(self._task_cs_name+"/HeadAction/upper_limits")
-                if not head_joint_lower_limits is None and not head_joint_upper_limits is None:
-                    self._head_joint_limits = {}
-                    for i in range(len(self._head_joint_names)):
-                        self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
+                # head_joint_lower_limits = rospy.get_param(self._task_cs_name+"/HeadAction/lower_limits")
+                # head_joint_upper_limits = rospy.get_param(self._task_cs_name+"/HeadAction/upper_limits")
+                # if not head_joint_lower_limits is None and not head_joint_upper_limits is None:
+                #     self._head_joint_limits = {}
+                #     for i in range(len(self._head_joint_names)):
+                #         self._head_joint_limits[self._head_joint_names[i]] = (head_joint_lower_limits[i], head_joint_upper_limits[i])
+
+                # TODO: read limits from URDF
+                self._head_joint_limits = {
+                    "head_pan_joint": (-1.57, 1.57),
+                    "head_tilt_joint": (-1, 1.3),
+                }
 
             if self._all_joint_names is None:
                 self._all_joint_names = rospy.get_param(self._task_cs_name+"/JntPub/joint_names")

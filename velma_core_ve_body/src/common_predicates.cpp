@@ -117,8 +117,8 @@ bool isCmdTorsoValid(double cmd_tMotor_t) {
 //
 
 bool isStatusValid(const velma_core_cs_ve_body_msgs::StatusArm &st) {
-    double arm_q_limits_lo[7] = {-2.96, -2.09, -2.96, -2.09, -2.96, -2.09, -2.96};
-    double arm_q_limits_hi[7] = {2.96, 2.09, 2.96, 2.09, 2.96, 2.09, 2.96};
+    double arm_q_limits_lo[7] = {-2.96706, -2.0944, -2.96706, -2.0944, -2.96706, -2.0944, -2.96706};
+    double arm_q_limits_hi[7] = {2.96706, 2.0944, 2.96706, 2.0944, 2.96706, 2.0944, 2.96706};
 
 // TODO: double arm_dq_limits[7] = {2, 2, 2, 2, 2, 2, 2}
 

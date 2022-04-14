@@ -7,6 +7,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/" ${CMAKE_MODULE_PATH})
 # Find the RTT-ROS package (this transitively includes the Orocos CMake macros)
 find_package(catkin REQUIRED COMPONENTS
   rtt_ros
+  rtt_rosparam
   rtt_subsystem
   velma_core_cs_task_cs_msgs
   eigen_conversions
