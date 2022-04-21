@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<launch>
+  <arg name="octomap_file" default=""/>
+  <arg name="resolution" default="0.02"/>
+
+  <arg name="POINTCLOUD_TOPIC" value="/stereo/points2"/>
+
+  <node pkg="pointcloud_utils" type="pc_filter" name="pc_filter" output="screen">
+    <param name="horizontal_fov" value="1.047" />
+    <param name="ignored_links" value="" />
+
+    <remap from="cloud_in" to="$(arg POINTCLOUD_TOPIC)"/>
+    <remap from="cloud_out" to="/pc_filter/points"/>
+    <remap from="cloud_ex_out" to="/pc_filter/points_ex"/>
+  </node>
+  <group ns="pc_filter">
+    <rosparam>
+      horizontal_fov: 0.8
+      ignored_links: [head_tilt_link]
+    </rosparam>
+  </group>
+
+  <node name="om_server" pkg="octomap_server" type="octomap_server_node" output="screen" args="$(arg octomap_file)">
+    <param name="resolution" value="$(arg resolution)" />
+    <param name="frame_id" type="string" value="world" />
+    <param name="sensor_model/max_range" value="2.2" />
+    <param name="publish_free_space" value="true" />
+    <remap from="octomap_full" to="/om_server/octomap_full"/>
+    <remap from="octomap_binary" to="/om_server/octomap_binary"/>
+    <!--<remap from="cloud_in" to="/stereo/points2"/>-->
+    <remap from="cloud_in" to="/pc_filter/points"/>
+  </node>
+  <node pkg="pointcloud_utils" type="octomap_filter" name="octomap_filter" output="screen">
+    <param name="resolution" value="0.04" />
+    <param name="xmin" value="-1.3" />
+    <param name="xmax" value="1.3" />
+    <param name="ymin" value="-1.3" />
+    <param name="ymax" value="1.3" />
+    <param name="zmin" value="0.0" />
+    <param name="zmax" value="2.0" />
+    <param name="visualize_unknown" value="true" />
+    <param name="visualize_merged" value="true" />
+    <remap from="octomap_full" to="/om_server/octomap_full"/>
+    <remap from="octomap_merged_binary" to="/octomap_binary"/>
+  </node>
+
+</launch>
+
