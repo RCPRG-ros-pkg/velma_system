@@ -203,7 +203,7 @@
         <state name="idle">
             <behavior name="idle" />
             <next_state name="safe" init_cond="TRUE"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
+            <buffer_group name="all_inputs" min_period="0.001" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="safe">
@@ -213,7 +213,7 @@
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
             <next_state name="relax" init_cond="(not IN_ERROR) and recvRelaxCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
+            <buffer_group name="all_inputs" min_period="0.001" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="relax">
@@ -222,7 +222,7 @@
             <next_state name="idle" init_cond="IN_ERROR"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvCartImpCmd"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvJntImpCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
+            <buffer_group name="all_inputs" min_period="0.001" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="cart_imp">
@@ -232,7 +232,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="jnt_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvJntImpCmd"/>
             <next_state name="relax" init_cond="(not IN_ERROR) and recvOneCmd and recvRelaxCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
+            <buffer_group name="all_inputs" min_period="0.001" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
 
         <state name="jnt_imp">
@@ -242,7 +242,7 @@
             <next_state name="safe" init_cond="(not IN_ERROR) and (not recvOneCmd)"/>
             <next_state name="cart_imp" init_cond="(not IN_ERROR) and recvOneCmd and recvCartImpCmd"/>
             <next_state name="relax" init_cond="(not IN_ERROR) and recvOneCmd and recvRelaxCmd"/>
-            <buffer_group name="all_inputs" min_period="0" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
+            <buffer_group name="all_inputs" min_period="0.001" first_timeout="0.002" next_timeout="0.002" first_timeout_sim="1.0" used_time="sim" />
         </state>
     </states>
 
