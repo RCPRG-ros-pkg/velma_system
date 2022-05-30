@@ -34,6 +34,11 @@
 #include <controller_common/elmo_servo_state.h>
 #include <math.h>
 
+#include "fabric_logger/fabric_logger.h"
+
+using fabric_logger::FabricLoggerInterfaceRtPtr;
+using fabric_logger::FabricLogger;
+
 using namespace RTT;
 
 using namespace controller_common::elmo_servo;
@@ -108,6 +113,8 @@ private:
     bool atribute_homing_in_progress_;
 
     ServoState servo_state_;
+
+    FabricLoggerInterfaceRtPtr m_fabric_logger;
 };
 
 ElmoDriver::ElmoDriver(const std::string &name)
@@ -120,6 +127,7 @@ ElmoDriver::ElmoDriver(const std::string &name)
     , atribute_homing_required_(false)
     , atribute_homing_in_progress_(false)
     , servo_state_(ServoState::INVALID)
+    , m_fabric_logger( FabricLogger::createNewInterfaceRt( name, 100000) )
 {
     this->ports()->addPort("controlWord_OUTPORT", port_controlWord_out_);
     this->ports()->addPort("modeOfOperation_OUTPORT", port_modeOfOperation_out_);
@@ -250,11 +258,14 @@ void ElmoDriver::updateHook() {
     bool enable_prev = enable_;
 
     if (port_statusWord_in_.read( statusWord_in ) != RTT::NewData) {
+      m_fabric_logger << "could not read statusWord" << FabricLogger::End();
+
 //        Logger::log() << Logger::Error << getName() << " could not read statusWord" << Logger::endl;
         // TODO: verify this
         return;
     }
     if (control_mode_ == CYCLIC_POSITION && port_q_in_.read(q_in) != RTT::NewData) {
+      m_fabric_logger << "could not read position" << FabricLogger::End();
 //        Logger::log() << Logger::Error << getName() << " could not read position" << Logger::endl;
         // TODO: verify this
         return;
@@ -268,16 +279,19 @@ void ElmoDriver::updateHook() {
     servo_state_ = getServoState(statusWord_in);
 
     if (servo_state_prev != servo_state_) {
-        Logger::log() << Logger::Info << getName() << " state: " << getServoStateStr(servo_state_) << Logger::endl;
+        //Logger::log() << Logger::Info << getName() << " state: " << getServoStateStr(servo_state_) << Logger::endl;
+        m_fabric_logger << "state: " << getServoStateStr(servo_state_) << FabricLogger::End();
     }
 
     uint8_t disable_in = false;
     uint8_t enable_in = false;
     if (port_disable_in_.read(disable_in) == RTT::NewData && disable_in) {
         enable_ = false;
+        m_fabric_logger << "disabled" << FabricLogger::End();
     }
     else if (port_enable_in_.read(enable_in) == RTT::NewData && enable_in && servo_state_ == ServoState::SWITCH_ON) {
-      Logger::log() << Logger::Info << getName() << " received enable command" << Logger::endl;
+//      Logger::log() << Logger::Info << getName() << " received enable command" << Logger::endl;
+      m_fabric_logger << "received enable command" << FabricLogger::End();
       enable_ = true;
     }
 
@@ -332,6 +346,7 @@ void ElmoDriver::updateHook() {
     uint8_t homing_start_in = false;
     if (port_homing_start_in_.read(homing_start_in) == RTT::NewData && homing_start_in) {
 //        Logger::log() << Logger::Info << getName() << " received homing_start command" << Logger::endl;
+        m_fabric_logger << "received homing_start command" << FabricLogger::End();
         if (servo_state_ == ServoState::OPERATION_ENABLED) {
           homing_ = true;
         }
@@ -341,6 +356,7 @@ void ElmoDriver::updateHook() {
     if ((statusWord_in & 0x3400) == 0x1400) {
       homing_ = false;
       homing_done_ = true;
+      m_fabric_logger << "homing is finished" << FabricLogger::End();
     }
   }
 

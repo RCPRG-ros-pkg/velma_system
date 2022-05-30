@@ -32,6 +32,11 @@
 
 #include <controller_common/elmo_servo_state.h>
 
+#include "fabric_logger/fabric_logger.h"
+
+using fabric_logger::FabricLoggerInterfaceRtPtr;
+using fabric_logger::FabricLogger;
+
 using namespace controller_common::elmo_servo;
 using namespace RTT;
 
@@ -95,6 +100,8 @@ public:
     double q_hp_;
     double q_ht_;
 
+    FabricLoggerInterfaceRtPtr m_fabric_logger;
+
     // public methods
     TorsoSim(std::string const& name);
     ~TorsoSim();
@@ -128,6 +135,7 @@ using namespace RTT;
         , t_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
         , hp_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
         , ht_servo_state_(ServoState::NOT_READY_TO_SWITCH_ON)
+        , m_fabric_logger( FabricLogger::createNewInterfaceRt( name, 100000) )
     {
         // torso ports
         this->ports()->addPort("t_MotorControlWord_INPORT",         port_t_MotorControlWord_in_);
@@ -188,6 +196,7 @@ using namespace RTT;
         int16_t t_MotorCurrentCommand_in = 0;
         if (port_t_MotorCurrentCommand_in_.read(t_MotorCurrentCommand_in) != RTT::NewData) {
             Logger::log() << Logger::Info << "could not read torso motor torque" << Logger::endl;
+            m_fabric_logger << "could not read torso motor torque" << FabricLogger::End();
         }
 
         t_t_ = t_MotorCurrentCommand_in * torso_gear * torso_motor_constant;
@@ -232,6 +241,7 @@ using namespace RTT;
             else {
                 hp_homing_in_progress_ = false;
                 hp_homing_done_ = true;
+                m_fabric_logger << "hp homing is finished" << FabricLogger::End();
             }
         }
         else {
@@ -249,6 +259,7 @@ using namespace RTT;
             else {
                 ht_homing_in_progress_ = false;
                 ht_homing_done_ = true;
+                m_fabric_logger << "ht homing is finished" << FabricLogger::End();
             }
         }
         else {
@@ -256,52 +267,53 @@ using namespace RTT;
         }
         ht_q_out_ = q_ht_ * head_trans;
 
-
-
-
         // copied from velma_sim_gazebo/src/torso_gazebo_orocos.cpp
         uint16_t hp_controlWord_in;
         if (port_hp_controlWord_in_.read(hp_controlWord_in) == RTT::NewData) {
             if ( (hp_controlWord_in&0x10) != 0 && !hp_homing_in_progress_) {
                 if (hp_homing_done_) {
-                    Logger::log() << Logger::Info << "Running homing second time for head pan motor!" << Logger::endl;
+                    m_fabric_logger << "tried to run hp homing the second trime, but hp homing is already done" << FabricLogger::End();
                 }
                 else {
                     hp_homing_in_progress_ = true;
-                    Logger::log() << Logger::Info << "Running homing head pan motor" << Logger::endl;
+                    m_fabric_logger << "running hp homing" << FabricLogger::End();
                 }
             }
             ServoState prev_state = hp_servo_state_;
             hp_servo_state_ = getNextServoState(hp_servo_state_, hp_controlWord_in);
             if (prev_state != hp_servo_state_) {
-                Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
+                //Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
+                m_fabric_logger << "hp motor state: " << getServoStateStr(hp_servo_state_) << FabricLogger::End();
             }
         }
         else {
             hp_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
+            //Logger::log() << Logger::Info << "hp motor state: " << getServoStateStr(hp_servo_state_) << Logger::endl;
+            m_fabric_logger << "hp motor state: " << getServoStateStr(hp_servo_state_) << FabricLogger::End();
         }
 
         uint16_t ht_controlWord_in;
         if (port_ht_controlWord_in_.read(ht_controlWord_in) == RTT::NewData) {
             if ( (ht_controlWord_in&0x10) != 0 && !ht_homing_in_progress_) {
                 if (ht_homing_done_) {
-                    Logger::log() << Logger::Info << "Running homing second time for head tilt motor!" << Logger::endl;
+                    m_fabric_logger << "tried to run ht homing the second trime, but ht homing is already done" << FabricLogger::End();
                 }
                 else {
                     ht_homing_in_progress_ = true;
-                    Logger::log() << Logger::Info << "Running homing head tilt motor" << Logger::endl;
+                    m_fabric_logger << "running ht homing" << FabricLogger::End();
                 }
             }
             ServoState prev_state = ht_servo_state_;
             ht_servo_state_ = getNextServoState(ht_servo_state_, ht_controlWord_in);
             if (prev_state != ht_servo_state_) {
-                Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
+                //Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
+                m_fabric_logger << "ht motor state: " << getServoStateStr(ht_servo_state_) << FabricLogger::End();
             }
         }
         else {
             ht_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
+            //Logger::log() << Logger::Info << "ht motor state: " << getServoStateStr(ht_servo_state_) << Logger::endl;
+            m_fabric_logger << "ht motor state: " << getServoStateStr(ht_servo_state_) << FabricLogger::End();
         }
 
         uint16_t t_controlWord_in;
@@ -309,12 +321,14 @@ using namespace RTT;
             ServoState prev_state = t_servo_state_;
             t_servo_state_ = getNextServoState(t_servo_state_, t_controlWord_in);
             if (prev_state != t_servo_state_) {
-                Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
+                //Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
+                m_fabric_logger << "t motor state: " << getServoStateStr(t_servo_state_) << FabricLogger::End();
             }
         }
         else {
             t_servo_state_ = ServoState::NOT_READY_TO_SWITCH_ON;
-            Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
+            //Logger::log() << Logger::Info << "t motor state: " << getServoStateStr(t_servo_state_) << Logger::endl;
+            m_fabric_logger << "t motor state: " << getServoStateStr(t_servo_state_) << FabricLogger::End();
         }
 
         uint16_t t_status_out = getStatusWord(t_servo_state_);
