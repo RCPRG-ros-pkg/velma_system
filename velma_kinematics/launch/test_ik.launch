@@ -8,7 +8,7 @@
   <arg name="planning_adapters" default="default_planner_request_adapters/AddTimeParameterization default_planner_request_adapters/FixWorkspaceBounds default_planner_request_adapters/FixStartStateBounds default_planner_request_adapters/FixStartStateCollision default_planner_request_adapters/FixStartStatePathConstraints" />
   <arg name="robot_interface_plugin" default="velma_planner::VelmaRosPlugin"/>
 
-  <rosparam command="load" ns="velma_core_cs" file="$(find velma_common)/config/wcc.yaml" />
+  <rosparam command="load" ns="velma_core_cs" file="$(find velma_common)/config/wcc_l.yaml" />
   <rosparam command="load" ns="velma_core_cs" file="$(find velma_common)/config/joint_limits_cimp.yaml" />
   <param name="/robot_interface_plugin" value="$(arg robot_interface_plugin)" />
 

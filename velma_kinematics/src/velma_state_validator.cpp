@@ -106,6 +106,40 @@ void VelmaStateValidator::readJointLimits(ros::NodeHandle& nh) {
         std::cout << error_msg << std::endl;
         throw std::invalid_argument( error_msg );
     }
+
+    // f1 proximal
+    m_right_hand_joint_names[0] = "right_HandFingerOneKnuckleTwoJoint";
+    // f2 proximal
+    m_right_hand_joint_names[1] = "right_HandFingerTwoKnuckleTwoJoint";
+    // f3 proximal
+    m_right_hand_joint_names[2] = "right_HandFingerThreeKnuckleTwoJoint";
+    // sp
+    m_right_hand_joint_names[3] = "right_HandFingerOneKnuckleOneJoint";
+    // f1 distal
+    m_right_hand_joint_names[4] = "right_HandFingerOneKnuckleThreeJoint";
+    // f2 distal
+    m_right_hand_joint_names[5] = "right_HandFingerTwoKnuckleThreeJoint";
+    // f3 distal
+    m_right_hand_joint_names[6] = "right_HandFingerThreeKnuckleThreeJoint";
+    // sp 2
+    m_right_hand_joint_names[7] = "right_HandFingerTwoKnuckleOneJoint";
+
+    // f1 proximal
+    m_left_hand_joint_names[0] = "left_HandFingerOneKnuckleTwoJoint";
+    // f2 proximal
+    m_left_hand_joint_names[1] = "left_HandFingerTwoKnuckleTwoJoint";
+    // f3 proximal
+    m_left_hand_joint_names[2] = "left_HandFingerThreeKnuckleTwoJoint";
+    // sp
+    m_left_hand_joint_names[3] = "left_HandFingerOneKnuckleOneJoint";
+    // f1 distal
+    m_left_hand_joint_names[4] = "left_HandFingerOneKnuckleThreeJoint";
+    // f2 distal
+    m_left_hand_joint_names[5] = "left_HandFingerTwoKnuckleThreeJoint";
+    // f3 distal
+    m_left_hand_joint_names[6] = "left_HandFingerThreeKnuckleThreeJoint";
+    // sp 2
+    m_left_hand_joint_names[7] = "left_HandFingerTwoKnuckleOneJoint";
 }
 
 bool VelmaStateValidator::isArmInLimits(const ArmJntArray& q, const ArmLimits& arm_limits) const {
@@ -242,6 +276,46 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
 
 void VelmaStateValidator::setVariablePosition(const std::string& joint_name, double value) {
     m_ss->setVariablePosition(joint_name, value);
+}
+
+void VelmaStateValidator::setArmJointPosition(ArmSide side, int q_idx, double value) {
+    if (side == ARM_R) {
+        m_ss->setVariablePosition(m_right_arm_joint_names[q_idx], value);
+    }
+    else if (side == ARM_L) {
+        m_ss->setVariablePosition(m_left_arm_joint_names[q_idx], value);
+    }
+}
+
+void VelmaStateValidator::setHandJointPosition(ArmSide side, int q_idx, double value) {
+    std::array<std::string, 8 >& joint_names = ((side == ARM_R)?m_right_hand_joint_names:m_left_hand_joint_names);
+    if (q_idx == 0) {
+        // f1
+        m_ss->setVariablePosition(joint_names[0], value);
+        m_ss->setVariablePosition(joint_names[4], value*0.333333);
+    }
+    else if (q_idx == 1) {
+        // f2
+        m_ss->setVariablePosition(joint_names[1], value);
+        m_ss->setVariablePosition(joint_names[5], value*0.333333);
+    }
+    else if (q_idx == 2) {
+        // f3
+        m_ss->setVariablePosition(joint_names[2], value);
+        m_ss->setVariablePosition(joint_names[6], value*0.333333);
+    }
+    else if (q_idx == 3) {
+        // sp
+        m_ss->setVariablePosition(joint_names[3], value);
+        m_ss->setVariablePosition(joint_names[7], value*0.333333);
+    }
+    else {
+        std::stringstream sstr;
+        sstr << "ERROR: wrong index for hand joint: " << q_idx;
+        std::string error_msg = sstr.str();
+        std::cout << error_msg << std::endl;
+        throw std::invalid_argument(error_msg);
+    }
 }
 
 double VelmaStateValidator::getVariablePosition(const std::string& joint_name) const {

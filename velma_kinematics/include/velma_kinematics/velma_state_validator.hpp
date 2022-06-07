@@ -37,6 +37,9 @@ protected:
   std::array<std::string, 7 > m_right_arm_joint_names;
   std::array<std::string, 7 > m_left_arm_joint_names;
 
+  std::array<std::string, 8 > m_right_hand_joint_names;
+  std::array<std::string, 8 > m_left_hand_joint_names;
+
   // ROS parameters
   std::vector<double > wcc_l_constraint_polygon_;
   int wcc_l_joint0_idx_;
@@ -60,6 +63,10 @@ public:
   VelmaStateValidator(ros::NodeHandle& nh);
 
   void setVariablePosition(const std::string& joint_name, double value);
+
+  void setArmJointPosition(ArmSide side, int q_idx, double value);
+  
+  void setHandJointPosition(ArmSide side, int q_idx, double value);
 
   double getVariablePosition(const std::string& joint_name) const;
 
