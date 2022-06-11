@@ -421,6 +421,14 @@ class KinematicsSolverVelma:
         T_B_A = self.getRightArmBaseFk(torso_angle)
         return T_B_A * PyKDL.Vector(0, 0, 0.2005+0.11)
 
+    def getArmBaseFk(self, side_str, torso_angle):
+        if side_str == 'left':
+            return self.getLeftArmBaseFk(torso_angle)
+        elif side_str == 'right':
+            return self.getRightArmBaseFk(torso_angle)
+        else:
+            raise Exception('Wrong side: "{}"'.format(side_str))
+
     def getLeftArmBaseFk(self, torso_angle):
         """!
         Calculate forward kinematics for left arm base.
@@ -476,6 +484,14 @@ class KinematicsSolverVelma:
         ny = PyKDL.Vector(m01, m11, m21)
         nz = PyKDL.Vector(m02, m12, m22)
         return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
+
+    def getArmFk(self, side_str, torso_angle, q):
+        if side_str == 'left':
+            return self.getLeftArmFk(torso_angle, q)
+        elif side_str == 'right':
+            return self.getRightArmFk(torso_angle, q)
+        else:
+            raise Exception('Wrong side: "{}"'.format(side_str))
 
     def getLeftArmFk(self, torso_angle, q):
         """!
