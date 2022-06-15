@@ -26,6 +26,7 @@ protected:
   robot_model::RobotModelPtr m_robot_model;
   std::shared_ptr<moveit::core::RobotState > m_ss;
   boost::shared_ptr<rcprg_planner::RobotInterface> m_robot_interface;
+  bool m_verbose;
 
   typedef std::array<std::vector<double>, 7 > ArmLimits;
   ArmLimits m_right_arm_limits;
@@ -62,6 +63,8 @@ public:
 
   VelmaStateValidator(ros::NodeHandle& nh);
 
+  void setVerbose(bool verbose);
+
   void setVariablePosition(const std::string& joint_name, double value);
 
   void setArmJointPosition(ArmSide side, int q_idx, double value);
@@ -79,7 +82,7 @@ public:
 
   void update();
 
-  bool isStateValid() const;
+  bool isStateValid(const std::string &group="") const;
 
   bool isRightArmInLimits(const ArmJntArray& q) const;
 

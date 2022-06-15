@@ -198,9 +198,35 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
 
     m_robot_model = robot_model_loader.getModel();
 
+    std::cout << "srdf groups:" << std::endl;
+    const std::vector< std::string >& group_names = m_robot_model->getJointModelGroupNames();
+
+    //const std::map< std::string, srdf::Model::Group > groups_map =
+    //                                                m_robot_model->getJointModelGroupConfigMap();
+    //for (auto it = groups_map.begin(); it != groups_map.end(); ++it) {
+    for (int i = 0; i < group_names.size(); ++i) {
+        std::cout << "  " << group_names[i] << std::endl;
+        robot_model::JointModelGroup *joint_group = m_robot_model->getJointModelGroup(group_names[i]);
+        const std::vector< const robot_model::LinkModel * > &link_models = joint_group->getLinkModels();
+        for (int j = 0; j < link_models.size(); ++j) {
+            std::cout << "    " << link_models[j]->getName() << std::endl;
+        }
+    }
+
+//TODO:
+    std::cout << "  getUpdatedLinkModelsSet:" << std::endl;
+    const std::set<const robot_model::LinkModel*>* links_set = &m_robot_model->getJointModelGroup("no_fingers")->getUpdatedLinkModelsSet();
+    for (auto it = links_set->begin(); it != links_set->end(); ++it) {
+        std::cout << "    " << (*it)->getName() << std::endl;
+    }
+
     m_planning_scene.reset( new planning_scene::PlanningScene(m_robot_model) );
 
     m_planning_scene->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+
+    std::cout << "Using collision detector: \""
+            << m_planning_scene->getActiveCollisionDetectorName()
+            << "\"" << std::endl;
 
     // Read joint limits for cart_imp
     readJointLimits(nh);
@@ -343,9 +369,12 @@ void VelmaStateValidator::update() {
     m_ss->update();
 }
 
-bool VelmaStateValidator::isStateValid() const {
-    //return m_planning_scene->isStateValid(*m_ss, "", true);   // verbose
-    return m_planning_scene->isStateValid(*m_ss);   // quiet
+bool VelmaStateValidator::isStateValid(const std::string &group) const {
+    return m_planning_scene->isStateValid(*m_ss, group, m_verbose);   // verbose
+}
+
+void VelmaStateValidator::setVerbose(bool verbose) {
+    m_verbose = verbose;
 }
 
 bool VelmaStateValidator::isRightArmInLimits(const ArmJntArray& q) const {
