@@ -284,8 +284,8 @@
     <connection from="FK.LeftPosition_OUTPORT" to="INT_pose_l.CartesianPosition_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="INT_pose_r.CartesianPosition_INPORT" latex="p_{r}" />
 
-    <connection from="FK.RightWrist_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{l}" />
-    <connection from="FK.LeftWrist_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.RightWrist_OUTPORT" to="stConcate.rWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.LeftWrist_OUTPORT" to="stConcate.lWristPose_INPORT" latex="p_{l}" />
     <connection from="FK.RightPosition_OUTPORT" to="stConcate.rToolInBasePose_INPORT" />
     <connection from="FK.LeftPosition_OUTPORT" to="stConcate.lToolInBasePose_INPORT" />
 
