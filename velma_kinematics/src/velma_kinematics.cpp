@@ -29,7 +29,19 @@ bool KinematicsSolverLWR4::Solution::isSimilar(const Solution& other, double ang
                                                                         angle_dist_max);
 }
 
-KinematicsSolverLWR4::KinematicsSolverLWR4()
+double KinematicsSolverLWR4::Solution::distanceSqr(const Solution& other) const {
+    return KinematicsSolverLWR4::Solution::distanceSqr(q, other.q);
+}
+
+double KinematicsSolverLWR4::Solution::distanceSqr(const JntArray& q1, const JntArray& q2) {
+    double result = 0.0;
+    for (int i = 0 ; i < q1.size(); ++i) {
+        result += (q1[i]-q2[i]) * (q1[i]-q2[i]);
+    }
+    return result;
+}
+
+KinematicsSolverLWR4::KinematicsSolverLWR4(double elbow_ang_incr)
     : m_A(0.078)
     , m_B(0.39)
     , m_C(0.2)
@@ -41,7 +53,7 @@ KinematicsSolverLWR4::KinematicsSolverLWR4()
     , m_pt_shoulder(0, 0, m_D)
     , m_lim_lo({-2.96, -2.09, -2.96, -2.095, -2.96, -2.09, -2.96})
     , m_lim_up({2.96, 2.09, 2.96, 2.095, 2.96, 2.09, 2.96})
-    , m_elbow_ang_incr( 0.523583333 ) // about 30 deg.
+    , m_elbow_ang_incr( elbow_ang_incr )
     , m_solutions_count(0)
 {
     for (double elbow_ang = -M_PI; elbow_ang < M_PI; elbow_ang += m_elbow_ang_incr) {
@@ -445,7 +457,7 @@ double KinematicsSolverLWR4::calculateJntDist(const KinematicsSolverLWR4::JntArr
 // KinematicsSolverVelma //////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-KinematicsSolverVelma::KinematicsSolverVelma()
+KinematicsSolverVelma::KinematicsSolverVelma(double elbow_ang_incr)
 : m_left_arm_base_fk_dirty(true)
 , m_right_arm_base_fk_dirty(true)
 , m_T_Er_Gr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.235, 0, -0.078))
@@ -456,9 +468,10 @@ KinematicsSolverVelma::KinematicsSolverVelma()
 , m_T_Gl_El(m_T_El_Gl.Inverse())
 , m_T_Pr_Er(m_T_Er_Pr.Inverse())
 , m_T_Pl_El(m_T_El_Pl.Inverse())
+, m_ik_solver_lwr(elbow_ang_incr)
 {}
 
-void KinematicsSolverVelma::setTorsoAngle(const double& torso_angle) {
+void KinematicsSolverVelma::setTorsoAngle(double torso_angle) {
     m_torso_angle = torso_angle;
     m_left_arm_base_fk_dirty = true;
     m_right_arm_base_fk_dirty = true;

@@ -17,6 +17,8 @@ public:
         bool flip_elbow;
         bool flip_ee;
         bool isSimilar(const Solution& other, double angle_dist_max) const;
+        double distanceSqr(const Solution& other) const;
+        static double distanceSqr(const JntArray& q1, const JntArray& q2);
     };
 
     typedef std::vector<Solution > Solutions;
@@ -64,7 +66,7 @@ protected:
         double& out_q4, double& out_q5, double& out_q6);
 
 public:
-    KinematicsSolverLWR4();
+    KinematicsSolverLWR4(double elbow_ang_incr=0.261791667);
 
     bool calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
         bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol);
@@ -116,7 +118,7 @@ protected:
     const KDL::Frame m_T_Pl_El;
 
 public:
-    KinematicsSolverVelma();
+    KinematicsSolverVelma(double elbow_ang_incr=0.261791667);
 
     const KDL::Frame& getArmBaseFk(Side side);
     const KDL::Frame& getArmBaseFkInv(Side side);
@@ -132,7 +134,7 @@ public:
     const KDL::Frame& getT_G_E(Side side) const;
     const KDL::Frame& getT_P_E(Side side) const;
 
-    void setTorsoAngle(const double& torso_angle);
+    void setTorsoAngle(double torso_angle);
 
     bool calculateIkSetArm(Side side, const KDL::Frame& T_B_Wl);
 
