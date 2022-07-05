@@ -22,7 +22,7 @@ public:
 
 protected:
   pluginlib::ClassLoader<rcprg_planner::RobotInterface> m_robot_interface_loader;
-  planning_scene::PlanningScenePtr m_planning_scene;
+  std::vector<planning_scene::PlanningScenePtr > m_planning_scenes;
   robot_model::RobotModelPtr m_robot_model;
   std::shared_ptr<moveit::core::RobotState > m_ss;
   boost::shared_ptr<rcprg_planner::RobotInterface> m_robot_interface;
@@ -79,6 +79,8 @@ public:
 
   void setOctomap( const std::shared_ptr< const octomap::OcTree > &octree,
                                                                     const Eigen::Isometry3d &t );
+
+  void setMultipleOctomaps( const std::vector< std::shared_ptr< const octomap::OcTree > > &octrees);
 
   void update();
 

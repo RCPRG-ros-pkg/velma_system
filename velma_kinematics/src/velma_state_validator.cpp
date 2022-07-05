@@ -47,16 +47,11 @@ void VelmaStateValidator::readJointLimits(ros::NodeHandle& nh) {
 
     for (int side_idx = 0; side_idx < sides.size(); ++side_idx) {
         const std::string& side_str = sides[side_idx];
+        const std::array<std::string, 7 >& arm_joint_names = ((side_str == "left")?
+                                                m_left_arm_joint_names : m_right_arm_joint_names);
+
         for (int q_idx = 0; q_idx < 7; ++q_idx) {
-            std::stringstream sstr;
-            sstr << side_str << "_arm_" << q_idx << "_joint";
-            std::string joint_name = sstr.str();
-            if (side_str == "left") {
-                m_left_arm_joint_names[q_idx] = joint_name;
-            }
-            else {
-                m_right_arm_joint_names[q_idx] = joint_name;
-            }
+            const std::string& joint_name = arm_joint_names[q_idx];
 
             bool found = false;
             for (int i = 0; i < joint_names.size(); ++i) {
@@ -72,6 +67,7 @@ void VelmaStateValidator::readJointLimits(ros::NodeHandle& nh) {
                 }
             }
             if (!found) {
+                std::stringstream sstr;
                 sstr << "Could not find limits for arm " << side_str << ", joint " << q_idx;
                 std::string error_msg = sstr.str();
                 std::cout << error_msg << std::endl;
@@ -106,40 +102,6 @@ void VelmaStateValidator::readJointLimits(ros::NodeHandle& nh) {
         std::cout << error_msg << std::endl;
         throw std::invalid_argument( error_msg );
     }
-
-    // f1 proximal
-    m_right_hand_joint_names[0] = "right_HandFingerOneKnuckleTwoJoint";
-    // f2 proximal
-    m_right_hand_joint_names[1] = "right_HandFingerTwoKnuckleTwoJoint";
-    // f3 proximal
-    m_right_hand_joint_names[2] = "right_HandFingerThreeKnuckleTwoJoint";
-    // sp
-    m_right_hand_joint_names[3] = "right_HandFingerOneKnuckleOneJoint";
-    // f1 distal
-    m_right_hand_joint_names[4] = "right_HandFingerOneKnuckleThreeJoint";
-    // f2 distal
-    m_right_hand_joint_names[5] = "right_HandFingerTwoKnuckleThreeJoint";
-    // f3 distal
-    m_right_hand_joint_names[6] = "right_HandFingerThreeKnuckleThreeJoint";
-    // sp 2
-    m_right_hand_joint_names[7] = "right_HandFingerTwoKnuckleOneJoint";
-
-    // f1 proximal
-    m_left_hand_joint_names[0] = "left_HandFingerOneKnuckleTwoJoint";
-    // f2 proximal
-    m_left_hand_joint_names[1] = "left_HandFingerTwoKnuckleTwoJoint";
-    // f3 proximal
-    m_left_hand_joint_names[2] = "left_HandFingerThreeKnuckleTwoJoint";
-    // sp
-    m_left_hand_joint_names[3] = "left_HandFingerOneKnuckleOneJoint";
-    // f1 distal
-    m_left_hand_joint_names[4] = "left_HandFingerOneKnuckleThreeJoint";
-    // f2 distal
-    m_left_hand_joint_names[5] = "left_HandFingerTwoKnuckleThreeJoint";
-    // f3 distal
-    m_left_hand_joint_names[6] = "left_HandFingerThreeKnuckleThreeJoint";
-    // sp 2
-    m_left_hand_joint_names[7] = "left_HandFingerTwoKnuckleOneJoint";
 }
 
 bool VelmaStateValidator::isArmInLimits(const ArmJntArray& q, const ArmLimits& arm_limits) const {
@@ -168,6 +130,20 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
     , wcc_r_joint1_idx_(-1)
     , wcc_r_d0_(0)
     , wcc_l_d0_(0)
+    , m_right_arm_joint_names({"right_arm_0_joint", "right_arm_1_joint", "right_arm_2_joint",
+        "right_arm_3_joint", "right_arm_4_joint", "right_arm_5_joint", "right_arm_6_joint"})
+    , m_left_arm_joint_names({"left_arm_0_joint", "left_arm_1_joint", "left_arm_2_joint",
+        "left_arm_3_joint", "left_arm_4_joint", "left_arm_5_joint", "left_arm_6_joint"})
+    , m_right_hand_joint_names({"right_HandFingerOneKnuckleTwoJoint",
+        "right_HandFingerTwoKnuckleTwoJoint", "right_HandFingerThreeKnuckleTwoJoint",
+        "right_HandFingerOneKnuckleOneJoint", "right_HandFingerOneKnuckleThreeJoint",
+        "right_HandFingerTwoKnuckleThreeJoint", "right_HandFingerThreeKnuckleThreeJoint",
+        "right_HandFingerTwoKnuckleOneJoint"})
+    , m_left_hand_joint_names({"left_HandFingerOneKnuckleTwoJoint",
+        "left_HandFingerTwoKnuckleTwoJoint", "left_HandFingerThreeKnuckleTwoJoint",
+        "left_HandFingerOneKnuckleOneJoint", "left_HandFingerOneKnuckleThreeJoint",
+        "left_HandFingerTwoKnuckleThreeJoint", "left_HandFingerThreeKnuckleThreeJoint",
+        "left_HandFingerTwoKnuckleOneJoint"})
 {
     std::cout << "VelmaStateValidator ROS namespace: " << nh.getNamespace() << std::endl;
 
@@ -220,12 +196,12 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
         std::cout << "    " << (*it)->getName() << std::endl;
     }
 
-    m_planning_scene.reset( new planning_scene::PlanningScene(m_robot_model) );
+    m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
 
-    m_planning_scene->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+    m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
 
     std::cout << "Using collision detector: \""
-            << m_planning_scene->getActiveCollisionDetectorName()
+            << m_planning_scenes[0]->getActiveCollisionDetectorName()
             << "\"" << std::endl;
 
     // Read joint limits for cart_imp
@@ -353,16 +329,35 @@ void VelmaStateValidator::setToDefaultValues() {
 }
 
 void VelmaStateValidator::setOctomap( const octomap_msgs::Octomap& map ) {
-    m_planning_scene->processOctomapMsg(map);
+    if (m_planning_scenes.size() != 1) {
+        m_planning_scenes.clear();
+        m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
+        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+    }
+    m_planning_scenes[0]->processOctomapMsg(map);
 }
 
 void VelmaStateValidator::setOctomap( const std::shared_ptr< const octomap::OcTree > &octree,
                                                                     const Eigen::Isometry3d &t ) {
-    m_planning_scene->processOctomapPtr(octree, t);
+    if (m_planning_scenes.size() != 1) {
+        m_planning_scenes.clear();
+        m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
+        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+    }
+    m_planning_scenes[0]->processOctomapPtr(octree, t);
 
     //std::cout << "VelmaStateValidator::setOctomap: printKnownObjects begin" << std::endl;
     //m_planning_scene->printKnownObjects(std::cout);
     //std::cout << "VelmaStateValidator::setOctomap: printKnownObjects end" << std::endl;
+}
+
+void VelmaStateValidator::setMultipleOctomaps( const std::vector< std::shared_ptr< const octomap::OcTree > > &octrees) {
+    m_planning_scenes.clear();
+    for (int i = 0; i < octrees.size(); ++i) {
+        m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
+        m_planning_scenes[i]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+        m_planning_scenes[i]->processOctomapPtr(octrees[i], Eigen::Isometry3d::Identity());
+    }
 }
 
 void VelmaStateValidator::update() {
@@ -370,7 +365,12 @@ void VelmaStateValidator::update() {
 }
 
 bool VelmaStateValidator::isStateValid(const std::string &group) const {
-    return m_planning_scene->isStateValid(*m_ss, group, m_verbose);   // verbose
+    for (int i = 0; i < m_planning_scenes.size(); ++i) {
+        if (m_planning_scenes[i]->isStateValid(*m_ss, group, m_verbose)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void VelmaStateValidator::setVerbose(bool verbose) {
