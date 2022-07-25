@@ -13,6 +13,7 @@
     <arg name="planning_plugin" value="$(arg planning_plugin)" />
     <arg name="planning_adapters" value="$(arg planning_adapters)" />
     <arg name="robot_interface_plugin" value="velma_planner::VelmaRosPlugin" />
+    <arg name="use_self_collisions_model" value="false" />
   </include>
 
 </launch>
