@@ -388,6 +388,8 @@ class VelmaInterface:
         return q
 
     def __isActionConnected(self, action_name):
+        self.dbgPrint('__isActionConnected: "{}"'.format(action_name))
+
         with self.__action_is_connected_lock:
             if action_name in self.__action_is_connected:
                 is_connected = self.__action_is_connected[action_name]
@@ -396,7 +398,9 @@ class VelmaInterface:
         return is_connected
 
     def __connectAction(self, action_name, action, timeout_s):
+        self.dbgPrint('__connectAction: wait for server "{}"'.format(action_name))
         is_connected = action.wait_for_server(rospy.Duration(timeout_s))
+        self.dbgPrint('__connectAction: "{}", connected: {}'.format(action_name, is_connected))
         with self.__action_is_connected_lock:
             self.__action_is_connected[action_name] = is_connected
 
@@ -436,8 +440,13 @@ class VelmaInterface:
 
         @return True if the interface was succesfully initialized within timeout, False otherwise.
         """
+        self.dbgPrint('Waiting for init')
+
+        self.dbgPrint('Getting ROS parameters')
         if not self.__tryGetRosParams():
+            self.dbgPrint('Could not get all ROS parameters')
             return False
+        self.dbgPrint('Got all ROS parameters')
 
         time_start = time.time()
         if timeout_s is None:
@@ -447,6 +456,8 @@ class VelmaInterface:
         self.__action_is_connected = {}
         threads = []
         for action_name, action in self.__action_map.iteritems():
+            self.dbgPrint('Running thread for connecting action "{}"'.format(action_name))
+
             t = threading.Thread(name='action-{}'.format(action_name),
             			target=self.__connectAction, args=(action_name, action, timeout_s))
             t.daemon = True  # thread dies with the program
@@ -459,9 +470,11 @@ class VelmaInterface:
         threads.append( (None, t) )
 
         for action_name, t in threads:
+            self.dbgPrint('Joining thread for connecting action "{}"'.format(action_name))
             if action_name is None or self.__action_obligatory_map[action_name]:
                 t.join()
 
+        self.dbgPrint('Waiting for full initialization')
         while (time.time()-time_start) < timeout_s:
             if self.__isInitialized():
                 break
@@ -478,7 +491,9 @@ class VelmaInterface:
 
             print('    joint_state_received: {}'.format(self._js_pos_history_idx >= 0))
             print('    received_diag_info: {}'.format(self.__received_diag_info))
+            self.dbgPrint('Failed to initialize')
             return False
+        self.dbgPrint('Initialized')
         return True
 
     def waitForJointState(self, abs_time):
@@ -530,6 +545,7 @@ class VelmaInterface:
     def __tryGetRosParams(self):
         try:
             if self._body_joint_names is None:
+                self.dbgPrint('Getting ROS parameter: {}/JntImpAction/joint_names'.format(self._task_cs_name))
                 self._body_joint_names = rospy.get_param(self._task_cs_name+"/JntImpAction/joint_names")
                 if len(self._body_joint_names) != 15:
                     raise RuntimeError("Wrong number of joints")
@@ -562,16 +578,19 @@ class VelmaInterface:
                 }
 
             if self._cimp_joint_limits_map is None:
+                self.dbgPrint('Getting ROS parameter: {}/JntLimit/joint_names'.format(self._core_cs_name))
                 joint_names = rospy.get_param(self._core_cs_name+"/JntLimit/joint_names")
                 if not joint_names is None:
                     self._cimp_joint_limits_map = {}
                     for idx, joint_name in enumerate(joint_names):
+                        self.dbgPrint('Getting ROS parameter: {}/JntLimit/limits_{}'.format(self._core_cs_name, idx))
                         jnt_limits = rospy.get_param('{}/JntLimit/limits_{}'.format(self._core_cs_name, idx))
                         self._cimp_joint_limits_map[joint_name] = []
                         for lim in jnt_limits:
                             self._cimp_joint_limits_map[joint_name].append( float(lim) )
 
             if self._head_joint_names is None:
+                self.dbgPrint('Getting ROS parameter: {}/HeadAction/joint_names'.format(self._task_cs_name))
                 self._head_joint_names = rospy.get_param(self._task_cs_name+"/HeadAction/joint_names")
 
             if self._head_joint_limits is None:
@@ -589,14 +608,17 @@ class VelmaInterface:
                 }
 
             if self._all_joint_names is None:
+                self.dbgPrint('Getting ROS parameter: {}/JntPub/joint_names'.format(self._task_cs_name))
                 self._all_joint_names = rospy.get_param(self._task_cs_name+"/JntPub/joint_names")
 
             if self._all_links is None:
                 self._all_links = []
 
+                self.dbgPrint('Getting ROS parameter: /robot_description')
                 robot_description_xml = rospy.get_param("/robot_description")
                 #print robot_description_xml
 
+                self.dbgPrint('parsing robot_description')
                 dom = minidom.parseString(robot_description_xml)
                 robot = dom.getElementsByTagName("robot")
                 if len(robot) != 1:
@@ -606,6 +628,8 @@ class VelmaInterface:
                     name = l.getAttribute("name")
                     if name == None:
                         raise Exception("Could not parse robot_description xml: link element has no name.")
+
+                    self.dbgPrint('parsing link "{}"'.format(name))
 
                     obj_link = self.Link()
                     obj_link.name = name
@@ -635,10 +659,14 @@ class VelmaInterface:
                     self._all_links.append(obj_link)
 
             if self.__wcc_l_poly is None:
+                self.dbgPrint('Getting ROS parameter: {}/wcc_l/constraint_polygon'.format(self._core_cs_name))
                 self.__wcc_l_poly = rospy.get_param(self._core_cs_name+"/wcc_l/constraint_polygon")
             if self.__wcc_r_poly is None:
+                self.dbgPrint('Getting ROS parameter: {}/wcc_r/constraint_polygon'.format(self._core_cs_name))
                 self.__wcc_r_poly = rospy.get_param(self._core_cs_name+"/wcc_r/constraint_polygon")
-        except:
+        except Exception as e:
+            self.dbgPrint('Exception on getting ROS parameters: {}'.format(e))
+
             pass
 
         if self._body_joint_names is None or\
@@ -650,13 +678,22 @@ class VelmaInterface:
                 self._all_links is None or\
                 self.__wcc_l_poly is None or\
                 self.__wcc_r_poly is None:
+            #self.dbgPrint('Getting ROS parameter: {}/wcc_r/constraint_polygon'.format(_core_cs_name))
+
             return False
         return True
 
-    def __init__(self):
+    def dbgPrint(self, s):
+        if self.__debug:
+            print('VelmaInterface: {}'.format(s))
+            time.sleep(0.01)
+
+    def __init__(self, debug=False):
         """!
         Initialization of the interface.
         """
+        self.__debug = debug
+        self.dbgPrint('Running initializer')
 
         self._body_joint_names = None
         self._body_joint_limits = None
@@ -668,6 +705,7 @@ class VelmaInterface:
         self.__wcc_l_poly = None
         self.__wcc_r_poly = None
 
+        self.dbgPrint('Creating tf listener')
         self._listener = tf.TransformListener()
 
         # read the joint information from the ROS parameter server
@@ -750,6 +788,7 @@ class VelmaInterface:
 
         time.sleep(1.0)
 
+        self.dbgPrint('Creating publisher /velma_task_cs_ros_interface/allow_hands_col_in')
         self.__pub_allow_hands_col = rospy.Publisher('/velma_task_cs_ros_interface/allow_hands_col_in', Int32, queue_size=10)
 
         #self.wrench_tab = []
@@ -758,6 +797,7 @@ class VelmaInterface:
         #for i in range(0,self.wrench_tab_len):
         #    self.wrench_tab.append( Wrench(Vector3(), Vector3()) )
 
+        self.dbgPrint('Creating subscriber /joint_states')
         self._listener_joint_states = rospy.Subscriber('/joint_states', JointState, self._jointStatesCallback)
 
         subscribed_topics_list = [
@@ -773,8 +813,11 @@ class VelmaInterface:
         self._subscribed_topics = {}
 
         for topic_name, topic_type in subscribed_topics_list:
+            self.dbgPrint('Creating subscriber {}'.format(topic_name))
             self._subscribed_topics[topic_name] = VelmaInterface.SubscribedTopic(
-                                                                    topic_name, topic_type)
+                                                        topic_name, topic_type, debug=self.__debug)
+
+        self.dbgPrint('Initializer function is done')
 
     class SubscribedTopic:
         """!
@@ -782,13 +825,20 @@ class VelmaInterface:
 
         """
 
-        def __init__(self, topic_name, topic_type):
+        def dbgPrint(self, s):
+            if self.__debug:
+                print('SubscribedTopic({}): {}'.format(self.__topic_name, s))
+                time.sleep(0.1)
+
+        def __init__(self, topic_name, topic_type, debug=False):
+            self.__debug = debug
             self.__mutex = threading.Lock()
             self.__topic_name = topic_name
             self.__data = None
             self.sub = rospy.Subscriber(self.__topic_name, topic_type, self.__callback)
 
         def __callback(self, data):
+            #self.dbgPrint('new data')
             with self.__mutex:
                 self.__data = data
 
@@ -802,6 +852,7 @@ class VelmaInterface:
             @return Returns the newest data read on topic if it is available, or None otherwise.
 
             """
+            #self.dbgPrint('get data')
 
             if not timeout_s is None:
                 end_time = rospy.Time.now() + rospy.Duration(timeout_s)
