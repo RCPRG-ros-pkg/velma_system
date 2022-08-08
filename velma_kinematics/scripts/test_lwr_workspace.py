@@ -43,19 +43,21 @@ from visualization_msgs.msg import *
 from sensor_msgs.msg import JointState
 
 from rcprg_ros_utils.marker_publisher import *
-from velma_kinematics.velma_workspace import VelmaWorkspace
+from velma_kinematics.velma_workspace import LWRWorkspace
 
-def testVelmaWorkspace():
-    m_pub = MarkerPublisher('velma_workspace')
+def testLWRWorkspace():
+    arm_name = 'right'
+    arm_name = 'left'
+
+    m_pub = MarkerPublisher('lwr_workspace')
     js_pub = rospy.Publisher('/joint_states', JointState, queue_size=1000)
     rospy.sleep(0.5)
 
     rospack = rospkg.RosPack()
     ws_data_path = rospack.get_path('velma_kinematics') + '/data/workspace/'
-    ws_param_filename = ws_data_path + 'velma_ws_param.npy'
-    ws_filename = ws_data_path + 'velma_ws.npy'
+    ws_param_filename = ws_data_path + 'lwr_ws_param.npy'
+    ws_filename = ws_data_path + 'lwr_ws.npy'
 
-    arm_name = 'right'
     js_msg = JointState()
     for i in range(7):
         js_msg.name.append('{}_arm_{}_joint'.format(arm_name, i))
@@ -65,10 +67,10 @@ def testVelmaWorkspace():
 
     generate = False
     if generate:
-        ws = VelmaWorkspace.generate()
+        ws = LWRWorkspace.generate()
         ws.save(ws_param_filename, ws_filename)
     else:
-        ws = VelmaWorkspace.load(ws_param_filename, ws_filename)
+        ws = LWRWorkspace.load(ws_param_filename, ws_filename)
         #ws = LWRWorkspace.load()
 
     x_range = list(range(ws.getCellsX()))
@@ -103,7 +105,7 @@ def testVelmaWorkspace():
                     #col = math.sqrt( ws.getCellValue(ix, iy, iz) )
                     size = ws.getCellSize()
                     m_id = m_pub.addSinglePointMarker(pt, m_id, r=col, g=col, b=col, a=1,
-                            namespace='default', frame_id='torso_base',
+                            namespace='default', frame_id='calib_{}_arm_base_link'.format(arm_name),
                             m_type=Marker.CUBE, scale=Vector3(size, size, size), T=None)
 
         m_pub.publishAll()
@@ -117,8 +119,8 @@ def testVelmaWorkspace():
     return 0
 
 def main():
-    rospy.init_node('test_velma_workspace', anonymous=False)
-    return testVelmaWorkspace()
+    rospy.init_node('test_lwr_workspace', anonymous=False)
+    return testLWRWorkspace()
 
 if __name__ == "__main__":
     exit(main())

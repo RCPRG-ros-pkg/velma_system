@@ -153,10 +153,10 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
         ROS_ERROR("The ROS parameter \"robot_interface_plugin\" is empty");
         throw std::invalid_argument("The ROS parameter \"robot_interface_plugin\" is empty");
     }
-    ROS_INFO("Trying to load plugin: \"%s\"", robot_interface_plugin_str.c_str());
+    ROS_INFO("VelmaStateValidator: Trying to load plugin: \"%s\"", robot_interface_plugin_str.c_str());
 
     m_robot_interface = m_robot_interface_loader.createInstance(robot_interface_plugin_str);
-    ROS_INFO("Loaded plugin: \"%s\"", robot_interface_plugin_str.c_str());
+    ROS_INFO("VelmaStateValidator: Loaded plugin: \"%s\"", robot_interface_plugin_str.c_str());
 
 
     std::string robot_description_str;
