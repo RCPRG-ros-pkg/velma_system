@@ -1570,6 +1570,32 @@ class VelmaInterface:
         self.__action_map['jimp'].send_goal(goal)
         return True
 
+    def calculateJointTrajTime(self, q_map_start, traj_in, max_vel):
+        if q_map_start is None:
+            q_map_start = self.getLastJointState()[1]
+
+        pt_idx = 0
+        q_map_prev = q_map_start
+
+        #print('VelmaInterface.calculateJointTrajTime()')
+        traj_out = JointTrajectory()
+        traj_out.header = traj_in.header 
+        traj_out.joint_names = traj_in.joint_names
+        time_from_start = 0.0
+        for pt_idx in range(0, len(traj_in.points)):
+            q_map = {}
+            for joint_idx, joint_name in enumerate(traj_in.joint_names):
+                q_map[joint_name] = traj_in.points[pt_idx].positions[joint_idx]
+            time_from_start = time_from_start + self.getJntImpMovementTime2(q_map_prev, q_map, max_vel)
+            #print('  idx: {}, time_from_start: {}'.format(pt_idx, time_from_start))
+            q_map_prev = q_map
+            point_out = JointTrajectoryPoint()
+            point_out.positions = traj_in.points[pt_idx].positions
+            point_out.velocities = traj_in.points[pt_idx].velocities
+            point_out.time_from_start = rospy.Duration(time_from_start)
+            traj_out.points.append( point_out )
+        return traj_out
+
     def getJntImpMovementTime(self, q_dest_map, max_vel):
         js = self.getLastJointState()[1]
         return self.getJntImpMovementTime2(js, q_dest_map, max_vel)

@@ -84,7 +84,7 @@ public:
 
   void update();
 
-  bool isStateValid(const std::string &group="") const;
+  bool isStateValid() const;
 
   bool isRightArmInLimits(const ArmJntArray& q) const;
 

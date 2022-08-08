@@ -189,13 +189,6 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
         }
     }
 
-//TODO:
-    std::cout << "  getUpdatedLinkModelsSet:" << std::endl;
-    const std::set<const robot_model::LinkModel*>* links_set = &m_robot_model->getJointModelGroup("no_fingers")->getUpdatedLinkModelsSet();
-    for (auto it = links_set->begin(); it != links_set->end(); ++it) {
-        std::cout << "    " << (*it)->getName() << std::endl;
-    }
-
     m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
 
     m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
@@ -364,9 +357,9 @@ void VelmaStateValidator::update() {
     m_ss->update();
 }
 
-bool VelmaStateValidator::isStateValid(const std::string &group) const {
+bool VelmaStateValidator::isStateValid() const {
     for (int i = 0; i < m_planning_scenes.size(); ++i) {
-        if (m_planning_scenes[i]->isStateValid(*m_ss, group, m_verbose)) {
+        if (m_planning_scenes[i]->isStateValid(*m_ss, "", m_verbose)) {
             return true;
         }
     }
