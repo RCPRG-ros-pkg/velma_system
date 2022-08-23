@@ -124,6 +124,7 @@ bool VelmaStateValidator::isArmInLimits(const ArmJntArray& q, const ArmLimits& a
 
 VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
     : m_robot_interface_loader("rcprg_planner", "rcprg_planner::RobotInterface")
+    , m_verbose(false)
     , wcc_l_joint0_idx_(-1)
     , wcc_l_joint1_idx_(-1)
     , wcc_r_joint0_idx_(-1)
