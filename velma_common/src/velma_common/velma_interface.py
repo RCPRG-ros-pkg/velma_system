@@ -1517,13 +1517,14 @@ class VelmaInterface:
         """
         return 50
 
-    def getJointGroup(self, group_name):
+    @staticmethod
+    def getJointGroup(group_name):
         """!
         Get names of all joints in group.
         @param group_name   string: name of group.
         @return Returns list of names of joints in group.
         """
-        return self._joint_groups[group_name]
+        return VelmaInterface._joint_groups[group_name]
 
     def moveJointTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         """!
