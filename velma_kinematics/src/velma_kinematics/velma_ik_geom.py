@@ -149,22 +149,6 @@ class KinematicsSolverLWR4:
 
         # There are two alternative angles for q3
         if flip_elbow:
-            q3 = -q3
-            q0 = math.pi+q0
-            q1 = -q1
-
-        if flip_shoulder:
-            q0 = math.pi+q0
-            q1 = -q1
-            q2 = math.pi+q2
-
-        # These points are saved for debugging
-        self.__debug['pt_shoulder'] = pt_shoulder
-        self.__debug['elbow_pt'] = elbow_pt
-        #self.__debug['ee_pt'] = ee_pt
-
-        # There are two alternative angles for q3
-        if flip_elbow:
             q0 = math.pi + q0
             q1 = -q1
             q3 = -q3
@@ -173,6 +157,11 @@ class KinematicsSolverLWR4:
             q0 = math.pi + q0
             q1 = -q1
             q2 = math.pi + q2
+
+        # These points are saved for debugging
+        self.__debug['pt_shoulder'] = pt_shoulder
+        self.__debug['elbow_pt'] = elbow_pt
+        #self.__debug['ee_pt'] = ee_pt
 
         q0 = wrapAngle(q0)
         q1 = wrapAngle(q1)
@@ -296,6 +285,9 @@ class KinematicsSolverLWR4:
             for flip_shoulder, flip_elbow, flip_ee in flips:
                 q = self.calculateIk(T_A0_A7d, elbow_circle_angle, flip_shoulder, flip_elbow,
                                                                                         flip_ee)
+                print('calculateIkSet: {}, {}, {}, {}'.format(elbow_circle_angle, flip_shoulder,
+                                                                            flip_elbow, flip_ee))
+                print('  {}'.format(q))
                 if not q[0] is None:
                     solutions.append( q )
         return solutions
