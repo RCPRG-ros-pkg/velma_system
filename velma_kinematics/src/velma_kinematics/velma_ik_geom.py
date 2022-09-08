@@ -569,6 +569,22 @@ class KinematicsSolverVelma:
         """
         return self.__T_Er_Pr
 
+    def getT_E_P(self, side_str):
+        """!
+        Get constant transformation from the end-effector (the last link, frame 'E') to the left palm link (frame 'P').
+
+        @param side_str str: either 'left' or 'right'.
+
+        @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
+        """
+        if side_str == 'left':
+            return self.__T_El_Pl
+        elif side_str == 'right':
+            return self.__T_Er_Pr
+        # else:
+        raise Exception('Wrong value for side_str: "{}", expected "left" or "right"'.format(
+                                                                                        side_str))
+
     def getLeft_T_G_E(self):
         """!
         Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getLeft_T_E_G.
