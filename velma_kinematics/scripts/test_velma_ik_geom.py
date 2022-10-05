@@ -196,7 +196,7 @@ def randomOrientation():
         qy = random.gauss(0.0, 1.0)
         qz = random.gauss(0.0, 1.0)
         qw = random.gauss(0.0, 1.0)
-        q_len = qx**2 + qy**2 + qz**2 + qw**2
+        q_len = math.sqrt( qx**2 + qy**2 + qz**2 + qw**2 )
         if q_len > 0.001:
             qx /= q_len
             qy /= q_len
