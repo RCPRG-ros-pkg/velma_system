@@ -59,7 +59,6 @@ int main (int argc, char** argv) {
     double torso_angle = 0.5;
 
     KinematicsSolverVelma v_solv;
-    v_solv.setTorsoAngle(torso_angle);
 
     double traj_factor = 2.0;
     while (ros::ok()) {
@@ -73,33 +72,36 @@ int main (int argc, char** argv) {
       KDL::Frame T_B_Wd = KDL::addDelta(T_B_Ws, twist, traj_factor);
       traj_factor += 0.01;
 
+      KinematicsSolverLWR4::Solutions ik_solutions(v_solv.getMaximumSolutionsCount());
+      int ik_solutions_count;
+
       bool ik_possible = false;
       if (arm_side == "left") {
-        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::LEFT, T_B_Wd);
+        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::LEFT, torso_angle, T_B_Wd,
+                                                                ik_solutions, ik_solutions_count);
       }
       else {
-        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::RIGHT, T_B_Wd);
+        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::RIGHT, torso_angle, T_B_Wd,
+                                                                ik_solutions, ik_solutions_count);
       }
 
       if (ik_possible) {
-        const std::vector<KinematicsSolverLWR4::Solution >& solutions = v_solv.getSolutions();
-
         int valid_solutions = 0;
         // Visualize all solutions
-        for (int i = 0; i < solutions.size(); ++i) {
+        for (int i = 0; i < ik_solutions_count; ++i) {
           if (!ros::ok()) {
             break;
           }
           bool is_in_limits = false;
           if (arm_side == "left") {
-            is_in_limits = vsv.isLeftArmInLimits(solutions[i].q);
+            is_in_limits = vsv.isLeftArmInLimits(ik_solutions[i].q);
           }
           else {
-            is_in_limits = vsv.isRightArmInLimits(solutions[i].q);
+            is_in_limits = vsv.isRightArmInLimits(ik_solutions[i].q);
           }
           if (is_in_limits) {
             for (int q_idx = 0; q_idx < arm_joint_names.size(); ++q_idx) {
-              vsv.setVariablePosition(arm_joint_names[q_idx], solutions[i].q[q_idx]);
+              vsv.setVariablePosition(arm_joint_names[q_idx], ik_solutions[i].q[q_idx]);
             }
             vsv.update();
 
@@ -109,8 +111,8 @@ int main (int argc, char** argv) {
 
             ++valid_solutions;
             js.position[0] = torso_angle;
-            for (int q_idx = 0; q_idx < solutions[i].q.size(); ++q_idx) {
-              js.position[q_idx+1] = solutions[i].q[q_idx];
+            for (int q_idx = 0; q_idx < ik_solutions[i].q.size(); ++q_idx) {
+              js.position[q_idx+1] = ik_solutions[i].q[q_idx];
             }
             js.header.stamp = ros::Time::now();
             jsPub.publish(js);

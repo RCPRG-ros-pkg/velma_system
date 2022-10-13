@@ -54,12 +54,14 @@ KinematicsSolverLWR4::KinematicsSolverLWR4(double elbow_ang_incr)
     , m_lim_lo({-2.96, -2.09, -2.96, -2.095, -2.96, -2.09, -2.96})
     , m_lim_up({2.96, 2.09, 2.96, 2.095, 2.96, 2.09, 2.96})
     , m_elbow_ang_incr( elbow_ang_incr )
-    , m_solutions_count(0)
 {
     for (double elbow_ang = -M_PI; elbow_ang < M_PI; elbow_ang += m_elbow_ang_incr) {
         m_elbow_angle_samples.push_back(elbow_ang);
     }
-    m_solutions.resize(m_elbow_angle_samples.size()*8);
+}
+
+int KinematicsSolverLWR4::getMaximumSolutionsCount() const {
+    return m_elbow_angle_samples.size()*8;
 }
 
 bool KinematicsSolverLWR4::_calcQ3(const double& dist, double& out_q3) const {
@@ -84,75 +86,46 @@ double KinematicsSolverLWR4::_heronArea(const double& a, const double& b, const 
 }
 
 
-bool KinematicsSolverLWR4::_calculateIkPart0() {
-    if (m_T_A0_A7d_dirty) {
-        m_T_A0_A6d = m_T_A0_A7d * m_T_A7_A6;
+bool KinematicsSolverLWR4::_calculateIkPart0(const KDL::Frame& T_A0_A7d, double& out_height,
+                        double& out_dist_a, KDL::Frame& out_shoulder_frame, double& out_q3,
+                        KDL::Vector& out_dir_vec) const {
+    KDL::Frame T_A0_A6d = T_A0_A7d * m_T_A7_A6;
 
-        m_dir_vec = m_T_A0_A6d.p - m_pt_shoulder;
-        double dist = m_dir_vec.Norm();
-        if (_calcQ3(dist, m_q3)) {
-            m_ik_success = true;
-            double area = _heronArea(dist, m_arm_len_a, m_arm_len_b);
-            m_height = area / (0.5*dist);
-            m_dist_a = sqrt( m_arm_len_a*m_arm_len_a - m_height*m_height );
+    out_dir_vec = T_A0_A6d.p - m_pt_shoulder;
+    double dist = out_dir_vec.Norm();
+    if (_calcQ3(dist, out_q3)) {
+        double area = _heronArea(dist, m_arm_len_a, m_arm_len_b);
+        out_height = area / (0.5*dist);
+        out_dist_a = sqrt( m_arm_len_a*m_arm_len_a - out_height*out_height );
 
-            // The elbow circle angle is calculated wrt the axis of the first joint of the arm.
-            // This is the parameter for IK that deals with redundancy problem.
+        // The elbow circle angle is calculated wrt the axis of the first joint of the arm.
+        // This is the parameter for IK that deals with redundancy problem.
 
-            const KDL::Vector& shoulder_vec = m_pt_shoulder;
-            KDL::Vector nz = m_dir_vec;
-            KDL::Vector nx = shoulder_vec;
-            KDL::Vector ny = nz*nx;
-            nx = ny*nz;
-            nx.Normalize();
-            ny.Normalize();
-            nz.Normalize();
-            m_shoulder_frame = KDL::Frame( KDL::Rotation(nx, ny, nz), m_pt_shoulder );
-        }
-        else {
-            m_ik_success = false;
-        }
-        m_T_A0_A7d_dirty = false;
+        const KDL::Vector& shoulder_vec = m_pt_shoulder;
+        KDL::Vector nz = out_dir_vec;
+        KDL::Vector nx = shoulder_vec;
+        KDL::Vector ny = nz*nx;
+        nx = ny*nz;
+        nx.Normalize();
+        ny.Normalize();
+        nz.Normalize();
+        out_shoulder_frame = KDL::Frame( KDL::Rotation(nx, ny, nz), m_pt_shoulder );
+        return true;
     }
-
-    return m_ik_success;
+    // else
+    // No IK solution is possible
+    return false;
 }
 
 bool KinematicsSolverLWR4::_calculateIkPart1(const double& elbow_circle_angle, bool flip_shoulder,
-                bool flip_elbow, double& out_q0, double& out_q1, double& out_q2, double& out_q3) {
-    if (!m_ik_success) {
-        return false;
-    }
+            bool flip_elbow, double height, double dist_a, const KDL::Frame& shoulder_frame,
+            double tmp_q3, const KDL::Vector& dir_vec, double& out_q0, double& out_q1,
+            double& out_q2, double& out_q3) const {
 
-    /*
-    KDL::Vector dir_vec = T_A0_A6d.p - m_pt_shoulder;
-    double dist = dir_vec.Norm();
-    double q3;
-    if (!_calcQ3(dist, q3)) {
-        return false;
-    }
+    double q3 = tmp_q3;
 
-    double area = _heronArea(dist, m_arm_len_a, m_arm_len_b);
-    double height = area / (0.5*dist);
-    double dist_a = sqrt( m_arm_len_a*m_arm_len_a - height*height );
-
-    // The elbow circle angle is calculated wrt the axis of the first joint of the arm.
-    // This is the parameter for IK that deals with redundancy problem.
-
-    KDL::Vector shoulder_vec = m_pt_shoulder;
-    KDL::Vector nz = dir_vec;
-    KDL::Vector nx = shoulder_vec;
-    KDL::Vector ny = nz*nx;
-    nx = ny*nz;
-    nx.Normalize();
-    ny.Normalize();
-    nz.Normalize();
-    KDL::Frame shoulder_frame( KDL::Rotation(nx, ny, nz), m_pt_shoulder );
-    */
-    double q3 = m_q3;
-
-    KDL::Frame shoulder_frame_rot = m_shoulder_frame * KDL::Frame( KDL::Rotation::RotZ(elbow_circle_angle), KDL::Vector() );
-    KDL::Vector elbow_pt = shoulder_frame_rot * KDL::Vector(m_height, 0, m_dist_a);
+    KDL::Frame shoulder_frame_rot = shoulder_frame * KDL::Frame( KDL::Rotation::RotZ(elbow_circle_angle), KDL::Vector() );
+    KDL::Vector elbow_pt = shoulder_frame_rot * KDL::Vector(height, 0, dist_a);
     KDL::Vector elbow_vec = elbow_pt - m_pt_shoulder;
     double q0 = atan2(-elbow_pt.y(), -elbow_pt.x());
 
@@ -170,7 +143,7 @@ bool KinematicsSolverLWR4::_calculateIkPart1(const double& elbow_circle_angle, b
     ny.Normalize();
     nz.Normalize();
     KDL::Frame T_A0_A2( KDL::Rotation(nx, ny, nz), m_pt_shoulder );
-    const KDL::Vector& dir_vec_A0 = m_dir_vec;
+    const KDL::Vector& dir_vec_A0 = dir_vec;
     KDL::Vector dir_vec_A2 = T_A0_A2.Inverse().M * dir_vec_A0;
     double q2 = atan2(-dir_vec_A2.y(), -dir_vec_A2.x());
 
@@ -208,13 +181,8 @@ bool KinematicsSolverLWR4::_calculateIkPart1(const double& elbow_circle_angle, b
 
 bool KinematicsSolverLWR4::_calculateIkPart2(const KDL::Frame& T_A0_A7d, const double& q0,
         const double& q1, const double& q2, const double& q3, bool flip_ee,
-        double& out_q4, double& out_q5, double& out_q6) {
+        double& out_q4, double& out_q5, double& out_q6) const {
 
-    if (!m_ik_success) {
-        return false;
-    }
-
-    //print T_A0_A7d
     const double s1 = sin(q0);
     const double c1 = cos(q0);
     const double s2 = sin(q1);
@@ -301,24 +269,25 @@ bool KinematicsSolverLWR4::_calculateIkPart2(const KDL::Frame& T_A0_A7d, const d
 }
 
 bool KinematicsSolverLWR4::calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
-        bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol) {
+        bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol) const {
 
-    setEePose(T_A0_A7d);
-    return calculateIk(elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee, out_sol);
-}
+    double height;
+    double dist_a;
+    KDL::Frame shoulder_frame;
+    double tmp_q3;
+    KDL::Vector dir_vec;
 
-bool KinematicsSolverLWR4::calculateIk(const double& elbow_circle_angle,
-        bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol) {
-    if (!_calculateIkPart0()) {
+    if (!_calculateIkPart0(T_A0_A7d, height, dist_a, shoulder_frame, tmp_q3, dir_vec)) {
         //std::cout << "_calculateIkPart0 failed" << std::endl;
         return false;
     }
     JntArray q;
-    if (!_calculateIkPart1(elbow_circle_angle, flip_shoulder, flip_elbow, q[0], q[1], q[2], q[3])) {
+    if (!_calculateIkPart1(elbow_circle_angle, flip_shoulder, flip_elbow, height, dist_a,
+                                        shoulder_frame, tmp_q3, dir_vec, q[0], q[1], q[2], q[3])) {
         //std::cout << "_calculateIkPart1 failed" << std::endl;
         return false;
     }
-    if (!_calculateIkPart2(m_T_A0_A7d, q[0], q[1], q[2], q[3], flip_ee, q[4], q[5], q[6])) {
+    if (!_calculateIkPart2(T_A0_A7d, q[0], q[1], q[2], q[3], flip_ee, q[4], q[5], q[6])) {
         //std::cout << "_calculateIkPart2 failed" << std::endl;
         return false;
     }
@@ -331,7 +300,8 @@ bool KinematicsSolverLWR4::calculateIk(const double& elbow_circle_angle,
     return true;
 }
 
-bool KinematicsSolverLWR4::calculateIkSet() {
+bool KinematicsSolverLWR4::calculateIkSet(const KDL::Frame& T_A0_A7d,
+                                std::vector<Solution>& solutions, int& solutions_count) const {
     const bool cases[8][3] = {
             {false, false, false},
             {false, false, true},
@@ -342,38 +312,61 @@ bool KinematicsSolverLWR4::calculateIkSet() {
             {true, true, false},
             {true, true, true}};
 
-    m_solutions_count = 0;
-    //int solution_idx = 0;
+    if (solutions.size() == 0) {
+        throw std::logic_error(
+            "KinematicsSolverLWR4::calculateIkSet: vector of result solutions is not allocated");
+    }
+
+    double height;
+    double dist_a;
+    KDL::Frame shoulder_frame;
+    double tmp_q3;
+    KDL::Vector dir_vec;
+
+    if (!_calculateIkPart0(T_A0_A7d, height, dist_a, shoulder_frame, tmp_q3, dir_vec)) {
+        //std::cout << "_calculateIkPart0 failed" << std::endl;
+        return false;
+    }
+
+    solutions_count = 0;
     for (int i = 0; i < m_elbow_angle_samples.size(); ++i) {
         const double& elbow_ang = m_elbow_angle_samples[i];
         double out_q0, out_q1, out_q2, out_q3, out_q4, out_q5, out_q6;
 
         for (int case_id = 0; case_id < 8; ++case_id) {
 
-            if (calculateIk(elbow_ang, cases[case_id][0], cases[case_id][1], cases[case_id][2],
-                                                                m_solutions[m_solutions_count])) {
-                ++m_solutions_count;
+            const bool flip_shoulder = cases[case_id][0];
+            const bool flip_elbow = cases[case_id][1];
+            const bool flip_ee = cases[case_id][2];
+
+            // TODO: this can be done better (first calculate for flip_shoulder, flip_elbow
+            // and then for flip_ee).
+            JntArray q;
+            if (!_calculateIkPart1(elbow_ang, flip_shoulder, flip_elbow, height, dist_a,
+                                        shoulder_frame, tmp_q3, dir_vec, q[0], q[1], q[2], q[3])) {
+                //std::cout << "_calculateIkPart1 failed" << std::endl;
+                continue;
             }
-            if (!m_ik_success) {
-                // No solution is possible for sure
-                return false;
+            if (!_calculateIkPart2(T_A0_A7d, q[0], q[1], q[2], q[3], flip_ee,
+                                                                            q[4], q[5], q[6])) {
+                //std::cout << "_calculateIkPart2 failed" << std::endl;
+                continue;
+            }
+
+            Solution& out_sol = solutions[solutions_count];
+            out_sol.q = q;
+            out_sol.elbow_circle_angle = elbow_ang;
+            out_sol.flip_shoulder = flip_shoulder;
+            out_sol.flip_elbow = flip_elbow;
+            out_sol.flip_ee = flip_ee;
+
+            ++solutions_count;
+            if (solutions_count >= solutions.size()) {
+                break;
             }
         }
     }
     return true;
-}
-
-const KinematicsSolverLWR4::Solutions& KinematicsSolverLWR4::getSolutions() const {
-    return m_solutions;
-}
-
-int KinematicsSolverLWR4::getSolutionsCount() const {
-    return m_solutions_count;
-}
-
-void KinematicsSolverLWR4::setEePose(const KDL::Frame& T_A0_A7d) {
-    m_T_A0_A7d_dirty = true;
-    m_T_A0_A7d = T_A0_A7d;
 }
 
 void KinematicsSolverLWR4::calculateFk(const double& q0, const double& q1, const double& q2,
@@ -458,9 +451,7 @@ double KinematicsSolverLWR4::calculateJntDist(const KinematicsSolverLWR4::JntArr
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 KinematicsSolverVelma::KinematicsSolverVelma(double elbow_ang_incr)
-: m_left_arm_base_fk_dirty(true)
-, m_right_arm_base_fk_dirty(true)
-, m_T_Er_Gr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.235, 0, -0.078))
+: m_T_Er_Gr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.235, 0, -0.078))
 , m_T_El_Gl(KDL::Rotation::RPY(0, -M_PI/2, 0), KDL::Vector(-0.235, 0, -0.078))
 , m_T_Er_Pr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.115, 0, -0.078))
 , m_T_El_Pl(KDL::Rotation::RPY(0, -M_PI/2, 0), KDL::Vector(-0.115, 0, -0.078))
@@ -471,104 +462,67 @@ KinematicsSolverVelma::KinematicsSolverVelma(double elbow_ang_incr)
 , m_ik_solver_lwr(elbow_ang_incr)
 {}
 
-void KinematicsSolverVelma::setTorsoAngle(double torso_angle) {
-    m_torso_angle = torso_angle;
-    m_left_arm_base_fk_dirty = true;
-    m_right_arm_base_fk_dirty = true;
+int KinematicsSolverVelma::getMaximumSolutionsCount() const {
+    return m_ik_solver_lwr.getMaximumSolutionsCount();
 }
 
-const KinematicsSolverLWR4::Solutions& KinematicsSolverVelma::getSolutions() const {
-    return m_ik_solver_lwr.getSolutions();
-}
-
-int KinematicsSolverVelma::getSolutionsCount() const {
-    return m_ik_solver_lwr.getSolutionsCount();
-}
-
-const KDL::Frame& KinematicsSolverVelma::getArmBaseFk(Side side) {
+KDL::Frame KinematicsSolverVelma::getArmBaseFk(Side side, double torso_angle) const {
+    const double s0 = sin(torso_angle);
+    const double c0 = cos(torso_angle);
+    const double m21 = 0.0;
+    const double m22 = 0.5;
+    const double m23 = 1.20335;
     if (side == LEFT) {
-        if (m_left_arm_base_fk_dirty) {
-            // FK for left ARM base
-            const double s0 = sin(m_torso_angle);
-            const double c0 = cos(m_torso_angle);
-            const double m00 = -0.5*s0;
-            const double m01 = -c0;
-            const double m02 = -0.86602540378614*s0;
-            const double m03 = -0.000188676*s0;
-            const double m10 = 0.5*c0;
-            const double m11 = -s0;
-            const double m12 = 0.86602540378614*c0;
-            const double m13 = 0.000188676*c0;
-            const double m20 = -0.866025403786140;
-            const double m21 = 0.0;
-            const double m22 = 0.5;
-            const double m23 = 1.20335;
-            KDL::Vector nx(m00, m10, m20);
-            KDL::Vector ny(m01, m11, m21);
-            KDL::Vector nz(m02, m12, m22);
-            m_left_arm_base_fk = KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
-            m_left_arm_base_fk_inv = m_left_arm_base_fk.Inverse();
-            m_left_arm_base_fk_dirty = false;
-        }
-        return m_left_arm_base_fk;
+        const double m00 = -0.5*s0;
+        const double m01 = -c0;
+        const double m02 = -0.86602540378614*s0;
+        const double m03 = -0.000188676*s0;
+        const double m10 = 0.5*c0;
+        const double m11 = -s0;
+        const double m12 = 0.86602540378614*c0;
+        const double m13 = 0.000188676*c0;
+        const double m20 = -0.866025403786140;
+        KDL::Vector nx(m00, m10, m20);
+        KDL::Vector ny(m01, m11, m21);
+        KDL::Vector nz(m02, m12, m22);
+        return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
     }
     else if (side == RIGHT) {
-        if (m_right_arm_base_fk_dirty) {
-            // FK for right arm base
-            const double s0 = sin(m_torso_angle);
-            const double c0 = cos(m_torso_angle);
-            const double m00 = -0.5*s0;
-            const double m01 = -c0;
-            const double m02 = 0.86602540378614*s0;
-            const double m03 = 0.000188676*s0;
-            const double m10 = 0.5*c0;
-            const double m11 = -s0;
-            const double m12 = -0.86602540378614*c0;
-            const double m13 = -0.000188676*c0;
-            const double m20 = 0.866025403786140;
-            const double m21 = 0.0;
-            const double m22 = 0.5;
-            const double m23 = 1.20335;
-            KDL::Vector nx(m00, m10, m20);
-            KDL::Vector ny(m01, m11, m21);
-            KDL::Vector nz(m02, m12, m22);
-            m_right_arm_base_fk = KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
-            m_right_arm_base_fk_inv = m_right_arm_base_fk.Inverse();
-            m_right_arm_base_fk_dirty = false;
-        }
-        return m_right_arm_base_fk;
+        const double m00 = -0.5*s0;
+        const double m01 = -c0;
+        const double m02 = 0.86602540378614*s0;
+        const double m03 = 0.000188676*s0;
+        const double m10 = 0.5*c0;
+        const double m11 = -s0;
+        const double m12 = -0.86602540378614*c0;
+        const double m13 = -0.000188676*c0;
+        const double m20 = 0.866025403786140;
+        KDL::Vector nx(m00, m10, m20);
+        KDL::Vector ny(m01, m11, m21);
+        KDL::Vector nz(m02, m12, m22);
+        return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
     }
     else {
         throw std::invalid_argument("unknown side");
     }
 }
 
-const KDL::Frame& KinematicsSolverVelma::getArmBaseFkInv(Side side) {
-    getArmBaseFk(side);
-    if (side == LEFT) {
-        // update the fk, if needed
-        return m_left_arm_base_fk_inv;
-    }
-    else if (side == RIGHT) {
-        // update the fk, if needed
-        return m_right_arm_base_fk_inv;
-    }
-    else {
-        throw std::invalid_argument("unknown side");
-    }
+KDL::Frame KinematicsSolverVelma::getArmBaseFkInv(Side side, double torso_angle) const {
+    return getArmBaseFk(side, torso_angle).Inverse();
 }
 
-void KinematicsSolverVelma::getArmFk(Side side, double q0, double q1, double q2, double q3,
-                                        double q4, double q5, double q6, KDL::Frame& out_T_B_E) {
+void KinematicsSolverVelma::getArmFk(Side side, double torso_angle, double q0, double q1,
+            double q2, double q3, double q4, double q5, double q6, KDL::Frame& out_T_B_E) const {
 
-    const KDL::Frame& T_B_AB = getArmBaseFk(side);
+    KDL::Frame T_B_AB = getArmBaseFk(side, torso_angle);
     KDL::Frame T_AB_E;
     m_ik_solver_lwr.calculateFk(q0, q1, q2, q3, q4, q5, q6, T_AB_E);
     out_T_B_E = T_B_AB * T_AB_E;
 }
 
-void KinematicsSolverVelma::getArmFk(Side side, const ArmJntArray& q, KDL::Frame& out_T_B_E) {
-    getArmFk(side, q[0], q[1], q[2], q[3], q[4], q[5], q[6], out_T_B_E);
+void KinematicsSolverVelma::getArmFk(Side side, double torso_angle, const ArmJntArray& q,
+                                                                    KDL::Frame& out_T_B_E) const {
+    getArmFk(side, torso_angle, q[0], q[1], q[2], q[3], q[4], q[5], q[6], out_T_B_E);
 }
 
 const KDL::Frame& KinematicsSolverVelma::getT_E_G(Side side) const {
@@ -619,16 +573,17 @@ const KDL::Frame& KinematicsSolverVelma::getT_P_E(Side side) const {
     }
 }
 
-bool KinematicsSolverVelma::calculateIkSetArm(Side side, const KDL::Frame& T_B_E) {
-    KDL::Frame T_A0_A7d = getArmBaseFkInv(side) * T_B_E;
-    m_ik_solver_lwr.setEePose(T_A0_A7d);
-    return m_ik_solver_lwr.calculateIkSet();
+bool KinematicsSolverVelma::calculateIkSetArm(Side side, double torso_angle,
+                            const KDL::Frame& T_B_E, KinematicsSolverLWR4::Solutions& solutions,
+                            int& solutions_count) const {
+    KDL::Frame T_A0_A7d = getArmBaseFkInv(side, torso_angle) * T_B_E;
+    return m_ik_solver_lwr.calculateIkSet(T_A0_A7d, solutions, solutions_count);
 }
 
-bool KinematicsSolverVelma::calculateIkArm(Side side, const KDL::Frame& T_B_E, double elbow_circle_angle,
-        bool flip_shoulder, bool flip_elbow, bool flip_ee, KinematicsSolverLWR4::Solution& out_sol) {
-    KDL::Frame T_A0_A7d = getArmBaseFkInv(side) * T_B_E;
-    m_ik_solver_lwr.setEePose(T_A0_A7d);
-    return m_ik_solver_lwr.calculateIk(elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee,
-                                                                                        out_sol);
+bool KinematicsSolverVelma::calculateIkArm(Side side, double torso_angle, const KDL::Frame& T_B_E,
+                double elbow_circle_angle, bool flip_shoulder, bool flip_elbow, bool flip_ee,
+                KinematicsSolverLWR4::Solution& out_sol) const {
+    KDL::Frame T_A0_A7d = getArmBaseFkInv(side, torso_angle) * T_B_E;
+    return m_ik_solver_lwr.calculateIk(T_A0_A7d, elbow_circle_angle, flip_shoulder, flip_elbow,
+                                                                                flip_ee, out_sol);
 }
