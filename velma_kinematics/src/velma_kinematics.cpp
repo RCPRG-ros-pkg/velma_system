@@ -450,7 +450,7 @@ double KinematicsSolverLWR4::calculateJntDist(const KinematicsSolverLWR4::JntArr
 // KinematicsSolverVelma //////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-KinematicsSolverVelma::KinematicsSolverVelma(double elbow_ang_incr)
+KinematicsSolverVelma::KinematicsSolverVelma(const std::string& urdf_string, double elbow_ang_incr)
 : m_T_Er_Gr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.235, 0, -0.078))
 , m_T_El_Gl(KDL::Rotation::RPY(0, -M_PI/2, 0), KDL::Vector(-0.235, 0, -0.078))
 , m_T_Er_Pr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.115, 0, -0.078))
@@ -460,51 +460,88 @@ KinematicsSolverVelma::KinematicsSolverVelma(double elbow_ang_incr)
 , m_T_Pr_Er(m_T_Er_Pr.Inverse())
 , m_T_Pl_El(m_T_El_Pl.Inverse())
 , m_ik_solver_lwr(elbow_ang_incr)
-{}
+{
+    if (!kdl_parser::treeFromString(urdf_string, m_tree)){
+        std::cout << "KinematicsSolverVelma: Failed to construct kdl tree" << std::endl;
+        throw std::runtime_error("KinematicsSolverVelma: Failed to construct kdl tree");
+    }
+    m_tree.getChain("torso_base", "calib_left_arm_base_link", m_chain_left);
+    m_tree.getChain("torso_base", "calib_right_arm_base_link", m_chain_right);
+
+
+    m_pfk_left.reset( new KDL::ChainFkSolverPos_recursive(m_chain_left) );
+    m_pfk_right.reset( new KDL::ChainFkSolverPos_recursive(m_chain_right) );
+}
+
+KinematicsSolverVelmaPtr KinematicsSolverVelma::fromROSParam(ros::NodeHandle& nh,
+                                                                        double elbow_ang_incr) {
+    std::string robot_description_str;
+    std::string robot_description_semantic_str;
+    nh.getParam("/robot_description", robot_description_str);
+
+    return KinematicsSolverVelmaPtr(
+                                new KinematicsSolverVelma(robot_description_str, elbow_ang_incr));
+}
 
 int KinematicsSolverVelma::getMaximumSolutionsCount() const {
     return m_ik_solver_lwr.getMaximumSolutionsCount();
 }
 
 KDL::Frame KinematicsSolverVelma::getArmBaseFk(Side side, double torso_angle) const {
-    const double s0 = sin(torso_angle);
-    const double c0 = cos(torso_angle);
-    const double m21 = 0.0;
-    const double m22 = 0.5;
-    const double m23 = 1.20335;
+    KDL::Frame p_out;
+    KDL::JntArray q(1);
+    q(0) = torso_angle;
     if (side == LEFT) {
-        const double m00 = -0.5*s0;
-        const double m01 = -c0;
-        const double m02 = -0.86602540378614*s0;
-        const double m03 = -0.000188676*s0;
-        const double m10 = 0.5*c0;
-        const double m11 = -s0;
-        const double m12 = 0.86602540378614*c0;
-        const double m13 = 0.000188676*c0;
-        const double m20 = -0.866025403786140;
-        KDL::Vector nx(m00, m10, m20);
-        KDL::Vector ny(m01, m11, m21);
-        KDL::Vector nz(m02, m12, m22);
-        return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
+        m_pfk_left->JntToCart(q, p_out);
     }
     else if (side == RIGHT) {
-        const double m00 = -0.5*s0;
-        const double m01 = -c0;
-        const double m02 = 0.86602540378614*s0;
-        const double m03 = 0.000188676*s0;
-        const double m10 = 0.5*c0;
-        const double m11 = -s0;
-        const double m12 = -0.86602540378614*c0;
-        const double m13 = -0.000188676*c0;
-        const double m20 = 0.866025403786140;
-        KDL::Vector nx(m00, m10, m20);
-        KDL::Vector ny(m01, m11, m21);
-        KDL::Vector nz(m02, m12, m22);
-        return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
+        m_pfk_right->JntToCart(q, p_out);
     }
     else {
         throw std::invalid_argument("unknown side");
     }
+
+    return p_out;
+
+    // Hard-coded kinematics:
+    // const double s0 = sin(torso_angle);
+    // const double c0 = cos(torso_angle);
+    // const double m21 = 0.0;
+    // const double m22 = 0.5;
+    // const double m23 = 1.20335;
+    // if (side == LEFT) {
+    //     const double m00 = -0.5*s0;
+    //     const double m01 = -c0;
+    //     const double m02 = -0.86602540378614*s0;
+    //     const double m03 = -0.000188676*s0;
+    //     const double m10 = 0.5*c0;
+    //     const double m11 = -s0;
+    //     const double m12 = 0.86602540378614*c0;
+    //     const double m13 = 0.000188676*c0;
+    //     const double m20 = -0.866025403786140;
+    //     KDL::Vector nx(m00, m10, m20);
+    //     KDL::Vector ny(m01, m11, m21);
+    //     KDL::Vector nz(m02, m12, m22);
+    //     return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
+    // }
+    // else if (side == RIGHT) {
+    //     const double m00 = -0.5*s0;
+    //     const double m01 = -c0;
+    //     const double m02 = 0.86602540378614*s0;
+    //     const double m03 = 0.000188676*s0;
+    //     const double m10 = 0.5*c0;
+    //     const double m11 = -s0;
+    //     const double m12 = -0.86602540378614*c0;
+    //     const double m13 = -0.000188676*c0;
+    //     const double m20 = 0.866025403786140;
+    //     KDL::Vector nx(m00, m10, m20);
+    //     KDL::Vector ny(m01, m11, m21);
+    //     KDL::Vector nz(m02, m12, m22);
+    //     return KDL::Frame( KDL::Rotation(nx, ny, nz), KDL::Vector(m03, m13, m23) );
+    // }
+    // else {
+    //     throw std::invalid_argument("unknown side");
+    // }
 }
 
 KDL::Frame KinematicsSolverVelma::getArmBaseFkInv(Side side, double torso_angle) const {

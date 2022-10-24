@@ -34,7 +34,7 @@
     <component name="C_q_all"   type="VectorConcate15_2_8_8" latex="\text{C\_q\_all}" />
     <component name="C_dq_all"  type="VectorConcate15_2_8_8" latex="\text{C\_dq\_all}" />
     <component name="Mass"      type="MassTest15_2" latex="\text{Mass}" >
-        <service name="robot" />
+        <!--<service name="robot" />-->
     </component>
 
     <component name="JTG_head"  type="InternalSpaceSplineTrajectoryGeneratorVelmaHead" latex="\text{JTG\_head}" />
@@ -57,7 +57,7 @@
     <component name="C_dq_head" type="VectorConcate1_1_0_0" latex="\text{C\_dq\_head}" />
 
     <component name="CImp"                  type="CartesianImpedance15_2" latex="\text{CImp}" >
-        <service name="robot" />
+        <!--<service name="robot" />-->
     </component>
 
     <component name="INT_pose_r"    type="CartesianInterpolatorVelma" latex="\text{INT\_pose\_r}" />
@@ -69,7 +69,7 @@
     <component name="JntImp"        type="JointImpedance15" latex="\text{JntImp}" />
     <component name="JntImpSafe"    type="JointImpedance15" latex="\text{JntImpSafe}" />
     <component name="FK"            type="VelmaFK" latex="\text{FK}" >
-        <service name="robot" />
+        <!--<service name="robot" />-->
     </component>
 <!--    <component name="RightForceTransformation"  type="ForceTransformation" />
     <component name="LeftForceTransformation"   type="ForceTransformation" />

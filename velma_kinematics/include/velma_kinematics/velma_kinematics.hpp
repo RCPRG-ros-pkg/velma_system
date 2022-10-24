@@ -1,9 +1,12 @@
 #ifndef __VELMA_KINEMATICS__H__
 #define __VELMA_KINEMATICS__H__
 
-#include <kdl/frames.hpp>
 #include <array>
 #include <vector>
+#include <kdl/frames.hpp>
+#include <kdl_parser/kdl_parser.hpp>
+#include <kdl/chainfksolverpos_recursive.hpp>
+#include <ros/node_handle.h>
 
 class KinematicsSolverLWR4 {
 public:
@@ -76,6 +79,8 @@ public:
     static double calculateJntDist(const JntArray& a, const JntArray& b);
 };
 
+class KinematicsSolverVelma;
+typedef std::shared_ptr<KinematicsSolverVelma > KinematicsSolverVelmaPtr;
 class KinematicsSolverVelma {
 public:
     typedef KinematicsSolverLWR4::JntArray ArmJntArray;
@@ -95,8 +100,18 @@ protected:
     const KDL::Frame m_T_Pr_Er;
     const KDL::Frame m_T_Pl_El;
 
+    KDL::Tree m_tree;
+    KDL::Chain m_chain_left;
+    KDL::Chain m_chain_right;
+    std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_left;
+    std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_right;
+
+
 public:
-    KinematicsSolverVelma(double elbow_ang_incr=0.261791667);
+    KinematicsSolverVelma(const std::string& urdf_string, double elbow_ang_incr=0.261791667);
+
+    static KinematicsSolverVelmaPtr fromROSParam(ros::NodeHandle& nh,
+                                                                double elbow_ang_incr=0.261791667);
 
     int getMaximumSolutionsCount() const;
 

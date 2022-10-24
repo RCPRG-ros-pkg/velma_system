@@ -58,7 +58,7 @@ int main (int argc, char** argv) {
 
     double torso_angle = 0.5;
 
-    KinematicsSolverVelma v_solv;
+    KinematicsSolverVelmaPtr v_solv = KinematicsSolverVelma::fromROSParam(m_nh);
 
     double traj_factor = 2.0;
     while (ros::ok()) {
@@ -72,16 +72,16 @@ int main (int argc, char** argv) {
       KDL::Frame T_B_Wd = KDL::addDelta(T_B_Ws, twist, traj_factor);
       traj_factor += 0.01;
 
-      KinematicsSolverLWR4::Solutions ik_solutions(v_solv.getMaximumSolutionsCount());
+      KinematicsSolverLWR4::Solutions ik_solutions(v_solv->getMaximumSolutionsCount());
       int ik_solutions_count;
 
       bool ik_possible = false;
       if (arm_side == "left") {
-        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::LEFT, torso_angle, T_B_Wd,
+        ik_possible = v_solv->calculateIkSetArm(KinematicsSolverVelma::LEFT, torso_angle, T_B_Wd,
                                                                 ik_solutions, ik_solutions_count);
       }
       else {
-        ik_possible = v_solv.calculateIkSetArm(KinematicsSolverVelma::RIGHT, torso_angle, T_B_Wd,
+        ik_possible = v_solv->calculateIkSetArm(KinematicsSolverVelma::RIGHT, torso_angle, T_B_Wd,
                                                                 ik_solutions, ik_solutions_count);
       }
 

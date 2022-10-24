@@ -157,9 +157,12 @@
         leftLWR_joint0_idx: 8
       CImp:
         enable_rt_logging: false
+        service_name: robot
         <!-- mass_of_the_object: 2.0 -->
 <!--       MassDynCtrl:
         mass_of_the_object: 2.0     -->
+      FK:
+        service_name: robot
     </rosparam>
   </group>
 </launch>

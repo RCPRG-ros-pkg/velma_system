@@ -36,6 +36,9 @@
 import PyKDL
 import math
 
+from urdf_parser_py.urdf import URDF
+from pykdl_utils.kdl_parser import kdl_tree_from_urdf_model
+
 def wrapAngle(angle):
     while angle > math.pi:
         angle = angle - 2.0*math.pi
@@ -388,6 +391,26 @@ class KinematicsSolverVelma:
         Initialize.
         """
 
+        self.__robot = URDF.from_parameter_server()
+        self.__tree = kdl_tree_from_urdf_model(self.__robot)
+
+        self.__chain_ar_base = self.__tree.getChain('torso_base', 'calib_right_arm_base_link')
+        self.__chain_al_base = self.__tree.getChain('torso_base', 'calib_left_arm_base_link')
+        self.__fk_kdl_ar_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_base)
+        self.__fk_kdl_al_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_base)
+
+        # for link in robot.links:
+        #     if link.name == 'calib_right_arm_base_link':
+        #         pass
+        #     elif link.name == 'calib_left_arm_base_link':
+        #         pass
+        #     print('KinematicsSolverVelma(): link name: {}'.format(link.name))
+
+        # for joint in robot.joints:
+        #     print('{}: {} -> {}'.format(joint.name, joint.parent, joint.child))
+        #     joint.origin.xyz
+        #     joint.origin.rpy
+
         self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
         self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
         self.__T_Er_Pr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.115, 0, -0.078) )
@@ -454,25 +477,31 @@ class KinematicsSolverVelma:
 
         @return PyKDL.Frame: pose of the left arm base.
         """
-        # FK for left ARM base
-        s0 = math.sin(torso_angle)
-        c0 = math.cos(torso_angle)
-        m00 = -0.5*s0
-        m01 = -c0
-        m02 = -0.86602540378614*s0
-        m03 = -0.000188676*s0
-        m10 = 0.5*c0
-        m11 = -s0
-        m12 = 0.86602540378614*c0
-        m13 = 0.000188676*c0
-        m20 = -0.866025403786140
-        m21 = 0.0
-        m22 = 0.5
-        m23 = 1.20335
-        nx = PyKDL.Vector(m00, m10, m20)
-        ny = PyKDL.Vector(m01, m11, m21)
-        nz = PyKDL.Vector(m02, m12, m22)
-        return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
+        T_B_AB = PyKDL.Frame()
+        q_kdl = PyKDL.JntArray(1)
+        q_kdl[0] = torso_angle
+        self.__fk_kdl_al_base.JntToCart(q_kdl, T_B_AB)
+        return T_B_AB
+
+        # # FK for left ARM base
+        # s0 = math.sin(torso_angle)
+        # c0 = math.cos(torso_angle)
+        # m00 = -0.5*s0
+        # m01 = -c0
+        # m02 = -0.86602540378614*s0
+        # m03 = -0.000188676*s0
+        # m10 = 0.5*c0
+        # m11 = -s0
+        # m12 = 0.86602540378614*c0
+        # m13 = 0.000188676*c0
+        # m20 = -0.866025403786140
+        # m21 = 0.0
+        # m22 = 0.5
+        # m23 = 1.20335
+        # nx = PyKDL.Vector(m00, m10, m20)
+        # ny = PyKDL.Vector(m01, m11, m21)
+        # nz = PyKDL.Vector(m02, m12, m22)
+        # return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
 
     def getRightArmBaseFk(self, torso_angle):
         """!
@@ -482,25 +511,32 @@ class KinematicsSolverVelma:
 
         @return PyKDL.Frame: pose of the right arm base.
         """
-        # FK for right arm base
-        s0 = math.sin(torso_angle)
-        c0 = math.cos(torso_angle)
-        m00 = -0.5*s0
-        m01 = -c0
-        m02 = 0.86602540378614*s0
-        m03 = 0.000188676*s0
-        m10 = 0.5*c0
-        m11 = -s0
-        m12 = -0.86602540378614*c0
-        m13 = -0.000188676*c0
-        m20 = 0.866025403786140
-        m21 = 0.0
-        m22 = 0.5
-        m23 = 1.20335
-        nx = PyKDL.Vector(m00, m10, m20)
-        ny = PyKDL.Vector(m01, m11, m21)
-        nz = PyKDL.Vector(m02, m12, m22)
-        return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
+
+        T_B_AB = PyKDL.Frame()
+        q_kdl = PyKDL.JntArray(1)
+        q_kdl[0] = torso_angle
+        self.__fk_kdl_ar_base.JntToCart(q_kdl, T_B_AB)
+        return T_B_AB
+
+        # # FK for right arm base
+        # s0 = math.sin(torso_angle)
+        # c0 = math.cos(torso_angle)
+        # m00 = -0.5*s0
+        # m01 = -c0
+        # m02 = 0.86602540378614*s0
+        # m03 = 0.000188676*s0
+        # m10 = 0.5*c0
+        # m11 = -s0
+        # m12 = -0.86602540378614*c0
+        # m13 = -0.000188676*c0
+        # m20 = 0.866025403786140
+        # m21 = 0.0
+        # m22 = 0.5
+        # m23 = 1.20335
+        # nx = PyKDL.Vector(m00, m10, m20)
+        # ny = PyKDL.Vector(m01, m11, m21)
+        # nz = PyKDL.Vector(m02, m12, m22)
+        # return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
 
     def getArmFk(self, side_str, torso_angle, q):
         if side_str == 'left':

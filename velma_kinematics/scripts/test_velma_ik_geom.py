@@ -277,7 +277,7 @@ def main():
 
     #T_A0_A7d = PyKDL.Frame(PyKDL.Rotation.Quaternion(0, 0.00304150858481, 0.0910915674525, 0.995837876145), PyKDL.Vector(0.10227842037159, 0.2623692295165, 0.30143578700507))
     #testIk2( 'left', T_A0_A7d, 0.5 )
-    testIk3( 'right' )
+    testIk3( 'left' )
     return 0
 
 if __name__ == "__main__":

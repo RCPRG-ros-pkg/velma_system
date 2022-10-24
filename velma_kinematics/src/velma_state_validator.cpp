@@ -205,16 +205,16 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
     m_ss.reset(new moveit::core::RobotState(m_robot_model));
     m_ss->setToDefaultValues();
 
-    nh.getParam("/velma_core_cs/wcc_l/constraint_polygon", wcc_l_constraint_polygon_);
-    nh.getParam("/velma_core_cs/wcc_l/joint0_idx", wcc_l_joint0_idx_);
-    nh.getParam("/velma_core_cs/wcc_l/joint1_idx", wcc_l_joint1_idx_);
+    nh.getParam("velma_core_cs/wcc_l/constraint_polygon", wcc_l_constraint_polygon_);
+    nh.getParam("velma_core_cs/wcc_l/joint0_idx", wcc_l_joint0_idx_);
+    nh.getParam("velma_core_cs/wcc_l/joint1_idx", wcc_l_joint1_idx_);
 
-    nh.getParam("/velma_core_cs/wcc_r/constraint_polygon", wcc_r_constraint_polygon_);
-    nh.getParam("/velma_core_cs/wcc_r/joint0_idx", wcc_r_joint0_idx_);
-    nh.getParam("/velma_core_cs/wcc_r/joint1_idx", wcc_r_joint1_idx_);
+    nh.getParam("velma_core_cs/wcc_r/constraint_polygon", wcc_r_constraint_polygon_);
+    nh.getParam("velma_core_cs/wcc_r/joint0_idx", wcc_r_joint0_idx_);
+    nh.getParam("velma_core_cs/wcc_r/joint1_idx", wcc_r_joint1_idx_);
 
-    nh.getParam("/velma_core_cs/wcc_r/d0", wcc_r_d0_);
-    nh.getParam("/velma_core_cs/wcc_l/d0", wcc_l_d0_);
+    nh.getParam("velma_core_cs/wcc_r/d0", wcc_r_d0_);
+    nh.getParam("velma_core_cs/wcc_l/d0", wcc_l_d0_);
 
     if (wcc_l_constraint_polygon_.size() == 0 || (wcc_l_constraint_polygon_.size()%2) != 0) {
         ROS_ERROR("property \'/velma_core_cs/wcc_l/constraint_polygon\' (l) has wrong size: %lu", wcc_l_constraint_polygon_.size());
