@@ -725,3 +725,87 @@ class KinematicsSolverVelma:
 
     def getTorsoLimits(self):
         return (-1.57, 1.57)
+
+
+class KinematicsSolverBarrettHand:
+    def __init__(self):
+        self.__T_P_G = PyKDL.Frame( PyKDL.Vector(0, 0, 0.12) )
+
+        # joint_name, parent_link, child_link, joint_rpy, joint_xyz, joint_axis
+        self.__kin_parameters = [
+            ('_HandFingerThreeKnuckleTwoJoint',
+                '_HandPalmLink', '_HandFingerThreeKnuckleTwoLink',
+                (-1.57079632679, 0, -1.57079632679), (0, -0.05, 0.0754), (0, 0, -1)),
+            ('_HandFingerThreeKnuckleThreeJoint',
+                '_HandFingerThreeKnuckleTwoLink', '_HandFingerThreeKnuckleThreeLink',
+                (0, 0, -0.690452252), (0.07, 0, 0), (0, 0, -1)),
+            ('_HandFingerOneKnuckleOneJoint',
+                '_HandPalmLink', '_HandFingerOneKnuckleOneLink',
+                (0, 0, 1.57079632679), (0.02497, 0, 0.0587966), (0, 0, -1)),
+            ('_HandFingerOneKnuckleTwoJoint',
+                '_HandFingerOneKnuckleOneLink', '_HandFingerOneKnuckleTwoLink',
+                (-1.57079632679, 0, 0), (0.05, 0, 0.0166034), (0, 0, -1)),
+            ('_HandFingerOneKnuckleThreeJoint',
+                '_HandFingerOneKnuckleTwoLink', '_HandFingerOneKnuckleThreeLink',
+                (0, 0, -0.690452252), (0.07, 0, 0), (0, 0, -1)),
+            ('_HandFingerTwoKnuckleOneJoint',
+                '_HandPalmLink', '_HandFingerTwoKnuckleOneLink',
+                (0, 0, 1.57079632679), (-0.02497, 0, 0.0587966), (0, 0, 1)),
+            ('_HandFingerTwoKnuckleTwoJoint',
+                '_HandFingerTwoKnuckleOneLink', '_HandFingerTwoKnuckleTwoLink',
+                (-1.57079632679, 0, 0), (0.05, 0, 0.0166034), (0, 0, -1)),
+            ('_HandFingerTwoKnuckleThreeJoint',
+                '_HandFingerTwoKnuckleTwoLink', '_HandFingerTwoKnuckleThreeLink',
+                (0, 0, -0.690452252), (0.07, 0, 0), (0, 0, -1)),
+        ]
+
+    def getT_P_G(self):
+        return self.__T_P_G
+
+    def calculateFK(self, prefix, q):
+        if len(q) == 4:
+            f0a = q[0]
+            f0b = q[0] * 0.3333333
+            f1a = q[1]
+            f1b = q[1] * 0.3333333
+            f2a = q[2]
+            f2b = q[2] * 0.3333333
+            sp = q[3]
+        elif len(q) == 7:
+            f0a = q[0]
+            f0b = q[1]
+            f1a = q[2]
+            f1b = q[3]
+            f2a = q[4]
+            f2b = q[5]
+            sp = q[6]
+        else:
+            raise Exception('KinematicsSolverBarrettHand.calculateFK({}): '\
+                    'Wrong number of joint angles'.format(q))
+
+        q_map = {
+            '_HandFingerOneKnuckleTwoJoint':f0a,
+            '_HandFingerOneKnuckleThreeJoint':f0b,
+            '_HandFingerTwoKnuckleTwoJoint':f1a,
+            '_HandFingerTwoKnuckleThreeJoint':f1b,
+            '_HandFingerThreeKnuckleTwoJoint':f2a,
+            '_HandFingerThreeKnuckleThreeJoint':f2b,
+            '_HandFingerOneKnuckleOneJoint':sp,
+            '_HandFingerTwoKnuckleOneJoint':sp,
+        }
+
+        fk = {'_HandPalmLink':PyKDL.Frame()}
+
+        for joint_name, parent_link, child_link, joint_rpy, joint_xyz, joint_axis in self.__kin_parameters:
+            q = q_map[joint_name]
+            axis = PyKDL.Vector(joint_axis[0], joint_axis[1], joint_axis[2])
+
+            fk[child_link] = fk[parent_link] *\
+                    PyKDL.Frame(PyKDL.Rotation.RPY(joint_rpy[0], joint_rpy[1], joint_rpy[2]),
+                                    PyKDL.Vector(joint_xyz[0], joint_xyz[1], joint_xyz[2])) *\
+                                                        PyKDL.Frame(PyKDL.Rotation.Rot(axis, q))
+
+        result = {}
+        for link_name, q in fk.iteritems():
+            result[prefix+link_name] = q
+        return result
