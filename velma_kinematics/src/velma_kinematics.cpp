@@ -269,6 +269,25 @@ bool KinematicsSolverLWR4::_calculateIkPart2(const KDL::Frame& T_A0_A7d, const d
 }
 
 bool KinematicsSolverLWR4::calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
+                                                        int flip_case, Solution& out_sol) const {
+    if (flip_case < 0 || flip_case >= 8) {
+        throw std::invalid_argument("Wrong value of flip_case, should be between 0 and 7");
+    }
+    const bool cases[8][3] = {
+            {false, false, false},
+            {false, false, true},
+            {false, true, false},
+            {false, true, true},
+            {true, false, false},
+            {true, false, true},
+            {true, true, false},
+            {true, true, true}};
+
+    return calculateIk(T_A0_A7d, elbow_circle_angle,
+        cases[flip_case][0], cases[flip_case][1], cases[flip_case][2], out_sol);
+}
+
+bool KinematicsSolverLWR4::calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
         bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol) const {
 
     double height;
@@ -467,10 +486,19 @@ KinematicsSolverVelma::KinematicsSolverVelma(const std::string& urdf_string, dou
     }
     m_tree.getChain("torso_base", "calib_left_arm_base_link", m_chain_left);
     m_tree.getChain("torso_base", "calib_right_arm_base_link", m_chain_right);
+    m_tree.getChain("torso_base", "torso_link0", m_chain_torso);
+
+    m_tree.getChain("torso_base", "right_arm_4_link", m_chain_elbow_right);
+    m_tree.getChain("torso_base", "left_arm_4_link", m_chain_elbow_left);
 
 
     m_pfk_left.reset( new KDL::ChainFkSolverPos_recursive(m_chain_left) );
     m_pfk_right.reset( new KDL::ChainFkSolverPos_recursive(m_chain_right) );
+
+    m_pfk_elbow_left.reset( new KDL::ChainFkSolverPos_recursive(m_chain_elbow_left) );
+    m_pfk_elbow_right.reset( new KDL::ChainFkSolverPos_recursive(m_chain_elbow_right) );
+
+    m_pfk_torso.reset( new KDL::ChainFkSolverPos_recursive(m_chain_torso) );
 }
 
 KinematicsSolverVelmaPtr KinematicsSolverVelma::fromROSParam(ros::NodeHandle& nh,
@@ -485,6 +513,36 @@ KinematicsSolverVelmaPtr KinematicsSolverVelma::fromROSParam(ros::NodeHandle& nh
 
 int KinematicsSolverVelma::getMaximumSolutionsCount() const {
     return m_ik_solver_lwr.getMaximumSolutionsCount();
+}
+
+KDL::Frame KinematicsSolverVelma::getTorsoFk(double torso_angle) const {
+    KDL::Frame p_out;
+    KDL::JntArray q(1);
+    q(0) = torso_angle;
+    m_pfk_torso->JntToCart(q, p_out);
+    return p_out;
+}
+
+KDL::Frame KinematicsSolverVelma::getArmElbowFk(Side side, double torso_angle, double q0,
+                                                        double q1, double q2, double q3) const {
+    KDL::Frame p_out;
+    KDL::JntArray q(5);
+    q(0) = torso_angle;
+    q(1) = q0;
+    q(2) = q1;
+    q(3) = q2;
+    q(4) = q3;
+    if (side == LEFT) {
+        m_pfk_elbow_left->JntToCart(q, p_out);
+    }
+    else if (side == RIGHT) {
+        m_pfk_elbow_right->JntToCart(q, p_out);
+    }
+    else {
+        throw std::invalid_argument("unknown side");
+    }
+
+    return p_out;
 }
 
 KDL::Frame KinematicsSolverVelma::getArmBaseFk(Side side, double torso_angle) const {
@@ -623,4 +681,11 @@ bool KinematicsSolverVelma::calculateIkArm(Side side, double torso_angle, const 
     KDL::Frame T_A0_A7d = getArmBaseFkInv(side, torso_angle) * T_B_E;
     return m_ik_solver_lwr.calculateIk(T_A0_A7d, elbow_circle_angle, flip_shoulder, flip_elbow,
                                                                                 flip_ee, out_sol);
+}
+
+bool KinematicsSolverVelma::calculateIkArm(Side side, double torso_angle, const KDL::Frame& T_B_E,
+                                                double elbow_circle_angle, int flip_case,
+                                                KinematicsSolverLWR4::Solution& out_sol) const {
+    KDL::Frame T_A0_A7d = getArmBaseFkInv(side, torso_angle) * T_B_E;
+    return m_ik_solver_lwr.calculateIk(T_A0_A7d, elbow_circle_angle, flip_case, out_sol);
 }

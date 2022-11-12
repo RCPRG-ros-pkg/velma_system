@@ -589,6 +589,21 @@ class KinematicsSolverVelma:
         """
         return self.__T_Er_Gr
 
+    def getT_E_G(self, side_str):
+        """!
+        Get constant transformation from the the end-effector (the last link, frame 'E') to the grasp frame ('G', in the center of the gripper).
+
+        @param side_str str: either 'left' or 'right'.
+
+        @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
+        """
+        if side_str == 'left':
+            return self.getLeft_T_E_G()
+        elif side_str == 'right':
+            return self.getRight_T_E_G()
+        # else:
+        raise Exception('Wrong side_str: "{}"'.format(side_str))
+
     def getLeft_T_E_P(self):
         """!
         Get constant transformation from the left end-effector (the last link, frame 'E') to the left palm link (frame 'P').

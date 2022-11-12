@@ -175,26 +175,28 @@ VelmaStateValidator::VelmaStateValidator(ros::NodeHandle& nh)
 
     m_robot_model = robot_model_loader.getModel();
 
-    std::cout << "srdf groups:" << std::endl;
-    const std::vector< std::string >& group_names = m_robot_model->getJointModelGroupNames();
+    bool dbg_print_srdf_groups = false;
+    if (dbg_print_srdf_groups) {
+        std::cout << "srdf groups:" << std::endl;
+        const std::vector< std::string >& group_names = m_robot_model->getJointModelGroupNames();
 
-    //const std::map< std::string, srdf::Model::Group > groups_map =
-    //                                                m_robot_model->getJointModelGroupConfigMap();
-    //for (auto it = groups_map.begin(); it != groups_map.end(); ++it) {
-    for (int i = 0; i < group_names.size(); ++i) {
-        std::cout << "  " << group_names[i] << std::endl;
-        robot_model::JointModelGroup *joint_group = m_robot_model->getJointModelGroup(group_names[i]);
-        const std::vector< const robot_model::LinkModel * > &link_models = joint_group->getLinkModels();
-        for (int j = 0; j < link_models.size(); ++j) {
-            std::cout << "    " << link_models[j]->getName() << std::endl;
+        for (int i = 0; i < group_names.size(); ++i) {
+            std::cout << "  " << group_names[i] << std::endl;
+            robot_model::JointModelGroup *joint_group = m_robot_model->getJointModelGroup(group_names[i]);
+            const std::vector< const robot_model::LinkModel * > &link_models = joint_group->getLinkModels();
+            for (int j = 0; j < link_models.size(); ++j) {
+                std::cout << "    " << link_models[j]->getName() << std::endl;
+            }
         }
     }
+
+    // TODO: add interface methods to add objects to the scene
 
     m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
 
     m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
 
-    std::cout << "Using collision detector: \""
+    std::cout << "VelmaStateValidator: Using collision detector: \""
             << m_planning_scenes[0]->getActiveCollisionDetectorName()
             << "\"" << std::endl;
 

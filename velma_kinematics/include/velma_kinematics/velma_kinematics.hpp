@@ -67,6 +67,9 @@ public:
     int getMaximumSolutionsCount() const;
 
     bool calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
+                                                        int flip_case, Solution& out_sol) const;
+
+    bool calculateIk(const KDL::Frame& T_A0_A7d, const double& elbow_circle_angle,
         bool flip_shoulder, bool flip_elbow, bool flip_ee, Solution& out_sol) const;
 
     bool calculateIkSet(const KDL::Frame& T_A0_A7d,
@@ -103,8 +106,15 @@ protected:
     KDL::Tree m_tree;
     KDL::Chain m_chain_left;
     KDL::Chain m_chain_right;
+    KDL::Chain m_chain_torso;
+    KDL::Chain m_chain_elbow_right;
+    KDL::Chain m_chain_elbow_left;
     std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_left;
     std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_right;
+    std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_torso;
+    std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_elbow_left;
+    std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_elbow_right;
+
 
 
 public:
@@ -114,6 +124,11 @@ public:
                                                                 double elbow_ang_incr=0.261791667);
 
     int getMaximumSolutionsCount() const;
+
+    KDL::Frame getTorsoFk(double torso_angle) const;
+
+    KDL::Frame getArmElbowFk(Side side, double torso_angle, double q0,
+                                                        double q1, double q2, double q3) const;
 
     KDL::Frame getArmBaseFk(Side side, double torso_angle) const;
     KDL::Frame getArmBaseFkInv(Side side, double torso_angle) const;
@@ -135,6 +150,10 @@ public:
 
     bool calculateIkArm(Side side, double torso_angle, const KDL::Frame& T_B_E,
                 double elbow_circle_angle, bool flip_shoulder, bool flip_elbow, bool flip_ee,
+                KinematicsSolverLWR4::Solution& out_sol) const;
+
+    bool calculateIkArm(Side side, double torso_angle, const KDL::Frame& T_B_E,
+                double elbow_circle_angle, int flip_case,
                 KinematicsSolverLWR4::Solution& out_sol) const;
 };
 
