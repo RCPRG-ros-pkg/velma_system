@@ -328,7 +328,7 @@ void VelmaStateValidator::setOctomap( const octomap_msgs::Octomap& map ) {
     if (m_planning_scenes.size() != 1) {
         m_planning_scenes.clear();
         m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
-        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValidAndSafe, m_robot_interface.get(), _1, _2) );
     }
     m_planning_scenes[0]->processOctomapMsg(map);
 }
@@ -338,7 +338,7 @@ void VelmaStateValidator::setOctomap( const std::shared_ptr< const octomap::OcTr
     if (m_planning_scenes.size() != 1) {
         m_planning_scenes.clear();
         m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
-        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValidAndSafe, m_robot_interface.get(), _1, _2) );
     }
     m_planning_scenes[0]->processOctomapPtr(octree, t);
 
@@ -351,7 +351,7 @@ void VelmaStateValidator::setMultipleOctomaps( const std::vector< std::shared_pt
     m_planning_scenes.clear();
     for (int i = 0; i < octrees.size(); ++i) {
         m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
-        m_planning_scenes[i]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValid, m_robot_interface.get(), _1, _2) );
+        m_planning_scenes[i]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValidAndSafe, m_robot_interface.get(), _1, _2) );
         m_planning_scenes[i]->processOctomapPtr(octrees[i], Eigen::Isometry3d::Identity());
     }
 }
@@ -367,6 +367,36 @@ bool VelmaStateValidator::isStateValid() const {
         }
     }
     return false;
+}
+
+bool VelmaStateValidator::isStateValidAndSafe() const {
+    // TODO: check soft joint limits
+    const ArmJntArray q_r({
+            m_ss->getVariablePosition("right_arm_0_joint"),
+            m_ss->getVariablePosition("right_arm_1_joint"),
+            m_ss->getVariablePosition("right_arm_2_joint"),
+            m_ss->getVariablePosition("right_arm_3_joint"),
+            m_ss->getVariablePosition("right_arm_4_joint"),
+            m_ss->getVariablePosition("right_arm_5_joint"),
+            m_ss->getVariablePosition("right_arm_6_joint")});
+    const ArmJntArray q_l({
+            m_ss->getVariablePosition("left_arm_0_joint"),
+            m_ss->getVariablePosition("left_arm_1_joint"),
+            m_ss->getVariablePosition("left_arm_2_joint"),
+            m_ss->getVariablePosition("left_arm_3_joint"),
+            m_ss->getVariablePosition("left_arm_4_joint"),
+            m_ss->getVariablePosition("left_arm_5_joint"),
+            m_ss->getVariablePosition("left_arm_6_joint")});
+    const double ang_lim = 10.0/180.0*M_PI;
+    for (int q_idx = 0; q_idx < 7; ++q_idx) {
+        if (getArmLimitDistJnt(q_r, q_idx) < ang_lim) {
+            return false;
+        }
+        if (getArmLimitDistJnt(q_l, q_idx) < ang_lim) {
+            return false;
+        }
+    }
+    return isStateValid();
 }
 
 void VelmaStateValidator::setVerbose(bool verbose) {
@@ -408,6 +438,20 @@ double VelmaStateValidator::getArmLimitDist(const ArmJntArray& q, int q_idx) con
             else {
                 return lim_up - q[q_idx];
             }
+        }
+    }
+    return 0.0;
+}
+
+double VelmaStateValidator::getArmLimitDistJnt(const ArmJntArray& q, int q_idx) const {
+    const double& lim_lo = m_right_arm_limits[q_idx][0];
+    const double& lim_up = m_right_arm_limits[q_idx][m_right_arm_limits[q_idx].size()-1];
+    if (q[q_idx] >= lim_lo && q[q_idx] <= lim_up) {
+        if (q[q_idx]-lim_lo < lim_up-q[q_idx]) {
+            return lim_lo - q[q_idx];
+        }
+        else {
+            return lim_up - q[q_idx];
         }
     }
     return 0.0;

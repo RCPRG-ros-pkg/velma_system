@@ -126,6 +126,27 @@ namespace velma_planner {
 
             return true;
         }
+
+        virtual bool isStateValidAndSafe(const robot_state::RobotState& ss, bool verbose) {
+            if (!isStateValid(ss, verbose)) {
+                return false;
+            }
+            DoubleJointCC::Joints q_r(ss.getVariablePosition("right_arm_5_joint"), ss.getVariablePosition("right_arm_6_joint"));
+            DoubleJointCC::Joints min_v;
+            double min_dist;
+            int min_idx;
+            int min_type;
+            if ( wcc_r_->getMinDistanceIn(q_r, min_v, min_dist, min_idx, min_type) && min_dist < wcc_r_->getD0()*0.5) {
+                return false;
+            }
+
+            DoubleJointCC::Joints q_l(ss.getVariablePosition("left_arm_5_joint"), ss.getVariablePosition("left_arm_6_joint"));
+            if ( wcc_l_->getMinDistanceIn(q_l, min_v, min_dist, min_idx, min_type) && min_dist < wcc_l_->getD0()*0.5) {
+                return false;
+            }
+
+            return true;
+        }
     };
 }
 

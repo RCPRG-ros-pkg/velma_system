@@ -143,6 +143,45 @@ def isHandConfigurationClose(current_q, dest_q, tolerance=0.1):
         abs(current_q[4]-dest_q[1]) < tolerance and\
         abs(current_q[6]-dest_q[2]) < tolerance
 
+def splitTrajectory(joint_trajectory, max_traj_len):
+    """!
+    Split a long trajectory into a number of shorter trajectories.
+
+    @param joint_trajectory         trajectory_msgs.msg.JointTrajectory: A joint trajectory to be splitted.
+    @param max_traj_len             int: Maximum number of nodes in the result trajectory.
+    @return Returns list of trajectory_msgs.msg.JointTrajectory -- the input trajectory split
+    into a number of trajectories of length not greater than max_traj_len.
+    """
+    assert isinstance(joint_trajectory, JointTrajectory)
+    if len(joint_trajectory.points) > max_traj_len:
+        result = []
+        #for idx in range(0, len(traj.trajectory.joint_trajectory.points), max_traj_len):
+        idx = 0
+        new_traj = JointTrajectory()
+        new_traj.header = joint_trajectory.header
+        new_traj.joint_names = joint_trajectory.joint_names
+        time_base = rospy.Duration(0.0)
+        for idx in range(len(joint_trajectory.points)):
+            point = copy.copy( joint_trajectory.points[idx] )
+            point.time_from_start = point.time_from_start - time_base
+            new_traj.points.append( point )
+            if len(new_traj.points) >= max_traj_len:
+                result.append( new_traj )
+                new_traj = JointTrajectory()
+                new_traj.header = joint_trajectory.header
+                new_traj.joint_names = joint_trajectory.joint_names
+                point = copy.copy( joint_trajectory.points[idx] )
+                time_base = point.time_from_start - rospy.Duration(0.5)
+                point.time_from_start = point.time_from_start - time_base
+                new_traj.points.append( point )
+
+        if len(new_traj.points) > 0:
+            result.append( new_traj )
+
+        return result
+    # else
+    return [joint_trajectory]
+
 class VelmaInterface:
     """!
     ROS-based, Python interface class for WUT Velma Robot.
@@ -1526,9 +1565,43 @@ class VelmaInterface:
         """
         return VelmaInterface._joint_groups[group_name]
 
+    def moveJointTrajAndWait(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
+        """!
+        Execute joint space trajectory in joint impedance mode. Trajectories of any length are allowed.
+        This method blocks the executing thread until trajectory is completed, or error occures.
+        @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
+        @param start_time   float: relative start time.
+        @param stamp        rospy.Time: absolute start time.
+        @position_tol       float: position tolerance.
+        @velocity_tol       float: velocity tolerance.
+        @return Returns True.
+        """
+
+        q_end_traj = {}
+        for q_idx, joint_name in enumerate(traj.joint_names):
+            q_end_traj[joint_name] = traj.points[-1].positions[q_idx]
+
+        traj_list = splitTrajectory(traj, self.maxJointTrajLen())
+        for traj_idx, traj_part in enumerate(traj_list):
+            print('Executing trajectory {}...'.format(traj_idx))
+            if not self.moveJointTraj(traj_part, start_time=0.5,
+                        position_tol=position_tol, velocity_tol=velocity_tol):
+                exitError(5)
+            if self.waitForJoint() != 0:
+                print('VelmaInterface.moveJointTraj(): The trajectory could not be completed')
+                return False
+        rospy.sleep(0.5)
+        js = self.getLastJointState()
+        if not isConfigurationClose(q_end_traj, js[1], tolerance=position_tol, allow_subset=True):
+            print('VelmaInterface.moveJointTraj(): the goal configuration could not be reached')
+            return False
+        # else:
+        return True
+
     def moveJointTraj(self, traj, start_time=0.2, stamp=None, position_tol=5.0/180.0 * math.pi, velocity_tol=5.0/180.0*math.pi):
         """!
-        Execute joint space trajectory in joint impedance mode.
+        Execute joint space trajectory in joint impedance mode. Trajectories of length up to 50 nodes are allowed.
+        This method does not block the executing thread.
         @param traj         trajectory_msgs.msg.JointTrajectory: joint trajectory.
         @param start_time   float: relative start time.
         @param stamp        rospy.Time: absolute start time.

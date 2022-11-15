@@ -399,18 +399,6 @@ class KinematicsSolverVelma:
         self.__fk_kdl_ar_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_base)
         self.__fk_kdl_al_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_base)
 
-        # for link in robot.links:
-        #     if link.name == 'calib_right_arm_base_link':
-        #         pass
-        #     elif link.name == 'calib_left_arm_base_link':
-        #         pass
-        #     print('KinematicsSolverVelma(): link name: {}'.format(link.name))
-
-        # for joint in robot.joints:
-        #     print('{}: {} -> {}'.format(joint.name, joint.parent, joint.child))
-        #     joint.origin.xyz
-        #     joint.origin.rpy
-
         self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
         self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
         self.__T_Er_Pr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.115, 0, -0.078) )
@@ -743,6 +731,10 @@ class KinematicsSolverVelma:
 
 
 class KinematicsSolverBarrettHand:
+    """!
+    Kinematics solver (FK) for BarrettHand gripper
+    """
+
     def __init__(self):
         self.__T_P_G = PyKDL.Frame( PyKDL.Vector(0, 0, 0.12) )
 

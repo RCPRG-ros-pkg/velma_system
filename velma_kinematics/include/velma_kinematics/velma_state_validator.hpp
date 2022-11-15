@@ -85,12 +85,15 @@ public:
   void update();
 
   bool isStateValid() const;
+  bool isStateValidAndSafe() const;
 
   bool isRightArmInLimits(const ArmJntArray& q) const;
 
   bool isLeftArmInLimits(const ArmJntArray& q) const;
 
   double getArmLimitDist(const ArmJntArray& q, int q_idx) const;
+
+  double getArmLimitDistJnt(const ArmJntArray& q, int q_idx) const;
 
   double getWristLimitDist(const ArmJntArray& q, ArmSide side) const;
 
