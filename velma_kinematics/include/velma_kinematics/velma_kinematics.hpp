@@ -84,8 +84,20 @@ public:
 
 class KinematicsSolverVelma;
 typedef std::shared_ptr<KinematicsSolverVelma > KinematicsSolverVelmaPtr;
+
+class KinematicsSolverVelmaLoader {
+protected:
+    KDL::Tree m_tree;
+
+public:
+    KinematicsSolverVelmaLoader(ros::NodeHandle& nh);
+
+    KinematicsSolverVelmaPtr create(double elbow_ang_incr=0.26179166);
+};
+
 class KinematicsSolverVelma {
 public:
+    friend class KinematicsSolverVelmaLoader;
     typedef KinematicsSolverLWR4::JntArray ArmJntArray;
     enum Side {LEFT, RIGHT};
 
@@ -116,12 +128,9 @@ protected:
     std::shared_ptr<KDL::ChainFkSolverPos_recursive > m_pfk_elbow_right;
 
 
+    KinematicsSolverVelma(KDL::Tree& tree, double elbow_ang_incr=0.26179166);
 
 public:
-    KinematicsSolverVelma(const std::string& urdf_string, double elbow_ang_incr=0.261791667);
-
-    static KinematicsSolverVelmaPtr fromROSParam(ros::NodeHandle& nh,
-                                                                double elbow_ang_incr=0.261791667);
 
     int getMaximumSolutionsCount() const;
 

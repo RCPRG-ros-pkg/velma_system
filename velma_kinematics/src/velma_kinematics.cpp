@@ -469,7 +469,21 @@ double KinematicsSolverLWR4::calculateJntDist(const KinematicsSolverLWR4::JntArr
 // KinematicsSolverVelma //////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-KinematicsSolverVelma::KinematicsSolverVelma(const std::string& urdf_string, double elbow_ang_incr)
+KinematicsSolverVelmaLoader::KinematicsSolverVelmaLoader(ros::NodeHandle& nh) {
+    std::string robot_description_str;
+    nh.getParam("/robot_description", robot_description_str);
+
+    if (!kdl_parser::treeFromString(robot_description_str, m_tree)){
+        std::cout << "KinematicsSolverVelma: Failed to construct kdl tree" << std::endl;
+        throw std::runtime_error("KinematicsSolverVelma: Failed to construct kdl tree");
+    }
+}
+
+KinematicsSolverVelmaPtr KinematicsSolverVelmaLoader::create(double elbow_ang_incr) {
+    return KinematicsSolverVelmaPtr( new KinematicsSolverVelma(m_tree, elbow_ang_incr) );
+}
+
+KinematicsSolverVelma::KinematicsSolverVelma(KDL::Tree& tree, double elbow_ang_incr)
 : m_T_Er_Gr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.235, 0, -0.078))
 , m_T_El_Gl(KDL::Rotation::RPY(0, -M_PI/2, 0), KDL::Vector(-0.235, 0, -0.078))
 , m_T_Er_Pr(KDL::Rotation::RPY(0, M_PI/2, 0), KDL::Vector(0.115, 0, -0.078))
@@ -479,11 +493,8 @@ KinematicsSolverVelma::KinematicsSolverVelma(const std::string& urdf_string, dou
 , m_T_Pr_Er(m_T_Er_Pr.Inverse())
 , m_T_Pl_El(m_T_El_Pl.Inverse())
 , m_ik_solver_lwr(elbow_ang_incr)
+, m_tree(tree)
 {
-    if (!kdl_parser::treeFromString(urdf_string, m_tree)){
-        std::cout << "KinematicsSolverVelma: Failed to construct kdl tree" << std::endl;
-        throw std::runtime_error("KinematicsSolverVelma: Failed to construct kdl tree");
-    }
     m_tree.getChain("torso_base", "calib_left_arm_base_link", m_chain_left);
     m_tree.getChain("torso_base", "calib_right_arm_base_link", m_chain_right);
     m_tree.getChain("torso_base", "torso_link0", m_chain_torso);
@@ -499,16 +510,6 @@ KinematicsSolverVelma::KinematicsSolverVelma(const std::string& urdf_string, dou
     m_pfk_elbow_right.reset( new KDL::ChainFkSolverPos_recursive(m_chain_elbow_right) );
 
     m_pfk_torso.reset( new KDL::ChainFkSolverPos_recursive(m_chain_torso) );
-}
-
-KinematicsSolverVelmaPtr KinematicsSolverVelma::fromROSParam(ros::NodeHandle& nh,
-                                                                        double elbow_ang_incr) {
-    std::string robot_description_str;
-    std::string robot_description_semantic_str;
-    nh.getParam("/robot_description", robot_description_str);
-
-    return KinematicsSolverVelmaPtr(
-                                new KinematicsSolverVelma(robot_description_str, elbow_ang_incr));
 }
 
 int KinematicsSolverVelma::getMaximumSolutionsCount() const {

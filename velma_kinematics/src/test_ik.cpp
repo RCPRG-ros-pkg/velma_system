@@ -54,11 +54,13 @@ int main (int argc, char** argv) {
     KDL::Frame T_B_We(KDL::Rotation(), KDL::Vector(0.6, 0, 1.3));
     KDL::Twist twist;
 
-    VelmaStateValidator vsv(m_nh);
+    VelmaStateValidatorLoader vsv_loader(m_nh);
+    VelmaStateValidatorPtr vsv = vsv_loader.create();
 
     double torso_angle = 0.5;
 
-    KinematicsSolverVelmaPtr v_solv = KinematicsSolverVelma::fromROSParam(m_nh);
+    KinematicsSolverVelmaLoader v_solv_loader(m_nh);
+    KinematicsSolverVelmaPtr v_solv = v_solv_loader.create();
 
     double traj_factor = 2.0;
     while (ros::ok()) {
@@ -94,18 +96,18 @@ int main (int argc, char** argv) {
           }
           bool is_in_limits = false;
           if (arm_side == "left") {
-            is_in_limits = vsv.isLeftArmInLimits(ik_solutions[i].q);
+            is_in_limits = vsv->isLeftArmInLimits(ik_solutions[i].q);
           }
           else {
-            is_in_limits = vsv.isRightArmInLimits(ik_solutions[i].q);
+            is_in_limits = vsv->isRightArmInLimits(ik_solutions[i].q);
           }
           if (is_in_limits) {
             for (int q_idx = 0; q_idx < arm_joint_names.size(); ++q_idx) {
-              vsv.setVariablePosition(arm_joint_names[q_idx], ik_solutions[i].q[q_idx]);
+              vsv->setVariablePosition(arm_joint_names[q_idx], ik_solutions[i].q[q_idx]);
             }
-            vsv.update();
+            vsv->update();
 
-            if (!vsv.isStateValid()) {
+            if (!vsv->isStateValid()) {
               continue;
             }
 

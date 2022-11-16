@@ -396,8 +396,11 @@ class KinematicsSolverVelma:
 
         self.__chain_ar_base = self.__tree.getChain('torso_base', 'calib_right_arm_base_link')
         self.__chain_al_base = self.__tree.getChain('torso_base', 'calib_left_arm_base_link')
+        self.__chain_torso_link0 = self.__tree.getChain('torso_base', 'torso_link0')
         self.__fk_kdl_ar_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_base)
         self.__fk_kdl_al_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_base)
+
+        self.__fk_kdl_torso_link0 = PyKDL.ChainFkSolverPos_recursive(self.__chain_torso_link0)
 
         self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
         self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
@@ -729,6 +732,20 @@ class KinematicsSolverVelma:
     def getTorsoLimits(self):
         return (-1.57, 1.57)
 
+    def getTorsoFk(self, torso_angle):
+        """!
+        Calculate forward kinematics for torso_link0.
+
+        @param torso_angle float: angle of torso joint.
+
+        @return PyKDL.Frame: pose of torso_link0.
+        """
+
+        T_B_T = PyKDL.Frame()
+        q_kdl = PyKDL.JntArray(1)
+        q_kdl[0] = torso_angle
+        self.__fk_kdl_torso_link0.JntToCart(q_kdl, T_B_T)
+        return T_B_T
 
 class KinematicsSolverBarrettHand:
     """!
