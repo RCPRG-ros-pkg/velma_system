@@ -397,10 +397,14 @@ class KinematicsSolverVelma:
         self.__chain_ar_base = self.__tree.getChain('torso_base', 'calib_right_arm_base_link')
         self.__chain_al_base = self.__tree.getChain('torso_base', 'calib_left_arm_base_link')
         self.__chain_torso_link0 = self.__tree.getChain('torso_base', 'torso_link0')
+        self.__chain_ar_elbow = self.__tree.getChain('torso_base', 'right_arm_4_link')
+        self.__chain_al_elbow = self.__tree.getChain('torso_base', 'left_arm_4_link')
+
         self.__fk_kdl_ar_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_base)
         self.__fk_kdl_al_base = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_base)
-
         self.__fk_kdl_torso_link0 = PyKDL.ChainFkSolverPos_recursive(self.__chain_torso_link0)
+        self.__fk_kdl_ar_elbow = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_elbow)
+        self.__fk_kdl_al_elbow = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_elbow)
 
         self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
         self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
@@ -528,6 +532,31 @@ class KinematicsSolverVelma:
         # ny = PyKDL.Vector(m01, m11, m21)
         # nz = PyKDL.Vector(m02, m12, m22)
         # return PyKDL.Frame( PyKDL.Rotation(nx, ny, nz), PyKDL.Vector(m03, m13, m23) )
+
+    def getArmElbowFk(self, side_str, torso_angle, q):
+        """!
+        Calculate forward kinematics for arm elbow.
+
+        @param torso_angle float: angle of torso joint.
+        @param q 7-tuple: arm configuration.
+
+        @return PyKDL.Frame: pose of the arm elbow.
+        """
+
+        T_B_EL = PyKDL.Frame()
+        q_kdl = PyKDL.JntArray(5)
+        q_kdl[0] = torso_angle
+        q_kdl[1] = q[0]
+        q_kdl[2] = q[1]
+        q_kdl[3] = q[2]
+        q_kdl[4] = q[3]
+        if side_str == 'right':
+            self.__fk_kdl_ar_elbow.JntToCart(q_kdl, T_B_EL)
+        elif side_str == 'left':
+            self.__fk_kdl_al_elbow.JntToCart(q_kdl, T_B_EL)
+        else:
+            raise Exception('Wrong side: "{}". Expected "left" or "right".'.format(side_str))
+        return T_B_EL
 
     def getArmFk(self, side_str, torso_angle, q):
         if side_str == 'left':
