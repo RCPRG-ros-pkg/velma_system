@@ -1729,7 +1729,8 @@ class VelmaInterface:
             error_str = "UNKNOWN"
             if result.error_code in self._joint_trajectory_result_names:
                 error_str = self._joint_trajectory_result_names[result.error_code]
-            print "waitForJoint(): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
+            print('waitForJoint(): action failed with error_code={} ({})'.format(
+                                                                    result.error_code, error_str))
 
         self.waitForJointState( self.__action_map['jimp'].gh.comm_state_machine.latest_result.header.stamp )
 
@@ -1821,7 +1822,11 @@ class VelmaInterface:
             return None
         result = self.__action_map['head'].get_result()
         if result.error_code != 0:
-            print "waitForHead(): action failed with error_code=" + str(result.error_code)
+            error_str = "UNKNOWN"
+            if result.error_code in self._joint_trajectory_result_names:
+                error_str = self._joint_trajectory_result_names[result.error_code]
+            print('waitForHead(): action failed with error_code={} ({})'.format(
+                                                                    result.error_code, error_str))
 
         self.waitForJointState( self.__action_map['head'].gh.comm_state_machine.latest_result.header.stamp )
 
