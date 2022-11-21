@@ -1680,6 +1680,8 @@ class VelmaInterface:
             if not joint_name in q_dest_map_2:
                 continue
             dist = abs(q_dest_map_1[joint_name] - q_dest_map_2[joint_name])
+            if joint_name == 'torso_0_joint':
+                dist = dist * 3.0
             max_dist = max(max_dist, dist)
         return max_dist / max_vel
 
