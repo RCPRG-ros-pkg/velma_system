@@ -288,9 +288,9 @@ class KinematicsSolverLWR4:
             for flip_shoulder, flip_elbow, flip_ee in flips:
                 q = self.calculateIk(T_A0_A7d, elbow_circle_angle, flip_shoulder, flip_elbow,
                                                                                         flip_ee)
-                print('calculateIkSet: {}, {}, {}, {}'.format(elbow_circle_angle, flip_shoulder,
-                                                                            flip_elbow, flip_ee))
-                print('  {}'.format(q))
+                #print('calculateIkSet: {}, {}, {}, {}'.format(elbow_circle_angle, flip_shoulder,
+                #                                                            flip_elbow, flip_ee))
+                #print('  {}'.format(q))
                 if not q[0] is None:
                     solutions.append( q )
         return solutions
