@@ -11,6 +11,7 @@
   <node pkg="pointcloud_utils" type="pc_filter" name="pc_filter" output="screen">
     <param name="tolerance" value="0.1" />
     <param name="horizontal_fov" value="1.047" />
+    <rosparam param="ignored_links">[head_bounding_sphere]</rosparam>
 
     <remap from="cloud_in" to="$(arg POINTCLOUD_TOPIC)"/>
     <remap from="cloud_out" to="/pc_filter/points"/>
