@@ -278,6 +278,9 @@
     <connection from="C_q_body.Out" to="JntImp.JointPosition_INPORT" name="q_body" latex="q_{b}" />
     <connection from="C_dq_body.Out" to="JntImp.JointVelocity_INPORT" name="dq_body" latex="\dot{q}_{b}" />
     <connection from="Mass.MassMatrix_OUTPORT" to="JntImp.MassMatrix_INPORT" name="M" latex="M" />
+    <connection from="FK.RightWrist_OUTPORT" to="JntImp.rWristPose_INPORT" latex="p_{r}" />
+    <connection from="FK.LeftWrist_OUTPORT" to="JntImp.lWristPose_INPORT" latex="p_{l}" />
+
     <connection from="INT_tool_l.CartesianPositionCommand_OUTPORT" to="FK.LeftTool_INPORT" name="cmd_tool_l" latex="p_{l,tool}" />
     <connection from="INT_tool_r.CartesianPositionCommand_OUTPORT" to="FK.RightTool_INPORT" name="cmd_tool_r" latex="p_{r,tool}" />
     <connection from="C_q_body.Out" to="FK.JointPosition_INPORT" name="q_body" latex="q_{b}" />
