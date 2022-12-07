@@ -34,8 +34,6 @@ class IntMarkersJimp:
             self.limit_lo = limit_lo
             self.limit_up = limit_up
             self.rot = rot
-            self.__max_vel = rospy.get_param("/max_vel_jnt")
-            self.__max_vel_head = rospy.get_param("/max_vel_jnt")
 
     def getMarkerSize(self, joint_name):
         if joint_name in self.size_map:
@@ -46,6 +44,9 @@ class IntMarkersJimp:
         # Size of individual markers
         self.size_map = {'torso_0_joint':1.0}
         self.default_size = 0.2
+
+        self.__max_vel = rospy.get_param("/max_vel_jnt")
+        self.__max_vel_head = rospy.get_param("/max_vel_jnt")
 
         # Create Velma interface class
         self.velma = velma_interface
