@@ -259,6 +259,64 @@ def testIk3(arm_name):
                 break
         rospy.sleep(0.04)
 
+
+def testIk4flip(arm_name):
+    assert arm_name in ('right', 'left')
+
+    m_pub = MarkerPublisher('velma_ik_geom')
+    js_pub = rospy.Publisher('/joint_states', JointState, queue_size=1000)
+    rospy.sleep(0.5)
+
+    flips = []
+    for flip_shoulder in (True, False):
+        for flip_elbow in (True, False):
+            for flip_ee in (True, False):
+                flips.append( (flip_shoulder, flip_elbow, flip_ee) )
+    solv = KinematicsSolverVelma()
+
+    torso_angle = 0.0
+
+    if arm_name == 'right':
+        central_point = PyKDL.Vector( 0.7, -0.7, 1.4 )
+    else:
+        central_point = PyKDL.Vector( 0.7, 0.7, 1.4 )
+
+    js_msg = JointState()
+    for i in range(7):
+        js_msg.name.append('{}_arm_{}_joint'.format(arm_name, i))
+        js_msg.position.append(0.0)
+
+    js_msg.name.append('torso_0_joint')
+    js_msg.position.append(torso_angle)
+
+    base_link_name = 'calib_{}_arm_base_link'.format(arm_name)
+    phase = 0.0
+    while not rospy.is_shutdown():
+        # Get random pose
+        T_B_A7d = PyKDL.Frame(randomOrientation(), central_point + PyKDL.Vector(random.uniform(-0.4, 0.4), random.uniform(-0.4, 0.4), random.uniform(-0.4, 0.4)))
+
+        m_id = 0
+        m_id = m_pub.publishFrameMarker(T_B_A7d, m_id, scale=0.1,
+                                                    frame='world', namespace='default')
+        
+        for flip_shoulder, flip_elbow, flip_ee in flips:
+            elbow_circle_angle = 0.0
+            #for elbow_circle_angle in np.linspace(-math.pi, math.pi, 20):
+            arm_q = solv.calculateIkArm(arm_name, T_B_A7d, torso_angle, elbow_circle_angle, flip_shoulder, flip_elbow, flip_ee)
+
+            if not arm_q[0] is None:
+                js_msg.header.stamp = rospy.Time.now()
+                for i in range(7):
+                    js_msg.position[i] = arm_q[i]
+                js_pub.publish(js_msg)
+                rospy.sleep(0.04)
+                rospy.sleep(2.0)
+            if rospy.is_shutdown():
+                break
+            # if rospy.is_shutdown():
+            #     break
+        rospy.sleep(0.04)
+
 def main():
     rospy.init_node('test_velma_ik_geom', anonymous=False)
 
@@ -277,7 +335,8 @@ def main():
 
     #T_A0_A7d = PyKDL.Frame(PyKDL.Rotation.Quaternion(0, 0.00304150858481, 0.0910915674525, 0.995837876145), PyKDL.Vector(0.10227842037159, 0.2623692295165, 0.30143578700507))
     #testIk2( 'left', T_A0_A7d, 0.5 )
-    testIk3( 'left' )
+    #testIk3( 'left' )
+    testIk4flip( 'left' )
     return 0
 
 if __name__ == "__main__":

@@ -182,6 +182,30 @@ def splitTrajectory(joint_trajectory, max_traj_len):
     # else
     return [joint_trajectory]
 
+# TODO: implement error handling using this mechanism
+# class Result:
+#     def __init__(self, generated_by, result_code, result_str, is_error):
+#         assert generated_by in ('move_jnt', 'move_cart', 'move_head', 'move_hand')
+#         assert isinstance(result_code, int)
+#         assert isinstance(result_str, str)
+#         assert isinstance(is_error, bool)
+#         self.__generated_by = generated_by
+#         self.__result_code = result_code
+#         self.__result_str = result_str
+#         self.__is_error = is_error
+
+#     def getGeneratedBy(self):
+#         return self.__generated_by
+
+#     def getCode(self):
+#         return self.__result_code
+
+#     def getStr(self):
+#         return self.__result_str
+
+#     def isError(self):
+#         return self.__is_error
+
 class VelmaInterface:
     """!
     ROS-based, Python interface class for WUT Velma Robot.
