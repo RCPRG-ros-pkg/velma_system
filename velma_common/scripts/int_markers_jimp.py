@@ -34,6 +34,8 @@ class IntMarkersJimp:
             self.limit_lo = limit_lo
             self.limit_up = limit_up
             self.rot = rot
+            self.__max_vel = rospy.get_param("/max_vel_jnt")
+            self.__max_vel_head = rospy.get_param("/max_vel_jnt")
 
     def getMarkerSize(self, joint_name):
         if joint_name in self.size_map:
@@ -215,10 +217,10 @@ class IntMarkersJimp:
             imp_cmd = self.getImpCmd()
             head_cmd = self.getHeadCmd()
             if not imp_cmd is None:
-                self.velma.moveJoint(imp_cmd, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+                self.velma.moveJoint(imp_cmd, None, max_vel=self.__max_vel, start_time=0.5, position_tol=15.0/180.0*math.pi)
             if not head_cmd is None:
                 head_dst_q = [head_cmd["head_pan_joint"], head_cmd["head_tilt_joint"]]
-                self.velma.moveHead(head_dst_q, 3.0, start_time=0.5, position_tol=15.0/180.0*math.pi)
+                self.velma.moveHead(head_dst_q, None, max_vel=self.__max_vel_head, start_time=0.5, position_tol=15.0/180.0*math.pi)
             for joint_name in self.desired_q:
                 self.prev_q[joint_name] = self.desired_q[joint_name]
 

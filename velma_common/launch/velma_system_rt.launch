@@ -20,6 +20,7 @@
   </include>
   <include file="$(find velma_task_cs_ros_interface)/launch/velma_task_cs_ros_interface.launch" >
     <arg name="ORO_LOGLEVEL" value="$(arg ORO_LOGLEVEL)" />
+    <arg name="hw" value="true" />
   </include>
 
 </launch>
