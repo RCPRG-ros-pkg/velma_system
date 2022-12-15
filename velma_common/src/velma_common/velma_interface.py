@@ -1598,7 +1598,7 @@ class VelmaInterface:
         @param stamp        rospy.Time: absolute start time.
         @position_tol       float: position tolerance.
         @velocity_tol       float: velocity tolerance.
-        @return Returns True.
+        @return Returns True if trajectory was executed.
         """
 
         q_end_traj = {}

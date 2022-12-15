@@ -712,7 +712,7 @@ class KinematicsSolverVelma:
         return self.calculateIkArm('right', T_B_W, torso_angle, elbow_circle_angle, flip_shoulder,
                                                                             flip_elbow, flip_ee)
 
-    def calculateIkLeftArm(self, T_B_Wr, torso_angle, elbow_circle_angle, flip_shoulder,
+    def calculateIkLeftArm(self, T_B_W, torso_angle, elbow_circle_angle, flip_shoulder,
                                                                             flip_elbow, flip_ee):
         """!
         Calculate inverse kinematics (IK) for WUT Velma robot for left arm.
