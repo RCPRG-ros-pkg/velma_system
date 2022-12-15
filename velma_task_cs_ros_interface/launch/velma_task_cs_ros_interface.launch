@@ -3,12 +3,27 @@
   <arg name="ORO_LOGLEVEL" default="3"/>
   <arg name="debug" default="false"/>
   <arg name="cset" default="false"/>
+  <arg name="hw" />
 
   <arg unless="$(arg cset)"  name="CSET_LAUNCH_PREFIX" value=""/>
   <arg     if="$(arg cset)"  name="CSET_LAUNCH_PREFIX" value="cset proc -s user -e --"/>
 
   <arg unless="$(arg debug)" name="LAUNCH_PREFIX" value=""/>
   <arg     if="$(arg debug)" name="LAUNCH_PREFIX" value="gdb -ex run --args "/>
+
+  <group if="$(arg hw)">
+    <rosparam param="max_vel_jnt">0.17</rosparam>
+    <rosparam param="max_vel_cart_lin">0.1</rosparam>
+    <rosparam param="max_vel_cart_rot">0.17</rosparam>
+    <rosparam param="max_vel_scaling_factor">0.05</rosparam>
+  </group>
+
+  <group unless="$(arg hw)">
+    <rosparam param="max_vel_jnt">0.32</rosparam>
+    <rosparam param="max_vel_cart_lin">0.2</rosparam>
+    <rosparam param="max_vel_cart_rot">0.32</rosparam>
+    <rosparam param="max_vel_scaling_factor">0.1</rosparam>
+  </group>
 
   <node
     launch-prefix="$(arg CSET_LAUNCH_PREFIX) $(arg LAUNCH_PREFIX)"
