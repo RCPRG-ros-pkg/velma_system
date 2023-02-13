@@ -1684,7 +1684,7 @@ class VelmaInterface:
             q_map = {}
             for joint_idx, joint_name in enumerate(traj_in.joint_names):
                 q_map[joint_name] = traj_in.points[pt_idx].positions[joint_idx]
-            time_from_start = time_from_start + self.getJntImpMovementTime2(q_map_prev, q_map, max_vel)
+            time_from_start = time_from_start + VelmaInterface.getJntImpMovementTime2(q_map_prev, q_map, max_vel)
             #print('  idx: {}, time_from_start: {}'.format(pt_idx, time_from_start))
             q_map_prev = q_map
             point_out = JointTrajectoryPoint()
@@ -1696,9 +1696,10 @@ class VelmaInterface:
 
     def getJntImpMovementTime(self, q_dest_map, max_vel):
         js = self.getLastJointState()[1]
-        return self.getJntImpMovementTime2(js, q_dest_map, max_vel)
+        return VelmaInterface.getJntImpMovementTime2(js, q_dest_map, max_vel)
 
-    def getJntImpMovementTime2(self, q_dest_map_1, q_dest_map_2, max_vel):
+    @staticmethod
+    def getJntImpMovementTime2(q_dest_map_1, q_dest_map_2, max_vel):
         max_dist = 0.0
         for joint_name in q_dest_map_1:
             if not joint_name in q_dest_map_2:
