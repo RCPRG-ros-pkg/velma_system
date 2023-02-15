@@ -122,6 +122,8 @@ public:
 
   void setMultipleOctomaps( const std::vector< std::shared_ptr< const octomap::OcTree > > &octrees);
 
+  void processPlanningSceneWorldMsg(const moveit_msgs::PlanningSceneWorld &world);
+
   void update();
 
   bool isStateValid() const;

@@ -585,6 +585,15 @@ void VelmaStateValidator::setMultipleOctomaps( const std::vector< std::shared_pt
     }
 }
 
+void VelmaStateValidator::processPlanningSceneWorldMsg(const moveit_msgs::PlanningSceneWorld &world) {
+    if (m_planning_scenes.size() != 1) {
+        m_planning_scenes.clear();
+        m_planning_scenes.push_back( planning_scene::PlanningScenePtr( new planning_scene::PlanningScene(m_robot_model) ) );
+        m_planning_scenes[0]->setStateFeasibilityPredicate( boost::bind(&rcprg_planner::RobotInterface::isStateValidAndSafe, m_robot_interface.get(), _1, _2) );
+    }
+    m_planning_scenes[0]->processPlanningSceneWorldMsg(world);
+}
+
 void VelmaStateValidator::update() {
     m_ss->update();
 }
