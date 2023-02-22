@@ -607,6 +607,37 @@ bool VelmaStateValidator::isStateValid() const {
     return false;
 }
 
+void VelmaStateValidator::getCollisions(
+                            std::vector<std::pair<std::string, std::string> >& col_pairs) const {
+    collision_detection::CollisionRequest req;
+    req.contacts = true;
+    req.cost = false;
+    req.distance = false;
+    req.max_contacts = 100;
+    req.max_contacts_per_pair = 1;
+    req.max_cost_sources = 0;
+    req.min_cost_density = 0;
+    req.verbose = false;
+
+    collision_detection::CollisionResult res;
+    for (int i = 0; i < m_planning_scenes.size(); ++i) {
+        m_planning_scenes[i]->setCurrentState(*m_ss);
+        m_planning_scenes[i]->checkCollision(req, res);
+        if (res.collision) {
+            for (auto it = res.contacts.begin(); it != res.contacts.end(); ++it) {
+                const std::vector<collision_detection::Contact>& contact_vec = it->second;
+                for (int j = 0; j < contact_vec.size(); ++j) {
+                    //std::cout << "VelmaStateValidator::getCollisions(): contact between " << contact_vec[j].body_name_1 << " and "
+                    //            << contact_vec[j].body_name_2 << std::endl;
+                    col_pairs.push_back(std::pair<std::string, std::string>(
+                                        contact_vec[j].body_name_1, contact_vec[j].body_name_2));
+                }
+            }
+            // collision_detection::CollisionResult::ContactMap
+        }
+    }
+}
+
 bool VelmaStateValidator::isStateValidAndSafe() const {
     // TODO: check soft joint limits
     const ArmJntArray q_r({

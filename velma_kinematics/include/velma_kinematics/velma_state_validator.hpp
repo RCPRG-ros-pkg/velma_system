@@ -128,6 +128,7 @@ public:
 
   bool isStateValid() const;
   bool isStateValidAndSafe() const;
+  void getCollisions(std::vector<std::pair<std::string, std::string> >& col_pairs) const;
 
   bool isRightArmInLimits(const ArmJntArray& q) const;
 
