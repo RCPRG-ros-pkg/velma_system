@@ -386,6 +386,15 @@ class KinematicsSolverVelma:
     Kinematics solver (FK, IK) for WUT Velma robot
     """
 
+    __T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
+    __T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
+    __T_Er_Pr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.115, 0, -0.078) )
+    __T_El_Pl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.115, 0, -0.078) )
+    __T_Gr_Er = __T_Er_Gr.Inverse()
+    __T_Gl_El = __T_El_Gl.Inverse()
+    __T_Pr_Er = __T_Er_Pr.Inverse()
+    __T_Pl_El = __T_El_Pl.Inverse()
+
     def __init__(self):
         """!
         Initialize.
@@ -405,15 +414,6 @@ class KinematicsSolverVelma:
         self.__fk_kdl_torso_link0 = PyKDL.ChainFkSolverPos_recursive(self.__chain_torso_link0)
         self.__fk_kdl_ar_elbow = PyKDL.ChainFkSolverPos_recursive(self.__chain_ar_elbow)
         self.__fk_kdl_al_elbow = PyKDL.ChainFkSolverPos_recursive(self.__chain_al_elbow)
-
-        self.__T_Er_Gr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.235, 0, -0.078) )
-        self.__T_El_Gl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.235, 0, -0.078) )
-        self.__T_Er_Pr = PyKDL.Frame( PyKDL.Rotation.RPY(0, math.pi/2, 0), PyKDL.Vector(0.115, 0, -0.078) )
-        self.__T_El_Pl = PyKDL.Frame( PyKDL.Rotation.RPY(0, -math.pi/2, 0), PyKDL.Vector(-0.115, 0, -0.078) )
-        self.__T_Gr_Er = self.__T_Er_Gr.Inverse()
-        self.__T_Gl_El = self.__T_El_Gl.Inverse()
-        self.__T_Pr_Er = self.__T_Er_Pr.Inverse()
-        self.__T_Pl_El = self.__T_El_Pl.Inverse()
 
         self.__ik_solver_lwr = KinematicsSolverLWR4()
 
@@ -593,23 +593,26 @@ class KinematicsSolverVelma:
         T_AB_E = self.__ik_solver_lwr.calculateFk(q)
         return T_B_AB * T_AB_E
 
-    def getLeft_T_E_G(self):
+    @staticmethod
+    def getLeft_T_E_G():
         """!
         Get constant transformation from the left end-effector (the last link, frame 'E') to the left grasp frame 'G' in the center of the left gripper.
 
         @return PyKDL.Frame: pose of frame 'G' wrt. frame 'E'.
         """
-        return self.__T_El_Gl
+        return KinematicsSolverVelma.__T_El_Gl
 
-    def getRight_T_E_G(self):
+    @staticmethod
+    def getRight_T_E_G():
         """!
         Get constant transformation from the right end-effector (the last link, frame 'E') to the right grasp frame 'G' in the center of the right gripper.
 
         @return PyKDL.Frame: pose of frame 'G' wrt. frame 'E'.
         """
-        return self.__T_Er_Gr
+        return KinematicsSolverVelma.__T_Er_Gr
 
-    def getT_E_G(self, side_str):
+    @staticmethod
+    def getT_E_G(side_str):
         """!
         Get constant transformation from the the end-effector (the last link, frame 'E') to the grasp frame ('G', in the center of the gripper).
 
@@ -618,29 +621,32 @@ class KinematicsSolverVelma:
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
         """
         if side_str == 'left':
-            return self.getLeft_T_E_G()
+            return KinematicsSolverVelma.getLeft_T_E_G()
         elif side_str == 'right':
-            return self.getRight_T_E_G()
+            return KinematicsSolverVelma.getRight_T_E_G()
         # else:
         raise Exception('Wrong side_str: "{}"'.format(side_str))
 
-    def getLeft_T_E_P(self):
+    @staticmethod
+    def getLeft_T_E_P():
         """!
         Get constant transformation from the left end-effector (the last link, frame 'E') to the left palm link (frame 'P').
 
         @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
         """
-        return self.__T_El_Pl
+        return KinematicsSolverVelma.__T_El_Pl
 
-    def getRight_T_E_P(self):
+    @staticmethod
+    def getRight_T_E_P():
         """!
         Get constant transformation from the right end-effector (the last link, frame 'E') to the right palm link (frame 'P').
 
         @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
         """
-        return self.__T_Er_Pr
+        return KinematicsSolverVelma.__T_Er_Pr
 
-    def getT_E_P(self, side_str):
+    @staticmethod
+    def getT_E_P(side_str):
         """!
         Get constant transformation from the end-effector (the last link, frame 'E') to the left palm link (frame 'P').
 
@@ -649,30 +655,33 @@ class KinematicsSolverVelma:
         @return PyKDL.Frame: pose of frame 'P' wrt. frame 'E'.
         """
         if side_str == 'left':
-            return self.__T_El_Pl
+            return KinematicsSolverVelma.__T_El_Pl
         elif side_str == 'right':
-            return self.__T_Er_Pr
+            return KinematicsSolverVelma.__T_Er_Pr
         # else:
         raise Exception('Wrong value for side_str: "{}", expected "left" or "right"'.format(
                                                                                         side_str))
 
-    def getLeft_T_G_E(self):
+    @staticmethod
+    def getLeft_T_G_E():
         """!
         Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getLeft_T_E_G.
 
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
         """
-        return self.__T_Gl_El
+        return KinematicsSolverVelma.__T_Gl_El
 
-    def getRight_T_G_E(self):
+    @staticmethod
+    def getRight_T_G_E():
         """!
         Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getRight_T_E_G.
 
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
         """
-        return self.__T_Gr_Er
+        return KinematicsSolverVelma.__T_Gr_Er
 
-    def getT_G_E(self, side_str):
+    @staticmethod
+    def getT_G_E(side_str):
         """!
         Get constant transformation from the grasp frame 'G' in the center of the gripper to the end-effector (the last link, frame 'E').
 
@@ -681,27 +690,29 @@ class KinematicsSolverVelma:
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'G'.
         """
         if side_str == 'left':
-            return self.getLeft_T_G_E()
+            return KinematicsSolverVelma.getLeft_T_G_E()
         elif side_str == 'right':
-            return self.getRight_T_G_E()
+            return KinematicsSolverVelma.getRight_T_G_E()
         # else:
         raise Exception('Wrong side_str: "{}"'.format(side_str))
 
-    def getLeft_T_P_E(self):
+    @staticmethod
+    def getLeft_T_P_E():
         """!
         Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getLeft_T_E_P.
 
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'P'.
         """
-        return self.__T_Pl_El
+        return KinematicsSolverVelma.__T_Pl_El
 
-    def getRight_T_P_E(self):
+    @staticmethod
+    def getRight_T_P_E():
         """!
         Inverse of velma_kinematics.velma_ik_geom.KinematicsSolverVelma.getRight_T_E_P.
 
         @return PyKDL.Frame: pose of frame 'E' wrt. frame 'P'.
         """
-        return self.__T_Pr_Er
+        return KinematicsSolverVelma.__T_Pr_Er
 
     def calculateIkRightArm(self, T_B_W, torso_angle, elbow_circle_angle, flip_shoulder,
                                                                             flip_elbow, flip_ee):
