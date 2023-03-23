@@ -336,6 +336,8 @@ bool KinematicsSolverLWR4::calculateIkSet(const KDL::Frame& T_A0_A7d,
             "KinematicsSolverLWR4::calculateIkSet: vector of result solutions is not allocated");
     }
 
+    solutions_count = 0;
+
     double height;
     double dist_a;
     KDL::Frame shoulder_frame;
@@ -347,7 +349,6 @@ bool KinematicsSolverLWR4::calculateIkSet(const KDL::Frame& T_A0_A7d,
         return false;
     }
 
-    solutions_count = 0;
     for (int i = 0; i < m_elbow_angle_samples.size(); ++i) {
         const double& elbow_ang = m_elbow_angle_samples[i];
         double out_q0, out_q1, out_q2, out_q3, out_q4, out_q5, out_q6;
@@ -385,7 +386,7 @@ bool KinematicsSolverLWR4::calculateIkSet(const KDL::Frame& T_A0_A7d,
             }
         }
     }
-    return true;
+    return solutions_count > 0;
 }
 
 void KinematicsSolverLWR4::calculateFk(const double& q0, const double& q1, const double& q2,
