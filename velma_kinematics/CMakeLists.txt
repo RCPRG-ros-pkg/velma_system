@@ -2,8 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 project(velma_kinematics)
 
 find_package(catkin REQUIRED COMPONENTS
-  pcl_conversions
-  pcl_ros
+#  pcl_conversions
+#  pcl_ros
   eigen_conversions
   sensor_msgs
   rcprg_ros_utils
@@ -11,13 +11,13 @@ find_package(catkin REQUIRED COMPONENTS
   kin_dyn_model
   moveit_core
   moveit_ros_planning_interface
-  moveit_ros_perception
+#  moveit_ros_perception
   rcprg_planner
 )
 
 find_package(OCTOMAP REQUIRED)
 find_package(orocos_kdl REQUIRED)
-find_package(OpenCV REQUIRED)
+#find_package(OpenCV REQUIRED)
 find_package(kdl_parser REQUIRED)
 
 catkin_package(INCLUDE_DIRS include
@@ -62,7 +62,7 @@ target_link_libraries(test_ik
   ${catkin_LIBRARIES}
   ${orocos_kdl_LIBRARIES}
   ${OCTOMAP_LIBRARIES}
-  ${OpenCV_LIBS}
+#  ${OpenCV_LIBS}
   ${kdl_parser_LIBRARIES})
 
 catkin_install_python(PROGRAMS

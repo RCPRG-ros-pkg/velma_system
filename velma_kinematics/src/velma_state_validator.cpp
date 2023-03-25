@@ -616,7 +616,6 @@ void VelmaStateValidator::getCollisions(
     req.max_contacts = 100;
     req.max_contacts_per_pair = 1;
     req.max_cost_sources = 0;
-    req.min_cost_density = 0;
     req.verbose = false;
 
     collision_detection::CollisionResult res;
