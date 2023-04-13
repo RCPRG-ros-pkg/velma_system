@@ -164,7 +164,7 @@ bool KinematicsSolverLWR4::_calculateIkPart1(const double& elbow_circle_angle, b
     q1 = wrapAngle(q1);
     q2 = wrapAngle(q2);
     q3 = wrapAngle(q3);
-    if (q0 < m_lim_lo[0] || q0 > m_lim_up[0]
+    if (q0 < m_lim_lo[0] || q0 > m_lim_up[0] || fabs(q1) < 0.0001
             || q1 < m_lim_lo[1] || q1 > m_lim_up[1]
             || q2 < m_lim_lo[2] || q2 > m_lim_up[2]
             || q3 < m_lim_lo[3] || q3 > m_lim_up[3]) {

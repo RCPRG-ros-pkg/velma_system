@@ -32,7 +32,8 @@
 #include <rtt/base/PortInterface.hpp>
 
 #include "velma_core_cs_ve_body_msgs/Command.h"
-#include "velma_core_cs_ve_body_msgs/Status.h"
+#include "velma_core_cs_ve_body_msgs/StatusSC.h"
+#include "velma_core_cs_ve_body_msgs/StatusMotor.h"
 #include "velma_core_cs_task_cs_msgs/Status.h"
 
 #include "eigen_conversions/eigen_msg.h"
@@ -69,8 +70,11 @@ private:
 
     RTT::OutputPort<int32_t > port_cmd_sc_out_;
 
-    velma_core_cs_ve_body_msgs::Status status_in_;
-    RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
+    velma_core_cs_ve_body_msgs::StatusSC status_in_;
+    RTT::InputPort<velma_core_cs_ve_body_msgs::StatusSC > port_status_in_;
+
+    RTT::InputPort<velma_core_cs_ve_body_msgs::StatusMotor > port_status_hp_in_;
+    RTT::InputPort<velma_core_cs_ve_body_msgs::StatusMotor > port_status_ht_in_;
 
     RTT::OutputPort<VectorNd> port_internal_space_position_command_out_;
     RTT::InputPort<VectorNd> port_internal_space_position_measurement_in_;
@@ -86,7 +90,6 @@ private:
     VectorNd internal_space_position_;
 
     bool first_step_;
-    int counter_;
 };
 
 IdleComponent::IdleComponent(const std::string &name)
@@ -95,6 +98,8 @@ IdleComponent::IdleComponent(const std::string &name)
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
     , port_joint_torque_command_("JointTorqueCommand_OUTPORT")
     , port_status_in_("status_INPORT")
+    , port_status_hp_in_("status_hp_INPORT")
+    , port_status_ht_in_("status_ht_INPORT")
     , port_cmd_sc_out_("cmd_sc_OUTPORT")
     , port_cmd_hpMotor_out_("cmd_hpMotor_q_OUTPORT")
     , port_cmd_hpMotor_dq_out_("cmd_hpMotor_dq_OUTPORT")
@@ -107,6 +112,8 @@ IdleComponent::IdleComponent(const std::string &name)
     this->ports()->addPort(port_internal_space_position_measurement_in_);
     this->ports()->addPort(port_joint_torque_command_);
     this->ports()->addPort(port_status_in_);
+    this->ports()->addPort(port_status_hp_in_);
+    this->ports()->addPort(port_status_ht_in_);
     this->ports()->addPort(port_cmd_sc_out_);
     this->ports()->addPort(port_cmd_hpMotor_out_);
     this->ports()->addPort(port_cmd_hpMotor_dq_out_);
@@ -117,7 +124,6 @@ IdleComponent::IdleComponent(const std::string &name)
 
 bool IdleComponent::startHook() {
     first_step_ = true;
-    counter_ = 0;
     return true;
 }
 
@@ -126,8 +132,21 @@ void IdleComponent::updateHook() {
     // read HW status
     //
     if (port_status_in_.read(status_in_) != RTT::NewData) {
-        status_in_ = velma_core_cs_ve_body_msgs::Status();
+        return;
     }
+
+    velma_core_cs_ve_body_msgs::StatusMotor status_hp;
+    if (port_status_hp_in_.read(status_hp) != RTT::NewData) {
+        return;
+    }
+
+    velma_core_cs_ve_body_msgs::StatusMotor status_ht;
+    if (port_status_ht_in_.read(status_ht) != RTT::NewData) {
+        return;
+    }
+
+
+
 
 /*
     // set all commands to zero
@@ -154,31 +173,24 @@ void IdleComponent::updateHook() {
 */
     int32_t cmd_sc_out = 0;
 
-    if (status_in_.sc_valid && status_in_.sc.safe_behavior && !status_in_.sc.error && status_in_.hpMotor_valid && status_in_.htMotor_valid) {
+    if (status_in_.safe_behavior && !status_in_.error) {
         cmd_sc_out = 1;
         first_step_ = true;
     }
 
-    if (counter_ > 100) {
-        counter_ = 0;
-    }
-    else {
-        ++counter_;
-    }
-
 // TODO
-    port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);
+    port_cmd_hpMotor_out_.write(status_hp.q);
     port_cmd_hpMotor_dq_out_.write(0.0);
-    port_cmd_htMotor_out_.write(status_in_.htMotor.q);
+    port_cmd_htMotor_out_.write(status_ht.q);
     port_cmd_htMotor_dq_out_.write(0.0);
 
-    if (status_in_.hpMotor_valid) {
+//    if (status_in_.hpMotor_valid) {
 //        port_cmd_hpMotor_out_.write(status_in_.hpMotor.q);
-    }
+//    }
 
-    if (status_in_.htMotor_valid) {
+//    if (status_in_.htMotor_valid) {
 //        port_cmd_htMotor_out_.write(status_in_.htMotor.q);
-    }
+//    }
 
 /*    // read current configuration
     if (first_step_) {

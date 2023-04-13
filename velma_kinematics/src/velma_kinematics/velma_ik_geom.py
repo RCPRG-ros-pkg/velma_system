@@ -870,6 +870,6 @@ class KinematicsSolverBarrettHand:
                                                         PyKDL.Frame(PyKDL.Rotation.Rot(axis, q))
 
         result = {}
-        for link_name, q in fk.iteritems():
+        for link_name, q in fk.items():
             result[prefix+link_name] = q
         return result

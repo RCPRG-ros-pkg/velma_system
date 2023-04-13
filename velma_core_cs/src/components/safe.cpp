@@ -68,8 +68,8 @@ private:
     // OROCOS ports
     RTT::OutputPort<uint32_t > port_status_subsystem_state_out_;
 
-    velma_core_cs_ve_body_msgs::Status status_in_;
-    RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
+//    velma_core_cs_ve_body_msgs::Status status_in_;
+//    RTT::InputPort<velma_core_cs_ve_body_msgs::Status > port_status_in_;
 
     RTT::OutputPort<VectorNd> port_internal_space_position_command_out_;
     RTT::InputPort<VectorNd> port_internal_space_position_measurement_in_;
@@ -101,7 +101,7 @@ SafeComponent::SafeComponent(const std::string &name)
     , port_internal_space_position_command_out_("JointPositionCommand_OUTPORT")
     , port_internal_space_position_measurement_in_("JointPosition_INPORT")
     , port_joint_stiffness_command_("JointStiffnessCommand_OUTPORT")
-    , port_status_in_("status_INPORT")
+    //, port_status_in_("status_INPORT")
     , port_status_subsystem_state_out_("subsystem_state_OUTPORT")
     , first_step_(true)
 {
@@ -109,7 +109,7 @@ SafeComponent::SafeComponent(const std::string &name)
     this->ports()->addPort(port_internal_space_position_command_out_);
     this->ports()->addPort(port_internal_space_position_measurement_in_);
     this->ports()->addPort(port_joint_stiffness_command_);
-    this->ports()->addPort(port_status_in_);
+    //this->ports()->addPort(port_status_in_);
     this->ports()->addPort(port_status_subsystem_state_out_);
 
     this->ports()->addPort("ht_q_INPORT", port_ht_q_in_);
@@ -143,9 +143,9 @@ void SafeComponent::updateHook() {
     //
     // read HW status
     //
-    if (port_status_in_.read(status_in_) != RTT::NewData) {
-        status_in_ = velma_core_cs_ve_body_msgs::Status();
-    }
+    // if (port_status_in_.read(status_in_) != RTT::NewData) {
+    //     status_in_ = velma_core_cs_ve_body_msgs::Status();
+    // }
 
 /*
     // set all commands to zero
@@ -190,11 +190,11 @@ void SafeComponent::updateHook() {
             return;
         }
 
-        Eigen::Matrix<double, 7, 1> rArm, lArm;
-        for (int i = 0; i < 7; ++i) {
-            rArm(i) = status_in_.rArm.q[i];
-            lArm(i) = status_in_.lArm.q[i];
-        }
+        // Eigen::Matrix<double, 7, 1> rArm, lArm;
+        // for (int i = 0; i < 7; ++i) {
+        //     rArm(i) = status_in_.rArm.q[i];
+        //     lArm(i) = status_in_.lArm.q[i];
+        // }
     }
     else {
         uint8_t ht_enabled;

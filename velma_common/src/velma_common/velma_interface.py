@@ -518,7 +518,7 @@ class VelmaInterface:
         self.__action_is_connected_lock = threading.Lock()
         self.__action_is_connected = {}
         threads = []
-        for action_name, action in self.__action_map.iteritems():
+        for action_name, action in self.__action_map.items():
             self.dbgPrint('Running thread for connecting action "{}"'.format(action_name))
 
             t = threading.Thread(name='action-{}'.format(action_name),
@@ -1249,13 +1249,13 @@ class VelmaInterface:
         error_code = result.error_code
 
         if error_code == MotorResult.ERROR_ALREADY_ENABLED:
-            print "waitForMotor('" + motor + "'): ERROR_ALREADY_ENABLED (no error)"
+            print("waitForMotor('" + motor + "'): ERROR_ALREADY_ENABLED (no error)")
             error_code = 0
         elif error_code == MotorResult.ERROR_HOMING_DONE:
-            print "waitForMotor('" + motor + "'): ERROR_HOMING_DONE (no error)"
+            print("waitForMotor('" + motor + "'): ERROR_HOMING_DONE (no error)")
             error_code = 0
         if error_code != 0:
-            print "waitForMotor('" + motor + "'): action failed with error_code=" + str(result.error_code)
+            print("waitForMotor('" + motor + "'): action failed with error_code=" + str(result.error_code))
         return error_code
 
     def enableMotors(self, timeout=0):
@@ -1480,7 +1480,7 @@ class VelmaInterface:
             error_str = "UNKNOWN"
             if result.error_code in self._cartesian_trajectory_result_names:
                 error_str = self._cartesian_trajectory_result_names[result.error_code]
-            print "waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")"
+            print("waitForEffector(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + error_str + ")")
 
         self.waitForJointState( self.__action_map['cimp_'+prefix].gh.comm_state_machine.latest_result.header.stamp )
 
@@ -1939,7 +1939,7 @@ class VelmaInterface:
 
         result = self.__action_map['hand_'+prefix].get_result()
         if result.error_code != 0:
-            print "waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._moveHand_action_error_codes_names[result.error_code] + ")"
+            print("waitForHand(" + prefix + "): action failed with error_code=" + str(result.error_code) + " (" + self._moveHand_action_error_codes_names[result.error_code] + ")")
         return result.error_code
 
     def waitForHandLeft(self):
@@ -2075,13 +2075,13 @@ class VelmaInterface:
 
         self.__action_map['grasped_'+side].send_goal(goal)
 
-        print "Manipulator:", side, "--> object_grasped_flag_status:", status 
+        print("Manipulator:", side, "--> object_grasped_flag_status:", status )
 
         self.__action_map['grasped_'+side].wait_for_result(timeout=rospy.Duration(0))
         result = self.__action_map['grasped_'+side].get_result()
         error_code = result.error_code
         if error_code != 0:
-            print "setGraspedFlag: action failed (error)"
+            print("setGraspedFlag: action failed (error)")
 
     def sendIdentificationMeasurementCommand(self, side, command_index):
         """!
@@ -2112,10 +2112,10 @@ class VelmaInterface:
 
         self.__action_map['identification_'+side].send_goal(goal)
 
-        print "Manipulator:", side, "--> identification_command:", command_index 
+        print("Manipulator:", side, "--> identification_command:", command_index )
 
         self.__action_map['identification_'+side].wait_for_result(timeout=rospy.Duration(0))
         result = self.__action_map['identification_'+side].get_result()
         error_code = result.error_code
         if error_code != 0:
-            print "sendIdentificationMeasurementCommand: action failed (error)"
+            print("sendIdentificationMeasurementCommand: action failed (error)")
